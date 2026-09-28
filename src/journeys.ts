@@ -9,12 +9,21 @@ export type Journey = { id: string; title: string; description?: string; profile
 
 export const journeys: Journey[] = [
   {
-    id: 'novo-ta',
-    title: 'Novo TA',
+    id: 'gestao-editais',
+    title: 'Gestão de Editais',
     profile: 'Supervisora',
     steps: [
-      { title: 'Gestão de TA', path: '/dashboard', note: 'Supervisora clica em “Novo TA”.' },
-      { title: 'Novo TA', path: '/dashboard/novo-ta', note: 'Preenche o Termo de Adesão com o DR e salva como rascunho.' },
+      { title: 'Gestão de Editais', path: '/editais', note: 'Supervisora clica em “Gerar novo edital”.' },
+      { title: 'Gerar novo edital', path: '/editais/novo', note: 'Define vigência, CTMs, cursos (CH e valor por curso) e DRs credenciados, e gera o edital.' },
+    ],
+  },
+  {
+    id: 'novo-ta',
+    title: 'Novo TAA',
+    profile: 'Supervisora',
+    steps: [
+      { title: 'Gestão de TAA', path: '/dashboard', note: 'Supervisora clica em “Novo TAA”.' },
+      { title: 'Novo TAA', path: '/dashboard/novo-ta', note: 'Preenche o Termo de Acordo Administrativo com o DR e salva como rascunho.' },
     ],
   },
 ]

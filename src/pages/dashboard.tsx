@@ -38,15 +38,15 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader
-        title="Gestão de TA"
+        title="Gestão de TAA"
         actions={
           <Button onClick={() => navigate('/dashboard/novo-ta')}>
-            <Plus /> Novo TA
+            <Plus /> Novo TAA
           </Button>
         }
       />
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Termos de Adesão</h2>
+        <h2 className="text-lg font-semibold">Termos de Acordo Administrativo</h2>
         <DataTable
           rows={contratos}
           columns={colunas}

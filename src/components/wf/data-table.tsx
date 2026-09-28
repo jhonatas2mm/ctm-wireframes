@@ -17,6 +17,9 @@ import { EmptyState } from './empty-state'
 //
 // value: texto da coluna (usado na busca, no filtro e como célula padrão).
 // search: entra na busca por texto. filter: vira um select com os valores existentes.
+// filters (prop): filtros extras, sem coluna visível, que aceitam vários valores por linha (ex.: estados de um edital).
+export type FilterDef<T> = { label: string; values: (row: T) => string[] }
+
 export type Column<T> = {
   header: string
   value: (row: T) => string | number
@@ -35,24 +38,25 @@ export function DataTable<T extends { id: string }>({
   searchPlaceholder = 'Buscar…',
   onRowClick,
   actions,
+  filters: extra = [],
 }: {
   rows: T[]
   columns: Column<T>[]
   searchPlaceholder?: string
   onRowClick?: (row: T) => void
   actions?: (row: T) => ReactNode // botões na última coluna (use RowAction)
+  filters?: FilterDef<T>[]
 }) {
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
 
+  const defs: FilterDef<T>[] = useMemo(
+    () => [...columns.filter((c) => c.filter).map((c) => ({ label: c.header, values: (r: T) => [String(c.value(r))] })), ...extra],
+    [columns, extra],
+  )
   const options = useMemo(
-    () =>
-      Object.fromEntries(
-        columns
-          .filter((c) => c.filter)
-          .map((c) => [c.header, [...new Set(rows.map((r) => String(c.value(r))))].sort()]),
-      ),
-    [rows, columns],
+    () => Object.fromEntries(defs.map((d) => [d.label, [...new Set(rows.flatMap(d.values))].sort()])),
+    [rows, defs],
   )
 
   const visible = useMemo(() => {
@@ -60,9 +64,9 @@ export function DataTable<T extends { id: string }>({
     return rows.filter(
       (r) =>
         (!t || columns.some((c) => c.search && norm(String(c.value(r))).includes(t))) &&
-        columns.every((c) => !filters[c.header] || String(c.value(r)) === filters[c.header]),
+        defs.every((d) => !filters[d.label] || d.values(r).includes(filters[d.label])),
     )
-  }, [rows, columns, q, filters])
+  }, [rows, columns, defs, q, filters])
 
   const active = q !== '' || Object.values(filters).some(Boolean)
   const hasSearch = columns.some((c) => c.search)
@@ -76,8 +80,8 @@ export function DataTable<T extends { id: string }>({
             <Input className="pl-8" placeholder={searchPlaceholder} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
         )}
-        {columns
-          .filter((c) => c.filter)
+        {defs
+          .map((d) => ({ header: d.label }))
           .map((c) => (
             <Select
               key={c.header}

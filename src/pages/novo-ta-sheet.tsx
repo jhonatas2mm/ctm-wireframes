@@ -17,7 +17,7 @@ const fmtData = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '__
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const PARTES = ['SENAI Departamento Nacional', 'SENAI Departamento Regional'] as const
 
-// Termo de Adesão (TA): contrato guarda-chuva entre o DN e um DR.
+// Termo de Acordo Administrativo (TAA): contrato guarda-chuva entre o DN e um DR.
 // O texto do modelo é fixo (não editável); só os campos variáveis são preenchidos.
 export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const db = useContratos()
@@ -44,7 +44,7 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
       <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl">
         <SheetHeader className="border-b px-6 py-4">
           <div className="flex items-center gap-3">
-            <SheetTitle className="text-lg">Novo Termo de Adesão</SheetTitle>
+            <SheetTitle className="text-lg">Novo Termo de Acordo Administrativo</SheetTitle>
             <Badge variant="secondary" className="font-mono">
               Nº {numero}
             </Badge>
@@ -76,7 +76,7 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
                   cargo: String(f.get(`cargo${i}`)),
                 })),
               })
-              toast.success(`TA ${numero} criado`)
+              toast.success(`TAA ${numero} criado`)
               reset()
               onOpenChange(false)
             }}
@@ -88,7 +88,7 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
                   <FileText className="size-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">Termo de Adesão Nº {numero}</p>
+                  <p className="text-sm font-medium">Termo de Acordo Administrativo Nº {numero}</p>
                   <p className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Lock className="size-3" /> Texto padrão, não editável. Campos preenchidos entram no termo.
                   </p>
@@ -100,7 +100,7 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
               <DialogContent className="max-h-[90vh] gap-0 overflow-hidden p-0 sm:max-w-3xl">
                 <DialogHeader className="border-b px-5 py-3">
                   <DialogTitle className="flex items-center gap-2">
-                    Termo de Adesão Nº {numero}
+                    Termo de Acordo Administrativo Nº {numero}
                     <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground">
                       <Lock className="size-3" /> texto padrão, não editável
                     </span>
@@ -172,7 +172,7 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
               Cancelar
             </Button>
             <Button type="submit" form="novo-ta" disabled={!dr}>
-              Salvar TA
+              Salvar TAA
             </Button>
           </div>
         </SheetFooter>
@@ -203,9 +203,9 @@ function TermoDoc({
         className,
       )}
     >
-      <h4 className="text-center text-sm font-bold tracking-wide">TERMO DE ADESÃO Nº {numero}</h4>
+      <h4 className="text-center text-sm font-bold tracking-wide">TERMO DE ACORDO ADMINISTRATIVO Nº {numero}</h4>
       <p>
-        <b>CLÁUSULA PRIMEIRA — DO OBJETO.</b> O presente termo formaliza a adesão do{' '}
+        <b>CLÁUSULA PRIMEIRA — DO OBJETO.</b> O presente termo formaliza o acordo administrativo do{' '}
         <Var>{dr ? `SENAI Departamento Regional de ${dr}` : 'Departamento Regional'}</Var> à oferta nacional de cursos,
         conforme os itinerários formativos vigentes, mediante vinculação posterior de produtos a este instrumento.
       </p>

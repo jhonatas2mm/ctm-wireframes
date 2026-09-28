@@ -34,8 +34,8 @@ const cursos: Curso[] = [
 
 export const useCursos = () => useCollection<Curso>('cursos', cursos)
 
-// Termos de Adesão (TA): contrato guarda-chuva firmado com cada Departamento Regional (DR);
-// os produtos (cursos) são vinculados ao TA depois. Números, datas e valores FICTÍCIOS.
+// Termos de Acordo Administrativo (TAA): contrato guarda-chuva firmado com cada Departamento Regional (DR);
+// os produtos (cursos) são vinculados ao TAA depois. Números, datas e valores FICTÍCIOS.
 export type StatusContrato = 'Vigente' | 'Em elaboração' | 'Encerrado'
 
 export type Contrato = {
@@ -63,28 +63,36 @@ const contratos: Contrato[] = [
 
 export const useContratos = () => useCollection<Contrato>('contratos', contratos)
 
-// Editais: chamadas públicas de oferta de cursos, vinculadas a um TA. Dados FICTÍCIOS.
-export type StatusEdital = 'Rascunho' | 'Publicado' | 'Inscrições abertas' | 'Encerrado'
+// Editais: oferta de cursos em CTMs (estados), com os DRs credenciados a executá-los. Dados FICTÍCIOS.
+// Área e modalidade vêm do catálogo (fixas); CH e valor podem ser ajustados por curso no edital.
+export type CursoEdital = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number }
 
 export type Edital = {
   id: string
   numero: string
-  titulo: string
-  ta: string // número do Termo de Adesão
-  dr: string
-  inscricoesInicio: string
-  inscricoesFim: string
-  vagas: number
-  status: StatusEdital
+  ctm: string[] // UFs dos CTMs
+  cursos: CursoEdital[]
+  cargaHoraria: number // soma das CH dos cursos
+  valor: number // soma dos valores dos cursos (R$)
+  drs: string[] // DRs credenciados
+  vigenciaInicio: string // dd/mm/aaaa
+  vigenciaFim: string
 }
 
+const ce = (nome: string, area: string, modalidade: string, cargaHoraria: number, valor: number): CursoEdital => ({ nome, area, modalidade, cargaHoraria, valor })
+const edital = (id: string, numero: string, ctm: string[], cursos: CursoEdital[], drs: string[], vigencia: [string, string]): Edital => ({
+  id, numero, ctm, cursos, drs, vigenciaInicio: vigencia[0], vigenciaFim: vigencia[1],
+  cargaHoraria: cursos.reduce((t, c) => t + c.cargaHoraria, 0),
+  valor: cursos.reduce((t, c) => t + c.valor, 0),
+})
+
 const editais: Edital[] = [
-  { id: '1', numero: 'ED-001/2026', titulo: 'Cursos Técnicos 2027 — 1º semestre', ta: '001/2026', dr: 'SP', inscricoesInicio: '01/10/2026', inscricoesFim: '31/10/2026', vagas: 480, status: 'Inscrições abertas' },
-  { id: '2', numero: 'ED-002/2026', titulo: 'Qualificação Profissional — Indústria 4.0', ta: '002/2026', dr: 'MG', inscricoesInicio: '15/09/2026', inscricoesFim: '15/10/2026', vagas: 220, status: 'Inscrições abertas' },
-  { id: '3', numero: 'ED-003/2026', titulo: 'Aprendizagem Industrial 2027', ta: '003/2026', dr: 'RS', inscricoesInicio: '01/11/2026', inscricoesFim: '30/11/2026', vagas: 300, status: 'Publicado' },
-  { id: '4', numero: 'ED-004/2026', titulo: 'Aperfeiçoamento em Automação', ta: '005/2026', dr: 'PR', inscricoesInicio: '—', inscricoesFim: '—', vagas: 60, status: 'Rascunho' },
-  { id: '5', numero: 'ED-005/2026', titulo: 'Cursos Técnicos 2026 — 2º semestre', ta: '001/2026', dr: 'SP', inscricoesInicio: '01/05/2026', inscricoesFim: '31/05/2026', vagas: 400, status: 'Encerrado' },
-  { id: '6', numero: 'ED-006/2026', titulo: 'Qualificação em Logística', ta: '002/2026', dr: 'MG', inscricoesInicio: '—', inscricoesFim: '—', vagas: 120, status: 'Rascunho' },
+  edital('1', 'ED-001/2026', ['SP', 'RJ'], [ce('Técnico em Mecatrônica', 'Automação', 'Técnico', 1200, 4800), ce('Técnico em Automação Industrial', 'Automação', 'Técnico', 1200, 4800)], ['SP', 'MG'], ['01/02/2026', '31/01/2027']),
+  edital('2', 'ED-002/2026', ['MG'], [ce('Soldador', 'Metalmecânica', 'Qualificação Profissional', 160, 1280), ce('Eletricista Instalador Predial', 'Eletroeletrônica', 'Qualificação Profissional', 200, 1500)], ['MG'], ['01/03/2026', '28/02/2027']),
+  edital('3', 'ED-003/2026', ['RS'], [ce('Mecânico de Usinagem', 'Metalmecânica', 'Aprendizagem Industrial', 800, 5600)], ['RS', 'SC', 'PR'], ['01/06/2026', '31/05/2027']),
+  edital('4', 'ED-004/2026', ['PR'], [ce('Controladores Lógicos Programáveis', 'Automação', 'Aperfeiçoamento', 60, 540)], ['PR'], ['01/08/2026', '31/12/2026']),
+  edital('5', 'ED-005/2026', ['SP'], [ce('Técnico em Desenvolvimento de Sistemas', 'Tecnologia da Informação', 'Técnico', 1200, 10200)], ['SP'], ['01/01/2026', '31/12/2026']),
+  edital('6', 'ED-006/2026', ['BA'], [ce('Operador de Empilhadeira', 'Logística', 'Qualificação Profissional', 40, 320)], ['BA', 'PE'], ['15/09/2026', '14/09/2027']),
 ]
 
-export const useEditais = () => useCollection<Edital>('editais', editais)
+export const useEditais = () => useCollection<Edital>('editais-v6', editais)
