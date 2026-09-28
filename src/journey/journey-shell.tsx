@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, ExternalLink, Monitor, Route, Smartphone, Tablet } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, Route, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { journeys } from '@/journeys'
+import { AnnotationPanel } from '@/annotations/panel'
+import { canEdit, usePins } from '@/annotations/store'
+import type { Mode, Pin, PinKind, ToFrame, ToShell } from '@/annotations/types'
 
 // Estado da casca vive no hash (#j=<id>&s=<n>) para o link poder ser compartilhado já numa etapa.
 function readHash() {
@@ -26,6 +29,14 @@ export function JourneyShell() {
   const [framePath, setFramePath] = useState<string | null>(null)
   const frame = useRef<HTMLIFrameElement>(null)
 
+  // Anotações (pinos) ancoradas em elementos do protótipo.
+  const [pins, savePins] = usePins()
+  const [screen, setScreen] = useState('/')
+  const [mode, setMode] = useState<Mode>('view')
+  const [panel, setPanel] = useState(false)
+  const [active, setActive] = useState<string | null>(null)
+  const [draft, setDraft] = useState<Pick<Pin, 'selector' | 'x' | 'y'> | null>(null)
+
   const journey = journeys.find((j) => j.id === jid)!
   const current = journey.steps[step]
   // src fixo: trocar de etapa muda só o hash do iframe, sem recarregar.
@@ -45,14 +56,49 @@ export function JourneyShell() {
     return () => removeEventListener('hashchange', onHash)
   }, [])
 
-  // Acompanha a navegação feita dentro do protótipo (cliques do usuário).
-  const onFrameLoad = () => {
-    const win = frame.current?.contentWindow
-    if (!win) return
-    const sync = () => setFramePath(win.location.hash.slice(1) || '/')
-    sync()
-    win.addEventListener('hashchange', sync)
+  const screenPins = pins
+    .filter((p) => p.screen === screen)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .map((p, i) => ({ ...p, n: i + 1 }))
+
+  // Recebe do protótipo: rota atual, ponto clicado no modo anotar, pino selecionado.
+  useEffect(() => {
+    const onMsg = (e: MessageEvent<ToShell>) => {
+      if (e.origin !== location.origin || e.data?.src !== 'ctm-frame') return
+      const m = e.data
+      if (m.type === 'route') {
+        setFramePath(m.path)
+        setScreen(m.screen)
+        setDraft(null)
+        setActive(null)
+      } else if (m.type === 'pick') {
+        setDraft({ selector: m.selector, x: m.x, y: m.y })
+        setMode('view')
+        setPanel(true)
+      } else if (m.type === 'select') {
+        setActive(m.id)
+        setPanel(true)
+      } else if (m.type === 'cancel') setMode('view')
+    }
+    addEventListener('message', onMsg)
+    return () => removeEventListener('message', onMsg)
+  }, [])
+
+  // Envia ao protótipo o que desenhar.
+  useEffect(() => {
+    const draftPin = draft && { id: 'draft', screen, kind: 'requisito' as PinKind, text: '', createdAt: '', n: 0, ...draft }
+    const msg: ToFrame = { src: 'ctm-shell', mode, pins: draftPin ? [...screenPins, draftPin] : screenPins, active }
+    frame.current?.contentWindow?.postMessage(msg, location.origin)
+  })
+
+  const createPin = (kind: PinKind, text: string) => {
+    if (!draft) return
+    const pin: Pin = { id: crypto.randomUUID(), screen, kind, text, createdAt: new Date().toISOString(), ...draft }
+    savePins([...pins, pin])
+    setDraft(null)
+    setActive(pin.id)
   }
+
   const offPath = framePath !== null && framePath !== current.path
 
   // `dark` escurece os tokens só na casca; o protótipo no iframe não é afetado.
@@ -124,6 +170,27 @@ export function JourneyShell() {
             <p className="truncate text-sm font-medium">{current.title}</p>
           </div>
           <div className="ml-auto flex items-center gap-1">
+            {canEdit && (
+              <Button
+                size="sm"
+                variant={mode === 'add' ? 'default' : 'ghost'}
+                onClick={() => setMode(mode === 'add' ? 'view' : 'add')}
+              >
+                <MapPinPlus /> {mode === 'add' ? 'Clique na tela… (Esc)' : 'Anotar'}
+              </Button>
+            )}
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label={mode === 'off' ? 'Mostrar pinos' : 'Ocultar pinos'}
+              onClick={() => setMode(mode === 'off' ? 'view' : 'off')}
+            >
+              {mode === 'off' ? <EyeOff /> : <Eye />}
+            </Button>
+            <Button size="sm" variant={panel ? 'secondary' : 'ghost'} onClick={() => setPanel(!panel)}>
+              <MessageSquareText /> <span className="tabular-nums">{screenPins.length}</span>
+            </Button>
+            <span className="mx-1 h-4 w-px bg-border" />
             {devices.map((d) => (
               <Button
                 key={d.id}
@@ -138,15 +205,30 @@ export function JourneyShell() {
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1 justify-center overflow-auto p-4">
-          <iframe
-            ref={frame}
-            src={src}
-            onLoad={onFrameLoad}
-            title="Protótipo"
-            className="h-full rounded-lg border bg-background shadow-sm transition-[width]"
-            style={{ width: devices.find((d) => d.id === device)!.width }}
-          />
+        <div className="flex min-h-0 flex-1">
+          <div className="flex min-h-0 flex-1 justify-center overflow-auto p-4">
+            <iframe
+              ref={frame}
+              src={src}
+              title="Protótipo"
+              className="h-full rounded-lg border bg-background shadow-sm transition-[width]"
+              style={{ width: devices.find((d) => d.id === device)!.width }}
+            />
+          </div>
+          {panel && (
+            <AnnotationPanel
+              screen={screen}
+              pins={screenPins}
+              drafting={!!draft}
+              active={active}
+              onSelect={setActive}
+              onCreate={createPin}
+              onCancelDraft={() => setDraft(null)}
+              onUpdate={(id, kind, text) => savePins(pins.map((p) => (p.id === id ? { ...p, kind, text } : p)))}
+              onDelete={(id) => savePins(pins.filter((p) => p.id !== id))}
+              onClose={() => setPanel(false)}
+            />
+          )}
         </div>
 
         <footer className="flex items-center gap-3 border-t bg-black px-4 py-2">

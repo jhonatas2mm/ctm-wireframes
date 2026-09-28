@@ -23,3 +23,10 @@ Vite + React 19 + TypeScript · Tailwind v4 · [shadcn/ui](https://ui.shadcn.com
 ## Notas de uso (Base UI, não Radix)
 - Composição usa `render`, não `asChild`: `<Button nativeButton={false} render={<Link to="/x" />}>…</Button>`.
 - Triggers: `<DialogTrigger render={<Button />}>Abrir</DialogTrigger>`.
+
+## Jornadas e anotações
+- `src/journeys.ts` — jornadas (sequência de telas) exibidas na casca preta.
+- **Anotações**: rodando `npm run dev`, clique em **Anotar** e depois num ponto do protótipo para registrar
+  requisito, regra ou observação. Ficam em `annotations.json` (commite junto). No site publicado são só leitura.
+- Pinos valem por tela (padrão de rota, ex. `/itens/:id`) e ficam ancorados no elemento clicado. Se a estrutura
+  da tela mudar muito, um pino pode sumir — edite/exclua pelo painel.
