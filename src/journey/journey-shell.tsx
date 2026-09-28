@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, Route, Smartphone, Tablet } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, Route, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -31,7 +31,7 @@ export function JourneyShell() {
 
   // Anotações (pinos) ancoradas em elementos do protótipo.
   const [pins, savePins] = usePins()
-  const [screen, setScreen] = useState('/')
+  const [screen, setScreen] = useState('/dashboard')
   const [mode, setMode] = useState<Mode>('view')
   const [panel, setPanel] = useState(false)
   const [active, setActive] = useState<string | null>(null)
@@ -170,7 +170,12 @@ export function JourneyShell() {
             <p className="text-xs text-muted-foreground">
               {journey.title} · Etapa {step + 1} de {journey.steps.length}
             </p>
-            <p className="truncate text-sm font-medium">{current.title}</p>
+            <div className="flex items-center gap-2">
+              <p className="truncate font-mono text-sm font-medium">{framePath ? screen : current.path}</p>
+              <Badge variant="outline" className="gap-1">
+                <UserRound className="size-3" /> {current.profile ?? journey.profile}
+              </Badge>
+            </div>
           </div>
           <div className="ml-auto flex items-center gap-1">
             {canEdit && (

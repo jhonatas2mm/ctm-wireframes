@@ -18,7 +18,7 @@ export type Screen = {
 }
 
 export const screens: Screen[] = [
-  { path: '/', title: 'Dashboard', group: 'Telas', icon: LayoutDashboard, component: Dashboard },
+  { path: '/dashboard', title: 'Dashboard', group: 'Telas', icon: LayoutDashboard, component: Dashboard },
   { path: '/itens', title: 'Listagem', group: 'Telas', icon: List, component: ListPage },
   { path: '/itens/:id', title: 'Detalhe', group: 'Telas', icon: FileText, component: DetailPage, hidden: true },
   { path: '/itens/novo', title: 'Formulário', group: 'Telas', icon: SquarePen, component: FormPage },
