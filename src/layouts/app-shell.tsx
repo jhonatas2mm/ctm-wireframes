@@ -1,3 +1,4 @@
+import type React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useTheme } from 'next-themes'
 import { Moon, StickyNote, Sun } from 'lucide-react'
@@ -20,7 +21,7 @@ import { Separator } from '@/components/ui/separator'
 import { useAnnotations } from '@/components/wf'
 import { screens } from '@/screens'
 
-const groups = ['Telas', 'Sistema'] as const
+const groups = ['Telas', 'Sistema'] as const // grupo sem telas visíveis não aparece
 
 export function AppShell() {
   const { pathname } = useLocation()
@@ -28,11 +29,13 @@ export function AppShell() {
   const { resolvedTheme, setTheme } = useTheme()
 
   return (
-    <SidebarProvider>
+    <SidebarProvider style={{ '--sidebar-width': '12rem' } as React.CSSProperties}>
       <Sidebar>
         <SidebarHeader className="px-4 py-3 font-semibold">CTM · Wireframes</SidebarHeader>
         <SidebarContent>
-          {groups.map((g) => (
+          {groups
+            .filter((g) => screens.some((s) => s.group === g && !s.hidden))
+            .map((g) => (
             <SidebarGroup key={g}>
               <SidebarGroupLabel>{g}</SidebarGroupLabel>
               <SidebarGroupContent>
