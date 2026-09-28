@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Annotation, PageHeader, Placeholder, StatCard } from '@/components/wf'
-import { itens } from '@/lib/mock'
+import { useItens } from '@/lib/mock'
 import { useProfile } from '@/journey/profile'
 
 export default function Dashboard() {
   const perfil = useProfile()
+  const { all: itens } = useItens()
+  const count = (s: string) => String(itens.filter((i) => i.status === s).length)
   return (
     <>
       <PageHeader
@@ -25,10 +27,10 @@ export default function Dashboard() {
       <Annotation>Exemplo de perfil: “Novo item” não aparece para Cliente (useProfile).</Annotation>
       <Annotation>Os indicadores devem refletir apenas os itens do usuário logado.</Annotation>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total" value="128" hint="+12 esta semana" />
-        <StatCard label="Ativos" value="84" />
-        <StatCard label="Pendentes" value="31" />
-        <StatCard label="Arquivados" value="13" />
+        <StatCard label="Total" value={String(itens.length)} />
+        <StatCard label="Ativos" value={count('Ativo')} />
+        <StatCard label="Pendentes" value={count('Pendente')} />
+        <StatCard label="Arquivados" value={count('Arquivado')} />
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">

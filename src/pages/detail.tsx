@@ -13,11 +13,11 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Annotation, EmptyState, PageHeader, Placeholder, TextLines } from '@/components/wf'
-import { itens } from '@/lib/mock'
+import { useItens } from '@/lib/mock'
 
 export default function DetailPage() {
   const { id } = useParams()
-  const item = itens.find((i) => i.id === id)
+  const item = useItens().get(id)
   if (!item) return <EmptyState title="Item não encontrado" />
 
   return (

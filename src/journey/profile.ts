@@ -1,9 +1,8 @@
 import { useSyncExternalStore } from 'react'
-import { profiles, type Profile } from '@/journeys'
 
 // Perfil ativo dentro do protótipo, enviado pela casca. Use nas telas:
 //   const perfil = useProfile(); if (perfil === 'Gestor') …
-let current: Profile = profiles[0]
+let current = ''
 const subs = new Set<() => void>()
 
 addEventListener('message', (e: MessageEvent) => {

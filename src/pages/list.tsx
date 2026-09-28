@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { toast } from 'sonner'
 import { Annotation, EmptyState, PageHeader } from '@/components/wf'
-import { itens } from '@/lib/mock'
+import { useItens } from '@/lib/mock'
 
 const variant = { Ativo: 'default', Pendente: 'secondary', Arquivado: 'outline' } as const
 
@@ -22,13 +22,15 @@ export default function ListPage() {
   const [q, setQ] = useState('')
   const [tab, setTab] = useState('Todos')
   const navigate = useNavigate()
+  const db = useItens()
+  const itens = db.all
 
   const rows = useMemo(
     () =>
       itens.filter(
         (i) => (tab === 'Todos' || i.status === tab) && i.nome.toLowerCase().includes(q.toLowerCase()),
       ),
-    [q, tab],
+    [itens, q, tab],
   )
 
   return (
@@ -88,8 +90,15 @@ export default function ListPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => navigate(`/itens/${i.id}`)}>Abrir</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toast('Item duplicado (simulado)')}>Duplicar</DropdownMenuItem>
-                        <DropdownMenuItem variant="destructive" onClick={() => toast('Item excluído (simulado)')}>
+                        <DropdownMenuItem onClick={() => {
+                            const { id: _, ...rest } = i
+                            db.add({ ...rest, nome: `${i.nome} (cópia)` })
+                            toast('Item duplicado')
+                          }}>Duplicar</DropdownMenuItem>
+                        <DropdownMenuItem variant="destructive" onClick={() => {
+                            db.remove(i.id)
+                            toast('Item excluído')
+                          }}>
                           Excluir
                         </DropdownMenuItem>
                       </DropdownMenuContent>

@@ -26,7 +26,10 @@ createRoot(document.getElementById('root')!).render(
             </AnnotationsProvider>
           </HashRouter>
         ) : (
-          <JourneyShell />
+          <>
+            <JourneyShell />
+            <Toaster />
+          </>
         )}
       </TooltipProvider>
     </ThemeProvider>

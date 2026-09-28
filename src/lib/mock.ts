@@ -1,4 +1,6 @@
-// Dados falsos para os wireframes. Troque à vontade.
+// Dados falsos para os wireframes (seed). Troque à vontade.
+import { useCollection } from './db'
+
 export type Item = {
   id: string
   nome: string
@@ -18,3 +20,6 @@ export const itens: Item[] = Array.from({ length: 24 }).map((_, i) => ({
   status: status[i % status.length],
   atualizadoEm: new Date(2026, 8, 28 - i).toLocaleDateString('pt-BR'),
 }))
+
+// Coleções persistentes (ver src/lib/db.ts). Use nas telas em vez do array direto.
+export const useItens = () => useCollection<Item>('itens', itens)

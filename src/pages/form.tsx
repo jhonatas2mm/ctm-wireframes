@@ -9,9 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Annotation, PageHeader } from '@/components/wf'
+import { useItens } from '@/lib/mock'
 
 export default function FormPage() {
   const navigate = useNavigate()
+  const db = useItens()
 
   return (
     <>
@@ -20,7 +22,14 @@ export default function FormPage() {
       <form
         onSubmit={(e) => {
           e.preventDefault()
-          toast.success('Item salvo (simulado)')
+          const f = new FormData(e.currentTarget)
+          db.add({
+            nome: String(f.get('nome')),
+            responsavel: String(f.get('responsavel') || 'Ana Souza'),
+            status: 'Pendente',
+            atualizadoEm: new Date().toLocaleDateString('pt-BR'),
+          })
+          toast.success('Item salvo')
           navigate('/itens')
         }}
       >
@@ -28,12 +37,12 @@ export default function FormPage() {
           <CardContent className="grid gap-5">
             <div className="grid gap-2">
               <Label htmlFor="nome">Nome *</Label>
-              <Input id="nome" required placeholder="Ex.: Projeto Alfa" />
+              <Input id="nome" name="nome" required placeholder="Ex.: Projeto Alfa" />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label>Responsável</Label>
-                <Select defaultValue="Ana Souza">
+                <Select name="responsavel" defaultValue="Ana Souza">
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>

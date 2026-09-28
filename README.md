@@ -30,3 +30,10 @@ Vite + React 19 + TypeScript · Tailwind v4 · [shadcn/ui](https://ui.shadcn.com
   requisito, regra ou observação. Ficam em `annotations.json` (commite junto). No site publicado são só leitura.
 - Pinos valem por tela (padrão de rota, ex. `/itens/:id`) e ficam ancorados no elemento clicado. Se a estrutura
   da tela mudar muito, um pino pode sumir — edite/exclua pelo painel.
+
+## Dados e perfis
+- **Dados mockados** (`src/lib/mock.ts` = seed, `src/lib/db.ts` = store): o que for criado/editado no protótipo
+  fica salvo no localStorage do navegador. "Restaurar dados mockados" (casca) volta ao seed.
+  Nova coleção: `export const useX = () => useCollection<X>('x', seedX)`.
+- **Perfis** em `profiles.json` (nome + cor), editáveis pela casca em dev ("Gerenciar perfis…").
+  A cor aparece no selo do topo e na borda do protótipo. Nas telas: `useProfile()` retorna o nome ativo.

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, ChevronDown, Route, Smartphone, Tablet } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, ChevronDown, RotateCcw, Route, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -9,11 +9,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
-import { journeys, profiles, type Profile } from '@/journeys'
+import { resetDb } from '@/lib/db'
+import { toast } from 'sonner'
+import { journeys, type Profile } from '@/journeys'
+import { unknownProfile, useProfiles } from './profiles'
+import { ProfileManager } from './profile-manager'
 import { AnnotationPanel } from '@/annotations/panel'
 import { canEdit, usePins } from '@/annotations/store'
 import type { Mode, Pin, PinKind, ToFrame, ToShell } from '@/annotations/types'
@@ -48,11 +54,14 @@ export function JourneyShell() {
   const [orphans, setOrphans] = useState<string[]>([])
   // Perfil definido na jornada/etapa; pode ser trocado manualmente (vale até mudar de etapa).
   const [profileOverride, setProfileOverride] = useState<Profile | null>(null)
+  const [profiles, saveProfiles] = useProfiles()
+  const [managing, setManaging] = useState(false)
 
   const journey = journeys.find((j) => j.id === jid)!
   const current = journey.steps[step]
   const plannedProfile = current.profile ?? journey.profile
   const profile = profileOverride ?? plannedProfile
+  const profileDef = profiles.find((p) => p.name === profile) ?? unknownProfile(profile)
   // src fixo: trocar de etapa muda só o hash do iframe, sem recarregar.
   const [src] = useState(() => `./?frame=1#${current.path}`)
 
@@ -178,6 +187,16 @@ export function JourneyShell() {
         >
           <ExternalLink className="size-3.5" /> Abrir protótipo livre
         </a>
+        <button
+          onClick={() => {
+            if (!confirm('Apagar tudo que foi criado/editado no protótipo e voltar aos dados iniciais?')) return
+            resetDb()
+            toast('Dados mockados restaurados')
+          }}
+          className="flex items-center gap-2 border-t px-4 py-3 text-left text-xs text-muted-foreground hover:text-foreground"
+        >
+          <RotateCcw className="size-3.5" /> Restaurar dados mockados
+        </button>
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
@@ -190,33 +209,40 @@ export function JourneyShell() {
               <p className="truncate font-mono text-sm font-medium">{framePath ? screen : current.path}</p>
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  className="flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs hover:bg-muted"
+                  className="flex items-center gap-1 rounded-md px-2 py-0.5 text-xs text-white hover:brightness-110"
+                  style={{ background: profileDef.color }}
                   aria-label="Trocar perfil"
                 >
                   <UserRound className="size-3" />
-                  <span className="text-muted-foreground">Perfil:</span>
-                  <span className="font-medium">{profile}</span>
+                  <span className="opacity-80">Perfil:</span>
+                  <span className="font-semibold">{profile}</span>
                   {profileOverride && profileOverride !== plannedProfile && (
-                    <span className="text-amber-400" title={`Previsto na jornada: ${plannedProfile}`}>
+                    <span className="font-bold" title={`Previsto na jornada: ${plannedProfile}`}>
                       *
                     </span>
                   )}
-                  <ChevronDown className="size-3 text-muted-foreground" />
+                  <ChevronDown className="size-3 opacity-80" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="dark">
                   <DropdownMenuGroup>
                   <DropdownMenuLabel>Ver tela como</DropdownMenuLabel>
                   <DropdownMenuRadioGroup value={profile} onValueChange={(v) => setProfileOverride(v as Profile)}>
-                    {profiles.map((p) => (
+                    {profiles.map(({ name: p, color }) => (
                       <DropdownMenuRadioItem key={p} value={p}>
+                        <span className="size-2.5 rounded-full" style={{ background: color }} />
                         {p}
                         {p === plannedProfile && <span className="ml-auto text-[10px] text-muted-foreground">previsto</span>}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>
                   </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setTimeout(() => setManaging(true))}>
+                    {canEdit ? 'Gerenciar perfis…' : 'Ver perfis…'}
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <ProfileManager open={managing} onOpenChange={setManaging} profiles={profiles} onSave={saveProfiles} />
             </div>
           </div>
           <div className="ml-auto flex items-center gap-1">
@@ -263,8 +289,8 @@ export function JourneyShell() {
               ref={frame}
               src={src}
               title="Protótipo"
-              className="h-full rounded-lg border bg-background shadow-sm transition-[width]"
-              style={{ width: devices.find((d) => d.id === device)!.width }}
+              className="h-full rounded-lg border-4 bg-background shadow-sm transition-[width]"
+              style={{ width: devices.find((d) => d.id === device)!.width, borderColor: profileDef.color }}
             />
           </div>
           {panel && (
