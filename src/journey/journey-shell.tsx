@@ -164,9 +164,9 @@ export function JourneyShell() {
 
   // `dark` escurece os tokens só na casca; o protótipo no iframe não é afetado.
   return (
-    <div className="dark flex h-svh bg-black text-foreground">
-      <aside className="flex w-48 shrink-0 flex-col border-r bg-black">
-        <div className="flex items-center gap-2 border-b px-4 py-3 font-semibold">
+    <div className="shell-canvas dark flex h-svh text-foreground">
+      <aside className="flex w-48 shrink-0 flex-col border-r border-dashed border-white/20">
+        <div className="flex items-center gap-2 border-b border-dashed border-white/20 px-4 py-3 font-semibold">
           <Route className="size-4" /> Jornadas
         </div>
         <ScrollArea className="min-h-0 flex-1">
@@ -216,7 +216,7 @@ export function JourneyShell() {
           href="./?frame=1#/"
           target="_blank"
           rel="noreferrer"
-          className="flex items-center gap-2 border-t px-4 py-3 text-xs text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-2 border-t border-dashed border-white/20 px-4 py-3 text-xs text-muted-foreground hover:text-foreground"
         >
           <ExternalLink className="size-3.5" /> Abrir protótipo livre
         </a>
@@ -226,14 +226,14 @@ export function JourneyShell() {
             resetDb()
             toast('Dados mockados restaurados')
           }}
-          className="flex items-center gap-2 border-t px-4 py-3 text-left text-xs text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-2 border-t border-dashed border-white/20 px-4 py-3 text-left text-xs text-muted-foreground hover:text-foreground"
         >
           <RotateCcw className="size-3.5" /> Restaurar dados
         </button>
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className="flex flex-wrap items-center gap-3 border-b bg-black px-4 py-2">
+        <header className="flex flex-wrap items-center gap-3 border-b border-dashed border-white/20 px-4 py-2">
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground">
               {journey.title} · Etapa {step + 1} de {journey.steps.length}
@@ -312,7 +312,7 @@ export function JourneyShell() {
         </header>
 
         <div className="flex min-h-0 flex-1">
-          <div className="flex min-h-0 flex-1 justify-center overflow-auto p-4">
+          <div className="flex min-h-0 flex-1 justify-center overflow-auto p-6">
             <div
               className="flex h-full flex-col overflow-hidden rounded-lg border-4 bg-background shadow-sm transition-[width]"
               style={{ width: devices.find((d) => d.id === device)!.width, borderColor: profileDef.color }}
@@ -356,7 +356,7 @@ export function JourneyShell() {
           )}
         </div>
 
-        <footer className="flex items-center gap-3 border-t bg-black px-4 py-2">
+        <footer className="flex items-center gap-3 border-t border-dashed border-white/20 px-4 py-2">
           <Button variant="outline" size="sm" disabled={step === 0} onClick={() => go(jid, step - 1)}>
             <ChevronLeft /> Anterior
           </Button>

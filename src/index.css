@@ -128,3 +128,10 @@
     @apply font-sans;
     }
 }
+/* Casca de wireframe: fundo pontilhado estilo "canvas" de ferramenta de design,
+   para não se confundir com a interface apresentada. */
+.shell-canvas {
+  background-color: #0a0a0a;
+  background-image: radial-gradient(rgb(255 255 255 / 0.22) 1px, transparent 1px);
+  background-size: 14px 14px;
+}

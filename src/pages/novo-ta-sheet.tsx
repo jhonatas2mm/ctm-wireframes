@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Lock, Maximize2 } from 'lucide-react'
+import { Eye, FileText, Lock } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { useContratos } from '@/lib/mock'
@@ -41,7 +41,7 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
   const doc = { numero, dr, inicio, fim, valor: valor ? brl(valorNum) : '' }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-3xl">
+      <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl">
         <SheetHeader className="border-b px-6 py-4">
           <div className="flex items-center gap-3">
             <SheetTitle className="text-lg">Novo Termo de Adesão</SheetTitle>
@@ -54,11 +54,11 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
           </SheetDescription>
         </SheetHeader>
 
-        <div className="grid min-h-0 flex-1 md:grid-cols-[1fr_240px]">
+        <div className="min-h-0 flex-1">
           {/* Coluna esquerda: só os campos variáveis */}
           <form
             id="novo-ta"
-            className="min-h-0 space-y-8 overflow-y-auto px-6 py-6"
+            className="h-full space-y-8 overflow-y-auto px-6 py-6"
             onSubmit={(e) => {
               e.preventDefault()
               const f = new FormData(e.currentTarget)
@@ -81,6 +81,37 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
               onOpenChange(false)
             }}
           >
+            {/* Termo: texto padrão, visto completo em modal */}
+            <Dialog>
+              <div className="flex items-center gap-3 rounded-lg border p-3">
+                <div className="flex h-12 w-10 shrink-0 items-center justify-center rounded border bg-white text-neutral-400 shadow-sm">
+                  <FileText className="size-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">Termo de Adesão Nº {numero}</p>
+                  <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Lock className="size-3" /> Texto padrão, não editável. Campos preenchidos entram no termo.
+                  </p>
+                </div>
+                <DialogTrigger render={<Button type="button" variant="outline" size="sm" />}>
+                  <Eye /> Visualizar
+                </DialogTrigger>
+              </div>
+              <DialogContent className="max-h-[90vh] gap-0 overflow-hidden p-0 sm:max-w-3xl">
+                <DialogHeader className="border-b px-5 py-3">
+                  <DialogTitle className="flex items-center gap-2">
+                    Termo de Adesão Nº {numero}
+                    <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground">
+                      <Lock className="size-3" /> texto padrão, não editável
+                    </span>
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="max-h-[calc(90vh-3.5rem)] overflow-y-auto bg-muted/50 p-6">
+                  <TermoDoc {...doc} className="mx-auto shadow-sm" />
+                </div>
+              </DialogContent>
+            </Dialog>
+
             <Group n={1} title="Departamento Regional">
               <Select value={dr} onValueChange={(v) => setDr(v as string)}>
                 <SelectTrigger className="w-full">
@@ -132,43 +163,6 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
             </Group>
           </form>
 
-          {/* Coluna direita: miniatura do termo; clique abre o documento completo */}
-          <aside className="hidden min-h-0 border-l bg-muted/40 p-4 md:block">
-            <p className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <FileText className="size-3.5" /> Prévia do termo
-            </p>
-            <Dialog>
-              <DialogTrigger
-                className="group relative block h-[290px] w-full overflow-hidden rounded-md border bg-white shadow-sm transition hover:shadow-md"
-                aria-label="Ver termo completo"
-              >
-                <div className="pointer-events-none w-[640px] origin-top-left scale-[0.32]">
-                  <TermoDoc {...doc} />
-                </div>
-                <span className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100">
-                  <span className="flex items-center gap-1.5 rounded-md bg-white px-2.5 py-1.5 text-xs font-medium text-neutral-900">
-                    <Maximize2 className="size-3.5" /> Ver completo
-                  </span>
-                </span>
-              </DialogTrigger>
-              <DialogContent className="max-h-[90vh] gap-0 overflow-hidden p-0 sm:max-w-3xl">
-                <DialogHeader className="border-b px-5 py-3">
-                  <DialogTitle className="flex items-center gap-2">
-                    Termo de Adesão Nº {numero}
-                    <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground">
-                      <Lock className="size-3" /> texto padrão, não editável
-                    </span>
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="max-h-[calc(90vh-3.5rem)] overflow-y-auto bg-muted/50 p-6">
-                  <TermoDoc {...doc} className="mx-auto shadow-sm" />
-                </div>
-              </DialogContent>
-            </Dialog>
-            <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-              Os campos preenchidos aparecem destacados no termo. Clique para ver completo.
-            </p>
-          </aside>
         </div>
 
         <SheetFooter className="flex-row items-center justify-between border-t px-6 py-3">

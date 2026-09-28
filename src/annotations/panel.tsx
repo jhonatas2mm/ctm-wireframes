@@ -94,7 +94,7 @@ export function AnnotationPanel({
   useEffect(() => setEditing(null), [screen])
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col border-l bg-black">
+    <aside className="flex w-72 shrink-0 flex-col border-l border-dashed border-white/20">
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div className="min-w-0">
           <p className="text-sm font-semibold">Anotações</p>
