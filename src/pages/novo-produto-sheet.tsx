@@ -1,3 +1,4 @@
+// Sem uso no momento: era aberta pelo botão "Novo TA". Mantida para reaproveitar a busca de cursos.
 import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { toast } from 'sonner'

@@ -14,7 +14,6 @@ export const journeys: Journey[] = [
     profile: 'Supervisora',
     steps: [
       { title: 'Gestão de TA', path: '/dashboard', note: 'Usuário clica em “Novo produto”.' },
-      { title: 'Buscar curso', path: '/dashboard/novo-produto', note: 'Busca o curso por código ou nome e seleciona.' },
     ],
   },
 ]

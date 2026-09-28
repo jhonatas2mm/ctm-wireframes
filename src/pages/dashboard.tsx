@@ -1,11 +1,9 @@
-import { useLocation, useNavigate } from 'react-router-dom'
 import { Eye, Pencil, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
 import { useContratos, type Contrato, type StatusContrato } from '@/lib/mock'
-import { NovoProdutoSheet } from './novo-produto-sheet'
 
 const statusVariant: Record<StatusContrato, 'default' | 'secondary' | 'outline'> = {
   Vigente: 'default',
@@ -30,10 +28,7 @@ const colunas: Column<Contrato>[] = [
   },
 ]
 
-// A side sheet "Novo produto" tem rota própria (/dashboard/novo-produto) para poder ser etapa de jornada.
 export default function Dashboard() {
-  const { pathname } = useLocation()
-  const navigate = useNavigate()
   const { all: contratos, remove } = useContratos()
 
   return (
@@ -41,7 +36,8 @@ export default function Dashboard() {
       <PageHeader
         title="Gestão de TA"
         actions={
-          <Button onClick={() => navigate('/dashboard/novo-produto')}>
+          // Desabilitado até a tela de Novo TA ser definida.
+          <Button disabled>
             <Plus /> Novo TA
           </Button>
         }
@@ -70,10 +66,6 @@ export default function Dashboard() {
           )}
         />
       </section>
-      <NovoProdutoSheet
-        open={pathname === '/dashboard/novo-produto'}
-        onOpenChange={(v) => !v && navigate('/dashboard')}
-      />
     </>
   )
 }
