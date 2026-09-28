@@ -62,3 +62,29 @@ const contratos: Contrato[] = [
 ]
 
 export const useContratos = () => useCollection<Contrato>('contratos', contratos)
+
+// Editais: chamadas públicas de oferta de cursos, vinculadas a um TA. Dados FICTÍCIOS.
+export type StatusEdital = 'Rascunho' | 'Publicado' | 'Inscrições abertas' | 'Encerrado'
+
+export type Edital = {
+  id: string
+  numero: string
+  titulo: string
+  ta: string // número do Termo de Adesão
+  dr: string
+  inscricoesInicio: string
+  inscricoesFim: string
+  vagas: number
+  status: StatusEdital
+}
+
+const editais: Edital[] = [
+  { id: '1', numero: 'ED-001/2026', titulo: 'Cursos Técnicos 2027 — 1º semestre', ta: '001/2026', dr: 'SP', inscricoesInicio: '01/10/2026', inscricoesFim: '31/10/2026', vagas: 480, status: 'Inscrições abertas' },
+  { id: '2', numero: 'ED-002/2026', titulo: 'Qualificação Profissional — Indústria 4.0', ta: '002/2026', dr: 'MG', inscricoesInicio: '15/09/2026', inscricoesFim: '15/10/2026', vagas: 220, status: 'Inscrições abertas' },
+  { id: '3', numero: 'ED-003/2026', titulo: 'Aprendizagem Industrial 2027', ta: '003/2026', dr: 'RS', inscricoesInicio: '01/11/2026', inscricoesFim: '30/11/2026', vagas: 300, status: 'Publicado' },
+  { id: '4', numero: 'ED-004/2026', titulo: 'Aperfeiçoamento em Automação', ta: '005/2026', dr: 'PR', inscricoesInicio: '—', inscricoesFim: '—', vagas: 60, status: 'Rascunho' },
+  { id: '5', numero: 'ED-005/2026', titulo: 'Cursos Técnicos 2026 — 2º semestre', ta: '001/2026', dr: 'SP', inscricoesInicio: '01/05/2026', inscricoesFim: '31/05/2026', vagas: 400, status: 'Encerrado' },
+  { id: '6', numero: 'ED-006/2026', titulo: 'Qualificação em Logística', ta: '002/2026', dr: 'MG', inscricoesInicio: '—', inscricoesFim: '—', vagas: 120, status: 'Rascunho' },
+]
+
+export const useEditais = () => useCollection<Edital>('editais', editais)
