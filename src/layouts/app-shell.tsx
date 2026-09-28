@@ -44,7 +44,7 @@ export function AppShell() {
                     .filter((s) => s.group === g && !s.hidden)
                     .map((s) => (
                       <SidebarMenuItem key={s.path}>
-                        <SidebarMenuButton isActive={pathname === s.path} render={<Link to={s.path} />}>
+                        <SidebarMenuButton isActive={pathname === s.path || pathname.startsWith(s.path + '/')} render={<Link to={s.path} />}>
                           <s.icon />
                           <span>{s.title}</span>
                         </SidebarMenuButton>
