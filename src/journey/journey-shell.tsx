@@ -320,9 +320,9 @@ export function JourneyShell() {
               {/* Barra de navegador simulada */}
               <div className="flex shrink-0 items-center gap-3 border-b border-neutral-200 bg-neutral-100 px-3 py-1.5">
                 <div className="flex gap-1.5">
-                  <span className="size-2.5 rounded-full bg-neutral-300" />
-                  <span className="size-2.5 rounded-full bg-neutral-300" />
-                  <span className="size-2.5 rounded-full bg-neutral-300" />
+                  <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+                  <span className="size-2.5 rounded-full bg-[#febc2e]" />
+                  <span className="size-2.5 rounded-full bg-[#28c840]" />
                 </div>
                 <div className="flex gap-2 text-neutral-400">
                   <ChevronLeft className="size-4" />
