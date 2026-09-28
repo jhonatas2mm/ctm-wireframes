@@ -16,19 +16,28 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { resetDb } from '@/lib/db'
 import { toast } from 'sonner'
-import { journeys, type Profile } from '@/journeys'
+import { journeys, type Journey, type Profile } from '@/journeys'
 import { profileOf, profiles } from './profiles'
 import { screens } from '@/screens'
 import { AnnotationPanel } from '@/annotations/panel'
 import { canEdit, usePins } from '@/annotations/store'
 import type { Mode, Pin, PinKind, ToFrame, ToShell } from '@/annotations/types'
 
-// Estado da casca vive no hash (#j=<id>&s=<n>) para o link poder ser compartilhado já numa etapa.
+// Jornadas de um perfil: as da jornada dele ou com alguma etapa dele.
+const journeysOf = (profile: Profile) =>
+  journeys.filter((j) => j.profile === profile || j.steps.some((s) => s.profile === profile))
+
+// Perfil sem jornadas: navega livre a partir da tela inicial.
+const FREE: Journey = { id: '', title: 'Sem jornada', profile: '', steps: [{ title: 'Início', path: '/dashboard' }] }
+
+// Estado da casca vive no hash (#p=<perfil>&j=<id>&s=<n>) para o link poder ser compartilhado já numa etapa.
 function readHash() {
   const p = new URLSearchParams(location.hash.slice(1))
-  const j = journeys.find((x) => x.id === p.get('j')) ?? journeys[0]
+  const pid = profiles.find((x) => x.name === p.get('p'))?.name ?? journeys[0]?.profile ?? profiles[0].name
+  const list = journeysOf(pid)
+  const j = list.find((x) => x.id === p.get('j')) ?? list[0] ?? FREE
   const s = Math.min(Math.max(Number(p.get('s')) || 0, 0), j.steps.length - 1)
-  return { jid: j.id, step: s }
+  return { pid, jid: j.id, step: s }
 }
 
 // Domínio fictício exibido na barra do navegador simulada.
@@ -71,7 +80,7 @@ const devices = [
 ] as const
 
 export function JourneyShell() {
-  const [{ jid, step }, setState] = useState(readHash)
+  const [{ pid, jid, step }, setState] = useState(readHash)
   const [device, setDevice] = useState<(typeof devices)[number]['id']>('desktop')
   const [framePath, setFramePath] = useState<string | null>(null)
   const frame = useRef<HTMLIFrameElement>(null)
@@ -84,13 +93,11 @@ export function JourneyShell() {
   const [active, setActive] = useState<string | null>(null)
   const [draft, setDraft] = useState<Pick<Pin, 'selector' | 'x' | 'y' | 'px' | 'py'> | null>(null)
   const [orphans, setOrphans] = useState<string[]>([])
-  // Perfil definido na jornada/etapa; pode ser trocado manualmente (vale até mudar de etapa).
-  const [profileOverride, setProfileOverride] = useState<Profile | null>(null)
-
-  const journey = journeys.find((j) => j.id === jid)!
-  const current = journey.steps[step]
-  const plannedProfile = current.profile ?? journey.profile
-  const profile = profileOverride ?? plannedProfile
+  // Perfil escolhido no topo do menu filtra as jornadas; uma etapa pode forçar outro perfil.
+  const visibleJourneys = journeysOf(pid)
+  const journey = visibleJourneys.find((j) => j.id === jid) ?? FREE
+  const current = journey.steps[step] ?? journey.steps[0]
+  const profile = current.profile ?? pid
   const profileDef = profileOf(profile)
   // Topo mostra só o nome da área; a URL completa vai na barra do navegador simulada.
   const shownPath = framePath ?? current.path
@@ -98,16 +105,14 @@ export function JourneyShell() {
   // src fixo: trocar de etapa muda só o hash do iframe, sem recarregar.
   const [src] = useState(() => `./?frame=1#${current.path}`)
 
-  const go = (id: string, s: number) => {
-    setState({ jid: id, step: s })
-    setProfileOverride(null)
-  }
+  const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
+  const pickProfile = (p: Profile) => setState({ pid: p, jid: journeysOf(p)[0]?.id ?? '', step: 0 })
 
   useEffect(() => {
-    history.replaceState(null, '', `#j=${jid}&s=${step}`)
+    history.replaceState(null, '', `#p=${encodeURIComponent(pid)}&j=${jid}&s=${step}`)
     const win = frame.current?.contentWindow
     if (win) win.location.hash = current.path
-  }, [jid, step, current.path])
+  }, [pid, jid, step, current.path])
 
   useEffect(() => {
     const onHash = () => setState(readHash())
@@ -169,9 +174,40 @@ export function JourneyShell() {
         <div className="flex items-center gap-2 border-b border-dashed border-white/20 px-4 py-3 font-semibold">
           <Route className="size-4" /> Jornadas
         </div>
+        <div className="border-b border-dashed border-white/20 p-2">
+          <p className="px-1 pb-1 text-[10px] tracking-wide text-muted-foreground uppercase">Perfil</p>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className="flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold text-white hover:brightness-110"
+              style={{ background: profileOf(pid).color }}
+              aria-label="Trocar perfil"
+            >
+              <UserRound className="size-3.5" />
+              <span className="truncate">{pid}</span>
+              <ChevronDown className="ml-auto size-3.5 opacity-80" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="dark w-44">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Ver como</DropdownMenuLabel>
+                <DropdownMenuRadioGroup value={pid} onValueChange={(v) => pickProfile(v as Profile)}>
+                  {profiles.map(({ name: p, color }) => (
+                    <DropdownMenuRadioItem key={p} value={p}>
+                      <span className="size-2.5 rounded-full" style={{ background: color }} />
+                      {p}
+                      <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">{journeysOf(p).length}</span>
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <ScrollArea className="min-h-0 flex-1">
           <nav className="space-y-1 p-2">
-            {journeys.map((j) => {
+            {visibleJourneys.length === 0 && (
+              <p className="px-2 py-4 text-xs text-muted-foreground">Nenhuma jornada para este perfil.</p>
+            )}
+            {visibleJourneys.map((j) => {
               const active = j.id === jid
               return (
                 <div key={j.id}>
@@ -236,41 +272,10 @@ export function JourneyShell() {
         <header className="flex flex-wrap items-center gap-3 border-b border-dashed border-white/20 px-4 py-2">
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground">
-              {journey.title} · Etapa {step + 1} de {journey.steps.length}
+              {journey.id ? `${journey.title} · Etapa ${step + 1} de ${journey.steps.length}` : 'Navegação livre'}
             </p>
             <div className="flex items-center gap-2">
               <p className="truncate text-sm font-medium">{areaName}</p>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  className="flex items-center gap-1 rounded-md px-2 py-0.5 text-xs text-white hover:brightness-110"
-                  style={{ background: profileDef.color }}
-                  aria-label="Trocar perfil"
-                >
-                  <UserRound className="size-3" />
-                  <span className="opacity-80">Perfil:</span>
-                  <span className="font-semibold">{profile}</span>
-                  {profileOverride && profileOverride !== plannedProfile && (
-                    <span className="font-bold" title={`Previsto na jornada: ${plannedProfile}`}>
-                      *
-                    </span>
-                  )}
-                  <ChevronDown className="size-3 opacity-80" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="dark">
-                  <DropdownMenuGroup>
-                  <DropdownMenuLabel>Ver tela como</DropdownMenuLabel>
-                  <DropdownMenuRadioGroup value={profile} onValueChange={(v) => setProfileOverride(v as Profile)}>
-                    {profiles.map(({ name: p, color }) => (
-                      <DropdownMenuRadioItem key={p} value={p}>
-                        <span className="size-2.5 rounded-full" style={{ background: color }} />
-                        {p}
-                        {p === plannedProfile && <span className="ml-auto text-[10px] text-muted-foreground">previsto</span>}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
           <div className="ml-auto flex items-center gap-1">
