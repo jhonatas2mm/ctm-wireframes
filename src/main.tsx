@@ -5,20 +5,28 @@ import { ThemeProvider } from 'next-themes'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
 import { AnnotationsProvider } from '@/components/wf/annotations'
+import { JourneyShell } from '@/journey/journey-shell'
 import './index.css'
 import App from './App.tsx'
+
+// Sem ?frame → casca de jornadas; com ?frame=1 → o protótipo (carregado no iframe da casca).
+const isFrame = new URLSearchParams(location.search).has('frame')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider attribute="class" defaultTheme="light">
-    <HashRouter>
       <TooltipProvider>
-        <AnnotationsProvider>
-          <App />
-          <Toaster />
-        </AnnotationsProvider>
+        {isFrame ? (
+          <HashRouter>
+            <AnnotationsProvider>
+              <App />
+              <Toaster />
+            </AnnotationsProvider>
+          </HashRouter>
+        ) : (
+          <JourneyShell />
+        )}
       </TooltipProvider>
-    </HashRouter>
     </ThemeProvider>
   </StrictMode>,
 )
