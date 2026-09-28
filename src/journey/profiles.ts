@@ -1,10 +1,12 @@
-import { useJsonFile } from '@/lib/json-file'
-
-// Perfis de acesso ficam em profiles.json (editável pela casca em dev).
+// Perfis de acesso (nome + cor de destaque). Mantidos pelo Claude a pedido — não edite pela interface.
 // Jornadas referenciam o perfil pelo nome.
 export type ProfileDef = { name: string; color: string }
 
-export const profileColors = ['#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#0284c7', '#7c3aed', '#db2777']
-export const unknownProfile = (name: string): ProfileDef => ({ name, color: '#737373' })
+export const profiles: ProfileDef[] = [
+  { name: 'Gestor', color: '#7c3aed' },
+  { name: 'Operador', color: '#0284c7' },
+  { name: 'Cliente', color: '#16a34a' },
+]
 
-export const useProfiles = () => useJsonFile<ProfileDef[]>('profiles.json', [])
+export const profileOf = (name: string): ProfileDef =>
+  profiles.find((p) => p.name === name) ?? { name, color: '#737373' }

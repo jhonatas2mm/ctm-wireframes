@@ -7,7 +7,7 @@ import { defineConfig, type Plugin } from 'vite'
 // Arquivos JSON editáveis pela casca (raiz do projeto, versionados no git).
 // Dev: GET/POST em /<nome>.json. Build: copiados para dist/ (site publicado = só leitura).
 // Ficam fora de public/ para gravar sem disparar reload da página.
-const jsonFiles = ['annotations.json', 'profiles.json']
+const jsonFiles = ['annotations.json']
 const jsonFilesApi = (): Plugin => ({
   name: 'json-files-api',
   configureServer(server) {

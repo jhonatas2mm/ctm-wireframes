@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, ChevronDown, RotateCcw, Route, Smartphone, Tablet } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, ChevronDown, RotateCcw, Lock, Route, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -9,8 +9,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -18,8 +16,8 @@ import { cn } from '@/lib/utils'
 import { resetDb } from '@/lib/db'
 import { toast } from 'sonner'
 import { journeys, type Profile } from '@/journeys'
-import { unknownProfile, useProfiles } from './profiles'
-import { ProfileManager } from './profile-manager'
+import { profileOf, profiles } from './profiles'
+import { screens } from '@/screens'
 import { AnnotationPanel } from '@/annotations/panel'
 import { canEdit, usePins } from '@/annotations/store'
 import type { Mode, Pin, PinKind, ToFrame, ToShell } from '@/annotations/types'
@@ -31,6 +29,9 @@ function readHash() {
   const s = Math.min(Math.max(Number(p.get('s')) || 0, 0), j.steps.length - 1)
   return { jid: j.id, step: s }
 }
+
+// Domínio fictício exibido na barra do navegador simulada.
+const APP_HOST = 'app.ctm.com.br'
 
 const devices = [
   { id: 'desktop', icon: Monitor, width: '100%' },
@@ -54,14 +55,15 @@ export function JourneyShell() {
   const [orphans, setOrphans] = useState<string[]>([])
   // Perfil definido na jornada/etapa; pode ser trocado manualmente (vale até mudar de etapa).
   const [profileOverride, setProfileOverride] = useState<Profile | null>(null)
-  const [profiles, saveProfiles] = useProfiles()
-  const [managing, setManaging] = useState(false)
 
   const journey = journeys.find((j) => j.id === jid)!
   const current = journey.steps[step]
   const plannedProfile = current.profile ?? journey.profile
   const profile = profileOverride ?? plannedProfile
-  const profileDef = profiles.find((p) => p.name === profile) ?? unknownProfile(profile)
+  const profileDef = profileOf(profile)
+  // Topo mostra só o nome da área; a URL completa vai na barra do navegador simulada.
+  const shownPath = framePath ?? current.path
+  const areaName = screens.find((s) => s.path === screen)?.title ?? current.title
   // src fixo: trocar de etapa muda só o hash do iframe, sem recarregar.
   const [src] = useState(() => `./?frame=1#${current.path}`)
 
@@ -206,7 +208,7 @@ export function JourneyShell() {
               {journey.title} · Etapa {step + 1} de {journey.steps.length}
             </p>
             <div className="flex items-center gap-2">
-              <p className="truncate font-mono text-sm font-medium">{framePath ? screen : current.path}</p>
+              <p className="truncate text-sm font-medium">{areaName}</p>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className="flex items-center gap-1 rounded-md px-2 py-0.5 text-xs text-white hover:brightness-110"
@@ -236,13 +238,8 @@ export function JourneyShell() {
                     ))}
                   </DropdownMenuRadioGroup>
                   </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setTimeout(() => setManaging(true))}>
-                    {canEdit ? 'Gerenciar perfis…' : 'Ver perfis…'}
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <ProfileManager open={managing} onOpenChange={setManaging} profiles={profiles} onSave={saveProfiles} />
             </div>
           </div>
           <div className="ml-auto flex items-center gap-1">
@@ -285,13 +282,31 @@ export function JourneyShell() {
 
         <div className="flex min-h-0 flex-1">
           <div className="flex min-h-0 flex-1 justify-center overflow-auto p-4">
-            <iframe
-              ref={frame}
-              src={src}
-              title="Protótipo"
-              className="h-full rounded-lg border-4 bg-background shadow-sm transition-[width]"
+            <div
+              className="flex h-full flex-col overflow-hidden rounded-lg border-4 bg-background shadow-sm transition-[width]"
               style={{ width: devices.find((d) => d.id === device)!.width, borderColor: profileDef.color }}
-            />
+            >
+              {/* Barra de navegador simulada */}
+              <div className="flex shrink-0 items-center gap-3 border-b border-neutral-200 bg-neutral-100 px-3 py-1.5">
+                <div className="flex gap-1.5">
+                  <span className="size-2.5 rounded-full bg-neutral-300" />
+                  <span className="size-2.5 rounded-full bg-neutral-300" />
+                  <span className="size-2.5 rounded-full bg-neutral-300" />
+                </div>
+                <div className="flex gap-2 text-neutral-400">
+                  <ChevronLeft className="size-4" />
+                  <ChevronRight className="size-4" />
+                </div>
+                <div className="flex min-w-0 flex-1 items-center gap-1.5 rounded-md bg-white px-3 py-1 text-xs text-neutral-500">
+                  <Lock className="size-3 shrink-0" />
+                  <span className="truncate">
+                    {APP_HOST}
+                    <span className="text-neutral-900">{shownPath}</span>
+                  </span>
+                </div>
+              </div>
+              <iframe ref={frame} src={src} title="Protótipo" className="min-h-0 w-full flex-1" />
+            </div>
           </div>
           {panel && (
             <AnnotationPanel

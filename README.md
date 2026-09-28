@@ -35,5 +35,5 @@ Vite + React 19 + TypeScript · Tailwind v4 · [shadcn/ui](https://ui.shadcn.com
 - **Dados mockados** (`src/lib/mock.ts` = seed, `src/lib/db.ts` = store): o que for criado/editado no protótipo
   fica salvo no localStorage do navegador. "Restaurar dados mockados" (casca) volta ao seed.
   Nova coleção: `export const useX = () => useCollection<X>('x', seedX)`.
-- **Perfis** em `profiles.json` (nome + cor), editáveis pela casca em dev ("Gerenciar perfis…").
+- **Perfis** em `src/journey/profiles.ts` (nome + cor), mantidos pelo Claude — peça para criar.
   A cor aparece no selo do topo e na borda do protótipo. Nas telas: `useProfile()` retorna o nome ativo.
