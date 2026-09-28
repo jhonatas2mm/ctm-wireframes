@@ -1,8 +1,10 @@
-import { Eye, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Eye, Plus, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
+import { NovoTaSheet } from './novo-ta-sheet'
 import { useContratos, type Contrato, type StatusContrato } from '@/lib/mock'
 
 const statusVariant: Record<StatusContrato, 'default' | 'secondary' | 'outline'> = {
@@ -30,20 +32,21 @@ const colunas: Column<Contrato>[] = [
 
 export default function Dashboard() {
   const { all: contratos, remove } = useContratos()
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   return (
     <>
       <PageHeader
         title="Gestão de TA"
         actions={
-          // Desabilitado até a tela de Novo TA ser definida.
-          <Button disabled>
+          <Button onClick={() => navigate('/dashboard/novo-ta')}>
             <Plus /> Novo TA
           </Button>
         }
       />
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Contratos</h2>
+        <h2 className="text-lg font-semibold">Termos de Adesão</h2>
         <DataTable
           rows={contratos}
           columns={colunas}
@@ -51,7 +54,6 @@ export default function Dashboard() {
           actions={(c) => (
             <>
               <RowAction label="Visualizar" icon={Eye} onClick={() => toast(`Visualizar ${c.numero} — tela a desenhar`)} />
-              <RowAction label="Editar" icon={Pencil} onClick={() => toast(`Editar ${c.numero} — tela a desenhar`)} />
               <RowAction
                 label="Excluir"
                 icon={Trash2}
@@ -66,6 +68,8 @@ export default function Dashboard() {
           )}
         />
       </section>
+      {/* Side sheet com rota própria para poder ser etapa de jornada. */}
+      <NovoTaSheet open={pathname === '/dashboard/novo-ta'} onOpenChange={(v) => !v && navigate('/dashboard')} />
     </>
   )
 }

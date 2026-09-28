@@ -34,7 +34,8 @@ const cursos: Curso[] = [
 
 export const useCursos = () => useCollection<Curso>('cursos', cursos)
 
-// Contratos geridos pelos Departamentos Regionais (DRs). Números, datas e valores FICTÍCIOS.
+// Termos de Adesão (TA): contrato guarda-chuva firmado com cada Departamento Regional (DR);
+// os produtos (cursos) são vinculados ao TA depois. Números, datas e valores FICTÍCIOS.
 export type StatusContrato = 'Vigente' | 'Em elaboração' | 'Encerrado'
 
 export type Contrato = {
@@ -44,6 +45,8 @@ export type Contrato = {
   vigenciaInicio: string
   vigenciaFim: string
   produtos: number // cursos vinculados
+  valor?: number // valor global (R$)
+  signatarios?: { parte: string; nome: string; cargo: string }[]
   status: StatusContrato
 }
 

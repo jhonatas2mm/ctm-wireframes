@@ -9,11 +9,12 @@ export type Journey = { id: string; title: string; description?: string; profile
 
 export const journeys: Journey[] = [
   {
-    id: 'novo-produto',
-    title: 'Novo produto',
+    id: 'novo-ta',
+    title: 'Novo TA',
     profile: 'Supervisora',
     steps: [
-      { title: 'Gestão de TA', path: '/dashboard', note: 'Usuário clica em “Novo produto”.' },
+      { title: 'Gestão de TA', path: '/dashboard', note: 'Supervisora clica em “Novo TA”.' },
+      { title: 'Novo TA', path: '/dashboard/novo-ta', note: 'Preenche o Termo de Adesão com o DR e salva como rascunho.' },
     ],
   },
 ]

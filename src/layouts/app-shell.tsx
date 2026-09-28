@@ -1,7 +1,7 @@
 import type React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useTheme } from 'next-themes'
-import { Moon, StickyNote, Sun } from 'lucide-react'
+import { Moon, Sun } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -18,14 +18,12 @@ import {
 } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { useAnnotations } from '@/components/wf'
 import { screens } from '@/screens'
 
 const groups = ['Telas', 'Sistema'] as const // grupo sem telas visíveis não aparece
 
 export function AppShell() {
   const { pathname } = useLocation()
-  const { show, toggle } = useAnnotations()
   const { resolvedTheme, setTheme } = useTheme()
 
   return (
@@ -61,9 +59,6 @@ export function AppShell() {
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
           <div className="ml-auto flex gap-1">
-            <Button variant={show ? 'secondary' : 'ghost'} size="sm" onClick={toggle}>
-              <StickyNote /> Notas {show ? 'on' : 'off'}
-            </Button>
             <Button
               variant="ghost"
               size="icon-sm"
