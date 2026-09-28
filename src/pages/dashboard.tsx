@@ -2,9 +2,8 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { PageHeader } from '@/components/wf'
-import { useContratos, type StatusContrato } from '@/lib/mock'
+import { DataTable, PageHeader, type Column } from '@/components/wf'
+import { useContratos, type Contrato, type StatusContrato } from '@/lib/mock'
 import { NovoProdutoSheet } from './novo-produto-sheet'
 
 const statusVariant: Record<StatusContrato, 'default' | 'secondary' | 'outline'> = {
@@ -12,6 +11,23 @@ const statusVariant: Record<StatusContrato, 'default' | 'secondary' | 'outline'>
   'Em elaboração': 'secondary',
   Encerrado: 'outline',
 }
+
+const colunas: Column<Contrato>[] = [
+  { header: 'Contrato', value: (c) => c.numero, search: true, className: 'font-mono' },
+  { header: 'DR', value: (c) => `SENAI-${c.dr}`, search: true, filter: true },
+  {
+    header: 'Vigência',
+    value: (c) => (c.vigenciaInicio === '—' ? '—' : `${c.vigenciaInicio} a ${c.vigenciaFim}`),
+    className: 'text-muted-foreground',
+  },
+  { header: 'Produtos', value: (c) => c.produtos, className: 'text-right tabular-nums' },
+  {
+    header: 'Status',
+    value: (c) => c.status,
+    filter: true,
+    cell: (c) => <Badge variant={statusVariant[c.status]}>{c.status}</Badge>,
+  },
+]
 
 // A side sheet "Novo produto" tem rota própria (/dashboard/novo-produto) para poder ser etapa de jornada.
 export default function Dashboard() {
@@ -31,34 +47,7 @@ export default function Dashboard() {
       />
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Contratos</h2>
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Contrato</TableHead>
-                <TableHead>DR</TableHead>
-                <TableHead>Vigência</TableHead>
-                <TableHead className="text-right">Produtos</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {contratos.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell className="font-mono">{c.numero}</TableCell>
-                  <TableCell>SENAI-{c.dr}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {c.vigenciaInicio === '—' ? '—' : `${c.vigenciaInicio} a ${c.vigenciaFim}`}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">{c.produtos}</TableCell>
-                  <TableCell>
-                    <Badge variant={statusVariant[c.status]}>{c.status}</Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable rows={contratos} columns={colunas} searchPlaceholder="Buscar contrato ou DR…" />
       </section>
       <NovoProdutoSheet
         open={pathname === '/dashboard/novo-produto'}

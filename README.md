@@ -18,6 +18,7 @@ Vite + React 19 + TypeScript · Tailwind v4 · [shadcn/ui](https://ui.shadcn.com
   - `TextLines` linhas cinzas no lugar de texto
   - `Annotation` nota amarela de intenção/regra (toggle "Notas" no topo)
   - `PageHeader`, `StatCard`, `EmptyState`
+  - `DataTable` **padrão para toda tabela**: busca por texto, filtro por coluna, contador e "limpar filtros"
 - `src/pages/components.tsx` — catálogo vivo (rota `#/componentes`).
 
 ## Notas de uso (Base UI, não Radix)
