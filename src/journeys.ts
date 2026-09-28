@@ -9,30 +9,9 @@ export type Journey = { id: string; title: string; description?: string; profile
 
 export const journeys: Journey[] = [
   {
-    id: 'criar-item',
-    title: 'Criar item',
+    id: 'novo-produto',
+    title: 'Novo produto',
     profile: 'Operador',
-    description: 'Usuário cadastra um novo item a partir do dashboard.',
-    steps: [
-      { title: 'Dashboard', path: '/dashboard', note: 'Usuário clica em “Novo item”.' },
-      { title: 'Formulário', path: '/itens/novo', note: 'Preenche nome e responsável e salva.' },
-      { title: 'Listagem', path: '/itens', note: 'Volta para a lista com toast de sucesso.' },
-      { title: 'Detalhe', path: '/itens/1', note: 'Abre o item recém-criado.' },
-    ],
-  },
-  {
-    id: 'consultar-item',
-    title: 'Consultar item',
-    profile: 'Cliente',
-    steps: [
-      { title: 'Listagem', path: '/itens', note: 'Busca pelo nome ou filtra por status.' },
-      { title: 'Detalhe', path: '/itens/2', note: 'Consulta histórico e anexos nas abas.' },
-    ],
-  },
-  {
-    id: 'visao-geral',
-    title: 'Visão geral',
-    profile: 'Gestor',
-    steps: [{ title: 'Dashboard', path: '/dashboard', note: 'Indicadores do dia.' }],
+    steps: [{ title: 'Dashboard', path: '/dashboard', note: 'Usuário clica em “Novo produto”.' }],
   },
 ]

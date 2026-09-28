@@ -134,7 +134,7 @@ export function JourneyShell() {
   // `dark` escurece os tokens só na casca; o protótipo no iframe não é afetado.
   return (
     <div className="dark flex h-svh bg-black text-foreground">
-      <aside className="flex w-56 shrink-0 flex-col border-r bg-black">
+      <aside className="flex w-48 shrink-0 flex-col border-r bg-black">
         <div className="flex items-center gap-2 border-b px-4 py-3 font-semibold">
           <Route className="size-4" /> Jornadas
         </div>
@@ -197,7 +197,7 @@ export function JourneyShell() {
           }}
           className="flex items-center gap-2 border-t px-4 py-3 text-left text-xs text-muted-foreground hover:text-foreground"
         >
-          <RotateCcw className="size-3.5" /> Restaurar dados mockados
+          <RotateCcw className="size-3.5" /> Restaurar dados
         </button>
       </aside>
 
