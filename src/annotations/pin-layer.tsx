@@ -26,7 +26,7 @@ function selectorFor(el: Element) {
 /** Camada de pinos dentro do protótipo. Só existe quando rodando dentro da casca. */
 export function PinLayer() {
   const { pathname } = useLocation()
-  const [st, setSt] = useState<Omit<ToFrame, 'src'>>({ mode: 'off', pins: [], active: null })
+  const [st, setSt] = useState<Omit<ToFrame, 'src'>>({ profile: '', mode: 'off', pins: [], active: null })
   const [hover, setHover] = useState<DOMRect | null>(null)
   const [, redraw] = useReducer((x: number) => x + 1, 0)
 

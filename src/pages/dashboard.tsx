@@ -5,19 +5,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Annotation, PageHeader, Placeholder, StatCard } from '@/components/wf'
 import { itens } from '@/lib/mock'
+import { useProfile } from '@/journey/profile'
 
 export default function Dashboard() {
+  const perfil = useProfile()
   return (
     <>
       <PageHeader
         title="Dashboard"
-        description="Visão geral do dia"
+        description={`Visão geral do dia · perfil ${perfil}`}
         actions={
+          perfil !== 'Cliente' && (
           <Button nativeButton={false} render={<Link to="/itens/novo" />}>
             <Plus /> Novo item
           </Button>
+          )
         }
       />
+      <Annotation>Exemplo de perfil: “Novo item” não aparece para Cliente (useProfile).</Annotation>
       <Annotation>Os indicadores devem refletir apenas os itens do usuário logado.</Annotation>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Total" value="128" hint="+12 esta semana" />

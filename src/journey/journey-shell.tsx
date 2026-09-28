@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, Route, Smartphone, Tablet } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, ChevronDown, Route, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
-import { journeys } from '@/journeys'
+import { journeys, profiles, type Profile } from '@/journeys'
 import { AnnotationPanel } from '@/annotations/panel'
 import { canEdit, usePins } from '@/annotations/store'
 import type { Mode, Pin, PinKind, ToFrame, ToShell } from '@/annotations/types'
@@ -37,13 +46,20 @@ export function JourneyShell() {
   const [active, setActive] = useState<string | null>(null)
   const [draft, setDraft] = useState<Pick<Pin, 'selector' | 'x' | 'y' | 'px' | 'py'> | null>(null)
   const [orphans, setOrphans] = useState<string[]>([])
+  // Perfil definido na jornada/etapa; pode ser trocado manualmente (vale até mudar de etapa).
+  const [profileOverride, setProfileOverride] = useState<Profile | null>(null)
 
   const journey = journeys.find((j) => j.id === jid)!
   const current = journey.steps[step]
+  const plannedProfile = current.profile ?? journey.profile
+  const profile = profileOverride ?? plannedProfile
   // src fixo: trocar de etapa muda só o hash do iframe, sem recarregar.
   const [src] = useState(() => `./?frame=1#${current.path}`)
 
-  const go = (id: string, s: number) => setState({ jid: id, step: s })
+  const go = (id: string, s: number) => {
+    setState({ jid: id, step: s })
+    setProfileOverride(null)
+  }
 
   useEffect(() => {
     history.replaceState(null, '', `#j=${jid}&s=${step}`)
@@ -90,7 +106,7 @@ export function JourneyShell() {
   useEffect(() => {
     const draftPin = draft && { id: 'draft', screen, kind: 'requisito' as PinKind, text: '', createdAt: '', n: 0, ...draft }
     // Pinos só na visão desktop: nas outras o layout muda e as posições não batem.
-    const msg: ToFrame = { src: 'ctm-shell', mode: device === 'desktop' ? mode : 'off', pins: draftPin ? [...screenPins, draftPin] : screenPins, active }
+    const msg: ToFrame = { src: 'ctm-shell', profile, mode: device === 'desktop' ? mode : 'off', pins: draftPin ? [...screenPins, draftPin] : screenPins, active }
     frame.current?.contentWindow?.postMessage(msg, location.origin)
   })
 
@@ -172,9 +188,35 @@ export function JourneyShell() {
             </p>
             <div className="flex items-center gap-2">
               <p className="truncate font-mono text-sm font-medium">{framePath ? screen : current.path}</p>
-              <Badge variant="outline" className="gap-1">
-                <UserRound className="size-3" /> {current.profile ?? journey.profile}
-              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs hover:bg-muted"
+                  aria-label="Trocar perfil"
+                >
+                  <UserRound className="size-3" />
+                  <span className="text-muted-foreground">Perfil:</span>
+                  <span className="font-medium">{profile}</span>
+                  {profileOverride && profileOverride !== plannedProfile && (
+                    <span className="text-amber-400" title={`Previsto na jornada: ${plannedProfile}`}>
+                      *
+                    </span>
+                  )}
+                  <ChevronDown className="size-3 text-muted-foreground" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="dark">
+                  <DropdownMenuGroup>
+                  <DropdownMenuLabel>Ver tela como</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup value={profile} onValueChange={(v) => setProfileOverride(v as Profile)}>
+                    {profiles.map((p) => (
+                      <DropdownMenuRadioItem key={p} value={p}>
+                        {p}
+                        {p === plannedProfile && <span className="ml-auto text-[10px] text-muted-foreground">previsto</span>}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           <div className="ml-auto flex items-center gap-1">

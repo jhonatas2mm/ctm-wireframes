@@ -22,7 +22,7 @@ export const kinds: Record<PinKind, { label: string; color: string }> = {
 export type Mode = 'add' | 'view' | 'off'
 
 // Mensagens entre casca (shell) e protótipo (iframe).
-export type ToFrame = { src: 'ctm-shell'; mode: Mode; pins: (Pin & { n: number })[]; active: string | null }
+export type ToFrame = { src: 'ctm-shell'; profile: string; mode: Mode; pins: (Pin & { n: number })[]; active: string | null }
 export type ToShell =
   | { src: 'ctm-frame'; type: 'route'; path: string; screen: string }
   | { src: 'ctm-frame'; type: 'pick'; selector: string; x: number; y: number; px: number; py: number }
