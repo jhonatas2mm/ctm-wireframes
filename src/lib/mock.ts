@@ -33,3 +33,29 @@ const cursos: Curso[] = [
 ]
 
 export const useCursos = () => useCollection<Curso>('cursos', cursos)
+
+// Contratos geridos pelos Departamentos Regionais (DRs). Números, datas e valores FICTÍCIOS.
+export type StatusContrato = 'Vigente' | 'Em elaboração' | 'Encerrado'
+
+export type Contrato = {
+  id: string
+  numero: string
+  dr: string // Departamento Regional (UF)
+  vigenciaInicio: string
+  vigenciaFim: string
+  produtos: number // cursos vinculados
+  status: StatusContrato
+}
+
+const contratos: Contrato[] = [
+  { id: '1', numero: '001/2026', dr: 'SP', vigenciaInicio: '01/02/2026', vigenciaFim: '31/01/2027', produtos: 12, status: 'Vigente' },
+  { id: '2', numero: '002/2026', dr: 'MG', vigenciaInicio: '15/03/2026', vigenciaFim: '14/03/2027', produtos: 8, status: 'Vigente' },
+  { id: '3', numero: '003/2026', dr: 'RS', vigenciaInicio: '01/04/2026', vigenciaFim: '31/03/2027', produtos: 5, status: 'Vigente' },
+  { id: '4', numero: '004/2026', dr: 'BA', vigenciaInicio: '—', vigenciaFim: '—', produtos: 0, status: 'Em elaboração' },
+  { id: '5', numero: '005/2026', dr: 'PR', vigenciaInicio: '01/06/2026', vigenciaFim: '31/05/2027', produtos: 9, status: 'Vigente' },
+  { id: '6', numero: '006/2026', dr: 'PE', vigenciaInicio: '—', vigenciaFim: '—', produtos: 2, status: 'Em elaboração' },
+  { id: '7', numero: '014/2025', dr: 'SC', vigenciaInicio: '01/03/2025', vigenciaFim: '28/02/2026', produtos: 7, status: 'Encerrado' },
+  { id: '8', numero: '021/2025', dr: 'GO', vigenciaInicio: '01/07/2025', vigenciaFim: '30/06/2026', produtos: 4, status: 'Encerrado' },
+]
+
+export const useContratos = () => useCollection<Contrato>('contratos', contratos)
