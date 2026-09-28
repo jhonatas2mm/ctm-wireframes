@@ -13,7 +13,7 @@ export const journeys: Journey[] = [
     title: 'Novo produto',
     profile: 'Operador',
     steps: [
-      { title: 'Dashboard', path: '/dashboard', note: 'Usuário clica em “Novo produto”.' },
+      { title: 'Gestão de TA', path: '/dashboard', note: 'Usuário clica em “Novo produto”.' },
       { title: 'Buscar curso', path: '/dashboard/novo-produto', note: 'Busca o curso por código ou nome e seleciona.' },
     ],
   },

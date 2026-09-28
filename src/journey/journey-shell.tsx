@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, ChevronDown, RotateCcw, Lock, Route, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -32,6 +33,36 @@ function readHash() {
 
 // Domínio fictício exibido na barra do navegador simulada.
 const APP_HOST = 'app.ctm.com.br'
+
+// Desktop é renderizado numa largura fixa e reduzido para caber (telas pequenas não espremem o layout).
+const DESKTOP_WIDTH = 1440
+
+function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; src: string; scaled: boolean }) {
+  const box = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState({ w: 0, h: 0 })
+  useEffect(() => {
+    const el = box.current!
+    const ro = new ResizeObserver(() => setSize({ w: el.clientWidth, h: el.clientHeight }))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const k = scaled && size.w ? Math.min(1, size.w / DESKTOP_WIDTH) : 1
+  return (
+    <div ref={box} className="relative min-h-0 flex-1 overflow-hidden">
+      <iframe
+        ref={ref}
+        src={src}
+        title="Protótipo"
+        className="absolute top-0 left-0 origin-top-left"
+        style={
+          k < 1
+            ? { width: DESKTOP_WIDTH, height: size.h / k, transform: `scale(${k})` }
+            : { width: '100%', height: '100%' }
+        }
+      />
+    </div>
+  )
+}
 
 const devices = [
   { id: 'desktop', icon: Monitor, width: '100%' },
@@ -305,7 +336,7 @@ export function JourneyShell() {
                   </span>
                 </div>
               </div>
-              <iframe ref={frame} src={src} title="Protótipo" className="min-h-0 w-full flex-1" />
+              <ScaledFrame ref={frame} src={src} scaled={device === 'desktop'} />
             </div>
           </div>
           {panel && (
