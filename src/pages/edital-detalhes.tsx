@@ -20,7 +20,7 @@ export function EditalDetalhes({ edital, onClose }: { edital: Edital | null; onC
     : []
   return (
     <Dialog open={!!e} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle>Edital {e?.numero}</DialogTitle>
         </DialogHeader>
@@ -42,6 +42,7 @@ export function EditalDetalhes({ edital, onClose }: { edital: Edital | null; onC
                 <th className="font-medium">Modalidade</th>
                 <th className="text-right font-medium">CH</th>
                 <th className="text-right font-medium">Valor</th>
+                <th className="pl-4 font-medium">DRs credenciados</th>
               </tr>
             </thead>
             <tbody>
@@ -52,6 +53,7 @@ export function EditalDetalhes({ edital, onClose }: { edital: Edital | null; onC
                   <td>{c.modalidade}</td>
                   <td className="text-right tabular-nums">{c.cargaHoraria} h</td>
                   <td className="text-right tabular-nums">{brl(c.valor)}</td>
+                  <td className="pl-4">{c.drs.map((uf) => `SENAI-${uf}`).join(', ')}</td>
                 </tr>
               ))}
             </tbody>

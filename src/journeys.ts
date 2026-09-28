@@ -9,6 +9,15 @@ export type Journey = { id: string; title: string; description?: string; profile
 
 export const journeys: Journey[] = [
   {
+    id: 'cadastro-produtos',
+    title: 'Cadastro de produtos',
+    profile: 'DR credenciada',
+    steps: [
+      { title: 'Portfólio de Produtos', path: '/produtos', note: 'DR credenciada clica em “Cadastrar produto”.' },
+      { title: 'Cadastrar produto', path: '/produtos/novo', note: 'Preenche os dados do produto (campos a definir).' },
+    ],
+  },
+  {
     id: 'gestao-editais',
     title: 'Gestão de Editais',
     profile: 'Supervisora',

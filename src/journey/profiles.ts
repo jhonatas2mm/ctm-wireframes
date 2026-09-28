@@ -1,11 +1,11 @@
 // Perfis de acesso (nome + cor de destaque). Mantidos pelo Claude a pedido — não edite pela interface.
 // Jornadas referenciam o perfil pelo nome.
-export type ProfileDef = { name: string; color: string }
+// user: pessoa fictícia mostrada no avatar do menu do protótipo quando este perfil está ativo.
+export type ProfileDef = { name: string; color: string; user?: { nome: string; email: string } }
 
 export const profiles: ProfileDef[] = [
-  { name: 'Gestor', color: '#7c3aed' },
-  { name: 'Supervisora', color: '#0284c7' },
-  { name: 'Cliente', color: '#16a34a' },
+  { name: 'Supervisora', color: '#0284c7', user: { nome: 'Maria Silva', email: 'maria.silva@senai.br' } },
+  { name: 'DR credenciada', color: '#ea580c', user: { nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br' } },
 ]
 
 export const profileOf = (name: string): ProfileDef =>

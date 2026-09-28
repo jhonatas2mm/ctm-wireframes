@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useCursos, useEditais } from '@/lib/mock'
 
 const UFS = 'AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ')
@@ -76,7 +77,7 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
   )
 }
 
-type Item = { id: string; ch: string; valor: string } // valor em centavos (só dígitos)
+type Item = { id: string; ch: string; valor: string; drs: string[] } // valor em centavos (só dígitos); drs = DRs credenciados no curso
 const centavos = (v: string) => Number(v || 0) / 100
 
 // Gerar novo edital: vigência, DRs credenciados e cursos (área, modalidade e CH fixas do catálogo; só o valor é ajustável por curso).
@@ -91,7 +92,8 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
   const desfazer = () => setHist((h) => (h.past.length ? { past: h.past.slice(0, -1), present: h.past[h.past.length - 1], future: [h.present, ...h.future] } : h))
   const avancar = () => setHist((h) => (h.future.length ? { past: [...h.past, h.present], present: h.future[0], future: h.future.slice(1) } : h))
   const [busca, setBusca] = useState('')
-  const [drs, setDrs] = useState<string[]>([])
+  const [loteDrs, setLoteDrs] = useState<string[]>([])
+  const [replicarAberto, setReplicarAberto] = useState(false)
   const [inicio, setInicio] = useState('')
   const [fim, setFim] = useState('')
   const [marcados, setMarcados] = useState<string[]>([])
@@ -105,9 +107,9 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
   )
   const chTotal = itens.reduce((t, i) => t + Number(i.ch || 0), 0)
   const valorTotal = itens.reduce((t, i) => t + centavos(i.valor), 0)
-  const itensOk = itens.length > 0 && itens.every((i) => Number(i.valor) > 0)
+  const itensOk = itens.length > 0 && itens.every((i) => Number(i.valor) > 0 && i.drs.length > 0)
   const vigOk = !!inicio && !!fim && fim >= inicio
-  const faltando = [!vigOk && 'vigência', !drs.length && 'DRs', !itensOk && 'cursos com valor'].filter(Boolean)
+  const faltando = [!vigOk && 'vigência', !itensOk && 'cursos com valor e DRs'].filter(Boolean)
 
   const setItem = (id: string, patch: Partial<Item>) => setItens((xs) => xs.map((x) => (x.id === id ? { ...x, ...patch } : x)))
   const todosMarcados = itens.length > 0 && marcados.length === itens.length
@@ -117,7 +119,7 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
     setItens((xs) => xs.map((x) => (alvo.includes(x.id) ? { ...x, ...patch } : x)))
     toast(`Aplicado em ${alvo.length} curso(s)`)
   }
-  const reset = () => (setHist({ past: [], present: [], future: [] }), setBusca(''), setDrs([]), setInicio(''), setFim(''), setMarcados([]), setLoteValor(''))
+  const reset = () => (setHist({ past: [], present: [], future: [] }), setBusca(''), setLoteDrs([]), setInicio(''), setFim(''), setMarcados([]), setLoteValor(''))
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -132,23 +134,22 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
 
         <form
           id="novo-edital"
-          className="grid min-h-0 flex-1 grid-cols-[minmax(0,3fr)_minmax(0,4fr)_minmax(0,5fr)]"
+          className="grid min-h-0 flex-1 grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
           onSubmit={(e) => {
             e.preventDefault()
             if (faltando.length) return
             const cs = itens.map((i) => {
               const c = byId(i.id)
-              return { nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: Number(i.ch), valor: centavos(i.valor) }
+              return { nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: Number(i.ch), valor: centavos(i.valor), drs: i.drs }
             })
-            db.add({ numero, ctm: [], cursos: cs, cargaHoraria: chTotal, valor: valorTotal, drs, vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim) })
+            db.add({ numero, ctm: [], cursos: cs, cargaHoraria: chTotal, valor: valorTotal, drs: [...new Set(itens.flatMap((i) => i.drs))], vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim) })
             toast.success(`Edital ${numero} gerado`)
             reset()
             onOpenChange(false)
           }}
         >
-          {/* Esquerda: onde, quais cursos e quem executa */}
-          {/* Coluna 1: vigência e DRs */}
-          <div className="grid content-start gap-8 overflow-y-auto border-r px-6 py-6">
+          {/* Esquerda: vigência e catálogo de cursos */}
+          <div className="flex min-h-0 flex-col gap-6 border-r px-6 py-6">
             <Secao titulo="Vigência">
               <div className="grid grid-cols-2 gap-3">
                 <label className="grid gap-1 text-xs">
@@ -161,15 +162,7 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
                 </label>
               </div>
             </Secao>
-
-            <Secao titulo="DRs credenciados">
-              <EstadosInput value={drs} onChange={setDrs} placeholder="Buscar DR por sigla ou estado…" prefix="SENAI-" />
-            </Secao>
-          </div>
-
-          {/* Coluna 2: catálogo de cursos */}
-          <div className="flex min-h-0 flex-col gap-3 border-r px-6 py-6">
-            <h3 className="text-sm font-semibold">Cursos</h3>
+            <h3 className="-mb-3 text-sm font-semibold">Cursos</h3>
               <div className="flex min-h-0 flex-1 flex-col rounded-lg border">
                 <div className="relative">
                   <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -186,7 +179,7 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
                     <li key={c.id}>
                       <button
                         type="button"
-                        onClick={() => setItens((xs) => [...xs, { id: c.id, ch: String(c.cargaHoraria), valor: '' }])}
+                        onClick={() => setItens((xs) => [...xs, { id: c.id, ch: String(c.cargaHoraria), valor: '', drs: [] }])}
                         className="hover:bg-accent/60 group flex w-full items-center gap-2 border-b px-3 py-1.5 text-left text-sm last:border-0"
                       >
                         <Plus className="text-muted-foreground group-hover:text-foreground size-3.5 shrink-0" />
@@ -202,39 +195,35 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
               </div>
           </div>
 
-          {/* Coluna 3: cursos adicionados, com valor editável e replicação em lote */}
+          {/* Direita: cursos adicionados — valor e DRs credenciados por curso, com replicação em lote */}
           <div className="bg-muted/30 flex min-h-0 flex-col">
             <div className="flex items-center justify-between border-b px-6 py-3">
               <div>
                 <h3 className="text-sm font-semibold">Cursos do edital ({itens.length})</h3>
               </div>
               {itens.length > 0 && (
-                <label className="flex items-center gap-2 text-xs">
-                  <input type="checkbox" checked={todosMarcados} onChange={(e) => setMarcados(e.target.checked ? itens.map((i) => i.id) : [])} />
-                  Selecionar todos
-                </label>
+                <div className="flex items-center gap-3">
+                  {marcados.length > 0 && (
+                    <Button type="button" size="sm" variant="outline" onClick={() => setReplicarAberto(true)}>
+                      <Copy /> Replicar valores ({marcados.length})
+                    </Button>
+                  )}
+                  <label className="flex items-center gap-2 text-xs">
+                    <input type="checkbox" checked={todosMarcados} onChange={(e) => setMarcados(e.target.checked ? itens.map((i) => i.id) : [])} />
+                    Selecionar todos
+                  </label>
+                  <div className="flex gap-1 border-l pl-2">
+                    <Button type="button" size="icon-sm" variant="ghost" aria-label="Desfazer" title="Desfazer" disabled={!hist.past.length} onClick={desfazer}>
+                      <Undo2 />
+                    </Button>
+                    <Button type="button" size="icon-sm" variant="ghost" aria-label="Avançar" title="Avançar" disabled={!hist.future.length} onClick={avancar}>
+                      <Redo2 />
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
 
-            {itens.length > 0 && (
-              <div className="bg-background flex flex-wrap items-end gap-2 border-b px-6 py-3">
-                <p className="text-muted-foreground w-full text-xs">
-                  Replicar em {marcados.length ? `${marcados.length} curso(s) selecionado(s)` : 'todos os cursos'}:
-                </p>
-                <Input className="h-8 w-48" inputMode="numeric" placeholder="R$ 0,00" value={loteValor ? brl(centavos(loteValor)) : ''} onChange={(e) => setLoteValor(e.target.value.replace(/\D/g, ''))} />
-                <Button type="button" size="sm" variant="outline" disabled={!loteValor} onClick={() => replicar({ valor: loteValor })}>
-                  <Copy /> Aplicar valor
-                </Button>
-                <div className="ml-auto flex gap-1">
-                  <Button type="button" size="icon-sm" variant="ghost" aria-label="Desfazer" title="Desfazer" disabled={!hist.past.length} onClick={desfazer}>
-                    <Undo2 />
-                  </Button>
-                  <Button type="button" size="icon-sm" variant="ghost" aria-label="Avançar" title="Avançar" disabled={!hist.future.length} onClick={avancar}>
-                    <Redo2 />
-                  </Button>
-                </div>
-              </div>
-            )}
 
             <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
               {itens.length === 0 ? (
@@ -269,6 +258,10 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
                         <Button type="button" variant="ghost" size="icon-sm" aria-label={`Remover ${c.nome}`} onClick={() => (setItens((xs) => xs.filter((x) => x.id !== i.id)), setMarcados((m) => m.filter((x) => x !== i.id)))}>
                           <X />
                         </Button>
+                        <div className="col-span-full grid gap-1 pl-7 text-xs">
+                          <span className="text-muted-foreground">DRs credenciados</span>
+                          <EstadosInput value={i.drs} onChange={(v) => setItem(i.id, { drs: v })} placeholder="Buscar DR por sigla ou estado…" prefix="SENAI-" />
+                        </div>
                       </li>
                     )
                   })}
@@ -291,6 +284,38 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
           </div>
         </SheetFooter>
       </SheetContent>
+      <Dialog open={replicarAberto} onOpenChange={setReplicarAberto}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Replicar em {marcados.length} curso(s) selecionado(s)</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <label className="grid gap-1 text-xs">
+              <span className="text-muted-foreground">DRs credenciados</span>
+              <EstadosInput value={loteDrs} onChange={setLoteDrs} placeholder="Buscar DR por sigla ou estado…" prefix="SENAI-" />
+            </label>
+            <label className="grid gap-1 text-xs">
+              <span className="text-muted-foreground">Valor</span>
+              <Input inputMode="numeric" placeholder="R$ 0,00" value={loteValor ? brl(centavos(loteValor)) : ''} onChange={(e) => setLoteValor(e.target.value.replace(/\D/g, ''))} />
+            </label>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setReplicarAberto(false)}>Cancelar</Button>
+            <Button
+              type="button"
+              disabled={!loteDrs.length && !loteValor}
+              onClick={() => {
+                replicar({ ...(loteDrs.length ? { drs: loteDrs } : {}), ...(loteValor ? { valor: loteValor } : {}) })
+                setLoteDrs([])
+                setLoteValor('')
+                setReplicarAberto(false)
+              }}
+            >
+              Aplicar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Sheet>
   )
 }

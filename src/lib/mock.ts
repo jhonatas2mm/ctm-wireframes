@@ -65,7 +65,7 @@ export const useContratos = () => useCollection<Contrato>('contratos', contratos
 
 // Editais: oferta de cursos em CTMs (estados), com os DRs credenciados a executá-los. Dados FICTÍCIOS.
 // Área, modalidade e CH vêm do catálogo (fixas); só o valor é definido por curso no edital.
-export type CursoEdital = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number }
+export type CursoEdital = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number; drs: string[] } // drs = DRs credenciados no curso
 
 export type Edital = {
   id: string
@@ -74,25 +74,25 @@ export type Edital = {
   cursos: CursoEdital[]
   cargaHoraria: number // soma das CH dos cursos
   valor: number // soma dos valores dos cursos (R$)
-  drs: string[] // DRs credenciados
+  drs: string[] // DRs credenciados (união dos DRs dos cursos)
   vigenciaInicio: string // dd/mm/aaaa
   vigenciaFim: string
 }
 
-const ce = (nome: string, area: string, modalidade: string, cargaHoraria: number, valor: number): CursoEdital => ({ nome, area, modalidade, cargaHoraria, valor })
-const edital = (id: string, numero: string, ctm: string[], cursos: CursoEdital[], drs: string[], vigencia: [string, string]): Edital => ({
-  id, numero, ctm, cursos, drs, vigenciaInicio: vigencia[0], vigenciaFim: vigencia[1],
+const ce = (nome: string, area: string, modalidade: string, cargaHoraria: number, valor: number, drs: string[]): CursoEdital => ({ nome, area, modalidade, cargaHoraria, valor, drs })
+const edital = (id: string, numero: string, ctm: string[], cursos: CursoEdital[], vigencia: [string, string]): Edital => ({
+  id, numero, ctm, cursos, drs: [...new Set(cursos.flatMap((c) => c.drs))], vigenciaInicio: vigencia[0], vigenciaFim: vigencia[1],
   cargaHoraria: cursos.reduce((t, c) => t + c.cargaHoraria, 0),
   valor: cursos.reduce((t, c) => t + c.valor, 0),
 })
 
 const editais: Edital[] = [
-  edital('1', 'ED-001/2026', ['SP', 'RJ'], [ce('Técnico em Mecatrônica', 'Automação', 'Técnico', 1200, 4800), ce('Técnico em Automação Industrial', 'Automação', 'Técnico', 1200, 4800)], ['SP', 'MG'], ['01/02/2026', '31/01/2027']),
-  edital('2', 'ED-002/2026', ['MG'], [ce('Soldador', 'Metalmecânica', 'Qualificação Profissional', 160, 1280), ce('Eletricista Instalador Predial', 'Eletroeletrônica', 'Qualificação Profissional', 200, 1500)], ['MG'], ['01/03/2026', '28/02/2027']),
-  edital('3', 'ED-003/2026', ['RS'], [ce('Mecânico de Usinagem', 'Metalmecânica', 'Aprendizagem Industrial', 800, 5600)], ['RS', 'SC', 'PR'], ['01/06/2026', '31/05/2027']),
-  edital('4', 'ED-004/2026', ['PR'], [ce('Controladores Lógicos Programáveis', 'Automação', 'Aperfeiçoamento', 60, 540)], ['PR'], ['01/08/2026', '31/12/2026']),
-  edital('5', 'ED-005/2026', ['SP'], [ce('Técnico em Desenvolvimento de Sistemas', 'Tecnologia da Informação', 'Técnico', 1200, 10200)], ['SP'], ['01/01/2026', '31/12/2026']),
-  edital('6', 'ED-006/2026', ['BA'], [ce('Operador de Empilhadeira', 'Logística', 'Qualificação Profissional', 40, 320)], ['BA', 'PE'], ['15/09/2026', '14/09/2027']),
+  edital('1', 'ED-001/2026', ['SP', 'RJ'], [ce('Técnico em Mecatrônica', 'Automação', 'Técnico', 1200, 4800, ['SP', 'MG']), ce('Técnico em Automação Industrial', 'Automação', 'Técnico', 1200, 4800, ['SP'])], ['01/02/2026', '31/01/2027']),
+  edital('2', 'ED-002/2026', ['MG'], [ce('Soldador', 'Metalmecânica', 'Qualificação Profissional', 160, 1280, ['MG']), ce('Eletricista Instalador Predial', 'Eletroeletrônica', 'Qualificação Profissional', 200, 1500, ['MG'])], ['01/03/2026', '28/02/2027']),
+  edital('3', 'ED-003/2026', ['RS'], [ce('Mecânico de Usinagem', 'Metalmecânica', 'Aprendizagem Industrial', 800, 5600, ['RS', 'SC', 'PR'])], ['01/06/2026', '31/05/2027']),
+  edital('4', 'ED-004/2026', ['PR'], [ce('Controladores Lógicos Programáveis', 'Automação', 'Aperfeiçoamento', 60, 540, ['PR'])], ['01/08/2026', '31/12/2026']),
+  edital('5', 'ED-005/2026', ['SP'], [ce('Técnico em Desenvolvimento de Sistemas', 'Tecnologia da Informação', 'Técnico', 1200, 10200, ['SP'])], ['01/01/2026', '31/12/2026']),
+  edital('6', 'ED-006/2026', ['BA'], [ce('Operador de Empilhadeira', 'Logística', 'Qualificação Profissional', 40, 320, ['BA', 'PE'])], ['15/09/2026', '14/09/2027']),
 ]
 
-export const useEditais = () => useCollection<Edital>('editais-v6', editais)
+export const useEditais = () => useCollection<Edital>('editais-v7', editais)
