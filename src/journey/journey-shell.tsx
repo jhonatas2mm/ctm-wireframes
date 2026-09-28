@@ -35,7 +35,8 @@ export function JourneyShell() {
   const [mode, setMode] = useState<Mode>('view')
   const [panel, setPanel] = useState(false)
   const [active, setActive] = useState<string | null>(null)
-  const [draft, setDraft] = useState<Pick<Pin, 'selector' | 'x' | 'y'> | null>(null)
+  const [draft, setDraft] = useState<Pick<Pin, 'selector' | 'x' | 'y' | 'px' | 'py'> | null>(null)
+  const [orphans, setOrphans] = useState<string[]>([])
 
   const journey = journeys.find((j) => j.id === jid)!
   const current = journey.steps[step]
@@ -72,13 +73,14 @@ export function JourneyShell() {
         setDraft(null)
         setActive(null)
       } else if (m.type === 'pick') {
-        setDraft({ selector: m.selector, x: m.x, y: m.y })
+        setDraft({ selector: m.selector, x: m.x, y: m.y, px: m.px, py: m.py })
         setMode('view')
         setPanel(true)
       } else if (m.type === 'select') {
         setActive(m.id)
         setPanel(true)
-      } else if (m.type === 'cancel') setMode('view')
+      } else if (m.type === 'orphans') setOrphans(m.ids)
+      else if (m.type === 'cancel') setMode('view')
     }
     addEventListener('message', onMsg)
     return () => removeEventListener('message', onMsg)
@@ -87,7 +89,8 @@ export function JourneyShell() {
   // Envia ao protótipo o que desenhar.
   useEffect(() => {
     const draftPin = draft && { id: 'draft', screen, kind: 'requisito' as PinKind, text: '', createdAt: '', n: 0, ...draft }
-    const msg: ToFrame = { src: 'ctm-shell', mode, pins: draftPin ? [...screenPins, draftPin] : screenPins, active }
+    // Pinos só na visão desktop: nas outras o layout muda e as posições não batem.
+    const msg: ToFrame = { src: 'ctm-shell', mode: device === 'desktop' ? mode : 'off', pins: draftPin ? [...screenPins, draftPin] : screenPins, active }
     frame.current?.contentWindow?.postMessage(msg, location.origin)
   })
 
@@ -172,6 +175,8 @@ export function JourneyShell() {
           <div className="ml-auto flex items-center gap-1">
             {canEdit && (
               <Button
+                disabled={device !== 'desktop'}
+                title={device !== 'desktop' ? 'Anotações só na visão desktop' : undefined}
                 size="sm"
                 variant={mode === 'add' ? 'default' : 'ghost'}
                 onClick={() => setMode(mode === 'add' ? 'view' : 'add')}
@@ -219,6 +224,7 @@ export function JourneyShell() {
             <AnnotationPanel
               screen={screen}
               pins={screenPins}
+              orphans={orphans}
               drafting={!!draft}
               active={active}
               onSelect={setActive}

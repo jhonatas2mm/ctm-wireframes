@@ -68,6 +68,7 @@ function PinForm({
 export function AnnotationPanel({
   screen,
   pins,
+  orphans,
   drafting,
   active,
   onSelect,
@@ -79,6 +80,7 @@ export function AnnotationPanel({
 }: {
   screen: string
   pins: (Pin & { n: number })[]
+  orphans: string[]
   drafting: boolean
   active: string | null
   onSelect: (id: string | null) => void
@@ -134,12 +136,13 @@ export function AnnotationPanel({
                   <span
                     className={cn(
                       'flex size-5 items-center justify-center rounded-full rounded-bl-none text-[10px] font-semibold text-white',
-                      kinds[p.kind].color,
+                      orphans.includes(p.id) ? 'bg-red-600' : kinds[p.kind].color,
                     )}
                   >
                     {p.n}
                   </span>
                   <span className="text-xs text-muted-foreground">{kinds[p.kind].label}</span>
+                  {orphans.includes(p.id) && <span className="text-[10px] text-red-500">solto</span>}
                   {canEdit && (
                     <div className="ml-auto hidden gap-0.5 group-hover:flex">
                       <Button

@@ -71,7 +71,7 @@ export function PinLayer() {
       e.preventDefault()
       e.stopPropagation()
       const r = el.getBoundingClientRect()
-      post({ type: 'pick', selector: selectorFor(el), x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height })
+      post({ type: 'pick', selector: selectorFor(el), x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height, px: e.clientX + scrollX, py: e.clientY + scrollY })
     }
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && post({ type: 'cancel' })
     const block = (e: Event) => {
@@ -96,6 +96,16 @@ export function PinLayer() {
     }
   }, [st.mode])
 
+  // Pino "solto": elemento âncora sumiu → usa a posição de reserva e fica vermelho.
+  const placed = st.pins.map((p) => {
+    const el = document.querySelector(p.selector)
+    const r = el?.getBoundingClientRect()
+    if (r && (r.width || r.height)) return { p, left: r.left + p.x * r.width, top: r.top + p.y * r.height, orphan: false }
+    return { p, left: (p.px ?? 24) - scrollX, top: (p.py ?? 24 + p.n * 32) - scrollY, orphan: true }
+  })
+  const orphanKey = placed.filter((x) => x.orphan && x.p.id !== 'draft').map((x) => x.p.id).join()
+  useEffect(() => post({ type: 'orphans', ids: orphanKey ? orphanKey.split(',') : [] }), [orphanKey])
+
   if (st.mode === 'off') return null
 
   return (
@@ -106,23 +116,19 @@ export function PinLayer() {
           style={{ left: hover.left, top: hover.top, width: hover.width, height: hover.height }}
         />
       )}
-      {st.pins.map((p) => {
-        const el = document.querySelector(p.selector)
-        if (!el) return null
-        const r = el.getBoundingClientRect()
-        if (r.width === 0 && r.height === 0) return null
+      {placed.map(({ p, left, top, orphan }) => {
         const active = st.active === p.id
         return (
           <div
             key={p.id}
             className="group absolute"
-            style={{ left: r.left + p.x * r.width, top: r.top + p.y * r.height }}
+            style={{ left, top }}
           >
             <button
               onClick={() => post({ type: 'select', id: p.id })}
               className={cn(
                 'pointer-events-auto flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full rounded-bl-none text-[11px] font-semibold text-white shadow-md ring-2 ring-white transition-transform',
-                kinds[p.kind].color,
+                orphan ? 'bg-red-600' : kinds[p.kind].color,
                 active && 'scale-125 ring-black',
               )}
             >
@@ -135,7 +141,10 @@ export function PinLayer() {
                   active && 'block',
                 )}
               >
-                <p className="mb-1 font-semibold">{kinds[p.kind].label}</p>
+                <p className="mb-1 font-semibold">
+                  {kinds[p.kind].label}
+                  {orphan && <span className="ml-1 font-normal text-red-600">· elemento não encontrado</span>}
+                </p>
                 <p className="whitespace-pre-wrap">{p.text}</p>
               </div>
             )}
