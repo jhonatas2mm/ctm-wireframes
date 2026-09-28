@@ -46,6 +46,30 @@ const APP_HOST = 'app.ctm.com.br'
 // Desktop é renderizado numa largura fixa e reduzido para caber (telas pequenas não espremem o layout).
 const DESKTOP_WIDTH = 1440
 
+// Liga visualmente o seletor de perfil à moldura da tela: uma faixa na cor do perfil,
+// da mesma altura do seletor, que sai da direita dele e encosta na borda esquerda da moldura.
+function ProfileConnector({ from, to, color }: { from: React.RefObject<HTMLElement | null>; to: React.RefObject<HTMLElement | null>; color: string }) {
+  const [r, setR] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
+  useEffect(() => {
+    const calc = () => {
+      const a = from.current?.getBoundingClientRect()
+      const b = to.current?.getBoundingClientRect()
+      if (!a || !b) return setR(null)
+      const x = a.right - 8 // começa por baixo do seletor, sem fresta
+      setR({ x, y: a.top, w: b.left + 2 - x, h: a.height }) // até o meio da borda da moldura
+    }
+    calc()
+    const ro = new ResizeObserver(calc)
+    if (from.current) ro.observe(from.current)
+    if (to.current) ro.observe(to.current)
+    addEventListener('resize', calc)
+    const t = setInterval(calc, 500) // moldura anima a largura ao trocar de dispositivo
+    return () => (ro.disconnect(), removeEventListener('resize', calc), clearInterval(t))
+  }, [from, to])
+  if (!r || r.w <= 0) return null
+  return <div aria-hidden className="pointer-events-none fixed z-10" style={{ left: r.x, top: r.y, width: r.w, height: r.h, background: color }} />
+}
+
 function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; src: string; scaled: boolean }) {
   const box = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
@@ -99,6 +123,8 @@ export function JourneyShell() {
   const current = journey.steps[step] ?? journey.steps[0]
   const profile = current.profile ?? pid
   const profileDef = profileOf(profile)
+  const selectorRef = useRef<HTMLButtonElement>(null)
+  const frameRef = useRef<HTMLDivElement>(null)
   // Topo mostra só o nome da área; a URL completa vai na barra do navegador simulada.
   const shownPath = framePath ?? current.path
   const areaName = screens.find((s) => s.path === screen)?.title ?? current.title
@@ -170,15 +196,17 @@ export function JourneyShell() {
   // `dark` escurece os tokens só na casca; o protótipo no iframe não é afetado.
   return (
     <div className="shell-canvas dark flex h-svh text-foreground">
+      <ProfileConnector from={selectorRef} to={frameRef} color={profileDef.color} />
       <aside className="flex w-48 shrink-0 flex-col border-r border-dashed border-white/20">
         <div className="flex items-center gap-2 border-b border-dashed border-white/20 px-4 py-3 font-semibold">
           <Route className="size-4" /> Jornadas
         </div>
         <div className="border-b border-dashed border-white/20 p-2">
-          <p className="px-1 pb-1 text-[10px] tracking-wide text-muted-foreground uppercase">Perfil</p>
+          <p className="px-1 pb-1 text-[10px] font-semibold tracking-wide uppercase" style={{ color: profileOf(pid).color }}>Perfil</p>
           <DropdownMenu>
             <DropdownMenuTrigger
-              className="flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold text-white hover:brightness-110"
+              ref={selectorRef}
+              className="relative z-20 flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold text-white hover:brightness-110"
               style={{ background: profileOf(pid).color }}
               aria-label="Trocar perfil"
             >
@@ -319,7 +347,8 @@ export function JourneyShell() {
         <div className="flex min-h-0 flex-1">
           <div className="flex min-h-0 flex-1 justify-center overflow-auto p-6">
             <div
-              className="flex h-full flex-col overflow-hidden rounded-lg border-4 bg-background shadow-sm transition-[width]"
+              ref={frameRef}
+              className="flex h-full flex-col overflow-hidden rounded-lg rounded-tl-none border-4 bg-background shadow-sm transition-[width]"
               style={{ width: devices.find((d) => d.id === device)!.width, borderColor: profileDef.color }}
             >
               {/* Barra de navegador simulada */}

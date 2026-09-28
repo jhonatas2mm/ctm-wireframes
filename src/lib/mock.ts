@@ -64,7 +64,7 @@ const contratos: Contrato[] = [
 export const useContratos = () => useCollection<Contrato>('contratos', contratos)
 
 // Editais: oferta de cursos em CTMs (estados), com os DRs credenciados a executá-los. Dados FICTÍCIOS.
-// Área e modalidade vêm do catálogo (fixas); CH e valor podem ser ajustados por curso no edital.
+// Área, modalidade e CH vêm do catálogo (fixas); só o valor é definido por curso no edital.
 export type CursoEdital = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number }
 
 export type Edital = {
