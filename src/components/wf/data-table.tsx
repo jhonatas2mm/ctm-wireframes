@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, type LucideIcon } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -33,11 +34,13 @@ export function DataTable<T extends { id: string }>({
   columns,
   searchPlaceholder = 'Buscar…',
   onRowClick,
+  actions,
 }: {
   rows: T[]
   columns: Column<T>[]
   searchPlaceholder?: string
   onRowClick?: (row: T) => void
+  actions?: (row: T) => ReactNode // botões na última coluna (use RowAction)
 }) {
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
@@ -123,6 +126,7 @@ export function DataTable<T extends { id: string }>({
                     {c.header}
                   </TableHead>
                 ))}
+                {actions && <TableHead className="w-px text-right">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -137,6 +141,11 @@ export function DataTable<T extends { id: string }>({
                       {c.cell ? c.cell(r) : c.value(r)}
                     </TableCell>
                   ))}
+                  {actions && (
+                    <TableCell className="w-px" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex justify-end gap-0.5">{actions(r)}</div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -144,5 +153,37 @@ export function DataTable<T extends { id: string }>({
         </div>
       )}
     </div>
+  )
+}
+
+/** Botão de ação de linha: ícone com tooltip. */
+export function RowAction({
+  label,
+  icon: Icon,
+  onClick,
+  destructive,
+}: {
+  label: string
+  icon: LucideIcon
+  onClick: () => void
+  destructive?: boolean
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label={label}
+            onClick={onClick}
+            className={cn(destructive && 'text-destructive hover:bg-destructive/10 hover:text-destructive')}
+          />
+        }
+      >
+        <Icon />
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   )
 }

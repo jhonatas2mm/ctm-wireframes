@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { Eye, Pencil, Plus, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { DataTable, PageHeader, type Column } from '@/components/wf'
+import { DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
 import { useContratos, type Contrato, type StatusContrato } from '@/lib/mock'
 import { NovoProdutoSheet } from './novo-produto-sheet'
 
@@ -33,7 +34,7 @@ const colunas: Column<Contrato>[] = [
 export default function Dashboard() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { all: contratos } = useContratos()
+  const { all: contratos, remove } = useContratos()
 
   return (
     <>
@@ -47,7 +48,27 @@ export default function Dashboard() {
       />
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Contratos</h2>
-        <DataTable rows={contratos} columns={colunas} searchPlaceholder="Buscar contrato ou DR…" />
+        <DataTable
+          rows={contratos}
+          columns={colunas}
+          searchPlaceholder="Buscar contrato ou DR…"
+          actions={(c) => (
+            <>
+              <RowAction label="Visualizar" icon={Eye} onClick={() => toast(`Visualizar ${c.numero} — tela a desenhar`)} />
+              <RowAction label="Editar" icon={Pencil} onClick={() => toast(`Editar ${c.numero} — tela a desenhar`)} />
+              <RowAction
+                label="Excluir"
+                icon={Trash2}
+                destructive
+                onClick={() => {
+                  if (!confirm(`Excluir o contrato ${c.numero}?`)) return
+                  remove(c.id)
+                  toast(`Contrato ${c.numero} excluído`)
+                }}
+              />
+            </>
+          )}
+        />
       </section>
       <NovoProdutoSheet
         open={pathname === '/dashboard/novo-produto'}
