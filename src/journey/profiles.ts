@@ -4,7 +4,7 @@ export type ProfileDef = { name: string; color: string }
 
 export const profiles: ProfileDef[] = [
   { name: 'Gestor', color: '#7c3aed' },
-  { name: 'Operador', color: '#0284c7' },
+  { name: 'Supervisora', color: '#0284c7' },
   { name: 'Cliente', color: '#16a34a' },
 ]
 

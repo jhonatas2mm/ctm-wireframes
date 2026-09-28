@@ -41,7 +41,7 @@ export default function Dashboard() {
         title="Gestão de TA"
         actions={
           <Button onClick={() => navigate('/dashboard/novo-produto')}>
-            <Plus /> Novo produto
+            <Plus /> Novo TA
           </Button>
         }
       />
