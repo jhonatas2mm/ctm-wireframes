@@ -55,9 +55,10 @@ export function JourneyShell() {
   }
   const offPath = framePath !== null && framePath !== current.path
 
+  // `dark` escurece os tokens só na casca; o protótipo no iframe não é afetado.
   return (
-    <div className="flex h-svh bg-muted/40 text-foreground">
-      <aside className="flex w-72 shrink-0 flex-col border-r bg-background">
+    <div className="dark flex h-svh bg-black text-foreground">
+      <aside className="flex w-56 shrink-0 flex-col border-r bg-black">
         <div className="flex items-center gap-2 border-b px-4 py-3 font-semibold">
           <Route className="size-4" /> Jornadas
         </div>
@@ -76,7 +77,7 @@ export function JourneyShell() {
                   >
                     <span className="truncate">{j.title}</span>
                     <Badge variant={active ? 'default' : 'secondary'} className="tabular-nums">
-                      {j.steps.length} {j.steps.length === 1 ? 'etapa' : 'etapas'}
+                      {j.steps.length}
                     </Badge>
                   </button>
                   {active && (
@@ -115,7 +116,7 @@ export function JourneyShell() {
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className="flex flex-wrap items-center gap-3 border-b bg-background px-4 py-2">
+        <header className="flex flex-wrap items-center gap-3 border-b bg-black px-4 py-2">
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground">
               {journey.title} · Etapa {step + 1} de {journey.steps.length}
@@ -148,7 +149,7 @@ export function JourneyShell() {
           />
         </div>
 
-        <footer className="flex items-center gap-3 border-t bg-background px-4 py-2">
+        <footer className="flex items-center gap-3 border-t bg-black px-4 py-2">
           <Button variant="outline" size="sm" disabled={step === 0} onClick={() => go(jid, step - 1)}>
             <ChevronLeft /> Anterior
           </Button>
