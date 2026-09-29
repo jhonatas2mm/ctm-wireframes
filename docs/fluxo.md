@@ -62,6 +62,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - No aceite pelo Gestor da DR, ele fica registrado como **Gestor solicitante**.
 
 ## Edital (DN)
+- **Só o DN faz a gestão de editais** (Gestão de Editais: DN e Super admin). As CTMs **apenas participam** (oferecem o custo, fora do sistema); no sistema só consultam o edital (somente leitura) ao cadastrar produtos e montar TAAs.
 - Tem vigência e cursos.
 - Cada curso tem valor e DRs credenciados; entre eles, a **CTM aprovada** é a que ofereceu o **menor custo** para aquele produto (campo "CTM aprovada (menor custo)" no Novo edital; destaque nos detalhes do edital).
 - Todo TAA/contrato de um produto é com a CTM aprovada para ele.
@@ -341,3 +342,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Painel da DR solicitante: listas de Turmas e Requer atenção sem as bolinhas de iniciais.
 - 2026-09-29 — Selects (todos): a lista abre abaixo do campo com altura de até 24rem (ou o espaço da tela), só o necessário quando há poucas opções — antes abria sobre o campo e ficava curta.
 - 2026-09-29 — Badges de identificador (proposta, turma, TAA, versão etc.) em cor neutra (cinza), não mais azul.
+- 2026-09-29 — **Editais só do DN**: a CTM não faz gestão de editais, apenas participa (oferece o custo, fora do sistema) e consulta o edital em modo leitura. Regra explícita no fluxo e no mapa do processo; telas já restritas ao DN.
