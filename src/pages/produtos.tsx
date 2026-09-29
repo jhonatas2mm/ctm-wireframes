@@ -36,6 +36,7 @@ export function NumeroBadge({ numero }: { numero: string }) {
       {numero}
       <button
         type="button"
+        data-copiar
         aria-label={`Copiar ${numero}`}
         title="Copiar número"
         className="rounded p-0.5 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-800"

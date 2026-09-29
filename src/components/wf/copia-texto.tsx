@@ -12,6 +12,7 @@ export function CopiaTexto({ texto, rotulo = 'Copiar', children, className }: { 
       {children ?? texto}
       <button
         type="button"
+        data-copiar
         title={`${rotulo}: ${texto}`}
         aria-label={`${rotulo} ${texto}`}
         className="inline-flex size-5 shrink-0 items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
