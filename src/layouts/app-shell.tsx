@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type React from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, Outlet, useLocation, useSearchParams } from 'react-router-dom'
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +21,7 @@ import { ChevronDown, GraduationCap, LogOut, UserRound } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { BuscaRapida } from '@/components/wf/busca-rapida'
 import { Notificacoes } from '@/components/wf/notificacoes'
+import { AgenteBotao, AgentePainel } from '@/components/wf/agente'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { cn } from '@/lib/utils'
@@ -69,6 +70,10 @@ export function AppShell() {
       .map((g) => ({ key: `${sec}-${g.n}`, rotulo: setores.length > 1 ? [sec === 'Administração' ? '' : sec, g.n].filter(Boolean).join(' · ') : g.n, lista: g.lista })),
   )
   const colapsavel = setores.length > 1
+  // Agente inteligente: chat na lateral direita (empurra a tela); ?agente=1 abre direto (etapa de jornada)
+  const [params] = useSearchParams()
+  const [agente, setAgente] = useState(false)
+  useEffect(() => { if (params.get('agente')) setAgente(true) }, [params])
   const [abertos, setAbertos] = useState<Record<string, boolean>>({})
   const iniciais = user.nome.split(' ').map((p) => p[0]).slice(0, 2).join('')
 
@@ -134,9 +139,10 @@ export function AppShell() {
         <header className="flex h-12 items-center gap-2 px-4 md:px-6 ">
           {/* PageHeader renderiza o breadcrumb aqui via portal */}
           <div id="topbar-slot" className="min-w-0 flex-1" />
+          <AgenteBotao aberto={agente} onClick={() => setAgente(!agente)} />
           {/* Usuário logado (fictício): só o avatar no canto superior direito; nome e perfil ficam no dropdown */}
           <DropdownMenu>
-            <DropdownMenuTrigger render={<button type="button" aria-label={`Conta de ${user.nome}`} className="ml-auto shrink-0 rounded-full ring-offset-2 hover:ring-2 hover:ring-[#E4E8E9]" />}>
+            <DropdownMenuTrigger render={<button type="button" aria-label={`Conta de ${user.nome}`} className="shrink-0 rounded-full ring-offset-2 hover:ring-2 hover:ring-[#E4E8E9]" />}>
               <Avatar className="size-9">
                 {/* Foto opcional: public/avatars/<e-mail>.jpg; sem arquivo, mostra as iniciais (círculo azul do DS). */}
                 <AvatarImage src={`${import.meta.env.BASE_URL}avatars/${user.email}.jpg`} alt="" />
@@ -161,6 +167,7 @@ export function AppShell() {
           <Outlet />
         </div>
       </SidebarInset>
+      <AgentePainel aberto={agente} onClose={() => setAgente(false)} />
     </SidebarProvider>
   )
 }

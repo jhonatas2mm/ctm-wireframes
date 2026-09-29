@@ -292,4 +292,13 @@ export const journeys: Journey[] = [
       { title: 'Detalhes do estudante', path: '/alunos/a2', profile: 'DR solicitante: Gestor EAD', note: 'Motivos que pedem atitude, notas das atividades e histórico de acessos ao AVA e ao Portal do estudante.' },
     ],
   },
+  {
+    id: 'agente-inteligente',
+    title: 'Agente inteligente',
+    profile: 'CTM: Gestor EAD',
+    steps: [
+      { title: 'Abrir o agente', path: '/produtos', focus: '[data-agente-botao]', profile: 'CTM: Gestor EAD', note: 'No topo, à esquerda do avatar, o botão do Agente inteligente (o rótulo aparece ao carregar a tela e depois recolhe). Clicar abre o chat na lateral direita, empurrando a tela.' },
+      { title: 'Ações rápidas e jornada de exemplo', path: '/produtos?agente=1', focus: '[data-agente-enviar]', profile: 'CTM: Gestor EAD', note: 'O agente traz ações rápidas do dia a dia (pendências, propostas aguardando, turmas que começam, aditivos). O campo já vem com a próxima pergunta do exemplo: é só apertar Enviar para percorrer a jornada (pendências → propostas aguardando → rascunho de lembrete à DR → turmas próximas → lembrete). Respostas simuladas com os dados do protótipo.' },
+    ],
+  },
 ]

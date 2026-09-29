@@ -26,6 +26,7 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 7f. **Financeiro** (CTM: Coordenador EAD) — situação de cobrança por aluno e formalizações → Relatório de cobrança (Gestor EAD): proposta → relatório do ciclo.
 7g. **Criação de portfólio, de proposta e de oferta** (CTM: Gestor EAD) — as mesmas jornadas 5, 6 e 7, pelo Gestor EAD.
 8. **Acompanhamento da execução** (DR solicitante: Gestor EAD) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
+9. **Agente inteligente** (todos os perfis; exemplo com CTM: Gestor EAD) — botão no topo → chat na lateral direita com ações rápidas e jornada de exemplo (só apertar Enviar).
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
@@ -177,6 +178,11 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **CH na Nova oferta**: hoje a soma das CHs acima da CH do produto **bloqueia** o "Salvar oferta", o que conflita com o padrão "nenhum campo bloqueia o protótipo". A definir: manter como regra estrutural ou só avisar (total em vermelho) sem bloquear.
 - Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, perfil Analista, acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
+## Agente inteligente
+- Botão no topo, à esquerda do avatar; abre um **chat de IA na lateral direita** (empurra a tela). No protótipo as respostas são **simuladas** a partir dos dados fictícios.
+- **Ações rápidas** do dia a dia, por perfil: CTM (pendências, propostas aguardando retorno, turmas que começam em breve, aditivos), DR solicitante (pendências, TAAs para analisar, turmas que pedem atenção), DN (aprovações de portfólio, TAAs em andamento).
+- **Jornada de exemplo**: o campo já vem com a próxima pergunta; basta apertar Enviar. As respostas trazem itens com atalho para a tela; o agente só **sugere** (ex.: rascunho de lembrete à DR) — quem envia é o usuário.
+
 ## Percurso (histórico de decisões)
 - 2026-09-28 — Removidos "Salvar e enviar" e o fluxo de envio/aceite duplo. A proposta só é criada e depois marcada como aceita.
 - 2026-09-28 — Gestão da proposta: botões Aprovada/Recusada; recusa exige feedback.
@@ -306,3 +312,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Financeiro sem abas: DRs em cards na tela inicial; Acompanhamento dos alunos e Relatórios de cobrança viram navegação interna com breadcrumb (Financeiro > …). Detalhe da oferta: breadcrumb Gestão da oferta > proposta > turma.
 - 2026-09-29 — Financeiro volta a ter as três abas (Situação dos alunos, Acompanhamento dos alunos, Relatório de cobrança); a DR escolhida nos cards mantém o breadcrumb.
 - 2026-09-29 — Nomenclatura: **estudante** no lugar de aluno em todos os textos do sistema (telas, jornadas, dados de exemplo); rotas e nomes de código seguem iguais.
+- 2026-09-29 — **Agente inteligente**: botão no topo (rótulo que recolhe) abre chat de IA simulado na lateral direita, com ações rápidas por perfil e jornada de exemplo percorrida só com Enviar.
