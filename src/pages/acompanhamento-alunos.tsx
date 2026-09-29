@@ -17,11 +17,15 @@ const tomSituacao = { Ativo: 'text-foreground', Suspenso: 'text-amber-700', 'Des
 export function AcompanhamentoAlunos() {
   const [params, setParams] = useSearchParams()
   const conf = useConfirmacoesDesistencia().all
-  const turmas = useTurmas().all.filter((t) => t.fase !== 'Cancelada' && (t.escolas ?? []).length)
+  const todas = useTurmas().all.filter((t) => t.fase !== 'Cancelada' && (t.escolas ?? []).length)
+  // Filtro de DR solicitante (contratante): limita as turmas
+  const drs = [...new Set(todas.map((t) => t.drContratante))].sort()
+  const dr = drs.find((d) => d === params.get('dr')) ?? ''
+  const turmas = dr ? todas.filter((t) => t.drContratante === dr) : todas
   const t = turmas.find((x) => x.id === params.get('turma')) ?? turmas[0]
   const ciclos = t ? ciclosDe([t]) : []
   const ciclo = ciclos.find((c) => c === params.get('ciclo')) ?? ciclos.find((c) => c >= HOJE.slice(0, 7)) ?? ciclos[0]
-  const set = (k: string, v: string) => setParams((p) => { const n = new URLSearchParams(p); n.set('aba', 'acompanhamento'); n.set(k, v); if (k === 'turma') n.delete('ciclo'); return n }, { replace: true })
+  const set = (k: string, v: string) => setParams((p) => { const n = new URLSearchParams(p); n.set('aba', 'acompanhamento'); n.set(k, v); if (k === 'dr') (n.delete('turma'), v || n.delete('dr')); if (k === 'turma' || k === 'dr') n.delete('ciclo'); return n }, { replace: true })
   if (!t || !ciclo) return <EmptyState title="Nenhuma turma com escolas e cronograma" />
 
   const alunos = alunosDaTurma(t, conf)
@@ -72,6 +76,16 @@ export function AcompanhamentoAlunos() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
+        <div className="grid gap-1.5">
+          <Label>DR solicitante</Label>
+          <Select value={dr || 'todas'} onValueChange={(v) => set('dr', v === 'todas' ? '' : (v as string))}>
+            <SelectTrigger className="w-48"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Todas as DRs')}</SelectValue></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todas">Todas as DRs</SelectItem>
+              {drs.map((d) => <SelectItem key={d} value={d}>SENAI-{d}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="grid gap-1.5">
           <Label>Turma</Label>
           <Select value={t.id} onValueChange={(v) => set('turma', v as string)}>

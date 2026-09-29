@@ -282,3 +282,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Ciclo por UC**: cada UC tem o seu fechamento (padrão dia 20); confirmação da DR fora do ciclo da UC desconta só no próximo ciclo dela. Coluna Ciclo da UC no relatório de cobrança; janela da UC no acompanhamento; fechamento editável no detalhe da UC.
 - 2026-09-29 — Área central ocupa toda a largura da tela em todo o sistema (sem limite de largura máxima).
 - 2026-09-29 — **Situação do aluno por UC**: matrícula por UC (matriculado numa UC e desistente em outra da mesma turma); confirmação da DR, faturamento e saídas da cobrança por aluno × UC; resumo "Situação nas UCs" no acompanhamento.
+- 2026-09-29 — Acompanhamento dos alunos: filtro de **DR solicitante** antes da turma (limita a lista de turmas).
