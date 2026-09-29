@@ -18,7 +18,7 @@ export function Notificacoes() {
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="relative shrink-0" aria-label={`Notificações (${avisos.length})`} />}>
         <Bell />
-        {avisos.length > 0 && <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-semibold text-white tabular-nums">{avisos.length}</span>}
+        {avisos.length > 0 && <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] leading-none font-semibold text-white tabular-nums ring-2 ring-white">{avisos.length}</span>}
       </DropdownMenuTrigger>
       <DropdownMenuContent side="right" align="end" className="w-96">
         <p className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Notificações</p>
