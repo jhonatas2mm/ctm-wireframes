@@ -42,7 +42,7 @@ export default function TaaCtm() {
   const aberto = all.find((c) => c.id === ver) ?? null
   return (
     <>
-      <PageHeader title="TAAs com os DRs" actions={ctm && <Button onClick={() => navigate('/taas-ctm/novo')}><Send /> Novo TAA</Button>} />
+      <PageHeader title="TAAs" actions={ctm && <Button onClick={() => navigate('/taas-ctm/novo')}><Send /> Novo TAA</Button>} />
       <DataTable
         rows={rows}
         columns={colunas}

@@ -15,8 +15,8 @@ export const secaoDe = (path: string, perfil?: string): (typeof secoes)[number] 
 // Organizadores dentro de cada setor (menus longos); o Painel fica solto no topo.
 export const subgrupos: Record<string, [string, string[]][]> = {
   DN: [['Credenciamento', ['/drs']], ['Editais e portfólio', ['/editais', '/portfolio']]],
-  CTM: [['Contratos', ['/taas-ctm', '/gestao-produtos', '/portfolio', '/produtos']], ['Execução', ['/oferta', '/equipe', '/tratativas']], ['Financeiro', ['/financeiro']]],
-  'DR solicitante': [['Cadastro', ['/escolas']], ['Contratação', ['/dashboard', '/contratos', '/portfolio']], ['Execução', ['/turmas-ead', '/alunos', '/desistencias']]],
+  CTM: [['Contratos', ['/taas-ctm', '/produtos']], ['Portfólio', ['/portfolio']], ['Execução', ['/oferta', '/equipe', '/tratativas']], ['Financeiro', ['/financeiro']]],
+  'DR solicitante': [['Cadastro', ['/escolas']], ['Contratação', ['/dashboard', '/contratos']], ['Portfólio', ['/portfolio']], ['Execução', ['/turmas-ead', '/alunos', '/desistencias']]],
   Administração: [['Usuários e acesso', ['/admin/usuarios', '/admin/perfis']], ['Registros', ['/admin/auditoria', '/admin/logs']], ['Configurações', ['/admin/feriados']]],
 }
 export const subgrupoDe = (sec: string, path: string) => subgrupos[sec]?.find(([, ps]) => ps.some((p) => path.startsWith(p)))?.[0] ?? ''

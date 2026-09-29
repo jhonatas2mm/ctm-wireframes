@@ -53,7 +53,7 @@ function PortfolioPublico() {
   ]
   if (minhaCtm) return (
     <>
-      <PageHeader title="Portfólio das CTMs" description={`Cursos da CTM SENAI-${minhaCtm}.`} actions={<Button onClick={() => navigate('/portfolio/novo')}><Plus /> Novo curso</Button>} />
+      <PageHeader title="Cursos" description={`Cursos da CTM SENAI-${minhaCtm}.`} actions={<Button onClick={() => navigate('/portfolio/novo')}><Plus /> Novo curso</Button>} />
       <NovoCursoDialog open={pathname === '/portfolio/novo'} onOpenChange={(v) => !v && navigate('/portfolio')} />
       <PortfolioAgrupado rows={rows} onVer={setVer} />
       <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
@@ -61,7 +61,7 @@ function PortfolioPublico() {
   )
   return (
     <>
-      <PageHeader title="Portfólio das CTMs" description="Cursos cadastrados pelas CTMs." />
+      <PageHeader title="Cursos" description="Cursos cadastrados pelas CTMs." />
       <DataTable rows={rows} columns={colunas} filters={filtrosPortfolio} searchPlaceholder="Buscar curso…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
       <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
     </>

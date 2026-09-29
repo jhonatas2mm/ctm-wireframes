@@ -97,7 +97,7 @@ export const journeys: Journey[] = [
       { title: 'Novo resultado', path: '/editais/novo', profile: 'DN', note: 'Igual ao resultado oficial: por área tecnológica, o DR credenciado e o valor em cada modalidade (EaD Assíncrono R$ hora/estudante; EaD Síncrono (Aprendizagem) R$ hora/turma até 50; EaD Personalizado R$ hora/estudante).' },
       { title: 'Resultado salvo', path: '/editais/7/sucesso', profile: 'DN', note: 'Confirmação do cadastro, com acesso ao resultado.' },
       { title: 'Resultado do edital', path: '/editais/7/resultado', profile: 'DN', note: 'Visão igual ao documento: resumo por CTM (GO e SC) e tabelas por modalidade (EaD Assíncrono; EaD Síncrono (Aprendizagem) / EaD Personalizado).' },
-      { title: 'Portfólio das CTMs', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
+      { title: 'Cursos', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
       { title: 'Novo curso', path: '/portfolio/novo', profile: 'CTM: Coordenador EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca os cursos e cadastra módulos e UCs. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
       { title: 'Curso criado', path: '/portfolio', focus: 'text=Soldador', profile: 'CTM: Coordenador EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
@@ -107,7 +107,7 @@ export const journeys: Journey[] = [
     title: 'Envio de TAA aos DRs',
     profile: 'CTM: Gestor EAD',
     steps: [
-      { title: 'TAAs com os DRs', path: '/taas-ctm', focus: 'text=Novo TAA', profile: 'CTM: Gestor EAD', note: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica. A lista também mostra os TAAs que os DRs criaram (a CTM analisa) e o saldo dos aceitos.' },
+      { title: 'TAAs', path: '/taas-ctm', focus: 'text=Novo TAA', profile: 'CTM: Gestor EAD', note: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica. A lista também mostra os TAAs que os DRs criaram (a CTM analisa) e o saldo dos aceitos.' },
       { title: 'Novo TAA', path: '/taas-ctm/novo', profile: 'CTM: Gestor EAD', note: 'Edital → produtos em que a CTM é a aprovada → DR destinatária (uma por TAA), com status Encaminhado.' },
       { title: 'Gestor do DR analisa', path: '/dashboard/16', profile: 'DR solicitante: Gestor EAD', note: 'O Gestor do DR recebe o TAA (abrir marca Em análise) e aceita, retorna para ajuste (motivo) ou recusa (Cancelado).' },
       { title: 'Retorno para a CTM', path: '/taas-ctm', profile: 'CTM: Gestor EAD', note: 'Retornado: a CTM ajusta e reencaminha. Aceito: o termo é assinado fora e anexado; o saldo cai conforme as propostas aceitas.' },
@@ -130,7 +130,7 @@ export const journeys: Journey[] = [
     title: 'Criação de portfólio',
     profile: 'CTM: Coordenador EAD',
     steps: [
-      { title: 'Portfólio das CTMs', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
+      { title: 'Cursos', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
       { title: 'Novo curso', path: '/portfolio/novo', profile: 'CTM: Coordenador EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca um ou mais cursos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
       { title: 'Curso criado', path: '/portfolio', focus: 'text=Soldador', profile: 'CTM: Coordenador EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
@@ -155,10 +155,10 @@ export const journeys: Journey[] = [
   },
   {
     id: 'portfolio-dr',
-    title: 'Portfólio das CTMs',
+    title: 'Cursos',
     profile: 'DR solicitante: Gestor EAD',
     steps: [
-      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DR solicitante: Gestor EAD', note: 'Todos os DRs consultam o portfólio aprovado: curso, CTM, área, modalidade e itinerário.' },
+      { title: 'Cursos', path: '/portfolio', profile: 'DR solicitante: Gestor EAD', note: 'Todos os DRs consultam o portfólio aprovado: curso, CTM, área, modalidade e itinerário.' },
     ],
   },
   {
@@ -270,7 +270,7 @@ export const journeys: Journey[] = [
     title: 'Criação de portfólio',
     profile: 'CTM: Gestor EAD',
     steps: [
-      { title: 'Portfólio das CTMs', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Gestor EAD', note: 'O Gestor EAD clica em “Novo curso”.' },
+      { title: 'Cursos', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Gestor EAD', note: 'O Gestor EAD clica em “Novo curso”.' },
       { title: 'Novo curso', path: '/portfolio/novo', profile: 'CTM: Gestor EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca um ou mais cursos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
       { title: 'Curso criado', path: '/portfolio', focus: 'text=Soldador', profile: 'CTM: Gestor EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
