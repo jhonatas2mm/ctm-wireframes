@@ -35,8 +35,10 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **Nomenclatura**: botões de criação "Novo X / Nova X"; botão final "Salvar X". Nunca "Cadastrar/Gerar".
 - **Formulários de criação**: Sheet **de baixo** (`side="bottom"`, `data-[side=bottom]:h-[95vh]`, `rounded-t-xl`), cabeçalho e rodapé fixos, colunas que rolam por dentro; rota própria (`/x/novo`) para virar etapa de jornada.
 - Sem textos de ajuda sob títulos; sem numeração de seções.
-- **Hierarquia de botões**: 1) principal preenchido; 2) outline com ícone na cor principal; 3) **só outline, cor neutra** (ex.: ações com texto nas linhas das tabelas, "Detalhes").
+- **Hierarquia de botões**: 1) principal preenchido; 2) outline com ícone na cor principal; 3) **só outline, cor neutra** (ex.: "Detalhes" dentro de uma célula). Exceção: na **coluna Ações** das tabelas todos os botões são iguais — contorno neutro com ícone e texto na cor principal.
 - **Botão desabilitado sempre tem tooltip** com o que está pendente: `<Button disabled={…} motivo="…">` (sem `motivo` mostra "Indisponível no momento"); em `RowAction`, prop `motivo`.
+- **Cores de status (badges) centralizadas** em `src/components/ui/badge.tsx` (`tones`): verde = concluído, azul = em curso, laranja = aguardando/atenção (todo "Aguardando…"), vermelho = negativo, cinza = inicial/encerrado. Status novo → incluir lá; badge nunca na cor principal.
+- **Arredondamento único de containers: 20px** (`rounded-[1.25rem]`) — blocos dos painéis, cards, tabelas, caixas de informação; itens internos (linhas, campos, botões) usam raios menores.
 - **Nada direto sobre o fundo cinza da página**: caixas com borda têm fundo (`bg-card`); campos (input, select, textarea) têm fundo branco; blocos de campos/texto ficam dentro de uma caixa (`rounded-lg border bg-card p-4`).
 - Dados vindos do catálogo/itinerário são **somente leitura** (etiqueta com cadeado); só o que é do usuário é editável (ex.: valor).
 - Seleção múltipla com "Selecionar todos" + botão **"Replicar valores (N)"** que abre modal; desfazer/avançar quando houver edição em lote.

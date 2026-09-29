@@ -288,7 +288,7 @@ export function DataTable<T extends { id: string }>({
             // Cards: 1ª e 2ª colunas no cabeçalho (título e situação), ações à direita; demais colunas em grade de rótulo/valor.
             <div className="space-y-2 p-3">
               {daPagina.map((r) => (
-                <div key={r.id} className={cn('rounded-xl border bg-card p-4', onRowClick && 'cursor-pointer hover:border-foreground/20')} onClick={onRowClick && (() => onRowClick(r))}>
+                <div key={r.id} className={cn('rounded-[1.25rem] border bg-card p-4', onRowClick && 'cursor-pointer hover:border-foreground/20')} onClick={onRowClick && (() => onRowClick(r))}>
                   <div className="flex items-center gap-3">
                     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 font-semibold">
                       {columns.slice(0, 2).map((c) => <span key={c.header}>{c.cell ? c.cell(r) : c.value(r)}</span>)}

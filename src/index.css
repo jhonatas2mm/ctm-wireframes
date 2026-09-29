@@ -331,3 +331,7 @@ html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-t
 
 /* Campos nunca transparentes sobre o fundo da página: sempre fundo branco */
 html.ds-senai [data-slot="input"], html.ds-senai [data-slot="textarea"], html.ds-senai [data-slot="select-trigger"] { background-color: #FFFFFF; }
+
+/* Coluna de Ações (célula fixa à direita): todos os botões iguais — contorno neutro, ícone e texto na cor principal */
+html.ds-senai [data-slot="table-cell"].sticky [data-slot="button"] { border-color: #D9DEE0; background: #FFFFFF; color: #E84910; border-radius: 0.625rem; }
+html.ds-senai [data-slot="table-cell"].sticky [data-slot="button"]:hover { background: #FFF6ED; color: #C23C0D; }

@@ -18,7 +18,7 @@ export function IconBox({ icon: Icon, tom, className }: { icon: LucideIcon; tom:
   return <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', tons[tom], className)}><Icon className="size-5" /></div>
 }
 
-export const Bloco = ({ className, ...p }: React.ComponentProps<'section'>) => <section className={cn('rounded-3xl bg-card p-5', className)} {...p} />
+export const Bloco = ({ className, ...p }: React.ComponentProps<'section'>) => <section className={cn('rounded-[1.25rem] bg-card p-5', className)} {...p} />
 
 export function BlocoTitulo({ titulo, sub, acao }: { titulo: string; sub?: string; acao?: React.ReactNode }) {
   return (

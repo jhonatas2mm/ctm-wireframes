@@ -73,7 +73,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
   }
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+      <div className="grid gap-3 rounded-[1.25rem] border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-center">
         <div>
           <p className="text-sm font-semibold">{prontas} de {ucs.length} UCs prontas</p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -88,14 +88,14 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
 
       {/* E-mail à DR solicitante: quando todas as UCs estão prontas */}
       {pronta && (
-        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+        <div className="flex flex-wrap items-center gap-3 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
           <CheckCircle2 className="size-5 shrink-0" />
           <p className="min-w-0 flex-1">Estrutura pronta. {t.emailDrEm ? `E-mail enviado ao SENAI-${t.drContratante} em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os alunos no Moodle.` : 'Falta avisar a DR.'}</p>
           <Button size="sm" variant="outline" onClick={() => setEmailDr(true)}><Mail /> Ver e-mail à DR</Button>
         </div>
       )}
 
-      <div className="overflow-hidden rounded-lg border bg-card">
+      <div className="overflow-hidden rounded-[1.25rem] border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -252,7 +252,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
   const linhas = escolas.flatMap((e) => ucs.map((u) => [codigoCtm(e.nome), u.nome, u.sala === 'Criada' ? u.salaAva ?? '—' : '—', d(u.inicio), semestre(u.inicio)]))
   return (
     <div className="space-y-6">
-      <section className={cn('flex flex-wrap items-center gap-3 rounded-lg border p-4 text-sm', pronta ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'bg-card')}>
+      <section className={cn('flex flex-wrap items-center gap-3 rounded-[1.25rem] border p-4 text-sm', pronta ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'bg-card')}>
         {pronta ? <CheckCircle2 className="size-5" /> : <AlertTriangle className="size-5 text-muted-foreground" />}
         <p className="min-w-0 flex-1">
           {pronta
@@ -272,7 +272,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
         {!escolas.length ? (
           <EmptyState title="Nenhuma escola na turma" description="Cadastre as escolas na aba Cronograma." />
         ) : (
-          <div className="overflow-hidden rounded-lg border bg-card">
+          <div className="overflow-hidden rounded-[1.25rem] border bg-card">
             <Table>
               <TableHeader>
                 <TableRow><TableHead>Código CTM</TableHead><TableHead>UC</TableHead><TableHead>ID da sala</TableHead><TableHead>Início</TableHead><TableHead>Semestre</TableHead></TableRow>
@@ -295,7 +295,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
             const sit = !pronta ? 'Aguardando estrutura' : integ >= e.alunos ? 'Integrada' : integ > 0 ? 'Parcial' : 'Não integrada'
             const atraso = pronta && integ < e.alunos && faltam <= 5
             return (
-              <li key={e.nome} className={cn('flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3', atraso && 'border-amber-300 bg-amber-50')}>
+              <li key={e.nome} className={cn('flex flex-wrap items-center gap-3 rounded-[1.25rem] border bg-card px-4 py-3', atraso && 'border-amber-300 bg-amber-50')}>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{e.nome} <span className="font-normal text-muted-foreground">· {e.cidade}</span></p>
                   <p className="text-xs text-muted-foreground tabular-nums">{integ} de {e.alunos} alunos integrados no Moodle · código {codigoCtm(e.nome)}</p>
