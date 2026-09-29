@@ -57,6 +57,7 @@ export const aprovadaDe = (c: Pick<CursoEdital, 'drs' | 'aprovada'>) => c.aprova
 export type Edital = {
   id: string
   numero: string
+  nome: string // nome do edital (ex.: Edital de Credenciamento CTM 2026-2028)
   areas: AreaEdital[]
   cursos: CursoEdital[] // derivado das áreas (catálogo)
   drs: string[] // derivado: DRs vinculados às áreas
@@ -72,8 +73,8 @@ export const cursosDasAreas = (areas: AreaEdital[]): CursoEdital[] =>
     return a && base ? [{ nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: c.cargaHoraria, valorHora: base.valor, valor: Math.round(base.valor * c.cargaHoraria * 100) / 100, drs: [base.dr], aprovada: base.dr }] : []
   })
 const completar = <T extends { areas: AreaEdital[] }>(e: T) => ({ ...e, cursos: cursosDasAreas(e.areas), drs: [...new Set(e.areas.flatMap((a) => [a.dr, a.sincrono?.dr, a.personalizado?.dr]).filter((x): x is string => !!x))] })
-const edital = (id: string, numero: string, areas: AreaEdital[], vigencia: [string, string]): Edital =>
-  completar({ id, numero, areas, vigenciaInicio: vigencia[0], vigenciaFim: vigencia[1] })
+const edital = (id: string, numero: string, areas: AreaEdital[], vigencia: [string, string], nome = `Edital de Credenciamento CTM ${vigencia[0].slice(-4)}-${vigencia[1].slice(-4)}`): Edital =>
+  completar({ id, numero, nome, areas, vigenciaInicio: vigencia[0], vigenciaFim: vigencia[1] })
 const ar = (area: string, valorHora: number, dr: string): AreaEdital => ({ area, valorHora, dr })
 
 const editais: Edital[] = [
@@ -93,7 +94,7 @@ const editais: Edital[] = [
 
 // Os cursos e DRs do edital são sempre derivados das áreas (também nos editais criados na tela).
 export const useEditais = () => {
-  const db = useCollection<Edital>('editais-v12', editais)
+  const db = useCollection<Edital>('editais-v13', editais)
   const all = useMemo(() => db.all.map(completar), [db.all])
   return { ...db, all, get: (id?: string) => all.find((e) => e.id === id) }
 }
@@ -287,7 +288,12 @@ export type SituacaoPortfolio = 'Aguardando' | 'Aprovado' | 'Reprovado'
 export type TipoMaterial = 'Plano de curso' | 'Plano de ensino' | 'Material didático' | 'Avaliação' | 'Outro'
 export const tiposMaterial: TipoMaterial[] = ['Plano de curso', 'Plano de ensino', 'Material didático', 'Avaliação', 'Outro']
 export type MaterialProduto = { nome: string; tipo: TipoMaterial; link: string }
+// Modalidade de oferta EaD do curso (a do resultado do edital); sem valor = EaD Assíncrono (padrão)
+export type OfertaEad = 'EaD Assíncrono' | 'EaD Síncrono (Aprendizagem)' | 'EaD Personalizado'
+export const ofertasEad: OfertaEad[] = ['EaD Assíncrono', 'EaD Síncrono (Aprendizagem)', 'EaD Personalizado']
+export const ofertaDe = (c: { oferta?: OfertaEad }): OfertaEad => c.oferta ?? 'EaD Assíncrono'
 export type CursoDr = { id: string; nome: string; modulos: Modulo[]; criadoEm: string; edital?: string; area?: string; modalidade?: string; cargaHorariaEdital?: number
+  oferta?: OfertaEad
   versao?: number // 1 = original
   origemId?: string // id da v1 (a "mãe"); ausente na própria v1
   baseadaEm?: number // versão da qual esta foi copiada

@@ -25,12 +25,14 @@ const modalidades = [
 export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean; onOpenChange: (v: boolean) => void; onSaved?: (id: string) => void }) {
   const db = useEditais()
   const drs = useDrs().all.filter((d) => d.status === 'Ativo')
+  const [nome, setNome] = useState('')
   const [inicio, setInicio] = useState('')
   const [fim, setFim] = useState('')
   const [linhas, setLinhas] = useState<Linha[]>([])
   // Protótipo: já abre preenchido com três áreas no formato do resultado 2026-2028
   useEffect(() => {
     if (!open) return
+    setNome('Edital de Credenciamento CTM 2026-2028')
     setInicio('2026-01-01')
     setFim('2028-12-31')
     setLinhas([
@@ -50,7 +52,7 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
       personalizado: l.personalizado.dr ? { dr: l.personalizado.dr, valor: num(l.personalizado) } : undefined,
     }))
     if (!areas.length) return
-    const novo = db.add({ numero, areas, cursos: [], drs: [], vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim) })
+    const novo = db.add({ numero, nome: nome.trim() || numero, areas, cursos: [], drs: [], vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim) })
     if (onSaved) onSaved(novo.id)
     else onOpenChange(false)
   }
@@ -64,9 +66,10 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
         </SheetHeader>
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 py-6">
           <div className="flex flex-wrap items-end gap-4 rounded-lg border bg-card p-4">
+            <label className="grid min-w-80 flex-1 gap-1 text-xs"><span className="text-muted-foreground">Nome do edital <Req /></span><Input value={nome} placeholder="Ex.: Edital de Credenciamento CTM 2026-2028" onChange={(e) => setNome(e.target.value)} /></label>
             <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Vigência: início <Req /></span><Input type="date" className="w-44" value={inicio} onChange={(e) => setInicio(e.target.value)} /></label>
             <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Fim <Req /></span><Input type="date" className="w-44" min={inicio} value={fim} onChange={(e) => setFim(e.target.value)} /></label>
-            <Button type="button" variant="outline" className="ml-auto" onClick={() => setLinhas((xs) => [...xs, { area: '', assincrono: vazia(), sincrono: vazia(), personalizado: vazia() }])}><Plus /> Adicionar área</Button>
+            <Button type="button" variant="outline" onClick={() => setLinhas((xs) => [...xs, { area: '', assincrono: vazia(), sincrono: vazia(), personalizado: vazia() }])}><Plus /> Adicionar área</Button>
           </div>
           <div className="overflow-x-auto rounded-[1.25rem] border bg-card">
             <div className={`${grid} min-w-[64rem] border-b px-4 py-2 text-xs font-semibold text-muted-foreground`}>

@@ -1,14 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { ExternalLink, FileText, GitBranchPlus, Link2, Lock, Plus, Route, Trash2 } from 'lucide-react'
+import { GitBranchPlus, Link2, Lock, Route } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { ModulosEditor, Req, useConfirmar } from '@/components/wf'
-import { situacaoDe, tiposMaterial, useCursosDr, type CursoDr, type MaterialProduto, type Modulo, type SituacaoPortfolio, type TipoMaterial } from '@/lib/mock'
+import { situacaoDe, useCursosDr, type CursoDr, type Modulo, type SituacaoPortfolio } from '@/lib/mock'
 import { cn } from '@/lib/utils'
 
 const data = (iso: string) => new Date(iso).toLocaleDateString('pt-BR')
@@ -33,21 +32,19 @@ export function useFamilia(id: string | null) {
   return { db, p, raiz, familia, proxima: familia.length ? Math.max(...familia.map(v)) + 1 : 1 }
 }
 
-// Detalhes do produto (side sheet): versão aberta, situação (aprovação do DN), histórico de versões, vínculo com o
-// itinerário e documentos/materiais. somenteLeitura: portfólio público e aprovação do DN. acoes: botões do rodapé.
+// Detalhes do curso (side sheet): situação (aprovação do DN), vínculo com o itinerário e, só para a CTM, as versões.
+// somenteLeitura: portfólio público e aprovação do DN (sem versões: o DN só aprova curso novo). acoes: botões do rodapé.
 export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes }: {
   id: string | null; onClose: () => void; onNovaVersao?: (id: string) => void; somenteLeitura?: boolean; acoes?: (p: CursoDr) => ReactNode
 }) {
   const [sel, setSel] = useState<string | null>(id)
   useEffect(() => setSel(id), [id])
   const { db, p, familia } = useFamilia(sel ?? id)
-  const { confirmar, dialogo } = useConfirmar()
+  const { dialogo } = useConfirmar()
   const [vincular, setVincular] = useState(false)
   const [codigo, setCodigo] = useState('')
-  const [novo, setNovo] = useState<MaterialProduto>({ nome: '', tipo: 'Plano de curso', link: '' })
   const atual = familia[familia.length - 1]
   const pendente = familia.some((c) => situacaoDe(c) === 'Aguardando')
-  const materiais = p?.materiais ?? []
   return (
     <Sheet open={!!id} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
@@ -56,8 +53,8 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
             <SheetHeader className="border-b px-6 py-4">
               <div className="flex flex-wrap items-center gap-2">
                 <SheetTitle className="text-lg">{p.nome}</SheetTitle>
-                <Badge variant="secondary" className="tabular-nums">v{v(p)}</Badge>
-                {p.id === atual?.id && <Badge variant="outline">Mais recente</Badge>}
+                {!somenteLeitura && <Badge variant="secondary" className="tabular-nums">v{v(p)}</Badge>}
+                {!somenteLeitura && p.id === atual?.id && <Badge variant="outline">Mais recente</Badge>}
                 <SituacaoBadge c={p} />
               </div>
               <SheetDescription className="sr-only">Detalhes e versões do curso</SheetDescription>
@@ -77,7 +74,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                   ['Área tecnológica', p.area ?? '—'],
                   ['Modalidade', p.modalidade ?? '—'],
                   ['Solicitada em', data(p.criadoEm)],
-                  ['Origem', p.baseadaEm ? `Baseada na v${p.baseadaEm}` : 'Versão original'],
+                  ...(somenteLeitura ? [] : [['Origem', p.baseadaEm ? `Baseada na v${p.baseadaEm}` : 'Versão original']]),
                   ['Decisão do DN', p.decididoEm ? `${situacaoDe(p)} em ${data(p.decididoEm)}` : situacaoDe(p) === 'Aguardando' ? 'Pendente' : '—'],
                 ] as [string, ReactNode][]).map(([k, val]) => (
                   <div key={k}>
@@ -105,48 +102,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                 </div>
               </section>
 
-              {/* Documentos e materiais: ficam no repositório/drive; aqui só o vínculo (link) */}
-              <section className="space-y-2">
-                <h3 className="text-sm font-semibold">Documentos e materiais <span className="font-normal text-muted-foreground">({materiais.length})</span></h3>
-                {materiais.length > 0 && (
-                  <ul className="divide-y rounded-lg border bg-card">
-                    {materiais.map((m, i) => (
-                      <li key={i} className="flex items-center gap-3 px-3 py-2 text-sm">
-                        <FileText className="size-4 shrink-0 text-muted-foreground" />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate font-medium">{m.nome}</span>
-                          <span className="block truncate text-xs text-muted-foreground">{m.tipo} · {m.link}</span>
-                        </span>
-                        <Button size="icon-sm" variant="ghost" aria-label={`Abrir ${m.nome}`} render={<a href={m.link} target="_blank" rel="noreferrer" />} nativeButton={false}><ExternalLink /></Button>
-                        {!somenteLeitura && (
-                          <Button size="icon-sm" variant="ghost" aria-label={`Desvincular ${m.nome}`} onClick={() => confirmar({ titulo: `Desvincular “${m.nome}” deste curso?`, acao: 'Desvincular', onConfirmar: () => db.update(p.id, { materiais: materiais.filter((_, j) => j !== i) }) })}><Trash2 /></Button>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {!materiais.length && somenteLeitura && <p className="text-sm text-muted-foreground">Nenhum documento vinculado.</p>}
-                {!somenteLeitura && (
-                  <div className="grid grid-cols-[1fr_10rem_1fr_auto] items-end gap-2 rounded-lg border border-dashed p-3">
-                    <div className="grid gap-1"><Label className="text-xs">Nome</Label><Input className="h-8" value={novo.nome} onChange={(e) => setNovo({ ...novo, nome: e.target.value })} placeholder="Ex.: Plano de curso" /></div>
-                    <div className="grid gap-1">
-                      <Label className="text-xs">Tipo</Label>
-                      <Select value={novo.tipo} onValueChange={(t) => setNovo({ ...novo, tipo: t as TipoMaterial })}>
-                        <SelectTrigger className="h-8 w-full"><SelectValue /></SelectTrigger>
-                        <SelectContent>{tiposMaterial.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </div>
-                    <div className="grid gap-1"><Label className="text-xs">Link</Label><Input className="h-8" value={novo.link} onChange={(e) => setNovo({ ...novo, link: e.target.value })} placeholder="https://…" /></div>
-                    <Button size="sm" variant="outline" onClick={() => {
-                      const m = { ...novo, nome: novo.nome.trim() || novo.tipo, link: novo.link.trim() || `https://drive.ctm.senaimg.org.br/${p.id}/${materiais.length + 1}` }
-                      db.update(p.id, { materiais: [...materiais, m] })
-                      setNovo({ nome: '', tipo: 'Plano de curso', link: '' })
-                    }}><Plus /> Vincular</Button>
-                  </div>
-                )}
-              </section>
-
-              <section className="space-y-2">
+              {!somenteLeitura && <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Versões</h3>
                 <ol className="divide-y rounded-lg border bg-card">
                   {[...familia].reverse().map((c) => (
@@ -163,10 +119,10 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                     </li>
                   ))}
                 </ol>
-              </section>
+              </section>}
 
               <section className="space-y-2">
-                <h3 className="text-sm font-semibold">Módulos e UCs · v{v(p)}</h3>
+                <h3 className="text-sm font-semibold">Módulos e UCs{!somenteLeitura && ` · v${v(p)}`}</h3>
                 <ol className="grid gap-2">
                   {p.modulos.map((m, i) => (
                     <li key={i} className="rounded-lg border p-3 bg-card">
@@ -219,7 +175,7 @@ export function NovaVersaoSheet({ id, onClose, onSaved }: { id: string | null; o
   const salvar = () => {
     if (!p) return
     const { id: _id, motivo: _m, decididoEm: _d, ...base } = p
-    const nova = db.add({ ...base, modulos: rascunho, versao: proxima, origemId: raiz, baseadaEm: v(p), situacao: 'Aguardando', criadoEm: new Date().toISOString() })
+    const nova = db.add({ ...base, modulos: rascunho, versao: proxima, origemId: raiz, baseadaEm: v(p), situacao: 'Aprovado', decididoEm: new Date().toISOString(), criadoEm: new Date().toISOString() }) // nova versão não passa pelo DN
     onSaved?.(nova.id)
     onClose()
   }

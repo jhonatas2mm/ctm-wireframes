@@ -71,7 +71,7 @@ export default function EditalResultado() {
   return (
     <>
       <PageHeader
-        title={<span className="flex items-center gap-3">Resultado do edital de credenciamento <Badge variant="secondary" className="font-mono">{e.numero}</Badge></span>}
+        title={<span className="flex items-center gap-3">Resultado · {e.nome ?? 'Edital'} <Badge variant="secondary" className="font-mono">{e.numero}</Badge></span>}
         breadcrumb={crumbs}
         description={`Vigência ${e.vigenciaInicio} a ${e.vigenciaFim}`}
       />

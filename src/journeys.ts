@@ -140,8 +140,8 @@ export const journeys: Journey[] = [
     title: 'Aprovação de portfólio',
     profile: 'DN',
     steps: [
-      { title: 'Aprovação de portfólio', path: '/portfolio/aprovacoes', focus: 'text=Aprovar', profile: 'DN', note: 'Solicitações das CTMs: novos produtos e novas versões. Visualizar mostra matriz, itinerário e documentos vinculados.' },
-      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DN', note: 'Aprovado, o curso (ou a nova versão) entra no portfólio, visível para todos os DRs. Reprovado volta para a CTM com o motivo.' },
+      { title: 'Aprovação de portfólio', path: '/portfolio/aprovacoes', focus: 'text=Aprovar', profile: 'DN', note: 'Solicitações das CTMs: só cursos novos (o DN não acompanha versões). Visualizar mostra o curso; Aprovar ou Reprovar com motivo.' },
+      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DN', note: 'Aprovado, o curso entra no portfólio, visível para todos os DRs. Reprovado volta para a CTM com o motivo.' },
     ],
   },
   {
@@ -149,7 +149,7 @@ export const journeys: Journey[] = [
     title: 'Portfólio das CTMs',
     profile: 'DR solicitante: Gestor EAD',
     steps: [
-      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DR solicitante: Gestor EAD', note: 'Todos os DRs consultam o portfólio aprovado: curso, CTM, versão vigente, itinerário e documentos. Base para escolher os cursos do TAA.' },
+      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DR solicitante: Gestor EAD', note: 'Todos os DRs consultam o portfólio aprovado: curso, CTM, área, modalidade e itinerário.' },
     ],
   },
   {

@@ -17,6 +17,7 @@ export function EditalSucesso({ edital, onClose, onVer }: { edital: Edital | nul
               <DialogTitle className="text-xl">Resultado do edital salvo</DialogTitle>
               <DialogDescription>O edital já está disponível para os DRs credenciados.</DialogDescription>
             </div>
+            <p className="font-semibold">{edital.nome}</p>
             <Badge variant="secondary" className="font-mono text-sm">{edital.numero}</Badge>
             <dl className="grid w-full grid-cols-2 gap-3 rounded-[1.25rem] border p-4 text-left bg-card">
               {([

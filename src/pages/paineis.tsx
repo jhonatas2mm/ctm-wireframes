@@ -22,7 +22,7 @@ export function PainelDn() {
   const portfolio = useCursosDr().all
   const editais = useEditais().all
   const drs = useDrs().all
-  const pendentes = portfolio.filter((c) => situacaoDe(c) === 'Aguardando')
+  const pendentes = portfolio.filter((c) => situacaoDe(c) === 'Aguardando' && (c.versao ?? 1) === 1) // DN só aprova curso novo
   const noPortfolio = aprovadosAtuais(portfolio)
   const porCtm = Object.entries(noPortfolio.reduce<Record<string, number>>((r, c) => ({ ...r, [c.ctm ?? '—']: (r[c.ctm ?? '—'] ?? 0) + 1 }), {})).sort((a, b) => b[1] - a[1])
   const editaisVig = editais.filter((e) => isoDeBr(e.vigenciaInicio) <= HOJE && HOJE <= isoDeBr(e.vigenciaFim))

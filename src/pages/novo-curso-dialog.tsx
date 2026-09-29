@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { EmptyState, ModulosEditor, moduloVazio } from '@/components/wf'
-import { aprovadaDe, useCursosDr, useEditais, type Modulo } from '@/lib/mock'
+import { aprovadaDe, ofertasEad, useCursosDr, useEditais, type Modulo, type OfertaEad } from '@/lib/mock'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 // DR do usuário logado (perfil Supervisor).
@@ -26,6 +27,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
   const [marcados, setMarcados] = useState<string[]>([]) // nomes dos cursos
   const [estrutura, setEstrutura] = useState<Record<string, Modulo[]>>({})
   const [ativo, setAtivo] = useState<string | null>(null)
+  const [oferta, setOferta] = useState<OfertaEad>('EaD Assíncrono')
 
   const editais = todos.filter((e) => e.cursos.some((c) => aprovadaDe(c) === DR))
   const visiveis = editais.filter((e) => norm(`${e.numero} ${e.cursos.map((c) => c.nome).join(' ')}`).includes(norm(busca.trim())))
@@ -70,7 +72,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
   const setModulos = (fn: (ms: Modulo[]) => Modulo[]) => void (atual && setEstrutura((e) => ({ ...e, [atual.nome]: fn(e[atual.nome] ?? []) })))
   const salvar = () => {
     if (!edital) return
-    for (const c of sel) db.add({ nome: c.nome, edital: edital.numero, area: c.area, modalidade: c.modalidade, cargaHorariaEdital: c.cargaHoraria, modulos: estrutura[c.nome], versao: 1, ctm: DR, situacao: 'Aguardando', criadoEm: new Date().toISOString() }) // solicitação: o DN aprova para entrar no portfólio
+    for (const c of sel) db.add({ nome: c.nome, edital: edital.numero, area: c.area, modalidade: c.modalidade, oferta, cargaHorariaEdital: c.cargaHoraria, modulos: estrutura[c.nome], versao: 1, ctm: DR, situacao: 'Aguardando', criadoEm: new Date().toISOString() }) // solicitação: o DN aprova para entrar no portfólio
     reset()
     onOpenChange(false)
   }
@@ -169,7 +171,13 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
             <span className="text-2xl font-semibold tabular-nums">{prontos}/{sel.length}</span>
             <span className="text-muted-foreground"> curso(s) prontos{edital && ` · ${edital.numero}`}</span>
           </p>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            {/* Modalidade de oferta dos cursos (a do resultado do edital) */}
+            <span className="text-xs text-muted-foreground">Oferta</span>
+            <Select value={oferta} onValueChange={(v) => setOferta(v as OfertaEad)}>
+              <SelectTrigger className="w-60"><SelectValue /></SelectTrigger>
+              <SelectContent>{ofertasEad.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+            </Select>
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
             <Button disabled={!podeSalvar} motivo="Selecione ao menos um curso" onClick={salvar}>Salvar {sel.length > 1 ? `${sel.length} cursos` : 'curso'}</Button>
           </div>

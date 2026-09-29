@@ -7,7 +7,8 @@ import { NovaVersaoSheet, ProdutoSheet, SituacaoBadge } from '@/pages/produto-sh
 import { Button } from '@/components/ui/button'
 import { NovoCursoDialog } from '@/pages/novo-curso-dialog'
 import { cellButton, DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
-import { aprovadosAtuais, raizDe, situacaoDe, useCursosDr, useEditais, useProdutos, type CursoDr } from '@/lib/mock'
+import { aprovadosAtuais, ofertaDe, raizDe, situacaoDe, useCursosDr, useEditais, useProdutos, type CursoDr } from '@/lib/mock'
+import { Badge } from '@/components/ui/badge'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { EditalDetalhes } from '@/pages/edital-detalhes'
@@ -43,6 +44,8 @@ function CursoDetalhes({ c }: { c: CursoDr }) {
 }
 
 const colunas = (todas: boolean): Column<Linha>[] => [
+  { header: 'Modalidade', value: (l) => l.atual.modalidade ?? '—', filter: true },
+  { header: 'Oferta', value: (l) => ofertaDe(l.atual), filter: true, cell: (l) => <Badge variant="outline">{ofertaDe(l.atual)}</Badge> },
   {
     header: 'Curso', value: (l) => l.atual.nome, search: true, className: 'font-medium',
     cell: (l) => (
@@ -57,7 +60,6 @@ const colunas = (todas: boolean): Column<Linha>[] => [
   { header: 'Situação', value: (l) => situacaoDe(l.atual), filter: true, cell: (l) => <SituacaoBadge c={l.atual} /> },
   { header: 'No portfólio', value: (l) => (l.noPortfolio ? `v${l.noPortfolio.versao ?? 1}` : '—'), className: 'tabular-nums', align: 'center' },
   { header: 'Itinerário', value: (l) => (l.atual.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
-  { header: 'Documentos', value: (l) => l.atual.materiais?.length ?? 0, className: 'text-right tabular-nums' },
   { header: 'Propostas', value: (l) => l.propostas, className: 'text-right tabular-nums' },
 ]
 
@@ -92,7 +94,7 @@ export default function GestaoProdutos() {
     <>
       <PageHeader
         title="Gestão de Portfólio"
-        description="Cursos da sua CTM. Novos cursos e novas versões entram no portfólio depois da aprovação do DN."
+        description="Cursos da sua CTM. Curso novo entra no portfólio depois da aprovação do DN; novas versões são da CTM."
         actions={<Button onClick={() => navigate('/gestao-produtos/novo')}><Plus /> Novo curso</Button>}
       />
       <NovoCursoDialog open={pathname === '/gestao-produtos/novo'} onOpenChange={(v) => !v && navigate('/gestao-produtos')} />

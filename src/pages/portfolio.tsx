@@ -12,7 +12,7 @@ const data = (iso: string) => new Date(iso).toLocaleDateString('pt-BR')
 const ctmDe = (c: CursoDr) => (c.ctm ? `SENAI-${c.ctm}` : '—')
 
 // Portfólio das CTMs (/portfolio): o que foi aprovado pelo DN, visível para todas as DRs.
-// Aprovação de portfólio (/portfolio/aprovacoes, DN): solicitações de novos produtos e novas versões.
+// Aprovação de portfólio (/portfolio/aprovacoes, DN): só cursos novos (o DN não acompanha versões).
 export default function Portfolio() {
   const { pathname } = useLocation()
   return pathname.startsWith('/portfolio/aprovacoes') ? <Aprovacoes /> : <PortfolioPublico />
@@ -39,14 +39,12 @@ function PortfolioPublico() {
       ),
     },
     { header: 'CTM', value: ctmDe, filter: true },
-    { header: 'Versão', value: (c) => `v${c.versao ?? 1}`, className: 'tabular-nums' },
     { header: 'CH', value: (c) => `${c.cargaHorariaEdital ?? 0} h`, className: 'text-right tabular-nums' },
     { header: 'Itinerário', value: (c) => c.itinerario?.codigo ?? '—', cell: (c) => (c.itinerario ? <span className="flex items-center gap-1 font-mono text-xs"><Route className="size-3.5 text-muted-foreground" />{c.itinerario.codigo}</span> : '—') },
-    { header: 'Documentos', value: (c) => c.materiais?.length ?? 0, className: 'text-right tabular-nums' },
   ]
   return (
     <>
-      <PageHeader title="Portfólio das CTMs" description="Cursos aprovados pelo DN, com a versão vigente de cada CTM." />
+      <PageHeader title="Portfólio das CTMs" description="Cursos aprovados pelo DN." />
       <DataTable rows={rows} columns={colunas} filters={filtrosPortfolio} searchPlaceholder="Buscar curso…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
       <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
     </>
@@ -59,12 +57,14 @@ function Aprovacoes() {
   const [ver, setVer] = useState<string | null>(null)
   const [reprovar, setReprovar] = useState<CursoDr | null>(null)
   const [motivo, setMotivo] = useState('')
-  const pendentes = db.all.filter((c) => situacaoDe(c) === 'Aguardando')
+  // Só cursos novos (v1); novas versões são da CTM e não passam pelo DN
+  const novos = db.all.filter((c) => (c.versao ?? 1) === 1)
+  const pendentes = novos.filter((c) => situacaoDe(c) === 'Aguardando')
   const decidir = (c: CursoDr, aprovado: boolean, mot?: string) =>
     db.update(c.id, { situacao: aprovado ? 'Aprovado' : 'Reprovado', motivo: aprovado ? undefined : mot, decididoEm: new Date().toISOString() })
   const aprovar = (c: CursoDr) => confirmar({
-    titulo: `Aprovar ${c.nome} v${c.versao ?? 1} (${ctmDe(c)})?`,
-    descricao: (c.versao ?? 1) > 1 ? 'A nova versão passa a ser a vigente no portfólio; a anterior continua valendo para o que já foi negociado.' : 'O curso entra no Portfólio das CTMs e fica disponível para todos os DRs.',
+    titulo: `Aprovar o curso ${c.nome} (${ctmDe(c)})?`,
+    descricao: 'O curso entra no Portfólio das CTMs e fica disponível para todos os DRs.',
     acao: 'Aprovar',
     onConfirmar: () => decidir(c, true),
   })
@@ -72,18 +72,17 @@ function Aprovacoes() {
     { header: 'Solicitado em', value: (c) => data(c.criadoEm), className: 'tabular-nums' },
     { header: 'CTM', value: ctmDe, filter: true },
     { header: 'Curso', value: (c) => c.nome, search: true, className: 'font-medium' },
-    { header: 'Tipo', value: (c) => ((c.versao ?? 1) > 1 ? `Nova versão (v${c.versao})` : 'Novo curso'), filter: true },
     { header: 'Itinerário', value: (c) => (c.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
     { header: 'Situação', value: (c) => situacaoDe(c), filter: true, cell: (c) => <SituacaoBadge c={c} /> },
   ]
-  const historico = db.all.filter((c) => c.decididoEm).sort((a, b) => (b.decididoEm ?? '').localeCompare(a.decididoEm ?? ''))
+  const historico = novos.filter((c) => c.decididoEm).sort((a, b) => (b.decididoEm ?? '').localeCompare(a.decididoEm ?? ''))
   return (
     <>
       <PageHeader title="Aprovação de portfólio" />
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <StatCard icon={ClipboardCheck} tom="amber" label="Aguardando aprovação" value={String(pendentes.length)} />
         <StatCard icon={PackageCheck} tom="green" label="Cursos no portfólio" value={String(aprovadosAtuais(db.all).length)} />
-        <StatCard icon={ThumbsDown} tom="red" label="Reprovados" value={String(db.all.filter((c) => situacaoDe(c) === 'Reprovado').length)} />
+        <StatCard icon={ThumbsDown} tom="red" label="Reprovados" value={String(novos.filter((c) => situacaoDe(c) === 'Reprovado').length)} />
       </div>
       <DataTable
         rows={[...pendentes, ...historico.filter((c) => !pendentes.includes(c))]}
@@ -115,8 +114,8 @@ function Aprovacoes() {
       <Dialog open={!!reprovar} onOpenChange={(v) => !v && setReprovar(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Reprovar {reprovar?.nome} v{reprovar?.versao ?? 1}?</DialogTitle>
-            <DialogDescription>A CTM vê o motivo e pode enviar uma nova versão.</DialogDescription>
+            <DialogTitle>Reprovar o curso {reprovar?.nome}?</DialogTitle>
+            <DialogDescription>A CTM vê o motivo, ajusta o curso e envia de novo.</DialogDescription>
           </DialogHeader>
           <label className="grid gap-1 text-xs">
             <span className="text-muted-foreground">Motivo <Req /></span>

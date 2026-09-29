@@ -77,11 +77,11 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Todo TAA de um produto é com o DR vinculado à área dele; produtos do TAA = cursos do catálogo nas áreas do edital em que a CTM é o DR vinculado.
 
 ## Portfólio das CTMs
-- Cada CTM registra seus **produtos** (módulos → UCs), com **versões** (v1, v2…; a anterior não muda).
-- **Novo produto** e **nova versão** são **solicitações**: ficam *Aguardando* até o **DN** decidir em **Aprovação de portfólio** (`/portfolio/aprovacoes`): **Aprovar** ou **Reprovar** (com motivo, que a CTM vê). Enquanto houver versão pendente, não se abre outra.
-- Só versões **aprovadas** entram no **Portfólio das CTMs** (`/portfolio`, visível para **todos os DRs**, somente leitura) e são usadas na oferta (matriz = última versão aprovada).
-- Cada versão pode ter **vínculo com o itinerário** (outro sistema; botão "Vincular ao itinerário", feito pelo DR/CTM; integração a detalhar) e **documentos/materiais** vinculados (nome, tipo, link — o arquivo fica no repositório/drive). Nova versão copia os vínculos.
-- Na Gestão de Portfólio da CTM, cada linha é um produto: última versão, situação, versão no portfólio, itinerário, nº de documentos e de propostas.
+- Cada CTM registra seus **cursos** (módulos → UCs), com modalidade e **oferta** (EaD Assíncrono, EaD Síncrono (Aprendizagem) ou EaD Personalizado).
+- **Curso novo** é uma **solicitação**: fica *Aguardando* até o **DN** decidir em **Aprovação de portfólio** (`/portfolio/aprovacoes`): **Aprovar** ou **Reprovar** (com motivo, que a CTM vê).
+- **O DN só aprova curso novo e não acompanha versões.** As **versões** (v1, v2…) são controle da CTM: nova versão entra direto, sem aprovação do DN; a anterior não muda. O DN e o Portfólio das CTMs não mostram versões.
+- Só cursos aprovados entram no **Portfólio das CTMs** (`/portfolio`, visível para **todos os DRs**, somente leitura) e na oferta (matriz = última versão).
+- Cada curso pode ter **vínculo com o itinerário** (outro sistema; integração a detalhar). **Sem documentos/materiais** no portfólio.
 
 ## Produto (Coordenador EAD)
 - "Novo produto" abre em 3 colunas na mesma tela, sem etapas: **Edital** (escolhe apenas um) → **Produtos** do edital em que o DR é a **CTM aprovada** (um ou mais) → **Módulos e UCs** do produto ativo.
@@ -328,3 +328,6 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Portfólio: o item do portfólio é **curso** (não produto) em Gestão de Portfólio, Aprovação de portfólio, Portfólio das CTMs e jornadas ("Novo curso", "Curso criado"). Tabelas do portfólio sem a coluna **Edital**; Aprovação de portfólio sem a coluna **UCs**.
 - 2026-09-29 — Edital = **cadastro do resultado**: só área tecnológica, DR credenciado e valor (R$ hora/estudante); área com campo livre e sugestões. Exemplo ED-007/2026 no formato do resultado 2026-2028 (EaD Assíncrono). Telas do edital sem lista de cursos; rótulo DR credenciado.
 - 2026-09-29 — **Resultado do edital** igual ao documento oficial: Novo resultado (por área: DR e valor em EaD Assíncrono, EaD Síncrono (Aprendizagem) e EaD Personalizado) e tela Resultado do edital (resumo por CTM + tabelas por modalidade). Exemplo ED-007/2026 com o resultado 2026-2028 completo.
+- 2026-09-29 — Novo resultado do edital: campo **Nome do edital** (ex.: Edital de Credenciamento CTM 2026-2028), mostrado na lista (coluna Edital), no resultado, na confirmação e na busca rápida.
+- 2026-09-29 — Gestão de Portfólio: coluna **Modalidade** antes do curso e coluna **Oferta** (EaD Assíncrono, EaD Síncrono (Aprendizagem) ou EaD Personalizado; padrão Assíncrono). O Novo curso escolhe a oferta.
+- 2026-09-29 — Portfólio: sai toda a parte de **documentos e materiais**; **DN só aprova curso novo** e não vê versões (Aprovação de portfólio sem coluna Tipo; Portfólio das CTMs e detalhes do DN sem versões). Nova versão da CTM não passa pelo DN.

@@ -12,6 +12,7 @@ import { EditalSucesso } from './edital-sucesso'
 
 // Edital = cadastro do resultado: só área tecnológica, DR credenciado e valor (R$ hora/estudante).
 const colunas: Column<Edital>[] = [
+  { header: 'Edital', value: (e) => e.nome ?? e.numero, search: true, className: 'font-medium' },
   { header: 'Nº', value: (e) => e.numero, search: true, className: 'font-mono text-xs' },
   { header: 'Vigência', value: (e) => `${e.vigenciaInicio} a ${e.vigenciaFim}`, className: 'tabular-nums' },
   { header: 'Áreas tecnológicas', value: (e) => e.areas.length, search: true, className: 'text-right tabular-nums' },
