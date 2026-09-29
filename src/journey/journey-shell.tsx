@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, UserRound, RotateCcw, Lock, Workflow, X } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, UserRound, RotateCcw, Lock, Workflow, X, Minus } from 'lucide-react'
 import { MapaProcesso } from '@/pages/processo'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -127,6 +127,9 @@ export function JourneyShell() {
 
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
   const [mapa, setMapa] = useState(false)
+  // Painel de perfil/jornada minimizável (lembrado no navegador).
+  const [painelMin, setPainelMinState] = useState(() => { try { return localStorage.getItem('painel-jornada-min') === '1' } catch { return false } })
+  const setPainelMin = (v: boolean) => { setPainelMinState(v); try { localStorage.setItem('painel-jornada-min', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
   const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') !== '0' } catch { return true } })
   const setGuia = (v: boolean) => { setGuiaState(v); try { localStorage.setItem('guia-jornada', v ? '1' : '0') } catch { /* sem armazenamento */ } }
@@ -310,7 +313,20 @@ export function JourneyShell() {
           </div>
         </header>
 
-        {/* Mapa da jornada escolhida no select: etapas ligadas por setas */}
+        {/* Painel minimizado: só um resumo (perfil · jornada · etapa) com o botão de expandir */}
+        {painelMin ? (
+          <div className="mx-4 mb-3 flex shrink-0 items-center gap-2 rounded-lg border bg-card px-3 py-1.5 text-xs">
+            <span className="size-2 rounded-full" style={{ background: profileOf(pid).color }} />
+            <span className="font-semibold">{pid}</span>
+            <span className="text-muted-foreground">·</span>
+            <span className="truncate">{journey.id ? `${numero(journey.id)}. ${journey.title}` : 'Sem jornada'}</span>
+            {journey.id && <span className="text-muted-foreground">· Etapa {step + 1} de {journey.steps.length}: {current.title}</span>}
+            <Button size="icon-xs" variant="ghost" className="ml-auto" aria-label="Expandir painel" title="Expandir painel" onClick={() => setPainelMin(false)}>
+              <ChevronDown />
+            </Button>
+          </div>
+        ) : (
+        /* Mapa da jornada escolhida no select: etapas ligadas por setas */
         <div className="mx-4 mb-3 flex shrink-0 items-center gap-3 rounded-lg border bg-card p-2">
           {/* Dois selects: primeiro o perfil, depois as jornadas que esse perfil inicia */}
           <div className="flex shrink-0 items-end gap-2">
@@ -393,7 +409,11 @@ export function JourneyShell() {
               })}
             </div>
           </div>
+          <Button size="icon-xs" variant="ghost" className="self-start" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}>
+            <Minus />
+          </Button>
         </div>
+        )}
         </>)}
 
         <div className="flex min-h-0 flex-1">
