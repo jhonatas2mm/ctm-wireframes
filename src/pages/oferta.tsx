@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { DataTable, EmptyState, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
+import { CellButton, DataTable, EmptyState, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { situacaoDe, statusTurma, aoVivoTurma, chUc, situacaoCronograma, useCalendario, useCursosDr, useEquipe, useProdutos, useTurmas, type Produto, type StatusTurma, type Turma, type UcTurma } from '@/lib/mock'
 import { gerarCronograma, parametrosPadrao, type ParametrosCronograma } from '@/lib/cronograma'
 import { cn } from '@/lib/utils'
@@ -45,9 +45,9 @@ const colunasOfertas = (verProposta: (id: string) => void): Column<LinhaOferta>[
     value: (l) => l.proposta.numero,
     search: true,
     cell: (l) => (
-      <span className="flex items-center gap-2">
+      <span className="flex flex-col items-start gap-1 py-1">
         <Badge variant="secondary" className="font-mono">{l.proposta.numero}</Badge>
-        <button type="button" className="text-xs underline underline-offset-2 hover:text-foreground/70" onClick={(e) => (e.stopPropagation(), verProposta(l.proposta.id))}>Detalhes</button>
+        <CellButton onClick={() => verProposta(l.proposta.id)}>Detalhes</CellButton>
       </span>
     ),
   },

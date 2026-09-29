@@ -76,6 +76,34 @@ function FiltroBusca({ opts, valor, set }: { opts: string[]; valor: string; set:
     </div>
   )
 }
+// Filtro de data: coluna em que todos os valores são datas (dd/mm/aaaa ou aaaa-mm-dd) vira intervalo De/Até com campos de data.
+// Valor guardado como "DATA:<de>|<até>" (ISO; lados vazios = sem limite).
+const DATA = 'DATA:'
+const iso = (v: string) => { const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})/); return m ? `${m[3]}-${m[2]}-${m[1]}` : /^\d{4}-\d{2}-\d{2}/.test(v) ? v.slice(0, 10) : '' }
+const ehData = (opts: string[]) => { const d = opts.filter((o) => o && o !== '—'); return d.length > 0 && d.every((o) => iso(o)) }
+const br = (v: string) => v.split('-').reverse().join('/')
+const intervalo = (v: string) => { const [de = '', ate = ''] = v.slice(DATA.length).split('|'); return { de, ate } }
+const textoFiltro = (v: string) => {
+  if (!v.startsWith(DATA)) return partes(v).join(', ')
+  const { de, ate } = intervalo(v)
+  return de && ate ? `${br(de)} a ${br(ate)}` : de ? `a partir de ${br(de)}` : `até ${br(ate)}`
+}
+const casa = (filtro: string, valores: string[]) => {
+  if (!filtro.startsWith(DATA)) return partes(filtro).some((v) => valores.includes(v))
+  const { de, ate } = intervalo(filtro)
+  return valores.some((v) => { const d = iso(v); return !!d && (!de || d >= de) && (!ate || d <= ate) })
+}
+
+function FiltroData({ valor, set }: { valor: string; set: (v: string) => void }) {
+  const { de, ate } = valor.startsWith(DATA) ? intervalo(valor) : { de: '', ate: '' }
+  const por = (d: string, a: string) => set(d || a ? `${DATA}${d}|${a}` : '')
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <label className="grid gap-1 text-xs text-muted-foreground">De<Input type="date" className="h-8 text-xs" value={de} onChange={(e) => por(e.target.value, ate)} /></label>
+      <label className="grid gap-1 text-xs text-muted-foreground">Até<Input type="date" className="h-8 text-xs" value={ate} onChange={(e) => por(de, e.target.value)} /></label>
+    </div>
+  )
+}
 const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 
 export function DataTable<T extends { id: string }>({
@@ -132,7 +160,7 @@ export function DataTable<T extends { id: string }>({
     return rows.filter(
       (r) =>
         (!t || columns.some((c) => c.search && norm(String(c.value(r))).includes(t))) &&
-        defs.every((d) => !filters[d.label] || partes(filters[d.label]).some((v) => d.values(r).includes(v))),
+        defs.every((d) => !filters[d.label] || casa(filters[d.label], d.values(r))),
     )
   }, [rows, columns, defs, q, filters])
 
@@ -212,7 +240,9 @@ export function DataTable<T extends { id: string }>({
                       return (
                         <div key={d.label} className="space-y-2">
                           <span className="text-xs font-semibold text-muted-foreground">{d.label}</span>
-                          {ehBusca(d.label, opts.length) ? (
+                          {ehData(opts) ? (
+                            <FiltroData valor={atual} set={set} />
+                          ) : ehBusca(d.label, opts.length) ? (
                             <FiltroBusca opts={opts} valor={atual} set={set} />
                           ) : opts.length <= 6 ? (
                             // Poucos valores: pílulas clicáveis (clicar de novo desmarca).
@@ -270,7 +300,7 @@ export function DataTable<T extends { id: string }>({
             .filter(([, v]) => v)
             .map(([label, v]) => (
               <span key={label} className="inline-flex items-center gap-1 rounded-lg bg-[#EEF0F1] py-1 pr-1 pl-2.5 text-xs text-[#3D4448]">
-                <span className="text-muted-foreground">{label}:</span> <span className="font-medium">{partes(v).join(', ')}</span>
+                <span className="text-muted-foreground">{label}:</span> <span className="font-medium">{textoFiltro(v)}</span>
                 <button type="button" aria-label={`Remover filtro ${label}`} className="rounded p-0.5 hover:bg-foreground/10" onClick={() => setFilters(({ [label]: _, ...rest }) => rest)}>
                   <X className="size-3" />
                 </button>
@@ -382,6 +412,16 @@ function Paginador({ pagina, total, de, ate, n, ir }: { pagina: number; total: n
 }
 
 /** Botão de ação de linha: ícone com tooltip. */
+// Ação de clique dentro de uma célula (fora da coluna Ações): 3º nível — outline neutro, menos destaque que as Ações.
+export const cellButton = 'h-6 border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+export function CellButton({ onClick, children, className }: { onClick: () => void; children: ReactNode; className?: string }) {
+  return (
+    <Button type="button" size="xs" variant="outline" className={cn(cellButton, className)} onClick={(e) => (e.stopPropagation(), onClick())}>
+      {children}
+    </Button>
+  )
+}
+
 export function RowAction({
   label,
   icon: Icon,

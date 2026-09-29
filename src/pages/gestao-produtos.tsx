@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { NovaVersaoSheet, ProdutoSheet, SituacaoBadge } from '@/pages/produto-sheets'
 import { Button } from '@/components/ui/button'
 import { NovoCursoDialog } from '@/pages/novo-curso-dialog'
-import { DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
+import { CellButton, cellButton, DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
 import { aprovadosAtuais, raizDe, situacaoDe, useCursosDr, useEditais, useProdutos, type CursoDr } from '@/lib/mock'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
@@ -19,7 +19,7 @@ function CursoDetalhes({ c }: { c: CursoDr }) {
   const itens: [string, string][] = [['Modalidade', c.modalidade ?? '—'], ['Área tecnológica', c.area ?? '—'], ['Carga horária', c.cargaHorariaEdital ? `${c.cargaHorariaEdital} h` : '—']]
   return (
     <Popover.Root>
-      <Popover.Trigger render={<Button size="xs" variant="outline" className="border-neutral-300 bg-white font-normal text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900" />}>
+      <Popover.Trigger render={<Button size="xs" variant="outline" className={cellButton} />}>
         Detalhes
       </Popover.Trigger>
       <Popover.Portal>
@@ -45,7 +45,7 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
   {
     header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium',
     cell: (l) => (
-      <span className="flex items-center gap-1.5">
+      <span className="flex flex-col items-start gap-1 py-1">
         <span className="max-w-64">{l.atual.nome}</span>
         <CursoDetalhes c={l.atual} />
       </span>
@@ -58,7 +58,7 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
     search: true,
     filter: true,
     className: 'font-mono text-xs',
-    cell: (l) => (l.atual.edital ? <button type="button" className="underline underline-offset-2 hover:text-foreground/70" onClick={() => abrirEdital(l.atual.edital!)}>{l.atual.edital}</button> : '—'),
+    cell: (l) => (l.atual.edital ? <CellButton onClick={() => abrirEdital(l.atual.edital!)}>{l.atual.edital}</CellButton> : '—'),
   },
   { header: 'Última versão', value: (l) => `v${l.atual.versao ?? 1}`, className: 'tabular-nums' },
   { header: 'Situação', value: (l) => situacaoDe(l.atual), filter: true, cell: (l) => <SituacaoBadge c={l.atual} /> },

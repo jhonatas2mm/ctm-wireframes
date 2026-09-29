@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Progress } from '@/components/ui/progress'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { DataTable, EmptyState, PageHeader, RowAction, StatCard, type Column } from '@/components/wf'
+import { cellButton, DataTable, EmptyState, PageHeader, RowAction, StatCard, type Column } from '@/components/wf'
 import {
   HOJE, alertasAluno, dataBr, diasEntre, diasSemAcesso, mediaAluno, progressoEsperado, situacaoAluno, statusTurmaEad,
   useAlunosEad, useContratosCtm, useTurmasEad,
@@ -71,7 +71,7 @@ function colunasTurma(d: ReturnType<typeof useDados>): Column<TurmaEad>[] {
 function colunasAluno(d: ReturnType<typeof useDados>, comTurma = true): Column<AlunoEad>[] {
   return [
     { header: 'Aluno', value: (a) => a.nome, search: true },
-    ...(comTurma ? [{ header: 'Turma', value: (a: AlunoEad) => d.turmaDe(a).codigo, filter: true, search: true, cell: (a: AlunoEad) => <Link to={`/turmas-ead/${a.turmaId}`} onClick={(e) => e.stopPropagation()} className="font-mono text-sm underline underline-offset-4 hover:text-primary">{d.turmaDe(a).codigo}</Link> } as Column<AlunoEad>] : []),
+    ...(comTurma ? [{ header: 'Turma', value: (a: AlunoEad) => d.turmaDe(a).codigo, filter: true, search: true, cell: (a: AlunoEad) => <Button size="xs" variant="outline" nativeButton={false} className={cn(cellButton, 'font-mono')} render={<Link to={`/turmas-ead/${a.turmaId}`} onClick={(e) => e.stopPropagation()} />}>{d.turmaDe(a).codigo}</Button> } as Column<AlunoEad>] : []),
     { header: 'Progresso', value: (a) => `${a.progresso}%`, cell: (a) => <Barra valor={a.progresso} esperado={progressoEsperado(d.turmaDe(a))} /> },
     { header: 'Média', value: (a) => mediaAluno(a).toFixed(1), className: 'text-right tabular-nums' },
     { header: 'Último acesso', value: (a) => ultimoAcesso(a), className: 'tabular-nums text-muted-foreground' },
