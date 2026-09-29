@@ -30,7 +30,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **Formulários de criação já abrem preenchidos** com dados de exemplo (para validar os fluxos sem digitar); o usuário pode alterar. Ao criar um formulário novo, incluir esse preenchimento.
 - **Nenhum campo bloqueia o protótipo**: não validar nem desabilitar "Salvar" por campo vazio, sem atributo `required`. Manter o asterisco (`<Req />`) nos rótulos que seriam obrigatórios. Só bloquear o que é estrutural (ex.: salvar sem nenhum item selecionado).
 - Tabelas (DS SENAI, em `src/index.css`): card branco raio 20px, cabeçalho branco com texto pequeno semibold cinza, linhas de 56px, 1ª coluna semibold, ações em ícones soltos.
-- **Filtros de DR, estado, curso/produto, nomes e outros com muitos valores** (ou mais de 10 opções) são campo de busca com vários escolhidos em etiquetas (automático no `DataTable`).
+- **Filtros de DR, estado, curso/produto, turma, modalidade, área tecnológica, nomes e outros com muitos valores** (ou mais de 10 opções) são campo de busca com vários escolhidos em etiquetas (automático no `DataTable`).
 - Colunas de **Curso/Produto** nas tabelas: largura limitada e texto quebrando linha (automático no `DataTable`).
 - **Toda tabela usa `DataTable`** com busca, botão **Filtros** (popover com todos os filtros, um por coluna; `filter: true` = topo da lista; prop `filters` para valores múltiplos; fora do botão só a busca e etiquetas dos filtros aplicados) e ações via `RowAction`.
 - **Nomenclatura**: botões de criação "Novo X / Nova X"; botão final "Salvar X". Nunca "Cadastrar/Gerar".

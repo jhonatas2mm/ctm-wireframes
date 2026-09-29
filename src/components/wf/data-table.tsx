@@ -40,7 +40,7 @@ const colunaLonga = (header: string) => /^(Cursos?|Produtos?)$/i.test(header) ? 
 const SEP = '\u001f'
 const partes = (v: string) => v.split(SEP).filter(Boolean)
 // Filtros de DR/estado/nomes (muitos valores possíveis) viram campo de busca com vários escolhidos; os demais, pílulas/select.
-const ehBusca = (label: string, n: number) => n > 10 || /\b(DRs?|CTMs?|Estados?|UF|Contratante|Ofertante|Destinat[aá]ri[oa]s?|Nome|Empresa|Escolas?|Tutor|Cidade|Alunos?|Usu[aá]rios?|Respons[aá]vel|Pessoa|Cursos?|Produtos?|UCs?|Unidades?)\b/i.test(label)
+const ehBusca = (label: string, n: number) => n > 10 || /\b(DRs?|CTMs?|Estados?|UF|Contratante|Ofertante|Destinat[aá]ri[oa]s?|Nome|Empresa|Escolas?|Tutor|Cidade|Alunos?|Usu[aá]rios?|Respons[aá]vel|Pessoa|Cursos?|Produtos?|UCs?|Unidades?|Turmas?|Modalidades?|[AÁ]reas?( tecnol[oó]gicas?)?)\b/i.test(label)
 
 // Campo de busca com resultados logo abaixo; escolhidos viram etiquetas (como o EstadosInput).
 function FiltroBusca({ opts, valor, set }: { opts: string[]; valor: string; set: (v: string) => void }) {
