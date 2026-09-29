@@ -159,8 +159,7 @@ export function PainelSupervisor() {
             {turmas.map((t) => {
               const pct = progresso(t)
               return (
-                <button key={t.id} type="button" onClick={() => navigate(`/oferta/${t.id}`)} className="grid w-full grid-cols-[auto_1fr_8rem] items-center gap-3 py-3 text-left">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-[#EEF7FF] text-xs font-bold text-[#164194]">{t.drContratante}</div>
+                <button key={t.id} type="button" onClick={() => navigate(`/oferta/${t.id}`)} className="grid w-full grid-cols-[1fr_8rem] items-center gap-3 py-3 text-left">
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{t.cursos.join(', ')}</div>
                     <div className="truncate text-xs text-muted-foreground"><span className="font-mono">{t.codigo}</span> · {t.propostaNumero} · SENAI-{t.drContratante}</div>

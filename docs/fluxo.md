@@ -326,3 +326,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Filtros (todas as tabelas): DR, CTM, estado, contratante, nomes, empresa, escola etc. — e qualquer filtro com mais de 10 opções — viram **campo de busca** com resultados abaixo e **vários valores** escolhidos como etiquetas (mostra linhas com qualquer um deles). Poucos valores continuam em pílulas.
 - 2026-09-29 — Casca: selo do perfil mostra "Área: <perfil>" (sem ícone de pessoa); abas de subperfil com rótulo "Subperfil:".
 - 2026-09-29 — Busca rápida: seção Telas também em grade de 3 colunas (com o ícone de cada tela).
+- 2026-09-29 — Painéis: listas sem as bolinhas de sigla à esquerda (a DR continua no texto de cada linha).

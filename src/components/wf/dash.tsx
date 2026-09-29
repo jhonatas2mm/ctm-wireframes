@@ -67,11 +67,11 @@ export function BarList({ itens, formato = (n) => String(n) }: { itens: { rotulo
 }
 
 // Linha de lista com ícone/inicial, título, subtítulo e lado direito.
-export function Linha({ inicial, tom = 'blue', titulo, sub, direita, onClick }: { inicial: React.ReactNode; tom?: Tom; titulo: React.ReactNode; sub?: React.ReactNode; direita?: React.ReactNode; onClick?: () => void }) {
+// Linha de lista dos painéis (sem a bolinha de sigla; inicial/tom mantidos por compatibilidade).
+export function Linha({ titulo, sub, direita, onClick }: { inicial?: React.ReactNode; tom?: Tom; titulo: React.ReactNode; sub?: React.ReactNode; direita?: React.ReactNode; onClick?: () => void }) {
   const C = onClick ? 'button' : 'div'
   return (
-    <C type={onClick ? 'button' : undefined} onClick={onClick} className={cn('flex w-full items-center gap-3 py-3 text-left', onClick && 'rounded-xl hover:bg-muted/50')}>
-      <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold', tons[tom])}>{inicial}</div>
+    <C type={onClick ? 'button' : undefined} onClick={onClick} className={cn('flex w-full items-center gap-3 px-2 py-3 text-left', onClick && 'rounded-xl hover:bg-muted/50')}>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-semibold">{titulo}</div>
         {sub && <div className="truncate text-xs text-muted-foreground">{sub}</div>}
