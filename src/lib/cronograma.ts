@@ -65,6 +65,20 @@ export function gerarCronograma(modulos: Turma['modulos'], p: ParametrosCronogra
   return { modulos: saida, avisos }
 }
 
+// Datas dos encontros presenciais da UC: um por semana, no dia do presencial da turma (padrão segunda-feira).
+// Se a UC tem mais semanas que encontros, a 1ª semana fica só a distância. Feriado nacional: a semana fica sem encontro.
+export function datasEncontros(u: { inicio: string; fim: string; semanas?: number; encontros?: number }, dia: string | undefined, cal: DataCalendario[]) {
+  if (!u.inicio || !u.fim || !u.encontros) return []
+  const alvo = Math.max(1, ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'].indexOf(dia ?? '') + 1)
+  let d = u.inicio
+  while (diaSemana(d) !== alvo) d = somar(d, 1)
+  if ((u.semanas ?? 1) > u.encontros) d = somar(d, 7)
+  const out: string[] = []
+  for (; out.length < u.encontros && d <= u.fim; d = somar(d, 7)) if (!bloqueio(d, cal)) out.push(d)
+  return out
+}
+export const diaCurto = (d: string) => ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'][diaSemana(d)]
+
 // Prorrogação: desloca todas as datas da turma (UCs e aulas ao vivo) pela diferença entre o início antigo e o novo.
 export function deslocar(modulos: Turma['modulos'], dias: number): Turma['modulos'] {
   const mv = (x: string) => (x ? somar(x, dias) : x)

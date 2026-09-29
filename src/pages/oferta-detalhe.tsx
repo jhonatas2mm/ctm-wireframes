@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils'
 import { PropostaSheet } from './proposta-sheet'
 import { StatusTurmaBadge } from './oferta'
 import { ExecucaoTurma, IntegracaoTurma } from './oferta-execucao'
+import { CronogramaLinhaDoTempo } from './cronograma-turma'
 
 const dataBr = (iso?: string) => (iso ? br(iso) : '—')
 const somar = (iso: string, n: number) => new Date(Date.parse(iso) + n * 864e5).toISOString().slice(0, 10)
@@ -41,6 +42,7 @@ export default function OfertaDetalhe() {
   const { all: propostas } = useProdutos()
   const { all: calendario } = useCalendario()
   const [verProposta, setVerProposta] = useState(false)
+  const [visao, setVisao] = useState<'linha' | 'tabela'>('linha')
   // UC em edição (módulo, UC) e rascunho da aula ao vivo; um dia por UC.
   const [editando, setEditando] = useState<{ i: number; k: number; aula: AulaAoVivo } | null>(null)
   const [modal, setModal] = useState<null | 'enviar' | 'versao' | 'prorrogar' | 'cancelar' | 'escola'>(null)
@@ -181,9 +183,23 @@ export default function OfertaDetalhe() {
             </div>
 
             <section className="space-y-3">
-              <h2 className="text-lg font-semibold">Matriz curricular</h2>
-              {t.modulos.map((m, i) => (
-                <div key={i} className="overflow-hidden rounded-lg border bg-card">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold">Cronograma das UCs</h2>
+                <div className="inline-flex rounded-lg border bg-card p-0.5">
+                  {([['linha', 'Linha do tempo'], ['tabela', 'Tabela']] as const).map(([v, l]) => (
+                    <button key={v} type="button" onClick={() => setVisao(v)} className={cn('rounded-md px-3 py-1 text-sm', visao === v ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground')}>{l}</button>
+                  ))}
+                </div>
+              </div>
+              {visao === 'linha' && (
+                <CronogramaLinhaDoTempo
+                  t={t} turmas={db.all} calendario={calendario}
+                  onEditarAula={(i, k) => { const u = t.modulos[i].unidades[k]; setEditando({ i, k, aula: u.aoVivo[0] ?? { data: u.inicio, inicio: '19:00', fim: '21:00' } }) }}
+                  onRemoverAula={(i, k) => confirmar({ titulo: `Remover a aula ao vivo de ${t.modulos[i].unidades[k].nome}?`, onConfirmar: () => salvarAula(i, k, null) })}
+                />
+              )}
+              {visao === 'tabela' && t.modulos.map((m, i) => (
+                <div key={i} className="overflow-hidden rounded-[1.25rem] border bg-card">
                   <div className="flex items-center gap-2 border-b bg-muted/40 px-3 py-2 text-sm font-medium">
                     <Layers className="size-4 text-muted-foreground" /> {t.cursos.length > 1 && <span className="text-muted-foreground">{m.curso} ·</span>} Módulo {i + 1} · {m.nome}
                   </div>
