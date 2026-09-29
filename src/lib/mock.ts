@@ -792,14 +792,14 @@ const pessoasLog = [
 ]
 const acoesLog: [AcaoLog, string, string, Alteracao[]][] = [
   ['Login', 'Autenticação', '—', []],
-  ['Criou', 'Gestão de propostas', 'Proposta PC-MG-004/2026', [{ campo: 'Status', antes: '—', depois: 'Em elaboração' }]],
+  ['Criou', 'Propostas', 'Proposta PC-MG-004/2026', [{ campo: 'Status', antes: '—', depois: 'Em elaboração' }]],
   ['Editou', 'Gestão de Editais', 'Edital ED-002/2026', [{ campo: 'Vigência (fim)', antes: '31/01/2027', depois: '28/02/2027' }, { campo: 'Valor', antes: 'R$ 8.640,00', depois: 'R$ 9.040,00' }]],
   ['Visualizou', 'Estudantes', 'Estudante Daniel Rocha', []],
-  ['Aceitou', 'Gestão de propostas', 'Proposta PC-MG-002/2026', [{ campo: 'Status', antes: 'Em análise', depois: 'Aceita' }]],
+  ['Aceitou', 'Propostas', 'Proposta PC-MG-002/2026', [{ campo: 'Status', antes: 'Em análise', depois: 'Aceita' }]],
   ['Exportou', 'Gestão de Contratos', 'Contratos (4 registros)', []],
   ['Anexou', 'Gestão de TAA', 'TAA 101/2026', [{ campo: 'TAA assinado', antes: '—', depois: 'TAA-101-2026-assinado.pdf' }, { campo: 'Status', antes: 'Em elaboração', depois: 'Vigente' }]],
   ['Excluiu', 'Gestão de Portfólio', 'Produto Soldador (versão 1)', []],
-  ['Recusou', 'Gestão de propostas', 'Proposta PC-MG-003/2026', [{ campo: 'Status', antes: 'Em análise', depois: 'Recusada' }, { campo: 'Feedback', antes: '—', depois: 'Valor acima do previsto no edital' }]],
+  ['Recusou', 'Propostas', 'Proposta PC-MG-003/2026', [{ campo: 'Status', antes: 'Em análise', depois: 'Recusada' }, { campo: 'Feedback', antes: '—', depois: 'Valor acima do previsto no edital' }]],
   ['Editou', 'Gestão de usuários', 'Usuário Roberto Lima', [{ campo: 'Status', antes: 'Ativo', depois: 'Inativo' }]],
   ['Visualizou', 'Painel', 'Painel do DR solicitante', []],
   ['Logout', 'Autenticação', '—', []],

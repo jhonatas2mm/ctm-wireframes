@@ -1,5 +1,8 @@
 import { Fragment, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { NovoCursoDialog } from '@/pages/novo-curso-dialog'
 import { Building, Eye, PackageCheck, Route } from 'lucide-react'
 import { DataTable, PageHeader, RowAction, StatCard, type Column, type FilterDef } from '@/components/wf'
 import { aprovadosAtuais, ofertaDe, ofertasEad, useCursosDr, type CursoDr } from '@/lib/mock'
@@ -28,6 +31,8 @@ const filtrosPortfolio: FilterDef<CursoDr>[] = [
 function PortfolioPublico() {
   const { all } = useCursosDr()
   const [ver, setVer] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
   // CTM vê só os cursos da própria CTM, na listagem agrupada por modalidade
   const perfil = profileOf(useProfile())
   const minhaCtm = perfil.grupo === 'CTM' ? perfil.dr?.sigla.replace('SENAI-', '') : undefined
@@ -48,7 +53,8 @@ function PortfolioPublico() {
   ]
   if (minhaCtm) return (
     <>
-      <PageHeader title="Portfólio das CTMs" description={`Cursos da CTM SENAI-${minhaCtm}.`} />
+      <PageHeader title="Portfólio das CTMs" description={`Cursos da CTM SENAI-${minhaCtm}.`} actions={<Button onClick={() => navigate('/portfolio/novo')}><Plus /> Novo curso</Button>} />
+      <NovoCursoDialog open={pathname === '/portfolio/novo'} onOpenChange={(v) => !v && navigate('/portfolio')} />
       <PortfolioAgrupado rows={rows} onVer={setVer} />
       <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
     </>

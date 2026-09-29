@@ -89,7 +89,7 @@ const colunas = (taas: Contrato[]): Column<Produto>[] => [
   { header: 'Responsável', value: (p) => p.responsavel?.nome ?? '—', filter: true },
 ]
 
-// Gestão de propostas (CTM): a CTM cria a proposta, vinculada a um TAA/contrato aceito, depois que a negociação (fora do
+// Propostas (CTM): a CTM cria a proposta, vinculada a um TAA/contrato aceito, depois que a negociação (fora do
 // sistema) avança. O Gestor EAD é o responsável e muda o status conforme o retorno da DR solicitante.
 // Versões vão e vêm (Nova versão), com histórico. Rotas: /produtos · /produtos/novo · /produtos/novo?versao=<id>
 export default function Produtos() {
@@ -115,7 +115,7 @@ export default function Produtos() {
   const fechada = (p: Produto) => p.status === 'Aprovado' || p.status === 'Cancelado'
   return (
     <>
-      <PageHeader title="Gestão de propostas" actions={<Button onClick={() => navigate('/produtos/novo')}><Plus /> Nova proposta</Button>} />
+      <PageHeader title="Propostas" actions={<Button onClick={() => navigate('/produtos/novo')}><Plus /> Nova proposta</Button>} />
       <DataTable
         cards
         rows={todas}

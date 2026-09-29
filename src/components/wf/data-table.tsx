@@ -9,6 +9,7 @@ import { useSidebarOpcional } from '@/components/ui/sidebar'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
+import { auditoriaDe } from '@/lib/db'
 import { EmptyState } from './empty-state'
 
 // Padrão de tabela do projeto: busca por texto + filtro por coluna + contador + "limpar filtros".
@@ -149,9 +150,26 @@ function FiltroData({ valor, set }: { valor: string; set: (v: string) => void })
 }
 const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 
+const dataHora = (iso?: string) => (iso ? new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '')
+const colunaAuditoria: Column<{ id: string }> = {
+  header: 'Auditoria',
+  value: (r) => { const a = auditoriaDe(r); return a ? `${a.alteradoPor ?? a.criadoPor} ${dataHora(a.alteradoEm ?? a.criadoEm)}` : '' },
+  cell: (r) => {
+    const a = auditoriaDe(r)
+    if (!a) return '—'
+    return (
+      <span className="block min-w-44 text-xs leading-snug">
+        <span className="block"><span className="text-muted-foreground">Criado:</span> {a.criadoPor} <span className="text-muted-foreground tabular-nums">· {dataHora(a.criadoEm)}</span></span>
+        {a.alteradoPor && <span className="block"><span className="text-muted-foreground">Alterado:</span> {a.alteradoPor} <span className="text-muted-foreground tabular-nums">· {dataHora(a.alteradoEm)}</span></span>}
+      </span>
+    )
+  },
+}
+
 export function DataTable<T extends { id: string }>({
   rows,
-  columns,
+  columns: colunasBase,
+  auditoria = true,
   searchPlaceholder = 'Buscar…',
   onRowClick,
   actions,
@@ -165,7 +183,10 @@ export function DataTable<T extends { id: string }>({
   actions?: (row: T) => ReactNode // botões na última coluna (use RowAction)
   filters?: FilterDef<T>[]
   cards?: boolean // habilita a 2ª visualização em cards (uma linha por registro, sem rolagem horizontal); abre em cards
+  auditoria?: boolean // coluna de auditoria (criado por / alterado por, data e hora); automática quando as linhas têm auditoria
 }) {
+  // Auditoria em todo o sistema: coluna automática com quem criou e quem alterou por último (data e hora)
+  const columns = useMemo<Column<T>[]>(() => (auditoria && rows.some((r) => auditoriaDe(r)) ? [...colunasBase, colunaAuditoria as Column<T>] : colunasBase), [colunasBase, rows, auditoria])
   const centro = useMemo(() => columns.map((c) => centraliza(c, rows)), [columns, rows])
   // Linha clicada (ou com ação clicada): fica em foco, como no hover, enquanto o detalhe (sheet lateral) estiver aberto.
   const [foco, setFoco] = useState<string | null>(null)

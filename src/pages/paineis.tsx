@@ -258,7 +258,7 @@ export function PainelComercial() {
           </div>
         </Bloco>
         <Bloco>
-          <BlocoTitulo titulo="Cursos mais propostos" acao={ver('/gestao-produtos', 'Ver portfólio')} />
+          <BlocoTitulo titulo="Cursos mais propostos" acao={ver('/portfolio', 'Ver portfólio')} />
           <div className="divide-y">
             {cursosMais.map(([nome, n], i) => (
               <Linha key={nome} inicial={i + 1} tom="gray" titulo={nome} direita={<span className="flex items-center gap-1 text-sm text-muted-foreground"><Clock className="size-3.5" />{n}×</span>} />

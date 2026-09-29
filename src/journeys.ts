@@ -64,7 +64,7 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de DRs', path: '/drs', focus: 'text=Novo DR credenciado', profile: 'Super admin', note: 'Super admin acessa todas as telas do sistema para acompanhar e corrigir dados.' },
       { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo resultado', profile: 'Super admin', note: 'Editais de todas as áreas: vigência, cursos, valores e a CTM aprovada de cada produto.' },
-      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'Super admin', note: 'Propostas de todas as CTMs, com TAA vinculado, status e versões.' },
+      { title: 'Propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'Super admin', note: 'Propostas de todas as CTMs, com TAA vinculado, status e versões.' },
       { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'Super admin', note: 'Turmas de todas as propostas aprovadas, com cronograma e status.' },
     ],
   },
@@ -97,9 +97,9 @@ export const journeys: Journey[] = [
       { title: 'Novo resultado', path: '/editais/novo', profile: 'DN', note: 'Igual ao resultado oficial: por área tecnológica, o DR credenciado e o valor em cada modalidade (EaD Assíncrono R$ hora/estudante; EaD Síncrono (Aprendizagem) R$ hora/turma até 50; EaD Personalizado R$ hora/estudante).' },
       { title: 'Resultado salvo', path: '/editais/7/sucesso', profile: 'DN', note: 'Confirmação do cadastro, com acesso ao resultado.' },
       { title: 'Resultado do edital', path: '/editais/7/resultado', profile: 'DN', note: 'Visão igual ao documento: resumo por CTM (GO e SC) e tabelas por modalidade (EaD Assíncrono; EaD Síncrono (Aprendizagem) / EaD Personalizado).' },
-      { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
-      { title: 'Novo curso', path: '/gestao-produtos/novo', profile: 'CTM: Coordenador EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca os cursos e cadastra módulos e UCs. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
-      { title: 'Curso criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Coordenador EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
+      { title: 'Portfólio das CTMs', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
+      { title: 'Novo curso', path: '/portfolio/novo', profile: 'CTM: Coordenador EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca os cursos e cadastra módulos e UCs. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
+      { title: 'Curso criado', path: '/portfolio', focus: 'text=Soldador', profile: 'CTM: Coordenador EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
   {
@@ -130,9 +130,9 @@ export const journeys: Journey[] = [
     title: 'Criação de portfólio',
     profile: 'CTM: Coordenador EAD',
     steps: [
-      { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
-      { title: 'Novo curso', path: '/gestao-produtos/novo', profile: 'CTM: Coordenador EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca um ou mais cursos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
-      { title: 'Curso criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Coordenador EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
+      { title: 'Portfólio das CTMs', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
+      { title: 'Novo curso', path: '/portfolio/novo', profile: 'CTM: Coordenador EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca um ou mais cursos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
+      { title: 'Curso criado', path: '/portfolio', focus: 'text=Soldador', profile: 'CTM: Coordenador EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
   {
@@ -166,9 +166,9 @@ export const journeys: Journey[] = [
     title: 'Criação de proposta',
     profile: 'CTM: Coordenador EAD',
     steps: [
-      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Coordenador EAD', note: 'A proposta é sempre da CTM. A negociação acontece fora do sistema; quando avança, o Gestor EAD cria a proposta.' },
+      { title: 'Propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Coordenador EAD', note: 'A proposta é sempre da CTM. A negociação acontece fora do sistema; quando avança, o Gestor EAD cria a proposta.' },
       { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Coordenador EAD', note: 'Vinculada a um TAA/contrato aceito: cursos do TAA, estudantes e início por curso; matriz do portfólio; valor = valor do edital × estudantes (fixo); saldo do TAA mostrado. Salva como Rascunho.' },
-      { title: 'Proposta em rascunho', path: '/produtos/7', profile: 'CTM: Coordenador EAD', note: 'Gestão da proposta: resumo, cursos com a matriz, versões, documentos e histórico. O Gestor EAD é o responsável.' },
+      { title: 'Proposta em rascunho', path: '/produtos/7', profile: 'CTM: Coordenador EAD', note: 'Proposta: resumo, cursos com a matriz, versões, documentos e histórico. O Gestor EAD é o responsável.' },
       { title: 'Vai e vem: nova versão', path: '/produtos/4', profile: 'CTM: Coordenador EAD', note: 'O DR pediu ajuste: “Nova versão” guarda a v1 no histórico e cria a v2. Status atual: Aguardando.' },
       { title: 'Status da proposta', path: '/produtos', focus: 'text=Status', profile: 'CTM: Coordenador EAD', note: 'O Gestor EAD registra o andamento combinado com o DR: Rascunho → Em andamento → Aguardando → Aprovado, ou Cancelado (motivo).' },
       { title: 'Aprovada: equipe técnica', path: '/produtos/1', profile: 'CTM: Coordenador EAD', note: 'Aprovada, a proposta executa o saldo do TAA; vincula-se a equipe técnica (supervisor e analista), que define o cronograma e segue para Criar turmas.' },
@@ -270,9 +270,9 @@ export const journeys: Journey[] = [
     title: 'Criação de portfólio',
     profile: 'CTM: Gestor EAD',
     steps: [
-      { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo curso', profile: 'CTM: Gestor EAD', note: 'O Gestor EAD clica em “Novo curso”.' },
-      { title: 'Novo curso', path: '/gestao-produtos/novo', profile: 'CTM: Gestor EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca um ou mais cursos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
-      { title: 'Curso criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Gestor EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
+      { title: 'Portfólio das CTMs', path: '/portfolio', focus: 'text=Novo curso', profile: 'CTM: Gestor EAD', note: 'O Gestor EAD clica em “Novo curso”.' },
+      { title: 'Novo curso', path: '/portfolio/novo', profile: 'CTM: Gestor EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca um ou mais cursos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
+      { title: 'Curso criado', path: '/portfolio', focus: 'text=Soldador', profile: 'CTM: Gestor EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
   {
@@ -280,9 +280,9 @@ export const journeys: Journey[] = [
     title: 'Criação de proposta',
     profile: 'CTM: Gestor EAD',
     steps: [
-      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Gestor EAD', note: 'A proposta é sempre da CTM. A negociação acontece fora do sistema; quando avança, o Gestor EAD cria a proposta.' },
+      { title: 'Propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Gestor EAD', note: 'A proposta é sempre da CTM. A negociação acontece fora do sistema; quando avança, o Gestor EAD cria a proposta.' },
       { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Gestor EAD', note: 'Vinculada a um TAA/contrato aceito: cursos do TAA, estudantes e início por curso; matriz do portfólio; valor = valor do edital × estudantes (fixo); saldo do TAA mostrado. Salva como Rascunho.' },
-      { title: 'Proposta em rascunho', path: '/produtos/7', profile: 'CTM: Gestor EAD', note: 'Gestão da proposta: resumo, cursos com a matriz, versões, documentos e histórico. O Gestor EAD é o responsável.' },
+      { title: 'Proposta em rascunho', path: '/produtos/7', profile: 'CTM: Gestor EAD', note: 'Proposta: resumo, cursos com a matriz, versões, documentos e histórico. O Gestor EAD é o responsável.' },
       { title: 'Vai e vem: nova versão', path: '/produtos/4', profile: 'CTM: Gestor EAD', note: 'O DR pediu ajuste: “Nova versão” guarda a v1 no histórico e cria a v2. Status atual: Aguardando.' },
       { title: 'Status da proposta', path: '/produtos', focus: 'text=Status', profile: 'CTM: Gestor EAD', note: 'O Gestor EAD registra o andamento combinado com o DR: Rascunho → Em andamento → Aguardando → Aprovado, ou Cancelado (motivo).' },
       { title: 'Aprovada: equipe técnica', path: '/produtos/1', profile: 'CTM: Gestor EAD', note: 'Aprovada, a proposta executa o saldo do TAA; vincula-se a equipe técnica (supervisor e analista), que define o cronograma e segue para Criar turmas.' },

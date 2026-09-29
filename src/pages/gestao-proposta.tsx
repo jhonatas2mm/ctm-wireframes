@@ -71,10 +71,10 @@ export default function GestaoProposta() {
     secoes.forEach((sc) => { const el = document.getElementById(`sec-${sc.id}`); if (el) obs.observe(el) })
     return () => obs.disconnect()
   }, [p])
-  const crumbs = [{ label: 'Gestão de propostas', to: '/produtos' }, { label: p?.numero ?? 'Proposta' }]
+  const crumbs = [{ label: 'Propostas', to: '/produtos' }, { label: p?.numero ?? 'Proposta' }]
   if (!p) return (
     <>
-      <PageHeader title="Gestão da proposta" breadcrumb={crumbs} />
+      <PageHeader title="Proposta" breadcrumb={crumbs} />
       <EmptyState title="Proposta não encontrada" />
     </>
   )
@@ -102,7 +102,7 @@ export default function GestaoProposta() {
   return (
     <>
       <PageHeader
-        title={<span className="flex items-center gap-3">Gestão da proposta <StatusPropostaBadge status={p.status} /></span>}
+        title={<span className="flex items-center gap-3">Proposta <StatusPropostaBadge status={p.status} /></span>}
         breadcrumb={crumbs}
         actions={
           <>

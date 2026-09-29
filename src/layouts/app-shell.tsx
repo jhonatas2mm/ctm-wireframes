@@ -1,3 +1,4 @@
+import { definirAutor } from '@/lib/db'
 import { useState } from 'react'
 import type React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
@@ -38,6 +39,7 @@ export function AppShell() {
   // Cartão da DR só fora da área CTM (a CTM é a operação, não se identifica como DR no menu)
   const dr = perfil?.startsWith('CTM:') ? undefined : profileOf(perfil).dr
   const user = profileOf(perfil).user ?? { nome: 'Maria Silva', email: 'maria.silva@senai.br' }
+  definirAutor(user.nome) // auditoria: quem cria/altera registros
   // Só um item ativo: o de caminho mais longo (ex.: /portfolio/aprovacoes não marca também /portfolio)
   const casa = (path: string) => pathname === path || pathname.startsWith(path + '/')
   const ativo = noMenu.filter((s) => casa(s.path)).sort((a, b) => b.path.length - a.path.length)[0]?.path
