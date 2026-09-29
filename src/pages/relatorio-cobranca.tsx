@@ -12,54 +12,18 @@ import { Textarea } from '@/components/ui/textarea'
 import { EmptyState, PageHeader, Req, useConfirmar } from '@/components/wf'
 import {
   HOJE, dataBr, nomeParte, useAjustesCobranca, useContratos, useProdutos, useTurmas,
-  type AjusteCobranca, type Produto, type Turma,
+  type AjusteCobranca,
 } from '@/lib/mock'
 import { cn } from '@/lib/utils'
+import { cicloBr as mesBr, ciclosDe, janelaCiclo } from '@/lib/alunos-turma'
+import { brl, linhasCobranca } from '@/lib/cobranca'
 
 // Relatório de cobrança (CTM → DR solicitante), no modelo da planilha da CTM: por proposta e ciclo financeiro (mês),
-// uma linha por turma × escola × UC com a CH cobrada no ciclo, nº de alunos integrados e valor aluno/hora.
+// uma linha por turma × escola × UC com a CH cobrada no ciclo, nº de alunos que faturam e valor aluno/hora.
 // Regras em docs/fluxo.md.
 
-export const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const horas = (h: number) => `${Math.floor(h)}:${String(Math.round((h % 1) * 60)).padStart(2, '0')}`
-const mesBr = (c: string) => `${Number(c.slice(5))}/${c.slice(0, 4)}`
-const ultimoDia = (c: string) => new Date(Date.UTC(Number(c.slice(0, 4)), Number(c.slice(5)), 0)).toISOString().slice(0, 10)
 const proxMes = (c: string) => { const d = new Date(Date.UTC(Number(c.slice(0, 4)), Number(c.slice(5)), 1)); return d.toISOString().slice(0, 7) }
-const dias = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5) + 1
-const slug = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^SENAI\s+/i, '').replace(/\W+/g, '').toUpperCase()
-
-export type LinhaCobranca = {
-  turma: Turma; curso: string; modalidade: string; escola: string; cidade: string; codigo: string; uc: string
-  chTotal: number; inicio: string; fim: string; chCobrada: number; alunos: number; valorHora: number; valor: number
-}
-
-// Ciclos (meses) em que alguma UC das turmas da proposta está em andamento.
-export function ciclosDe(turmas: Turma[]) {
-  const ucs = turmas.flatMap((t) => t.modulos.flatMap((m) => m.unidades)).filter((u) => u.inicio && u.fim)
-  if (!ucs.length) return []
-  const out: string[] = []
-  for (let c = ucs.map((u) => u.inicio).sort()[0].slice(0, 7); c <= ucs.map((u) => u.fim).sort().at(-1)!.slice(0, 7); c = proxMes(c)) out.push(c)
-  return out
-}
-
-// CH cobrada no ciclo = CH da UC proporcional aos dias da UC dentro do mês. Alunos = integrados no AVA (ou os da escola).
-export function linhasCobranca(p: Produto, turmas: Turma[], ciclo: string): LinhaCobranca[] {
-  const ini = `${ciclo}-01`, fim = ultimoDia(ciclo)
-  return turmas.flatMap((t) => (t.escolas ?? []).flatMap((e) => t.modulos.flatMap((m) => {
-    const cp = p.cursos.find((c) => c.nome === m.curso)
-    const valorHora = cp ? cp.valorAluno / (cp.cargaHoraria || 1) : 0
-    return m.unidades.filter((u) => u.inicio && u.fim && u.inicio <= fim && u.fim >= ini).map((u) => {
-      const chTotal = u.chEad + u.chPresencial
-      const chCobrada = (chTotal * dias(u.inicio > ini ? u.inicio : ini, u.fim < fim ? u.fim : fim)) / dias(u.inicio, u.fim)
-      const alunos = e.integrados ?? e.alunos
-      return {
-        turma: t, curso: m.curso, modalidade: cp?.modalidade ?? '—', escola: e.nome, cidade: e.cidade,
-        codigo: `CTM${p.drOfertante}_D${t.drContratante}_${t.codigo.split('-')[2]?.split('/')[0] ?? t.id}_${slug(e.nome)}`,
-        uc: u.nome, chTotal, inicio: u.inicio, fim: u.fim, chCobrada, alunos, valorHora, valor: chCobrada * alunos * valorHora,
-      }
-    })
-  })))
-}
 
 export default function RelatorioCobranca() {
   const { id } = useParams()
@@ -111,7 +75,7 @@ export default function RelatorioCobranca() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
           <div className="grid gap-1.5">
-            <Label>Ciclo financeiro</Label>
+            <Label>Ciclo financeiro <span className="font-normal text-muted-foreground">({dataBr(janelaCiclo(ciclo).ini)} a {dataBr(janelaCiclo(ciclo).fim)})</span></Label>
             <Select value={ciclo} onValueChange={(v) => setParams({ ciclo: v as string }, { replace: true })}>
               <SelectTrigger className="w-44"><SelectValue>{(v: string | null) => (v ? mesBr(v) : '—')}</SelectValue></SelectTrigger>
               <SelectContent>{ciclos.map((c) => <SelectItem key={c} value={c}>{mesBr(c)}</SelectItem>)}</SelectContent>

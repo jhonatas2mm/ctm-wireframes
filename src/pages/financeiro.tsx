@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertTriangle, CalendarClock, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { brl, ciclosDe, linhasCobranca } from './relatorio-cobranca'
+import { ciclosDe } from '@/lib/alunos-turma'
+import { brl, linhasCobranca } from '@/lib/cobranca'
+import { AcompanhamentoAlunos } from './acompanhamento-alunos'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -28,19 +30,22 @@ const situacoes: SituacaoFormal[] = ['Desistente', 'Trancado', 'Validado', 'Tran
 
 // Financeiro (CTM): situação de cada aluno para a cobrança. A CTM cobra até a DR formalizar a saída; mudança de status
 // no AVA sem formalização não para a cobrança, mas vira alerta. A formalização passa a ser registrada aqui (não por e-mail).
-// Visões: situação dos alunos (formalizações) e relatório de cobrança por proposta (aba pela URL: ?aba=cobranca).
+// Visões: situação dos alunos (formalizações), acompanhamento dos alunos por turma e ciclo e relatório de cobrança
+// por proposta (aba pela URL: ?aba=acompanhamento | cobranca).
 export default function Financeiro() {
   const [params, setParams] = useSearchParams()
-  const aba = params.get('aba') === 'cobranca' ? 'cobranca' : 'alunos'
+  const aba = (['cobranca', 'acompanhamento'] as const).find((a) => a === params.get('aba')) ?? 'alunos'
   return (
     <>
       <PageHeader title="Financeiro" />
       <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
         <TabsList>
           <TabsTrigger value="alunos">Situação dos alunos</TabsTrigger>
+          <TabsTrigger value="acompanhamento">Acompanhamento dos alunos</TabsTrigger>
           <TabsTrigger value="cobranca">Relatório de cobrança</TabsTrigger>
         </TabsList>
         <TabsContent value="alunos" className="pt-4"><SituacaoAlunos /></TabsContent>
+        <TabsContent value="acompanhamento" className="pt-4"><AcompanhamentoAlunos /></TabsContent>
         <TabsContent value="cobranca" className="pt-4"><CobrancaPropostas /></TabsContent>
       </Tabs>
     </>
