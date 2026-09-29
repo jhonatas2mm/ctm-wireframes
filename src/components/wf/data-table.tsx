@@ -289,9 +289,12 @@ export function DataTable<T extends { id: string }>({
             </Popover.Portal>
           </Popover.Root>
         )}
-        <span className="ml-auto text-xs text-muted-foreground tabular-nums">
-          {visible.length} de {rows.length}
-        </span>
+        {/* Contador só sem o seletor Cards/Tabela (com ele, ficava solto no meio da barra) */}
+        {!cards && (
+          <span className="ml-auto text-xs text-muted-foreground tabular-nums">
+            {visible.length} de {rows.length}
+          </span>
+        )}
       </div>
       {/* Filtros aplicados: sempre numa linha abaixo da barra, em etiquetas cinza */}
       {active && (
