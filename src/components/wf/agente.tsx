@@ -28,7 +28,7 @@ export function IconeAgente({ className }: { className?: string }) {
 }
 
 // Botão do topo (à esquerda do avatar): mostra o rótulo ao carregar a tela e depois recolhe para só o ícone
-// (o rótulo volta no hover).
+
 export function AgenteBotao({ aberto, onClick }: { aberto: boolean; onClick: () => void }) {
   const [rotulo, setRotulo] = useState(true)
   useEffect(() => {
@@ -46,7 +46,7 @@ export function AgenteBotao({ aberto, onClick }: { aberto: boolean; onClick: () 
       className={cn('group ml-auto shrink-0 gap-0 bg-transparent px-2.5 text-primary hover:text-primary dark:bg-transparent', aberto && 'border-primary bg-accent')}
     >
       <IconeAgente />
-      <span className={cn('overflow-hidden whitespace-nowrap text-foreground transition-all duration-500 group-hover:ml-2 group-hover:max-w-40 group-hover:opacity-100', rotulo ? 'ml-2 max-w-40 opacity-100' : 'ml-0 max-w-0 opacity-0')}>
+      <span className={cn('overflow-hidden whitespace-nowrap text-foreground transition-all duration-500', rotulo ? 'ml-2 max-w-40 opacity-100' : 'ml-0 max-w-0 opacity-0')}>
         Agente inteligente
       </span>
     </Button>

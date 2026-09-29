@@ -322,8 +322,8 @@ html.ds-senai [data-tone="gray"] { box-shadow: inset 0 0 0 1px #DDE2E4; }
 /* Ícones das ações da tabela sempre na cor principal */
 html.ds-senai [data-slot="table-cell"] button[aria-label]:not(:disabled) { color: #E84910; }
 /* Ícones de copiar (e-mail, telefone, nº em badge): sempre neutros, mesmo dentro das células */
-html.ds-senai [data-slot="table-cell"] button[data-copiar], html.ds-senai [data-acoes] button[data-copiar] { color: #7A878C; border-color: transparent; background: transparent; }
-html.ds-senai [data-slot="table-cell"] button[data-copiar]:hover, html.ds-senai [data-acoes] button[data-copiar]:hover { color: #22272A; background: #F0F1F2; }
+html.ds-senai [data-slot="table-cell"] button[data-copiar][data-copiar]:not(:disabled), html.ds-senai [data-acoes] button[data-copiar][data-copiar]:not(:disabled) { color: #7A878C; border-color: transparent; background: transparent; }
+html.ds-senai [data-slot="table-cell"] button[data-copiar][data-copiar]:not(:disabled):hover, html.ds-senai [data-acoes] button[data-copiar][data-copiar]:not(:disabled):hover { color: #22272A; background: #F0F1F2; }
 html.ds-senai [data-slot="table-cell"] button[aria-label]:not(:disabled) svg { color: inherit; }
 /* Sem versão responsiva: largura mínima de desktop; em janelas menores, rola na horizontal. */
 html.ds-senai body { min-width: 1280px; }
@@ -361,7 +361,7 @@ html.ds-senai span.bg-secondary:not([data-tone]) { background-color: #F0F1F2; co
 .casca-painel [data-slot="select-trigger"] > :first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Menu lateral: itens de uma área ligados ao rótulo (pai) por uma linha em árvore, com cotovelo arredondado */
-.menu-arvore { margin-left: 2rem; padding-left: 0.75rem; width: auto; }
+.menu-arvore { margin-left: 1rem; padding-left: 0.75rem; width: auto; }
 .menu-arvore > li { position: relative; }
 .menu-arvore > li::before {
   content: ""; position: absolute; left: -0.75rem; top: 0; height: 50%; width: 0.625rem;
