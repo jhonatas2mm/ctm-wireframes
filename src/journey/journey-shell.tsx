@@ -459,16 +459,18 @@ export function JourneyShell() {
       <main className="flex min-w-0 flex-1 flex-col">
 
         <div className="flex min-h-0 flex-1">
-          <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'p-4')}>
+          <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pb-2' : 'px-4')}>
             <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width, maxWidth: largura + 28 }}>
-            {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
-            <div className="flex items-end gap-2">
+            {/* Faixa na cor do perfil, grudada no topo da página; as abas de Área/Subperfil ficam penduradas nela */}
+            <div className="h-1 shrink-0 rounded-b-full" style={{ background: profileDef.color }} />
+            {/* Perfil da etapa atual, no canto superior esquerdo (abas invertidas, presas à faixa do topo) */}
+            <div className="mb-3 flex items-start gap-2">
               {/* Troca de perfil: abre a 1ª jornada iniciada por ele, na 1ª etapa */}
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
                     <button
-                      className="flex items-center gap-1.5 rounded-t-md px-3 py-1 text-sm font-semibold text-white"
+                      className="flex items-center gap-1.5 rounded-b-md px-3 py-1 text-sm font-semibold text-white"
                       style={{ background: profileDef.color }}
                     />
                   }
@@ -497,7 +499,7 @@ export function JourneyShell() {
                       type="button"
                       onClick={() => !ativo && trocarSubperfil(m.name)}
                       title={m.avaliacao ? 'Em avaliação' : undefined}
-                      className={cn('rounded-t-md border border-b-0 px-3 py-1 text-sm transition-colors', ativo ? 'font-semibold text-white' : 'hover:brightness-125', m.avaliacao && !ativo && 'border-dashed')}
+                      className={cn('rounded-b-md border border-t-0 px-3 py-1 text-sm transition-colors', ativo ? 'font-semibold text-white' : 'hover:brightness-125', m.avaliacao && !ativo && 'border-dashed')}
                       style={ativo ? { background: m.color, borderColor: m.color } : { borderColor: `${m.color}88`, color: m.color, background: `${m.color}1a` }}
                     >
                       {subDe(m.name)}{m.avaliacao && <span className="ml-1 text-[10px] opacity-70">?</span>}
@@ -505,7 +507,7 @@ export function JourneyShell() {
                   )
                 })}
               {/* Navegação entre etapas, com atalhos ← e →: fica no painel de jornada; aqui só em tela cheia (painel escondido) */}
-              {cheia && <div className="ml-auto flex items-center gap-2 pb-1.5">
+              {cheia && <div className="ml-auto flex items-center gap-2 pt-1.5">
                 <span className="mr-1 text-xs text-muted-foreground">
                     {journey.title} · <span className="tabular-nums">{step + 1}/{journey.steps.length}</span> {current.title}
                   </span>
@@ -517,14 +519,12 @@ export function JourneyShell() {
                 </Button>
               </div>}
             </div>
-            {/* Monitor: moldura escura (separa o protótipo da casca), com a tela dentro e o pé embaixo.
-                A faixa na cor do perfil no topo da tela liga a moldura às abas de perfil acima. */}
+            {/* Monitor: moldura cinza (separa o protótipo da casca), com a tela dentro e o pé embaixo. */}
             <div
               ref={frameRef}
-              className="flex min-h-0 flex-1 flex-col rounded-[1.25rem] rounded-tl-none bg-[#141518] p-2.5 shadow-[0_20px_40px_-12px_rgb(0_0_0/0.6),inset_0_0_0_1px_rgb(255_255_255/0.08)]"
+              className="flex min-h-0 flex-1 flex-col rounded-[1.25rem] bg-[#5b5f66] p-2.5 shadow-[0_20px_40px_-12px_rgb(0_0_0/0.6),inset_0_1px_0_rgb(255_255_255/0.25),inset_0_0_0_1px_rgb(255_255_255/0.12)]"
             >
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md bg-background ring-1 ring-black">
-              <div className="h-1 shrink-0" style={{ background: profileDef.color }} />
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md bg-background ring-1 ring-black/60">
               {/* Barra de navegador simulada */}
               <div className="flex shrink-0 items-center gap-3 border-b border-neutral-200 bg-neutral-100 px-3 py-1.5">
                 <div className="flex gap-1.5">
@@ -550,8 +550,8 @@ export function JourneyShell() {
             {/* Pé do monitor (fora da tela cheia) */}
             {!cheia && (
               <div className="flex shrink-0 flex-col items-center" aria-hidden>
-                <div className="h-3 w-24 bg-gradient-to-b from-[#0b0c0e] to-[#26282d]" />
-                <div className="h-1.5 w-56 rounded-t-md rounded-b-sm bg-[#26282d] shadow-[0_4px_10px_rgb(0_0_0/0.5)]" />
+                <div className="h-3 w-24 bg-gradient-to-b from-[#3f4247] to-[#6b6f76]" />
+                <div className="h-1.5 w-56 rounded-t-md bg-[#6b6f76]" />
               </div>
             )}
             </div>
