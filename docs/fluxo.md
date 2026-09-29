@@ -343,3 +343,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Editais só do DN**: a CTM não faz gestão de editais, apenas participa (oferece o custo, fora do sistema) e consulta o edital em modo leitura. Regra explícita no fluxo e no mapa do processo; telas já restritas ao DN.
 - 2026-09-29 — Tabelas com barra de execução: o percentual fica logo ao lado da barra.
 - 2026-09-29 — **Sem SESI na v1**: saem o perfil DR solicitante: SESI, as jornadas "Contratos com CTMs" e "Acompanhamento" do SESI, os contratos `CT-…` (seeds, coluna Instrumento, título/número de contrato no Novo TAA) e o contrato/turma EAD do SESI-MG. Tudo é TAA entre SENAI e SENAI.
+- 2026-09-29 — Filtros: Curso/Produto/UC também viram campo de busca com vários valores (multiselect) em todas as tabelas.
