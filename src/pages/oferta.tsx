@@ -110,7 +110,7 @@ export default function Oferta() {
             breadcrumb={[{ label: 'Gestão da oferta', to: '/oferta' }, { label: proposta.numero }]}
             actions={<Button onClick={() => navigate(`/oferta/proposta/${proposta.id}/nova`)}><Plus /> Nova oferta</Button>}
           />
-          <dl className="mb-6 grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-4 bg-card">
+          <dl className="mb-6 grid grid-cols-2 gap-4 rounded-[1.25rem] border p-4 sm:grid-cols-4 bg-card">
             {([
               ['DR contratante', `SENAI-${proposta.drContratante}`],
               ['Vigência', vigencia(proposta)],

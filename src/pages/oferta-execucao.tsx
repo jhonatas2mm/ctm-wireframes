@@ -46,7 +46,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
     <div className="space-y-6">
       <section className="space-y-3">
         <h3 className="font-semibold">Equipe da turma</h3>
-        <div className="grid grid-cols-2 gap-3 rounded-lg border p-4 lg:grid-cols-4 bg-card">
+        <div className="grid grid-cols-2 gap-3 rounded-[1.25rem] border p-4 lg:grid-cols-4 bg-card">
           {(Object.keys(rotulos) as (keyof EquipeTurma)[]).map((k) => (
             <div key={k} className="grid gap-1.5">
               <Label>{rotulos[k]}</Label>

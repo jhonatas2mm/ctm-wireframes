@@ -121,7 +121,7 @@ export default function GestaoProposta() {
         <div className="min-w-0 flex-1 space-y-8">
           <section id="sec-resumo" className="scroll-mt-4 space-y-3">
             <h2 className="text-lg font-semibold">Resumo</h2>
-            <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3 bg-card">
+            <dl className="grid grid-cols-2 gap-4 rounded-[1.25rem] border p-4 sm:grid-cols-3 bg-card">
               {info.map(([k, v]) => <div key={k}><dt className="text-xs text-muted-foreground">{k}</dt><dd className="text-sm">{v}</dd></div>)}
             </dl>
             {p.status === 'Cancelado' && p.motivoCancelamento && (
@@ -149,7 +149,7 @@ export default function GestaoProposta() {
             {!aprovada ? (
               <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">A equipe técnica é vinculada depois que a proposta é aprovada.</p>
             ) : (
-              <div className="grid gap-3 rounded-lg border p-4 bg-card">
+              <div className="grid gap-3 rounded-[1.25rem] border p-4 bg-card">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="grid gap-1.5">
                     <Label>Supervisor <Req /></Label>

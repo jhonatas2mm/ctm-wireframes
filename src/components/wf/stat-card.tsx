@@ -13,7 +13,7 @@ const tons = {
 
 export function StatCard({ label, value, hint, icon: Icon, tom = 'orange', compacto }: { label: string; value: string; hint?: string; icon?: LucideIcon; tom?: keyof typeof tons; compacto?: boolean }) {
   return (
-    <div className={cn('flex items-center gap-3 rounded-2xl border bg-card', compacto ? 'p-3' : 'p-4')}>
+    <div className={cn('flex items-center gap-3 rounded-[1.25rem] border bg-card', compacto ? 'p-3' : 'p-4')}>
       {Icon && (
         <div className={cn('flex shrink-0 items-center justify-center rounded-xl', compacto ? 'size-9' : 'size-11', tons[tom])}>
           <Icon className="size-5" />

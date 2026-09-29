@@ -85,7 +85,7 @@ function TurmaCard({ t, d }: { t: TurmaEad; d: ReturnType<typeof useDados> }) {
   const atencao = n.filter((a) => alertasAluno(a, t).length).length
   const exec = progressoEsperado(t)
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border bg-card p-4">
+    <div className="flex flex-col gap-4 rounded-[1.25rem] border bg-card p-4">
       <div className="space-y-1.5">
         <div className="line-clamp-2 min-h-10 font-semibold leading-5" title={t.curso}>{t.curso}</div>
         <div className="flex items-center justify-between gap-2">
@@ -187,7 +187,7 @@ function IconBox({ icon: Icon, tom }: { icon: LucideIcon; tom: Tom }) {
   return <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', tons[tom])}><Icon className="size-5" /></div>
 }
 
-const Bloco = ({ className, ...p }: React.ComponentProps<'section'>) => <section className={cn('rounded-3xl bg-card p-5', className)} {...p} />
+const Bloco = ({ className, ...p }: React.ComponentProps<'section'>) => <section className={cn('rounded-[1.25rem] bg-card p-5', className)} {...p} />
 
 // ── Painel ───────────────────────────────────────────────────────────────────
 // Dashboard da DR solicitante: filtro por contrato, indicadores com tendência, acessos ao portal,
@@ -392,12 +392,12 @@ function ContratoDetalhe({ c, d }: { c: ContratoCtm; d: ReturnType<typeof useDad
         </dl>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2 rounded-lg border p-4 bg-card">
+          <div className="space-y-2 rounded-[1.25rem] border p-4 bg-card">
             <div className="flex justify-between text-sm"><span className="text-muted-foreground">Vigência</span><span className="tabular-nums">{periodo(c.inicio, c.fim)}</span></div>
             <Progress value={tempo} />
             <div className="text-xs text-muted-foreground tabular-nums">{tempo}% do período decorrido</div>
           </div>
-          <div className="space-y-2 rounded-lg border p-4 bg-card">
+          <div className="space-y-2 rounded-[1.25rem] border p-4 bg-card">
             <div className="flex justify-between text-sm"><span className="text-muted-foreground">Vagas ocupadas</span><span className="tabular-nums">{alunos.length} / {c.vagas}</span></div>
             <Progress value={c.vagas ? Math.round((alunos.length / c.vagas) * 100) : 0} />
             <div className="text-xs text-muted-foreground tabular-nums">{c.vagas - alunos.length} vagas disponíveis</div>

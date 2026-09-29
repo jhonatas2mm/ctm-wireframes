@@ -109,7 +109,7 @@ export default function OfertaDetalhe() {
       />
       <PropostaSheet proposta={verProposta ? propostas.find((p) => p.id === t.propostaId) ?? null : null} onClose={() => setVerProposta(false)} />
       <div className="space-y-6">
-        <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3 bg-card">
+        <dl className="grid grid-cols-2 gap-4 rounded-[1.25rem] border p-4 sm:grid-cols-3 bg-card">
           {info.map(([k, v]) => (
             <div key={k}>
               <dt className="text-xs text-muted-foreground">{k}</dt>
@@ -134,7 +134,7 @@ export default function OfertaDetalhe() {
 
           <TabsContent value="cronograma" className="space-y-6 pt-4">
             {/* Validação pela DR contratante: versões; sem resposta até o prazo, conta como validado */}
-            <section className={cn('flex flex-wrap items-center gap-4 rounded-lg border p-4 bg-card', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando validação' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
+            <section className={cn('flex flex-wrap items-center gap-4 rounded-[1.25rem] border p-4 bg-card', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando validação' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">Cronograma v{cron.versao} · {sitCron}</p>
                 <p className="text-sm text-muted-foreground">
@@ -150,7 +150,7 @@ export default function OfertaDetalhe() {
               {aberta && sitCron !== 'Rascunho' && <Button variant="outline" onClick={() => abrir('versao', inicio)}><Pencil /> DR pediu ajuste</Button>}
             </section>
 
-            <div className="grid gap-4 rounded-lg border bg-card p-4 md:grid-cols-[16rem_1fr]">
+            <div className="grid gap-4 rounded-[1.25rem] border bg-card p-4 md:grid-cols-[16rem_1fr]">
               <div className="grid content-start gap-1.5">
                 <Label>Dia do encontro presencial</Label>
                 <Select value={t.diaPresencial ?? null} onValueChange={(v) => registrar({ diaPresencial: v as string }, `Dia do presencial: ${v}`)}>

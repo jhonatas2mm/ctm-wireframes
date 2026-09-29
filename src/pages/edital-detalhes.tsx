@@ -37,7 +37,7 @@ export function EditalDetalhes({ edital, onClose }: { edital: Edital | null; onC
 
               <div className="space-y-3">
                 <h3 className="font-semibold">Cursos <span className="text-muted-foreground font-normal">({e.cursos.length})</span></h3>
-                <div className="divide-y rounded-2xl border bg-card">
+                <div className="divide-y rounded-[1.25rem] border bg-card">
                   {e.cursos.map((c) => (
                     <div key={c.nome} className="space-y-2 p-4">
                       <div className="flex items-start justify-between gap-3">
