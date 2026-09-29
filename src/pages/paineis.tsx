@@ -189,7 +189,7 @@ export function PainelSupervisor() {
   )
 }
 
-// ── CTM: Comercial — pipeline: valores por status, DRs contratantes, taxa de aceite, portfólio ──
+// ── CTM: Gestor de contrato — pipeline: valores por status, DRs contratantes, taxa de aceite, portfólio ──
 export function PainelComercial() {
   const navigate = useNavigate()
   const propostas = useProdutos().all

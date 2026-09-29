@@ -14,6 +14,7 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Supervisor).
 3. **Contratação de CTM (TAA)** (DN) — TAAs com CTMs → Novo TAA → TAA em elaboração → TAA vigente.
 4. **Contratação da CTM (TAA)** (DR solicitante) — o mesmo fluxo, com a DR solicitante como contratante.
+4a. **Gestão de contratos** (CTM: Gestor de contrato) — Gestão de contratos (TAAs/contratos em que a CTM é contratada, só consulta) → Detalhes do TAA.
 5. **Criação de portfólio** (Supervisor) — Gestão de Portfólio → Novo produto (produtos de um edital).
 6. **Criação de proposta** (Supervisor) — Gestão de propostas → Nova proposta (Em negociação) → aceitar/recusar na listagem (cancelar/duplicar depois).
 7. **Criação de oferta** (Supervisor) — Calendário → Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
@@ -283,3 +284,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-29 — Casca: protótipo com a mesma largura das caixas do topo, mais perto do painel de jornada; painel de jornada **fechado por padrão** (lembrado no navegador).
 - 2026-09-29 — Casca: protótipo renderizado em largura padrão de 1600px e reduzido por inteiro (mantém proporções); em telas maiores não estica além disso.
 - 2026-09-29 — Casca: na barra Design, seletor da **resolução** do protótipo (1280 a 2560 px, padrão 1600; lembrado no navegador).
+- 2026-09-29 — Perfil **CTM: Comercial** renomeado para **CTM: Gestor de contrato**; ganha a tela **Gestão de contratos** (`/gestao-contratos`): TAAs/contratos em que a CTM é contratada, só consulta (sem Novo TAA, anexar ou excluir).

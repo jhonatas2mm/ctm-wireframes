@@ -23,7 +23,7 @@ const journeysOf = (_profile: Profile) => journeys
 // Perfil sem jornadas: navega livre a partir da tela inicial.
 const FREE: Journey = { id: '', title: 'Sem jornada', profile: '', steps: [{ title: 'Início', path: '/dashboard' }] }
 
-// Perfis agrupados: "CTM: Supervisor" e "CTM: Comercial" são subperfis do perfil CTM.
+// Perfis agrupados: "CTM: Supervisor" e "CTM: Gestor de contrato" são subperfis do perfil CTM.
 const grupoDe = (nome: string) => (nome.startsWith('CTM: ') ? 'CTM' : nome)
 const subDe = (nome: string) => (nome.startsWith('CTM: ') ? nome.slice(5) : null)
 const grupos = [...new Set(profiles.map((p) => grupoDe(p.name)))]
@@ -146,7 +146,7 @@ export function JourneyShell() {
   const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') === '1' } catch { return false } })
   const setGuia = (v: boolean) => { setGuiaState(v); try { localStorage.setItem('guia-jornada', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   const trocarPerfil = (p: Profile) => setState({ pid: p, jid: (journeys.find((j) => inicio(j) === p) ?? journeys.find((j) => grupoDe(inicio(j)) === grupoDe(p)) ?? FREE).id, step: 0 })
-  // Subperfil (ex.: CTM: Comercial): abre a jornada equivalente dele (mesmo título), na mesma etapa; senão, a 1ª dele.
+  // Subperfil (ex.: CTM: Gestor de contrato): abre a jornada equivalente dele (mesmo título), na mesma etapa; senão, a 1ª dele.
   const trocarSubperfil = (p: Profile) => {
     const eq = journeys.find((j) => inicio(j) === p && j.title === journey.title)
     if (eq) setState({ pid: p, jid: eq.id, step: Math.min(step, eq.steps.length - 1) })

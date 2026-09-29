@@ -8,7 +8,7 @@ export const profiles: ProfileDef[] = [
   { name: 'DN', color: '#0284c7', user: { nome: 'Maria Silva', email: 'maria.silva@senai.br' } },
   { name: 'CTM: Supervisor', color: '#ea580c', user: { nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br' }, dr: { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' } },
   { name: 'DR solicitante', color: '#ca8a04', user: { nome: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br' }, dr: { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' } },
-  { name: 'CTM: Comercial', color: '#059669', user: { nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br' }, dr: { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' } },
+  { name: 'CTM: Gestor de contrato', color: '#059669', user: { nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br' }, dr: { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' } },
   { name: 'Super admin', color: '#dc2626', user: { nome: 'Fernanda Costa', email: 'fernanda.costa@senai.br' } },
 ]
 

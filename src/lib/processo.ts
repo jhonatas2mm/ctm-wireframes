@@ -28,7 +28,7 @@ export const pools: Pool[] = [
 
 export const raias: Raia[] = [
   { id: 'dn', nome: 'DN', pool: 'dn', perfil: 'DN' },
-  { id: 'comercial', nome: 'Comercial', pool: 'ctm', perfil: 'CTM: Comercial' },
+  { id: 'comercial', nome: 'Gestor de contrato', pool: 'ctm', perfil: 'CTM: Gestor de contrato' },
   { id: 'supervisor', nome: 'Supervisão', pool: 'ctm', perfil: 'CTM: Supervisor' },
   { id: 'pcp', nome: 'PCP', pool: 'ctm' },
   { id: 'analista', nome: 'Analista', pool: 'ctm' },

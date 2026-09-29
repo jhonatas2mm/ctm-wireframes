@@ -444,7 +444,7 @@ export type Usuario = { id: string; nome: string; email: string; perfil: string;
 const usuarios: Usuario[] = [
   { id: 'u1', nome: 'Maria Silva', email: 'maria.silva@senai.br', perfil: 'DN', dr: 'DN', status: 'Ativo', ultimoAcesso: '27/09/2026 17:42' },
   { id: 'u2', nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Supervisor', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 09:10' },
-  { id: 'u3', nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Comercial', dr: 'MG', status: 'Ativo', ultimoAcesso: '26/09/2026 14:05' },
+  { id: 'u3', nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Gestor de contrato', dr: 'MG', status: 'Ativo', ultimoAcesso: '26/09/2026 14:05' },
   { id: 'u7', nome: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', perfil: 'DR solicitante', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 11:00' },
   { id: 'u5', nome: 'Roberto Lima', email: 'roberto.lima@senaisp.org.br', perfil: 'CTM: Supervisor', dr: 'SP', status: 'Inativo', ultimoAcesso: '02/08/2026 08:15' },
   { id: 'u6', nome: 'Fernanda Costa', email: 'fernanda.costa@senai.br', perfil: 'Super admin', dr: 'DN', status: 'Ativo', ultimoAcesso: '28/09/2026 10:02' },
@@ -457,7 +457,7 @@ const permissoes: PermissaoPerfil[] = [
   { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/dashboard', '/editais'] },
   { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
   { id: 'DR solicitante', perfil: 'DR solicitante', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
-  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
+  { id: 'CTM: Gestor de contrato', perfil: 'CTM: Gestor de contrato', telas: ['/painel-comercial', '/gestao-contratos', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
   { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
 ]
 export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v9', permissoes)
@@ -467,7 +467,7 @@ const auditoria: Evento[] = [
   { id: 'e1', quando: '28/09/2026 10:02', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Login', alvo: '—' },
   { id: 'e2', quando: '28/09/2026 09:15', usuario: 'Carlos Andrade', perfil: 'CTM: Supervisor', acao: 'Criação', alvo: 'Oferta TU-MG-002/2026' },
   { id: 'e3', quando: '27/09/2026 17:40', usuario: 'Maria Silva', perfil: 'DN', acao: 'Alteração', alvo: 'Edital ED-002/2026' },
-  { id: 'e4', quando: '27/09/2026 16:22', usuario: 'Juliana Pereira', perfil: 'CTM: Comercial', acao: 'Aceite', alvo: 'Proposta PC-MG-002/2026' },
+  { id: 'e4', quando: '27/09/2026 16:22', usuario: 'Juliana Pereira', perfil: 'CTM: Gestor de contrato', acao: 'Aceite', alvo: 'Proposta PC-MG-002/2026' },
   { id: 'e5', quando: '26/09/2026 11:08', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Inativação', alvo: 'Usuário Roberto Lima' },
   { id: 'e6', quando: '25/09/2026 15:47', usuario: 'Maria Silva', perfil: 'DN', acao: 'Criação', alvo: 'TAA TAA-004/2026' },
   { id: 'e7', quando: '24/09/2026 09:30', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Alteração', alvo: 'Permissões do perfil Comercial' },
@@ -566,7 +566,7 @@ export type LogSistema = { id: string; quando: string; usuario: string; email: s
 const pessoasLog = [
   { usuario: 'Fernanda Costa', email: 'fernanda.costa@senai.br', perfil: 'Super admin', dr: 'DN' },
   { usuario: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Supervisor', dr: 'MG' },
-  { usuario: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Comercial', dr: 'MG' },
+  { usuario: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Gestor de contrato', dr: 'MG' },
   { usuario: 'Maria Silva', email: 'maria.silva@senai.br', perfil: 'DN', dr: 'DN' },
   { usuario: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', perfil: 'DR solicitante', dr: 'MG' },
 ]

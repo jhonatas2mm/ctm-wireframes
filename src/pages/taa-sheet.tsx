@@ -12,7 +12,7 @@ export const statusVariant: Record<StatusContrato, 'default' | 'secondary' | 'ou
 }
 
 // Detalhes do TAA (side sheet): dados, documentos (modelo e assinado) e andamento do fluxo.
-export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onClose: () => void; onAnexar: (c: Contrato) => void }) {
+export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onClose: () => void; onAnexar?: (c: Contrato) => void }) {
   const assinado = !!taa?.anexoAssinado || taa?.status === 'Vigente' || taa?.status === 'Encerrado'
   return (
     <Sheet open={!!taa} onOpenChange={(o) => !o && onClose()}>
@@ -67,7 +67,7 @@ export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onC
             </div>
             {taa.status === 'Em elaboração' && (
               <SheetFooter className="border-t px-6 py-3">
-                <Button onClick={() => onAnexar(taa)}><Paperclip /> Anexar TAA assinado</Button>
+                {onAnexar && <Button onClick={() => onAnexar(taa)}><Paperclip /> Anexar TAA assinado</Button>}
               </SheetFooter>
             )}
           </>

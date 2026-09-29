@@ -17,7 +17,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 ## Estrutura
 - `src/screens.ts` — registro de telas (rota + menu). `hidden` tira do menu; `profiles` limita a quais perfis a tela aparece no menu.
 - `src/journeys.ts` — jornadas/fluxos (etapas `path`/`note`/`focus`, perfil por etapa). `note` vira o texto do Guia; `focus` (seletor CSS ou `text=Texto`) é o que o Guia destaca na tela. **A ordem do array é a ordem dos fluxos** (ordem em que acontecem no sistema; a casca numera dentro de cada perfil inicial); manter igual à lista em `docs/fluxo.md`.
-- `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR). Hoje: **DN**, **CTM: Supervisor** (SENAI-MG), **CTM: Comercial** (mesmas telas do Supervisor), **DR solicitante** (SENAI-MG, acompanhamento: Painel, Contratos com o CTM, Turmas, Alunos) e **Super admin**. CTM = a operação, não é DR; qualquer outro estado é DR. Só o Claude edita, a pedido.
+- `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR). Hoje: **DN**, **CTM: Supervisor** (SENAI-MG), **CTM: Gestor de contrato** (telas do Supervisor + Gestão de contratos), **DR solicitante** (SENAI-MG, acompanhamento: Painel, Contratos com o CTM, Turmas, Alunos) e **Super admin**. CTM = a operação, não é DR; qualquer outro estado é DR. Só o Claude edita, a pedido.
 - `src/lib/mock.ts` — seeds + `useCollection` (`src/lib/db.ts`, localStorage). Ao mudar o formato de uma coleção, trocar a chave (ex.: `'editais-v7'`) para descartar dados antigos.
 - `src/components/wf/` — DataTable, PageHeader, RowAction, EmptyState etc.
 - `src/annotations/` — pinos de anotação, salvos no Supabase (projeto `ctm-wireframes`, tabela `pins`: leitura, criação e exclusão públicas; editar só pelo painel).
@@ -42,6 +42,6 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - Buscas de estado/DR: campo com resultados logo abaixo e escolhidos como etiquetas (`EstadosInput`).
 
 ## Domínio
-- **TAA** = Termo de Acordo Administrativo: quem contrata (DR solicitante SENAI-XX ou o DN) cria para contratar uma CTM. Só SENAI ↔ SENAI; SESI-XX ↔ SENAI é **contrato**. A CTM não gerencia TAAs, só propostas. Nunca "TA"/"Termo de Adesão".
+- **TAA** = Termo de Acordo Administrativo: quem contrata (DR solicitante SENAI-XX ou o DN) cria para contratar uma CTM. Só SENAI ↔ SENAI; SESI-XX ↔ SENAI é **contrato**. A CTM não cria TAAs; o Gestor de contrato só os consulta (Gestão de contratos). Nunca "TA"/"Termo de Adesão".
 - **Edital** (DN): vigência + cursos; cada curso tem valor e DRs credenciados. Área, modalidade e CH são fixas do catálogo.
 - **Proposta comercial** (Supervisor): DR ofertante (própria, fixa) → contratante com TAA/contrato com a CTM; vários cursos, cada um com valor previsto; Nº `PC-<UF>-<seq>/<ano>`. Cada curso só entra uma vez nas propostas.
