@@ -317,3 +317,5 @@ html.ds-senai [data-tone="gray"] { box-shadow: inset 0 0 0 1px #DDE2E4; }
 /* Ícones das ações da tabela sempre na cor principal */
 html.ds-senai [data-slot="table-cell"] button[aria-label]:not(:disabled) { color: #E84910; }
 html.ds-senai [data-slot="table-cell"] button[aria-label]:not(:disabled) svg { color: inherit; }
+/* Sem versão responsiva: largura mínima de desktop; em janelas menores, rola na horizontal. */
+html.ds-senai body { min-width: 1280px; }

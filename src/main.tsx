@@ -13,7 +13,11 @@ import App from './App.tsx'
 // Sem ?frame → casca de jornadas; com ?frame=1 → o protótipo (carregado no iframe da casca).
 const isFrame = new URLSearchParams(location.search).has('frame')
 // Design system SENAI só no protótipo; a casca fica com o visual anterior.
-if (isFrame) document.documentElement.classList.add('ds-senai')
+if (isFrame) {
+  document.documentElement.classList.add('ds-senai')
+  // Sem versão responsiva: o protótipo é sempre desktop (em telas menores, rola em vez de se reorganizar).
+  document.querySelector('meta[name="viewport"]')?.setAttribute('content', 'width=1440')
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

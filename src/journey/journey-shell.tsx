@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet, Workflow, X } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, UserRound, RotateCcw, Lock, Workflow, X } from 'lucide-react'
 import { MapaProcesso } from '@/pages/processo'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -67,15 +67,12 @@ function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; 
   )
 }
 
-const devices = [
-  { id: 'desktop', icon: Monitor, width: '100%' },
-  { id: 'tablet', icon: Tablet, width: '820px' },
-  { id: 'mobile', icon: Smartphone, width: '390px' },
-] as const
+// O sistema não tem versão responsiva: o protótipo é sempre desktop (largura fixa, reduzida para caber).
+const devices = [{ id: 'desktop', width: '100%' }] as const
 
 export function JourneyShell() {
   const [{ pid, jid, step }, setState] = useState(readHash)
-  const [device, setDevice] = useState<(typeof devices)[number]['id']>('desktop')
+  const device: (typeof devices)[number]['id'] = 'desktop'
   const [framePath, setFramePath] = useState<string | null>(null)
   const frame = useRef<HTMLIFrameElement>(null)
 
@@ -313,20 +310,6 @@ export function JourneyShell() {
             <Button size="sm" variant="ghost" onClick={alternarTelaCheia}>
               <Maximize /> Tela cheia <kbd className="ml-1 rounded border border-current px-1 font-mono text-[10px] leading-4 opacity-70">F</kbd>
             </Button>
-            <span className="mx-1 h-4 w-px bg-border" />
-            {devices.map((d) => (
-              <Button
-                key={d.id}
-                size="icon-sm"
-                variant={device === d.id ? 'secondary' : 'ghost'}
-                aria-label={d.id}
-                // Versões responsivas desabilitadas por enquanto.
-                disabled={d.id !== 'desktop'}
-                onClick={() => setDevice(d.id)}
-              >
-                <d.icon />
-              </Button>
-            ))}
           </div>
         </header>
 
@@ -370,7 +353,7 @@ export function JourneyShell() {
             {(() => {
               const doPerfil = visibleJourneys.filter((j) => inicio(j) === pid)
               return (
-                <Select value={doPerfil.some((j) => j.id === jid) ? jid : ''} onValueChange={(v) => go(v as string, 0)} disabled={!doPerfil.length}>
+                <Select value={doPerfil.some((j) => j.id === jid) ? jid : ''} onValueChange={(v) => v && go(v as string, 0)} disabled={!doPerfil.length}>
                   <SelectTrigger size="sm" className="w-52 shrink-0">
                     <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
                   </SelectTrigger>

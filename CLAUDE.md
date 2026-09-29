@@ -23,6 +23,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - `src/annotations/` — pinos de anotação, salvos no Supabase (projeto `ctm-wireframes`, tabela `pins`: leitura, criação e exclusão públicas; editar só pelo painel).
 
 ## Padrões de UI
+- **Sem versão responsiva**: tudo é desenhado só para desktop; não criar ajustes para telas menores.
 - Botões de excluir sem vermelho (sem `destructive`), por enquanto.
 - **Excluir/inativar sempre pede confirmação em modal** (`useConfirmar()` de `@/components/wf`); nunca `confirm()` nativo.
 - **Sem snackbars/toasts** em nenhum lugar (o `<Toaster />` foi removido). Ação concluída = a tela muda (modal fecha, status/linha atualiza, tela de sucesso quando for etapa).
