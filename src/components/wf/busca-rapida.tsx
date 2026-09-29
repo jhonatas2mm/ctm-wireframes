@@ -179,8 +179,8 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
                   {g === 'Precisa de atenção' && <AlertCircle className="size-3.5 text-amber-600" />}
                   {g}
                 </div>
-                {/* Ações em grade compacta (ocupa menos altura) */}
-                {g === 'Ações' ? (
+                {/* Ações e telas em grade compacta (ocupa menos altura) */}
+                {g === 'Ações' || g === 'Telas' ? (
                   <div className="grid grid-cols-3 gap-1.5 px-1 pb-1">
                     {resultados.filter((r) => r.grupo === g).map((r) => {
                       const idx = resultados.indexOf(r)
@@ -192,7 +192,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
                           onClick={() => ir(r)}
                           className={cn('flex items-center gap-2 rounded-xl border bg-card px-2.5 py-2 text-left text-sm font-medium', idx === sel && 'border-transparent bg-accent')}
                         >
-                          <Plus className={cn('size-4 shrink-0 text-muted-foreground', idx === sel && 'text-primary')} />
+                          <r.icon className={cn('size-4 shrink-0 text-muted-foreground', idx === sel && 'text-primary')} />
                           <span className="truncate">{r.titulo}</span>
                         </button>
                       )
