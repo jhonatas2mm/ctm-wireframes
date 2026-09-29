@@ -1,29 +1,35 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, Ban, Check, CheckCircle2, Copy, CopyPlus, Eye, XCircle, Lock, Plus, Search, ThumbsDown, ThumbsUp, Trash2, X } from 'lucide-react'
-import { Textarea } from '@/components/ui/textarea'
-import { EditalDetalhes } from './edital-detalhes'
-import { PropostaSheet } from './proposta-sheet'
+import { AlertTriangle, ArrowRightLeft, ChevronDown, Copy, Eye, GitBranchPlus, Layers, Lock, Plus, SquareArrowOutUpRight, Trash2, X } from 'lucide-react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
-import { StatusPropostaBadge } from '@/components/wf/status-proposta'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { AttachField, DataTable, Req, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
-import { cn } from '@/lib/utils'
-import { alertaPrazo, contratoAtivo, dataBr, inicioPrevisto, instrumentoDe, nomeParte, produtosContratados, taaEntre, useContratos, useCursos, useEditais, useProdutos, type Contrato, type Produto, type Registro } from '@/lib/mock'
+import { Textarea } from '@/components/ui/textarea'
+import { AttachField, DataTable, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
+import { StatusPropostaBadge } from '@/components/wf/status-proposta'
+import {
+  alertaPrazo, alunosProposta, aprovadosAtuais, contratoAtivo, dataBr, inicioPrevisto, instrumentoDe, nomeParte, saldoTaa, statusProposta,
+  totalProposta, useContratos, useCursos, useCursosDr, useProdutos, valorNoEdital,
+  type Contrato, type CursoProposta, type Produto, type Registro, type StatusProposta,
+} from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
+import { useProfile } from '@/journey/profile'
+import { profileOf } from '@/journey/profiles'
+import { cn } from '@/lib/utils'
+import { PropostaSheet } from './proposta-sheet'
 
-// DR do usuário logado (perfil Supervisor) — é sempre a ofertante.
+// CTM do usuário logado (Gestor de contrato / Supervisor da SENAI-MG): é sempre a ofertante.
 const DR_OFERTANTE = 'MG'
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-const centavos = (v?: string) => Number(v || 0) / 100
-const norm = (t: string) => t.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+const isoDe = (br?: string) => (br && br !== '—' ? br.split('/').reverse().join('-') : '')
+const brDe = (iso: string) => (iso ? iso.split('-').reverse().join('/') : undefined)
 
 // Nº da proposta num badge com botão de copiar dentro.
-function NumeroBadge({ numero }: { numero: string }) {
+export function NumeroBadge({ numero }: { numero: string }) {
   return (
     <Badge variant="outline" className="gap-1 border-neutral-200 bg-neutral-100 pr-1 font-mono text-neutral-700">
       {numero}
@@ -43,57 +49,47 @@ function NumeroBadge({ numero }: { numero: string }) {
   )
 }
 
-const colunas = (abrirEdital: (numero: string) => void, taas: Contrato[]): Column<Produto>[] => [
-  { header: 'Código da proposta', value: (p) => p.numero ?? '—', search: true, className: 'font-mono text-xs', cell: (p) => <NumeroBadge numero={p.numero} /> },
-  { header: 'Status', value: (p) => p.status ?? 'Em elaboração', filter: true, cell: (p) => <StatusPropostaBadge status={p.status} /> },
+const colunas = (taas: Contrato[]): Column<Produto>[] => [
+  { header: 'Código da proposta', value: (p) => p.numero, search: true, className: 'font-mono text-xs', cell: (p) => <NumeroBadge numero={p.numero} /> },
+  { header: 'Versão', value: (p) => `v${p.versao ?? 1}`, className: 'tabular-nums' },
+  { header: 'Status', value: (p) => p.status ?? 'Rascunho', filter: true, cell: (p) => <StatusPropostaBadge status={p.status} /> },
+  { header: 'Contratante', value: (p) => nomeParte(p.drContratante), search: true, filter: true },
   {
-    header: 'Edital',
-    value: (p) => p.edital ?? '—',
-    search: true,
-    filter: true,
-    className: 'font-mono text-xs',
-    // Link para os detalhes do edital
-    cell: (p) => (p.edital ? <button type="button" className="underline underline-offset-2 hover:text-foreground/70" onClick={() => abrirEdital(p.edital!)}>{p.edital}</button> : '—'),
-  },
-  { header: 'DR contratante', value: (p) => nomeParte(p.drContratante), search: true, filter: true },
-  {
-    // TAA (SENAI) ou contrato (SESI) que o contratante criou para contratar esta CTM; a CTM só consulta
     header: 'TAA / contrato',
-    value: (p) => { const t = taaEntre(taas, p.drContratante, p.drOfertante); return t ? `${instrumentoDe(t.contratante)} ${t.numero}` : `Sem ${instrumentoDe(p.drContratante)}` },
+    value: (p) => { const t = taas.find((x) => x.id === p.taaId); return t ? `${instrumentoDe(t.contratante)} ${t.numero}` : '—' },
     filter: true,
     cell: (p) => {
-      const t = taaEntre(taas, p.drContratante, p.drOfertante)
+      const t = taas.find((x) => x.id === p.taaId)
       return t
-        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">{instrumentoDe(t.contratante)}</span> <span className="font-mono">{t.numero}</span>{t.status !== 'Aceito' && <Badge variant="outline">{t.status}</Badge>}</span>
-        : <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900"><AlertTriangle className="size-3" /> Sem {instrumentoDe(p.drContratante)}</Badge>
+        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">{instrumentoDe(t.contratante)}</span> <span className="font-mono">{t.numero}</span>{!contratoAtivo(t) && <Badge variant="outline">{t.status}</Badge>}</span>
+        : <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900"><AlertTriangle className="size-3" /> Sem vínculo</Badge>
     },
   },
   {
     header: 'Início previsto',
     value: (p) => (inicioPrevisto(p) ? dataBr(inicioPrevisto(p)!) : '—'),
     className: 'tabular-nums',
-    // Alerta: ainda não aceita e a primeira turma começa em até 15 dias
+    // Alerta: ainda não assinada e a primeira turma começa em até 15 dias
     cell: (p) => {
       const ini = inicioPrevisto(p)
       const d = alertaPrazo(p)
       return (
         <span className="flex items-center gap-1.5">
           {ini ? dataBr(ini) : '—'}
-          {d !== null && (
-            <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900" title="Proposta ainda não aceita e a turma começa em breve">
-              <AlertTriangle className="size-3" /> {d < 0 ? 'Prazo vencido' : `Faltam ${d} dias`}
-            </Badge>
-          )}
+          {d !== null && <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900" title="Proposta ainda não assinada e a turma começa em breve"><AlertTriangle className="size-3" /> {d < 0 ? 'Prazo vencido' : `Faltam ${d} dias`}</Badge>}
         </span>
       )
     },
   },
-  { header: 'Vigência', value: (p) => (p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'), className: 'tabular-nums' },
-  { header: 'Valor previsto', value: (p) => brl(p.cursos.reduce((t, c) => t + c.valorPrevisto, 0)), className: 'text-right tabular-nums' },
-  { header: 'CH total', value: (p) => `${p.cursos.reduce((t, c) => t + c.cargaHoraria, 0)} h`, className: 'text-right tabular-nums' },
+  { header: 'Vigência', value: (p) => (p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'), className: 'tabular-nums text-muted-foreground' },
+  { header: 'Alunos', value: (p) => alunosProposta(p), className: 'text-right tabular-nums' },
+  { header: 'Valor', value: (p) => brl(totalProposta(p)), className: 'text-right tabular-nums' },
+  { header: 'Responsável', value: (p) => p.responsavel?.nome ?? '—', filter: true },
 ]
 
-// Gestão de propostas (CTM: Supervisor/Gestor de contrato): propostas da CTM para os contratantes que têm TAA com ela.
+// Gestão de propostas (CTM): a CTM cria a proposta, vinculada a um TAA/contrato aceito, depois que a negociação (fora do
+// sistema) avança. O Gestor de contrato é o responsável e muda o status conforme o retorno da DR solicitante.
+// Versões vão e vêm (Nova versão), com histórico. Rotas: /produtos · /produtos/novo · /produtos/novo?versao=<id>
 export default function Produtos() {
   const { confirmar, dialogo } = useConfirmar()
   const navigate = useNavigate()
@@ -102,431 +98,340 @@ export default function Produtos() {
   const taas = useContratos().all
   const { all: todas, remove, update } = useProdutos()
   const autor = useAutor()
-  // Aceite/recusa direto na listagem (recusa pede feedback), como na Gestão da proposta; aceita ainda pode ser cancelada.
-  const [decisao, setDecisao] = useState<{ p: Produto; tipo: 'Aceita' | 'Recusada' | 'Cancelada' } | null>(null)
-  const historico = (p: Produto, texto: string): Registro[] => [{ quando: new Date().toISOString(), texto, autor }, ...(p.historico ?? [])]
-  const [feedback, setFeedback] = useState('')
-  const [editalAberto, setEditalAberto] = useState<string | null>(null)
   const [verProposta, setVerProposta] = useState<Produto | null>(null)
-  const editaisTodos = useEditais().all
-  const all = todas
+  const [mudar, setMudar] = useState<Produto | null>(null)
+  const [novoStatus, setNovoStatus] = useState<StatusProposta>('Em andamento')
+  const [motivo, setMotivo] = useState('')
+  const historico = (p: Produto, texto: string): Registro[] => [{ quando: new Date().toISOString(), texto, autor }, ...(p.historico ?? [])]
+  const abrirStatus = (p: Produto) => {
+    const seguinte: Record<StatusProposta, StatusProposta> = { Rascunho: 'Em andamento', 'Em andamento': 'Aguardando retorno do cliente', 'Aguardando retorno do cliente': 'Aprovado', Aprovado: 'Aprovado', Cancelado: 'Cancelado' }
+    setNovoStatus(seguinte[p.status ?? 'Rascunho'])
+    setMotivo('')
+    setMudar(p)
+  }
+  const fechada = (p: Produto) => p.status === 'Aprovado' || p.status === 'Cancelado'
   return (
     <>
-      <PageHeader
-        title="Gestão de propostas"
-        actions={
-          <Button onClick={() => navigate('/produtos/novo')}>
-            <Plus /> Nova proposta
-          </Button>
-        }
-      />
+      <PageHeader title="Gestão de propostas" actions={<Button onClick={() => navigate('/produtos/novo')}><Plus /> Nova proposta</Button>} />
       <DataTable
-        rows={all}
-        columns={colunas(setEditalAberto, taas)}
-        searchPlaceholder="Buscar por código ou curso…"
+        rows={todas}
+        columns={colunas(taas)}
+        searchPlaceholder="Buscar código, contratante ou responsável…"
         actions={(p) => (
           <>
-            {/* Decisão com texto; depois de decidida, vira um indicativo (rótulo e símbolo do resultado) */}
-            {p.status === 'Aceita' ? (
-              <span className="mr-1 inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800"><CheckCircle2 className="size-3.5" /> Aceita</span>
-            ) : p.status === 'Recusada' ? (
-              <span className="mr-1 inline-flex items-center gap-1 rounded-md bg-red-100 px-2 py-1 text-xs font-medium text-red-800"><XCircle className="size-3.5" /> Recusada</span>
-            ) : p.status === 'Cancelada' ? (
-              <span className="mr-1 inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground"><Ban className="size-3.5" /> Cancelada</span>
-            ) : (
-              <>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setDecisao({ p, tipo: 'Aceita' })}><ThumbsUp /> Aceitar</Button>
-                <Button size="sm" variant="outline" className="mr-1 h-7 border-[#E31A1A]/40 px-2 text-xs text-[#C11414] hover:bg-[#FBE6E5] hover:text-[#C11414]" onClick={() => (setFeedback(''), setDecisao({ p, tipo: 'Recusada' }))}><ThumbsDown /> Recusar</Button>
-              </>
-            )}
+            {!fechada(p) && <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => abrirStatus(p)}><ArrowRightLeft /> Status</Button>}
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVerProposta(p)} />
-            {/* Nova rodada de negociação: copia a proposta para ajustes */}
-            <RowAction label="Duplicar" icon={CopyPlus} onClick={() => navigate(`/produtos/novo?de=${p.id}`)} />
-            {/* Aceita ainda pode ser cancelada (ex.: a DR não fechou a turma) */}
-            {p.status === 'Aceita' && <RowAction label="Cancelar proposta" icon={Ban} onClick={() => (setFeedback(''), setDecisao({ p, tipo: 'Cancelada' }))} />}
-            {/* Proposta aceita não pode ser excluída: lixeira fica desabilitada */}
-            <RowAction
-              label="Excluir"
-              motivo="Proposta aceita não pode ser excluída"
-              icon={Trash2}
-              disabled={p.status === 'Aceita'}
-              onClick={() => confirmar({ titulo: `Excluir a proposta para SENAI-${p.drContratante}?`, onConfirmar: () => { remove(p.id) } })}
-            />
+            <RowAction label="Abrir gestão da proposta" icon={SquareArrowOutUpRight} onClick={() => navigate(`/produtos/${p.id}`)} />
+            <RowAction label="Nova versão" icon={GitBranchPlus} disabled={fechada(p)} motivo="Proposta assinada ou cancelada" onClick={() => navigate(`/produtos/novo?versao=${p.id}`)} />
+            <RowAction label="Excluir" icon={Trash2} disabled={p.status !== 'Rascunho'} motivo="Só rascunho pode ser excluído" onClick={() => confirmar({ titulo: `Excluir o rascunho ${p.numero}?`, onConfirmar: () => remove(p.id) })} />
           </>
         )}
       />
       <PropostaSheet proposta={todas.find((x) => x.id === verProposta?.id) ?? null} onClose={() => setVerProposta(null)} />
-      <EditalDetalhes edital={editaisTodos.find((e) => e.numero === editalAberto) ?? null} onClose={() => setEditalAberto(null)} />
-      <Dialog open={!!decisao} onOpenChange={(v) => !v && setDecisao(null)}>
+      {/* Status: quem muda é o Gestor de contrato, registrando o retorno da DR solicitante (negociação fora do sistema) */}
+      <Dialog open={!!mudar} onOpenChange={(v) => !v && setMudar(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{decisao?.tipo === 'Aceita' ? 'Aceitar proposta?' : decisao?.tipo === 'Cancelada' ? 'Cancelar proposta aceita?' : 'Recusar proposta?'}</DialogTitle>
+            <DialogTitle>Status da proposta {mudar?.numero}</DialogTitle>
+            <DialogDescription>Atual: {mudar?.status ?? 'Rascunho'}. Registre o andamento combinado com o SENAI/SESI contratante.</DialogDescription>
           </DialogHeader>
-          {decisao?.tipo === 'Aceita' ? (
-            <p className="text-sm text-muted-foreground">A proposta {decisao.p.numero} será registrada como aceita pelo SENAI-{decisao.p.drContratante}.</p>
-          ) : (
+          <div className="grid gap-3">
+            <div className="grid gap-1.5">
+              <Label>Novo status <Req /></Label>
+              <Select value={novoStatus} onValueChange={(v) => setNovoStatus(v as StatusProposta)}>
+                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>{statusProposta.filter((s) => s !== mudar?.status).map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            {novoStatus === 'Aprovado' && mudar && (() => {
+              const t = taas.find((x) => x.id === mudar.taaId)
+              const saldo = t ? saldoTaa(t, todas).saldo : 0
+              return t && totalProposta(mudar) > saldo
+                ? <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">O valor da proposta ({brl(totalProposta(mudar))}) passa o saldo do {instrumentoDe(t.contratante)} {t.numero} ({brl(saldo)}).</p>
+                : <p className="text-xs text-muted-foreground">Aprovada, a proposta passa a executar o saldo do TAA; em seguida vincula-se a equipe técnica e segue para as turmas.</p>
+            })()}
             <label className="grid gap-1 text-xs">
-              <span className="text-muted-foreground">{decisao?.tipo === 'Cancelada' ? 'Motivo do cancelamento' : 'Feedback da recusa'} <Req /></span>
-              <Textarea rows={4} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder={decisao?.tipo === 'Cancelada' ? 'Ex.: a DR não fechou a turma' : 'Por que a proposta foi recusada?'} />
+              <span className="text-muted-foreground">{novoStatus === 'Cancelado' ? <>Motivo <Req /></> : 'Observação'}</span>
+              <Textarea rows={3} value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder={novoStatus === 'Cancelado' ? 'Por que foi cancelada?' : 'Ex.: enviada por e-mail ao coordenador'} />
             </label>
-          )}
+          </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDecisao(null)}>Voltar</Button>
-            <Button
-              variant="default"
-              className={cn(decisao?.tipo !== 'Aceita' && 'bg-[#E31A1A] text-white hover:bg-[#C11414]')}
-              onClick={() => {
-                if (!decisao) return
-                const { p, tipo } = decisao
-                const motivo = feedback.trim()
-                if (tipo === 'Aceita') update(p.id, { status: 'Aceita', historico: historico(p, `Proposta aceita pelo SENAI-${p.drContratante}`) })
-                else if (tipo === 'Recusada') update(p.id, { status: 'Recusada', feedback: motivo, historico: historico(p, `Proposta recusada${motivo ? `: ${motivo}` : ''}`) })
-                else update(p.id, { status: 'Cancelada', motivoCancelamento: motivo, historico: historico(p, `Proposta cancelada${motivo ? `: ${motivo}` : ''}`) })
-                setDecisao(null)
-              }}
-            >
-              {decisao?.tipo === 'Aceita' ? 'Aceitar' : decisao?.tipo === 'Cancelada' ? 'Cancelar proposta' : 'Recusar'}
-            </Button>
+            <Button variant="ghost" onClick={() => setMudar(null)}>Voltar</Button>
+            <Button onClick={() => {
+              if (!mudar) return
+              const m = motivo.trim()
+              update(mudar.id, { status: novoStatus, ...(novoStatus === 'Cancelado' ? { motivoCancelamento: m } : {}), historico: historico(mudar, `Status: ${novoStatus}${m ? ` — ${m}` : ''}`) })
+              setMudar(null)
+            }}>Salvar status</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <NovaPropostaSheet open={pathname === '/produtos/novo'} origem={todas.find((p) => p.id === params.get('de'))} onOpenChange={(v) => !v && navigate('/produtos')} />
+      <NovaPropostaSheet open={pathname === '/produtos/novo'} base={todas.find((p) => p.id === params.get('versao'))} onOpenChange={(v) => !v && navigate('/produtos')} />
       {dialogo}
     </>
   )
 }
 
-// origem: proposta duplicada (nova rodada de negociação) — abre com os dados dela para ajustes.
-function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOpenChange: (v: boolean) => void; origem?: Produto }) {
-  const cursos = useCursos().all
+// Nova proposta (ou nova versão de uma existente, com base): TAA/contrato aceito → produtos do TAA → alunos e início
+// por curso. Matriz curricular do portfólio (versão aprovada); valor por aluno do edital (fixo). Salva como Rascunho;
+// nova versão guarda a anterior no histórico de versões.
+function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpenChange: (v: boolean) => void; base?: Produto }) {
   const db = useProdutos()
+  const catalogo = useCursos().all
+  const portfolio = aprovadosAtuais(useCursosDr().all).filter((c) => (c.ctm ?? 'MG') === DR_OFERTANTE)
+  const contratos = useContratos().all
+  const taas = contratos.filter((c) => c.dr === DR_OFERTANTE && contratoAtivo(c))
   const autor = useAutor()
-  const [vagas, setVagas] = useState<Record<string, string>>({})
-  const [inicios, setInicios] = useState<Record<string, string>>({}) // início previsto por curso (ISO)
+  const eu = profileOf(useProfile()).user
+  const [taaId, setTaaId] = useState<string | null>(null)
+  const [nomes, setNomes] = useState<string[]>([])
+  const [alunos, setAlunos] = useState<Record<string, string>>({})
+  const [inicios, setInicios] = useState<Record<string, string>>({})
+  const [marcados, setMarcados] = useState<string[]>([])
+  const [replicar, setReplicar] = useState(false)
+  const [loteAlunos, setLoteAlunos] = useState('')
+  const [aberta, setAberta] = useState<string | null>(null) // matriz aberta
+  const [vigIni, setVigIni] = useState('')
+  const [vigFim, setVigFim] = useState('')
   const [cnpj, setCnpj] = useState('')
   const [crm, setCrm] = useState('')
   const [link, setLink] = useState('')
   const [faturamento, setFaturamento] = useState<'DR' | 'Escola'>('DR')
   const [escolas, setEscolas] = useState('')
-  const [busca, setBusca] = useState('')
-  const [ids, setIds] = useState<string[]>([])
-  const [valores, setValores] = useState<Record<string, string>>({}) // centavos por curso
-  const [marcados, setMarcados] = useState<string[]>([])
-  const [replicarAberto, setReplicarAberto] = useState(false)
-  const [loteValor, setLoteValor] = useState('')
-  const [escolhida, setContratante] = useState<string | null>(null)
-  const [edital, setEdital] = useState<string | null>(null)
-  const editais = useEditais().all.filter((e) => e.drs.includes(DR_OFERTANTE))
-  const contratante = escolhida
-  // Contratantes possíveis: quem tem TAA (não encerrado) com esta CTM — DR solicitante ou o DN.
-  const contratos = useContratos().all
-  const comTaa = contratos.filter((c) => c.dr === DR_OFERTANTE && contratoAtivo(c))
-  // Só os produtos que o contratante contratou desta CTM (TAA/contrato) podem entrar na proposta.
-  const contratados = (quem: string | null) => (quem ? produtosContratados(contratos, quem, DR_OFERTANTE) : [])
   const [docs, setDocs] = useState<string[]>([])
-  const [vigIni, setVigIni] = useState('')
-  const [vigFim, setVigFim] = useState('')
-  // Cada curso só entra em uma proposta; cursos de propostas recusadas/canceladas e da proposta duplicada ficam livres.
-  const jaNoPortfolio = new Set(db.all.filter((p) => p.id !== origem?.id && p.status !== 'Recusada' && p.status !== 'Cancelada').flatMap((p) => p.cursos.map((c) => c.cursoId)))
-  const isoDe = (br?: string) => (br ? br.split('/').reverse().join('-') : '')
-  // Protótipo: ao abrir, já vem preenchida com dados de exemplo (ou com a proposta duplicada).
+  const [motivoVersao, setMotivoVersao] = useState('')
+  const taa = contratos.find((c) => c.id === taaId)
+  const produtos = taa?.produtos ?? []
+  // Protótipo: já abre preenchido (nova: 1º TAA aceito; versão: dados da proposta).
   useEffect(() => {
     if (!open) return
-    if (origem) {
-      setEdital(origem.edital ?? null)
-      setContratante(origem.drContratante)
-      setIds(origem.cursos.map((c) => c.cursoId))
-      setValores(Object.fromEntries(origem.cursos.map((c) => [c.cursoId, String(Math.round(c.valorPrevisto * 100))])))
-      setVagas(Object.fromEntries(origem.cursos.map((c) => [c.cursoId, String(c.vagas ?? '')])))
-      setInicios(Object.fromEntries(origem.cursos.map((c) => [c.cursoId, c.inicioPrevisto ?? ''])))
-      setCnpj(origem.cnpj ?? '')
-      setCrm(origem.crm ?? '')
-      setLink(origem.link ?? '')
-      setFaturamento(origem.faturamento ?? 'DR')
-      setEscolas((origem.escolas ?? []).join(', '))
-      setDocs(origem.documentos ?? [])
-      setVigIni(isoDe(origem.vigenciaInicio))
-      setVigFim(isoDe(origem.vigenciaFim))
+    if (base) {
+      setTaaId(base.taaId ?? null)
+      setNomes(base.cursos.map((c) => c.nome))
+      setAlunos(Object.fromEntries(base.cursos.map((c) => [c.nome, String(c.vagas ?? '')])))
+      setInicios(Object.fromEntries(base.cursos.map((c) => [c.nome, c.inicioPrevisto ?? ''])))
+      setVigIni(isoDe(base.vigenciaInicio))
+      setVigFim(isoDe(base.vigenciaFim))
+      setCnpj(base.cnpj ?? '')
+      setCrm(base.crm ?? '')
+      setLink(base.link ?? '')
+      setFaturamento(base.faturamento ?? 'DR')
+      setEscolas((base.escolas ?? []).join(', '))
+      setDocs(base.documentos ?? [])
+      setMotivoVersao('A DR pediu ajuste na quantidade de alunos.')
       return
     }
-    // Exemplo: 1º contratante com produto contratado e ainda livre.
-    const livresDe = (quem: string) => cursos.filter((c) => contratados(quem).includes(c.nome) && !jaNoPortfolio.has(c.id)).slice(0, 2)
-    const quem = comTaa.map((t) => t.contratante).find((q) => livresDe(q).length) ?? comTaa[0]?.contratante ?? null
-    const livres = quem ? livresDe(quem) : []
-    setEdital(editais[0]?.numero ?? null)
-    setContratante(quem)
-    setIds(livres.map((c) => c.id))
-    setValores(Object.fromEntries(livres.map((c, i) => [c.id, String((i + 1) * 350000)])))
-    setVagas(Object.fromEntries(livres.map((c, i) => [c.id, String(30 - i * 5)])))
-    setInicios(Object.fromEntries(livres.map((c, i) => [c.id, i ? '2027-02-01' : '2026-11-16'])))
+    const t = taas.find((x) => x.contratante === 'BA') ?? taas[0]
+    const ps = (t?.produtos ?? []).slice(0, 2).map((p) => p.nome)
+    setTaaId(t?.id ?? null)
+    setNomes(ps)
+    setAlunos(Object.fromEntries(ps.map((n, i) => [n, String(30 - i * 5)])))
+    setInicios(Object.fromEntries(ps.map((n, i) => [n, i ? '2027-03-01' : '2026-11-16'])))
+    setVigIni('2026-11-01')
+    setVigFim('2027-10-31')
     setCnpj('03.795.071/0001-16')
     setCrm('')
-    setLink('https://drive.senaimg.org.br/propostas/proposta-senai-ba.pdf')
+    setLink('https://drive.senaimg.org.br/propostas/proposta.pdf')
     setFaturamento('DR')
     setEscolas('')
     setDocs(['Proposta-comercial.pdf'])
-    setVigIni('2026-11-01')
-    setVigFim('2027-10-31')
+    setMotivoVersao('')
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
-  const visiveis = cursos.filter((c) => contratados(contratante).includes(c.nome) && norm(`${c.codigo} ${c.nome} ${c.area} ${c.modalidade}`).includes(norm(busca.trim())))
-  const sel = cursos.filter((c) => ids.includes(c.id))
-  const total = sel.reduce((t, c) => t + centavos(valores[c.id]), 0)
-  // Nº da proposta comercial: PC-<DR ofertante>-<seq>/<ano>
-  const ano = new Date().getFullYear()
-  const numero = `PC-${DR_OFERTANTE}-${String(db.all.filter((p) => p.numero?.endsWith(`/${ano}`)).length + 1).padStart(3, '0')}/${ano}`
-  const reset = () => (setBusca(''), setIds([]), setValores({}), setVagas({}), setInicios({}), setMarcados([]), setLoteValor(''), setContratante(null), setEdital(null), setDocs([]), setVigIni(''), setVigFim(''), setCnpj(''), setCrm(''), setLink(''), setFaturamento('DR'), setEscolas(''))
 
-  const podeSalvar = !!sel.length
-  // Registro mínimo da proposta (o documento é feito fora, no modelo): sempre nasce Em negociação.
+  const escolher = (id: string) => {
+    const t = contratos.find((c) => c.id === id)
+    setTaaId(id)
+    setNomes((xs) => xs.filter((n) => t?.produtos?.some((p) => p.nome === n)))
+  }
+  const cursos: CursoProposta[] = nomes.map((nome) => {
+    const cat = catalogo.find((c) => c.nome === nome)
+    const p = produtos.find((x) => x.nome === nome)
+    const valorAluno = valorNoEdital(taa?.edital, nome) || p?.valor || 0
+    const qtd = Number(alunos[nome]) || 0
+    return {
+      cursoId: cat?.id ?? nome, codigo: cat?.codigo ?? '—', nome, modalidade: p?.modalidade ?? cat?.modalidade ?? '—', area: p?.area ?? cat?.area ?? '—',
+      cargaHoraria: p?.cargaHoraria ?? cat?.cargaHoraria ?? 0, valorAluno, vagas: qtd, valorPrevisto: valorAluno * qtd, inicioPrevisto: inicios[nome] || undefined,
+    }
+  })
+  const total = cursos.reduce((t, c) => t + c.valorPrevisto, 0)
+  // Saldo do TAA sem contar esta própria proposta (na nova versão)
+  const saldo = taa ? saldoTaa(taa, db.all.filter((p) => p.id !== base?.id)).saldo : 0
+  const ano = new Date().getFullYear()
+  const numero = base?.numero ?? `PC-${DR_OFERTANTE}-${String(db.all.filter((p) => p.numero?.endsWith(`/${ano}`)).length + 1).padStart(3, '0')}/${ano}`
+  const versao = base ? (base.versao ?? 1) + 1 : 1
+
   const salvar = () => {
-    if (!sel.length) return
+    if (!taa || !cursos.length) return
     const agora = new Date().toISOString()
-    const cs = sel.map((c) => ({ cursoId: c.id, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorPrevisto: centavos(valores[c.id]), vagas: Number(vagas[c.id]) || undefined, inicioPrevisto: inicios[c.id] || undefined }))
-    const historico: Registro[] = [{ quando: agora, texto: origem ? `Proposta registrada (Em negociação): nova rodada a partir da ${origem.numero}` : 'Proposta registrada (Em negociação)', autor }]
-    db.add({
-      numero, edital: edital ?? undefined, status: 'Em negociação', documentos: docs, drOfertante: DR_OFERTANTE, drContratante: contratante ?? '—', cursos: cs,
-      vigenciaInicio: vigIni ? vigIni.split('-').reverse().join('/') : undefined, vigenciaFim: vigFim ? vigFim.split('-').reverse().join('/') : undefined, cadastradoEm: agora,
-      cnpj: cnpj || undefined, crm: crm || undefined, link: link || undefined, faturamento, escolas: faturamento === 'Escola' ? escolas.split(',').map((e) => e.trim()).filter(Boolean) : undefined,
-      duplicadaDe: origem?.numero, historico,
-    })
-    reset()
+    const dados = {
+      taaId: taa.id, edital: taa.edital, drOfertante: DR_OFERTANTE, drContratante: taa.contratante, cursos,
+      vigenciaInicio: brDe(vigIni), vigenciaFim: brDe(vigFim), cnpj: cnpj || undefined, crm: crm || undefined, link: link || undefined,
+      faturamento, escolas: faturamento === 'Escola' ? escolas.split(',').map((e) => e.trim()).filter(Boolean) : undefined, documentos: docs,
+      responsavel: { nome: eu?.nome ?? autor, cargo: 'Gestor de contrato' },
+    }
+    if (base) {
+      // Nova versão: a atual vai para o histórico de versões (a proposta vai e vem)
+      const anterior = { versao: base.versao ?? 1, cursos: base.cursos, vigenciaInicio: base.vigenciaInicio, vigenciaFim: base.vigenciaFim, salvaEm: agora, motivo: motivoVersao.trim() || undefined }
+      db.update(base.id, { ...dados, versao, versoes: [...(base.versoes ?? []), anterior], historico: [{ quando: agora, texto: `Nova versão v${versao}${motivoVersao.trim() ? `: ${motivoVersao.trim()}` : ''}`, autor }, ...(base.historico ?? [])] })
+    } else {
+      db.add({ ...dados, numero, status: 'Rascunho', versao: 1, cadastradoEm: agora, historico: [{ quando: agora, texto: 'Proposta criada (Rascunho)', autor }] })
+    }
     onOpenChange(false)
   }
 
   return (
-    <Sheet open={open} onOpenChange={(v) => (v || reset(), onOpenChange(v))}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="data-[side=bottom]:h-[95vh] gap-0 overflow-hidden rounded-t-xl p-0">
         <SheetHeader className="border-b px-6 py-4">
-          <div className="flex items-center gap-3">
-            <SheetTitle className="text-lg">Nova proposta</SheetTitle>
+          <div className="flex flex-wrap items-center gap-3">
+            <SheetTitle className="text-lg">{base ? 'Nova versão da proposta' : 'Nova proposta'}</SheetTitle>
             <NumeroBadge numero={numero} />
-            {origem && <Badge variant="outline">Nova rodada a partir da {origem.numero}</Badge>}
+            <span className="flex items-center gap-2 rounded-md border-2 border-foreground px-2.5 py-0.5 text-sm font-semibold tabular-nums">
+              {base && <span className="text-muted-foreground">v{base.versao ?? 1} →</span>} v{versao}
+            </span>
           </div>
-          <SheetDescription className="sr-only">Nova proposta</SheetDescription>
+          <SheetDescription className="sr-only">Proposta comercial vinculada a um TAA aceito</SheetDescription>
         </SheetHeader>
 
-        <div className="grid min-h-0 flex-1 grid-cols-[20rem_1fr_1fr]">
-          {/* 1ª coluna: dados da proposta */}
+        <div className="grid min-h-0 flex-1 grid-cols-[22rem_1fr_1.4fr]">
+          {/* 1ª coluna: vínculo com o TAA e dados da proposta */}
           <div className="flex min-h-0 flex-col gap-4 overflow-y-auto border-r bg-muted/20 px-5 py-6">
             <h3 className="text-sm font-semibold">Dados da proposta</h3>
-            <div className="grid gap-3">
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">DR ofertante</span>
-                <div className="bg-muted flex h-9 items-center gap-1.5 rounded-md border px-3 text-sm">
-                  <Lock className="text-muted-foreground size-3.5" /> SENAI-{DR_OFERTANTE}
-                </div>
-              </label>
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">Edital <Req /></span>
-                <Select value={edital} onValueChange={(v) => setEdital(v as string)}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue>{(v: string | null) => v ?? 'Selecione o edital'}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {editais.map((e) => <SelectItem key={e.id} value={e.numero}>{e.numero}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </label>
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">Contratante (com TAA ou contrato) <Req /></span>
-                <Select value={contratante} onValueChange={(v) => { setContratante(v as string); setIds((xs) => xs.filter((id) => contratados(v as string).includes(cursos.find((c) => c.id === id)?.nome ?? ''))) }}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue>{(v: string | null) => (v ? nomeParte(v) : 'Selecione o contratante')}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {comTaa.map((t) => (
-                      <SelectItem key={t.id} value={t.contratante}>{nomeParte(t.contratante)} <span className="text-xs text-muted-foreground">· {instrumentoDe(t.contratante)} {t.numero}{t.status !== 'Aceito' ? ` (${t.status})` : ''}</span></SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">Início da vigência <Req /></span>
-                <Input type="date" value={vigIni} onChange={(e) => setVigIni(e.target.value)} />
-              </label>
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">Fim da vigência <Req /></span>
-                <Input type="date" value={vigFim} onChange={(e) => setVigFim(e.target.value)} />
-              </label>
-              </div>
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">CNPJ do contratante <Req /></span>
-                <Input inputMode="numeric" placeholder="00.000.000/0000-00" value={cnpj} onChange={(e) => setCnpj(e.target.value)} />
-              </label>
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">Faturamento <Req /></span>
-                <Select value={faturamento} onValueChange={(v) => setFaturamento(v as 'DR' | 'Escola')}>
-                  <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v === 'Escola' ? 'Por escola' : 'Para a DR')}</SelectValue></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DR">Para a DR</SelectItem>
-                    <SelectItem value="Escola">Por escola</SelectItem>
-                  </SelectContent>
-                </Select>
-              </label>
-              {faturamento === 'Escola' && (
-                <label className="grid gap-1 text-xs">
-                  <span className="text-muted-foreground">Escolas faturadas <Req /></span>
-                  <Input placeholder="Separe por vírgula" value={escolas} onChange={(e) => setEscolas(e.target.value)} />
-                </label>
-              )}
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">Nº no CRM</span>
-                <Input placeholder="Opcional" value={crm} onChange={(e) => setCrm(e.target.value)} />
-              </label>
-              <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">Link do documento da proposta</span>
-                <Input placeholder="https://…" value={link} onChange={(e) => setLink(e.target.value)} />
-              </label>
+            <label className="grid gap-1 text-xs">
+              <span className="text-muted-foreground">TAA / contrato aceito <Req /></span>
+              <Select disabled={!!base} value={taaId} onValueChange={(v) => escolher(v as string)}>
+                <SelectTrigger className="w-full"><SelectValue>{(v: string | null) => { const t = contratos.find((c) => c.id === v); return t ? `${instrumentoDe(t.contratante)} ${t.numero} · ${nomeParte(t.contratante)}` : 'Selecione o TAA' }}</SelectValue></SelectTrigger>
+                <SelectContent>{taas.map((t) => <SelectItem key={t.id} value={t.id}>{instrumentoDe(t.contratante)} {t.numero} · {nomeParte(t.contratante)}</SelectItem>)}</SelectContent>
+              </Select>
+            </label>
+            {taa && (
+              <dl className="grid grid-cols-2 gap-2 rounded-lg border bg-background p-3 text-xs">
+                <div><dt className="text-muted-foreground">Contratante</dt><dd className="font-medium">{nomeParte(taa.contratante)}</dd></div>
+                <div><dt className="text-muted-foreground">Edital</dt><dd className="font-mono">{taa.edital ?? '—'}</dd></div>
+                <div className="col-span-2"><dt className="text-muted-foreground">Saldo do {instrumentoDe(taa.contratante)}</dt><dd className="font-semibold tabular-nums">{brl(saldo)} <span className="font-normal text-muted-foreground">de {brl(taa.valor)}</span></dd></div>
+              </dl>
+            )}
+            <label className="grid gap-1 text-xs">
+              <span className="text-muted-foreground">Responsável (Gestor de contrato)</span>
+              <div className="flex h-9 items-center gap-1.5 rounded-md border bg-muted px-3 text-sm"><Lock className="size-3.5 text-muted-foreground" /> {eu?.nome ?? autor}</div>
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Início <Req /></span><Input type="date" value={vigIni} onChange={(e) => setVigIni(e.target.value)} /></label>
+              <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Fim <Req /></span><Input type="date" value={vigFim} onChange={(e) => setVigFim(e.target.value)} /></label>
             </div>
+            {base && (
+              <label className="grid gap-1 text-xs">
+                <span className="text-muted-foreground">O que mudou nesta versão <Req /></span>
+                <Textarea rows={3} value={motivoVersao} onChange={(e) => setMotivoVersao(e.target.value)} />
+              </label>
+            )}
+            <label className="grid gap-1 text-xs"><span className="text-muted-foreground">CNPJ do contratante <Req /></span><Input inputMode="numeric" placeholder="00.000.000/0000-00" value={cnpj} onChange={(e) => setCnpj(e.target.value)} /></label>
+            <label className="grid gap-1 text-xs">
+              <span className="text-muted-foreground">Faturamento <Req /></span>
+              <Select value={faturamento} onValueChange={(v) => setFaturamento(v as 'DR' | 'Escola')}>
+                <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v === 'Escola' ? 'Por escola' : 'Para a DR')}</SelectValue></SelectTrigger>
+                <SelectContent><SelectItem value="DR">Para a DR</SelectItem><SelectItem value="Escola">Por escola</SelectItem></SelectContent>
+              </Select>
+            </label>
+            {faturamento === 'Escola' && <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Escolas faturadas <Req /></span><Input placeholder="Separe por vírgula" value={escolas} onChange={(e) => setEscolas(e.target.value)} /></label>}
+            <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Nº no CRM</span><Input placeholder="Opcional" value={crm} onChange={(e) => setCrm(e.target.value)} /></label>
+            <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Link do documento da proposta</span><Input placeholder="https://…" value={link} onChange={(e) => setLink(e.target.value)} /></label>
             <AttachField value={docs} onChange={setDocs} />
           </div>
 
-          {/* 2ª coluna: cursos do Itinerário Nacional */}
-          <div className="flex min-h-0 flex-col gap-3 border-r px-6 py-6">
-            <h3 className="text-sm font-semibold">Produtos do {contratante ? instrumentoDe(contratante) : 'TAA'} {ids.length > 0 && <span className="text-muted-foreground font-normal">({ids.length} selecionados)</span>}</h3>
-            <div className="flex min-h-0 flex-1 flex-col rounded-lg border">
-              <div className="relative">
-                <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-                <input
-                  className="h-9 w-full bg-transparent pr-3 pl-9 text-sm outline-none"
-                  placeholder="Buscar por código, nome, área ou modalidade…"
-                  value={busca}
-                  onChange={(e) => setBusca(e.target.value)}
-                />
-              </div>
-              <ul className="min-h-0 flex-1 overflow-y-auto border-t">
-                {visiveis.length === 0 && <li className="text-muted-foreground px-3 py-2 text-sm">{contratante ? `Nenhum produto contratado por ${nomeParte(contratante)} com esta CTM.` : 'Escolha o contratante.'}</li>}
-                {visiveis.map((c) => {
-                  const usado = jaNoPortfolio.has(c.id)
-                  const on = ids.includes(c.id)
+          {/* 2ª coluna: produtos do TAA (o curso pode se repetir em outras propostas do mesmo TAA) */}
+          <div className="flex min-h-0 flex-col gap-3 overflow-y-auto border-r px-6 py-6">
+            <h3 className="text-sm font-semibold">Produtos do {taa ? `${instrumentoDe(taa.contratante)} ${taa.numero}` : 'TAA'} {nomes.length > 0 && <span className="font-normal text-muted-foreground">({nomes.length} na proposta)</span>}</h3>
+            {!taa ? (
+              <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">Escolha o TAA/contrato aceito.</p>
+            ) : (
+              <ul className="divide-y rounded-lg border">
+                {produtos.map((p) => {
+                  const on = nomes.includes(p.nome)
+                  const m = portfolio.find((c) => c.nome === p.nome)
                   return (
-                    <li key={c.id}>
-                      <button
-                        type="button"
-                        disabled={usado}
-                        onClick={() => setIds((xs) => (on ? xs.filter((x) => x !== c.id) : [...xs, c.id]))}
-                        className={cn(
-                          'flex w-full items-center gap-2 border-b px-3 py-1.5 text-left text-sm last:border-0',
-                          on ? 'bg-accent' : 'hover:bg-accent/60',
-                          usado && 'cursor-not-allowed opacity-50 hover:bg-transparent',
-                        )}
-                      >
-                        <span className={cn('grid size-4 shrink-0 place-items-center rounded border', on && 'border-primary bg-primary text-primary-foreground')}>
-                          {on && <Check className="size-3" />}
-                        </span>
-                        <span className="flex-1">
-                          {c.nome}
-                          <span className="text-muted-foreground block font-mono text-[11px]">{c.codigo}</span>
-                        </span>
-                        {usado ? <Badge variant="outline">Já nas propostas</Badge> : <span className="text-muted-foreground text-xs">{c.area}</span>}
-                      </button>
+                    <li key={p.nome}>
+                      <label className={cn('flex cursor-pointer items-center gap-3 px-3 py-2 text-sm hover:bg-muted/50', on && 'bg-muted/60')}>
+                        <input type="checkbox" checked={on} onChange={() => setNomes(on ? nomes.filter((n) => n !== p.nome) : [...nomes, p.nome])} />
+                        <span className="min-w-0 flex-1"><span className="block font-medium">{p.nome}</span><span className="block text-xs text-muted-foreground">{p.modalidade} · {p.cargaHoraria} h · {m ? `matriz v${m.versao ?? 1}` : 'sem matriz aprovada no portfólio'}</span></span>
+                        <span className="text-xs tabular-nums text-muted-foreground">{brl(valorNoEdital(taa.edital, p.nome) || p.valor)}/aluno</span>
+                      </label>
                     </li>
                   )
                 })}
               </ul>
-            </div>
-          </div>
-
-          {/* 3ª coluna: cursos escolhidos (dados do itinerário, não editáveis) com valor previsto */}
-          <div className="bg-muted/30 flex min-h-0 flex-col">
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
-            {!sel.length ? (
-              <div className="text-muted-foreground grid h-full place-items-center rounded-lg border border-dashed p-8 text-center text-sm">
-                Selecione um ou mais cursos à esquerda.
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                <div className="flex items-center justify-end gap-3">
-                  <Button type="button" size="sm" variant="outline" disabled={!marcados.length} onClick={() => setReplicarAberto(true)}>
-                      <Copy /> Replicar valores{marcados.length > 0 && ` (${marcados.length})`}
-                  </Button>
-                  <label className="flex items-center gap-2 text-xs">
-                    <input type="checkbox" checked={marcados.length === sel.length} onChange={(e) => setMarcados(e.target.checked ? sel.map((c) => c.id) : [])} />
-                    Selecionar todos
-                  </label>
-                </div>
-                {sel.map((curso) => {
-                  return (
-                    <div key={curso.id} className="bg-background rounded-lg border">
-                      <div className="flex flex-wrap items-end gap-3 px-3 py-2">
-                        <input type="checkbox" aria-label={`Selecionar ${curso.nome}`} checked={marcados.includes(curso.id)} onChange={() => setMarcados((m) => (m.includes(curso.id) ? m.filter((x) => x !== curso.id) : [...m, curso.id]))} />
-                        <div className="min-w-[14rem] flex-1 self-center">
-                          <p className="text-sm font-semibold">{curso.nome}</p>
-                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                            <span className="text-muted-foreground font-mono text-xs">{curso.codigo}</span>
-                            {[curso.modalidade, curso.area, `${curso.cargaHoraria} h`].map((t) => (
-                              <span key={t} className="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs">
-                                <Lock className="size-3" /> {t}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <label className="grid w-20 shrink-0 gap-1 text-xs">
-                          <span className="text-muted-foreground">Vagas <Req /></span>
-                          <Input className="h-8 tabular-nums" inputMode="numeric" placeholder="0" value={vagas[curso.id] ?? ''} onChange={(e) => setVagas((v) => ({ ...v, [curso.id]: e.target.value.replace(/\D/g, '') }))} />
-                        </label>
-                        <label className="grid w-36 shrink-0 gap-1 text-xs">
-                          <span className="text-muted-foreground">Início previsto <Req /></span>
-                          <Input className="h-8" type="date" value={inicios[curso.id] ?? ''} onChange={(e) => setInicios((v) => ({ ...v, [curso.id]: e.target.value }))} />
-                        </label>
-                        <label className="grid w-40 shrink-0 gap-1 text-xs">
-                          <span className="text-muted-foreground">Valor previsto <Req /></span>
-                          <Input
-                            className="h-8"
-                            inputMode="numeric"
-                            placeholder="R$ 0,00"
-                            value={valores[curso.id] ? brl(centavos(valores[curso.id])) : ''}
-                            onChange={(e) => setValores((v) => ({ ...v, [curso.id]: e.target.value.replace(/\D/g, '') }))}
-                          />
-                        </label>
-                        <Button type="button" variant="ghost" size="icon-sm" aria-label={`Remover ${curso.nome}`} onClick={() => (setIds((xs) => xs.filter((x) => x !== curso.id)), setMarcados((m) => m.filter((x) => x !== curso.id)))}>
-                          <X />
-                        </Button>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
             )}
           </div>
-          {/* Total fixo no rodapé da 3ª coluna */}
-          <div className="flex items-baseline justify-between gap-3 border-t bg-card px-6 py-4">
-            <span className="text-muted-foreground text-sm">Valor total · {sel.length} curso(s)</span>
-            <span className="text-2xl font-bold tabular-nums">{brl(total)}</span>
-          </div>
+
+          {/* 3ª coluna: cursos da proposta — alunos e início; valor/aluno do edital (fixo); matriz do portfólio */}
+          <div className="flex min-h-0 flex-col bg-muted/30">
+            <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
+              {!cursos.length ? (
+                <div className="grid h-full place-items-center rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">Marque os produtos à esquerda.</div>
+              ) : (
+                <div className="grid gap-3">
+                  <div className="flex items-center justify-end gap-3">
+                    <Button type="button" size="sm" variant="outline" disabled={!marcados.length} onClick={() => setReplicar(true)}><Copy /> Replicar alunos{marcados.length > 0 && ` (${marcados.length})`}</Button>
+                    <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={marcados.length === cursos.length} onChange={(e) => setMarcados(e.target.checked ? cursos.map((c) => c.nome) : [])} /> Selecionar todos</label>
+                  </div>
+                  {cursos.map((c) => {
+                    const m = portfolio.find((x) => x.nome === c.nome)
+                    return (
+                      <div key={c.nome} className="rounded-lg border bg-background">
+                        <div className="flex flex-wrap items-end gap-3 px-3 py-2">
+                          <input type="checkbox" className="self-center" aria-label={`Selecionar ${c.nome}`} checked={marcados.includes(c.nome)} onChange={() => setMarcados((xs) => (xs.includes(c.nome) ? xs.filter((x) => x !== c.nome) : [...xs, c.nome]))} />
+                          <div className="min-w-[13rem] flex-1 self-center">
+                            <p className="text-sm font-semibold">{c.nome}</p>
+                            <div className="mt-1 flex flex-wrap gap-1.5">
+                              {[c.modalidade, `${c.cargaHoraria} h`, `${brl(c.valorAluno)}/aluno (edital)`].map((t) => (
+                                <span key={t} className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"><Lock className="size-3" /> {t}</span>
+                              ))}
+                            </div>
+                          </div>
+                          <label className="grid w-24 gap-1 text-xs"><span className="text-muted-foreground">Alunos <Req /></span><Input className="h-8 tabular-nums" inputMode="numeric" value={alunos[c.nome] ?? ''} onChange={(e) => setAlunos((a) => ({ ...a, [c.nome]: e.target.value.replace(/\D/g, '') }))} /></label>
+                          <label className="grid w-36 gap-1 text-xs"><span className="text-muted-foreground">Início previsto <Req /></span><Input className="h-8" type="date" value={inicios[c.nome] ?? ''} onChange={(e) => setInicios((a) => ({ ...a, [c.nome]: e.target.value }))} /></label>
+                          <div className="grid w-32 gap-1 text-right text-xs"><span className="text-muted-foreground">Valor</span><span className="h-8 text-sm font-semibold leading-8 tabular-nums">{brl(c.valorPrevisto)}</span></div>
+                          <Button type="button" variant="ghost" size="icon-sm" aria-label={`Remover ${c.nome}`} onClick={() => (setNomes((xs) => xs.filter((x) => x !== c.nome)), setMarcados((xs) => xs.filter((x) => x !== c.nome)))}><X /></Button>
+                        </div>
+                        {/* Matriz curricular: do portfólio da CTM (última versão aprovada), só leitura */}
+                        <button type="button" onClick={() => setAberta(aberta === c.nome ? null : c.nome)} className="flex w-full items-center gap-1.5 border-t px-3 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted/50">
+                          <Layers className="size-3.5" /> Matriz curricular {m ? `(portfólio v${m.versao ?? 1})` : '— sem versão aprovada'} <ChevronDown className={cn('ml-auto size-3.5 transition-transform', aberta === c.nome && 'rotate-180')} />
+                        </button>
+                        {aberta === c.nome && m && (
+                          <ol className="grid gap-1 border-t px-3 py-2 text-xs">
+                            {m.modulos.map((mod, i) => (
+                              <li key={i}><span className="font-medium">{i + 1}. {mod.nome}</span><span className="text-muted-foreground"> — {mod.unidades.map((u) => u.nome).join(', ')}</span></li>
+                            ))}
+                          </ol>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="flex items-baseline justify-between gap-3 border-t bg-card px-6 py-4">
+              <span className="text-sm text-muted-foreground">
+                {cursos.length} curso(s) · {cursos.reduce((t, c) => t + (c.vagas ?? 0), 0)} alunos
+                {taa && <span className={cn('block text-xs', total > saldo && 'font-medium text-red-600')}>Saldo do TAA depois desta proposta: {brl(saldo - total)}</span>}
+              </span>
+              <span className="text-2xl font-bold tabular-nums">{brl(total)}</span>
+            </div>
           </div>
         </div>
 
-        <SheetFooter className="flex-row items-center justify-end gap-4 border-t px-6 py-3">
-          <div className="flex shrink-0 gap-2">
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!podeSalvar} onClick={salvar}>Salvar proposta</Button>
-          </div>
+        <SheetFooter className="flex-row items-center justify-end gap-2 border-t px-6 py-3">
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button disabled={!taa || !cursos.length} onClick={salvar}>{base ? `Salvar versão v${versao}` : 'Salvar proposta'}</Button>
         </SheetFooter>
       </SheetContent>
-      <Dialog open={replicarAberto} onOpenChange={setReplicarAberto}>
+      <Dialog open={replicar} onOpenChange={setReplicar}>
         <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Replicar valor em {marcados.length} curso(s)</DialogTitle>
-          </DialogHeader>
-          <label className="grid gap-1 text-xs">
-            <span className="text-muted-foreground">Valor previsto</span>
-            <Input inputMode="numeric" placeholder="R$ 0,00" value={loteValor ? brl(centavos(loteValor)) : ''} onChange={(e) => setLoteValor(e.target.value.replace(/\D/g, ''))} />
-          </label>
+          <DialogHeader><DialogTitle>Replicar alunos em {marcados.length} curso(s)</DialogTitle></DialogHeader>
+          <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Quantidade de alunos</span><Input inputMode="numeric" value={loteAlunos} onChange={(e) => setLoteAlunos(e.target.value.replace(/\D/g, ''))} /></label>
           <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setReplicarAberto(false)}>Cancelar</Button>
-            <Button
-              type="button"
-              disabled={!loteValor}
-              onClick={() => {
-                setValores((v) => ({ ...v, ...Object.fromEntries(marcados.map((id) => [id, loteValor])) }))
-                setLoteValor('')
-                setReplicarAberto(false)
-              }}
-            >
-              Aplicar
-            </Button>
+            <Button variant="ghost" onClick={() => setReplicar(false)}>Cancelar</Button>
+            <Button disabled={!loteAlunos} onClick={() => (setAlunos((a) => ({ ...a, ...Object.fromEntries(marcados.map((n) => [n, loteAlunos])) })), setLoteAlunos(''), setReplicar(false))}>Aplicar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

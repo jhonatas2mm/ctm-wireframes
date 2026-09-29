@@ -157,10 +157,12 @@ export const journeys: Journey[] = [
     title: 'Criação de proposta',
     profile: 'CTM: Supervisor',
     steps: [
-      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Nova proposta”.' },
-      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Supervisor', note: 'Contratante: só quem tem TAA (SENAI) ou contrato (SESI) com a CTM. Registro mínimo (o documento é feito fora, no modelo): edital, contratante, CNPJ, faturamento (DR ou escolas), nº no CRM e link do documento; por curso, vagas, início previsto e valor. Salva Em negociação.' },
-      { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Supervisor', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em negociação, com os cursos, vagas e valores previstos; o acordo é fechado fora do sistema.' },
-      { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Aceitar', profile: 'CTM: Supervisor', note: 'Depois do acordo (fora do sistema), marca Aceita ou Recusada (recusa pede feedback). Alerta quando a turma começa em até 15 dias e a proposta não foi aceita. Duplicar abre nova rodada; aceita ainda pode ser cancelada (com motivo).' },
+      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Supervisor', note: 'A proposta é sempre da CTM. A negociação acontece fora do sistema; quando avança, o Gestor de contrato cria a proposta.' },
+      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Supervisor', note: 'Vinculada a um TAA/contrato aceito: produtos do TAA, alunos e início por curso; matriz do portfólio; valor = valor do edital × alunos (fixo); saldo do TAA mostrado. Salva como Rascunho.' },
+      { title: 'Proposta em rascunho', path: '/produtos/7', profile: 'CTM: Supervisor', note: 'Gestão da proposta: resumo, cursos com a matriz, versões, documentos e histórico. O Gestor de contrato é o responsável.' },
+      { title: 'Vai e vem: nova versão', path: '/produtos/4', profile: 'CTM: Supervisor', note: 'A DR pediu ajuste: “Nova versão” guarda a v1 no histórico e cria a v2. Status atual: Aguardando retorno do cliente.' },
+      { title: 'Status da proposta', path: '/produtos', focus: 'text=Status', profile: 'CTM: Supervisor', note: 'O Gestor de contrato registra o andamento combinado com a DR: Rascunho → Em andamento → Aguardando retorno do cliente → Aprovado, ou Cancelado (motivo).' },
+      { title: 'Aprovada: equipe técnica', path: '/produtos/1', profile: 'CTM: Supervisor', note: 'Aprovada, a proposta executa o saldo do TAA; vincula-se a equipe técnica (supervisor e analista), que define o cronograma e segue para Criar turmas.' },
     ],
   },
   {
@@ -169,7 +171,7 @@ export const journeys: Journey[] = [
     profile: 'CTM: Supervisor',
     steps: [
       { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'CTM: Supervisor', note: 'Lista de ofertas (uma linha por turma, com a proposta); clica em “Adicionar oferta” na proposta.' },
-      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Supervisor', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pulando os feriados nacionais; dá para ajustar à mão.' },
+      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Supervisor', note: 'Escolhe a proposta aprovada e os cursos; supervisor e analista vêm da equipe técnica da proposta. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pulando os feriados nacionais; dá para ajustar à mão.' },
       { title: 'Oferta criada', path: '/oferta/t1/sucesso', profile: 'CTM: Supervisor', note: 'Confirmação: ofertas criadas com o cronograma v1 em rascunho.' },
       { title: 'Validação do cronograma', path: '/oferta/t2', profile: 'CTM: Supervisor', note: 'Registra o envio à DR com prazo; a DR valida ou pede ajuste (nova versão). Sem resposta até o prazo, conta como validado. UCs agrupáveis com outras turmas aparecem marcadas.' },
       { title: 'Turma confirmada', path: '/oferta/t1', profile: 'CTM: Supervisor', note: 'Com o cronograma validado e a DR confirmando a turma, “Confirmar turma” muda o status para Buscar tutor (libera o PCP e a criação de salas). Também: prorrogar início e cancelar turma.' },
@@ -257,10 +259,12 @@ export const journeys: Journey[] = [
     title: 'Criação de proposta',
     profile: 'CTM: Gestor de contrato',
     steps: [
-      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Gestor de contrato', note: 'O Gestor de contrato clica em “Nova proposta”.' },
-      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Gestor de contrato', note: 'Contratante: só quem tem TAA (SENAI) ou contrato (SESI) com a CTM. Registro mínimo (o documento é feito fora, no modelo): edital, contratante, CNPJ, faturamento (DR ou escolas), nº no CRM e link do documento; por curso, vagas, início previsto e valor. Salva Em negociação.' },
-      { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Gestor de contrato', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em negociação, com os cursos, vagas e valores previstos; o acordo é fechado fora do sistema.' },
-      { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Aceitar', profile: 'CTM: Gestor de contrato', note: 'Depois do acordo (fora do sistema), marca Aceita ou Recusada (recusa pede feedback). Alerta quando a turma começa em até 15 dias e a proposta não foi aceita. Duplicar abre nova rodada; aceita ainda pode ser cancelada (com motivo).' },
+      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Gestor de contrato', note: 'A proposta é sempre da CTM. A negociação acontece fora do sistema; quando avança, o Gestor de contrato cria a proposta.' },
+      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Gestor de contrato', note: 'Vinculada a um TAA/contrato aceito: produtos do TAA, alunos e início por curso; matriz do portfólio; valor = valor do edital × alunos (fixo); saldo do TAA mostrado. Salva como Rascunho.' },
+      { title: 'Proposta em rascunho', path: '/produtos/7', profile: 'CTM: Gestor de contrato', note: 'Gestão da proposta: resumo, cursos com a matriz, versões, documentos e histórico. O Gestor de contrato é o responsável.' },
+      { title: 'Vai e vem: nova versão', path: '/produtos/4', profile: 'CTM: Gestor de contrato', note: 'A DR pediu ajuste: “Nova versão” guarda a v1 no histórico e cria a v2. Status atual: Aguardando retorno do cliente.' },
+      { title: 'Status da proposta', path: '/produtos', focus: 'text=Status', profile: 'CTM: Gestor de contrato', note: 'O Gestor de contrato registra o andamento combinado com a DR: Rascunho → Em andamento → Aguardando retorno do cliente → Aprovado, ou Cancelado (motivo).' },
+      { title: 'Aprovada: equipe técnica', path: '/produtos/1', profile: 'CTM: Gestor de contrato', note: 'Aprovada, a proposta executa o saldo do TAA; vincula-se a equipe técnica (supervisor e analista), que define o cronograma e segue para Criar turmas.' },
     ],
   },
   {
@@ -269,7 +273,7 @@ export const journeys: Journey[] = [
     profile: 'CTM: Gestor de contrato',
     steps: [
       { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'CTM: Gestor de contrato', note: 'Lista de ofertas (uma linha por turma, com a proposta); clica em “Adicionar oferta” na proposta.' },
-      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Gestor de contrato', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pulando os feriados nacionais; dá para ajustar à mão.' },
+      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Gestor de contrato', note: 'Escolhe a proposta aprovada e os cursos; supervisor e analista vêm da equipe técnica da proposta. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pulando os feriados nacionais; dá para ajustar à mão.' },
       { title: 'Oferta criada', path: '/oferta/t1/sucesso', profile: 'CTM: Gestor de contrato', note: 'Confirmação: ofertas criadas com o cronograma v1 em rascunho.' },
       { title: 'Validação do cronograma', path: '/oferta/t2', profile: 'CTM: Gestor de contrato', note: 'Registra o envio à DR com prazo; a DR valida ou pede ajuste (nova versão). Sem resposta até o prazo, conta como validado. UCs agrupáveis com outras turmas aparecem marcadas.' },
       { title: 'Turma confirmada', path: '/oferta/t1', profile: 'CTM: Gestor de contrato', note: 'Com o cronograma validado e a DR confirmando a turma, “Confirmar turma” muda o status para Buscar tutor (libera o PCP e a criação de salas). Também: prorrogar início e cancelar turma.' },

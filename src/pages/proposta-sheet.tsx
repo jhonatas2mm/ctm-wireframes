@@ -5,17 +5,19 @@ import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { EmptyState } from '@/components/wf'
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
-import { aoVivoTurma, useTurmas, type Produto } from '@/lib/mock'
+import { alunosProposta, aoVivoTurma, instrumentoDe, nomeParte, totalProposta, useContratos, useTurmas, type Produto } from '@/lib/mock'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-const dataBr = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '—')
+const dataBr = (iso?: string) => (iso ? iso.split('-').reverse().join('/') : '—')
 
-// Detalhes da proposta (side sheet) com o vínculo às ofertas (turmas) criadas a partir dela.
+// Detalhes da proposta (side sheet): TAA vinculado, responsável, cursos (alunos, valor do edital), equipe técnica e
+// as turmas criadas a partir dela.
 export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | null; onClose: () => void }) {
   const { all: turmas } = useTurmas()
+  const { all: taas } = useContratos()
   const navigate = useNavigate()
   const ofertas = p ? turmas.filter((t) => t.propostaId === p.id) : []
-  const total = p ? p.cursos.reduce((t, c) => t + c.valorPrevisto, 0) : 0
+  const taa = p ? taas.find((t) => t.id === p.taaId) : undefined
   return (
     <Sheet open={!!p} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
@@ -25,22 +27,22 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
               <div className="flex items-center gap-2">
                 <SheetTitle className="text-lg">Proposta</SheetTitle>
                 <Badge variant="secondary" className="font-mono">{p.numero}</Badge>
+                <Badge variant="outline" className="tabular-nums">v{p.versao ?? 1}</Badge>
                 <StatusPropostaBadge status={p.status} />
               </div>
-              <SheetDescription className="sr-only">Detalhes da proposta e ofertas vinculadas</SheetDescription>
+              <SheetDescription className="sr-only">Detalhes da proposta e turmas vinculadas</SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4">
               <dl className="grid grid-cols-2 gap-4">
                 {([
+                  ['Contratante', nomeParte(p.drContratante)],
+                  [taa ? instrumentoDe(taa.contratante) : 'TAA', taa ? <span className="font-mono">{taa.numero}</span> : '—'],
                   ['Edital', <span className="font-mono">{p.edital ?? '—'}</span>],
-                  ['Valor previsto total', <span className="font-semibold">{brl(total)}</span>],
-                  ['DR ofertante', `SENAI-${p.drOfertante}`],
-                  ['DR contratante', `SENAI-${p.drContratante}`],
-                  ['Vigência', p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'],
+                  ['Responsável', p.responsavel ? `${p.responsavel.nome} (${p.responsavel.cargo})` : '—'],
+                  ['Início e fim', p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'],
+                  ['Alunos · valor', <span><span className="tabular-nums">{alunosProposta(p)}</span> · <span className="font-semibold tabular-nums">{brl(totalProposta(p))}</span></span>],
+                  ['Equipe técnica', p.equipeTecnica ? `${p.equipeTecnica.supervisor} (supervisor) · ${p.equipeTecnica.analista} (analista)` : p.status === 'Aprovado' ? 'A vincular' : '—'],
                   ['CNPJ do contratante', p.cnpj ?? '—'],
-                  ['Faturamento', p.faturamento === 'Escola' ? `Por escola: ${(p.escolas ?? []).join(', ') || '—'}` : 'Para a DR'],
-                  ['Nº no CRM', p.crm ?? '—'],
-                  ['Documento', p.link ? <a href={p.link} target="_blank" rel="noreferrer" className="underline underline-offset-2">Abrir link</a> : '—'],
                 ] as [string, React.ReactNode][]).map(([k, v]) => (
                   <div key={k}>
                     <dt className="text-xs text-muted-foreground">{k}</dt>
@@ -48,10 +50,10 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
                   </div>
                 ))}
               </dl>
-              {(p.status === 'Recusada' ? p.feedback : p.status === 'Cancelada' ? p.motivoCancelamento : '') && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900">
-                  <p className="mb-1 text-xs font-medium">{p.status === 'Cancelada' ? 'Motivo do cancelamento' : 'Motivo da recusa'}</p>
-                  <p className="whitespace-pre-wrap">{p.status === 'Cancelada' ? p.motivoCancelamento : p.feedback}</p>
+              {p.status === 'Cancelado' && p.motivoCancelamento && (
+                <div className="rounded-lg border bg-muted/50 p-3 text-sm">
+                  <p className="mb-1 text-xs font-medium">Motivo do cancelamento</p>
+                  <p className="whitespace-pre-wrap">{p.motivoCancelamento}</p>
                 </div>
               )}
 
@@ -61,12 +63,12 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
                   {p.cursos.map((c) => {
                     const n = ofertas.filter((t) => t.cursos.includes(c.nome)).length
                     return (
-                      <li key={c.cursoId} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                      <li key={c.nome} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                         <span className="min-w-0 flex-1">
                           <span className="block truncate font-medium">{c.nome}</span>
-                          <span className="block text-xs text-muted-foreground">{c.modalidade} · {c.cargaHoraria} h · {brl(c.valorPrevisto)}{c.vagas ? ` · ${c.vagas} vagas` : ''}{c.inicioPrevisto ? ` · início ${dataBr(c.inicioPrevisto)}` : ''}</span>
+                          <span className="block text-xs text-muted-foreground">{c.modalidade} · {c.cargaHoraria} h · {c.vagas ?? 0} alunos × {brl(c.valorAluno)} = {brl(c.valorPrevisto)} · início {dataBr(c.inicioPrevisto)}</span>
                         </span>
-                        <Badge variant={n ? 'default' : 'outline'} className="shrink-0">{n ? `${n} oferta(s)` : 'Sem oferta'}</Badge>
+                        <Badge variant={n ? 'default' : 'outline'} className="shrink-0">{n ? `${n} turma(s)` : 'Sem turma'}</Badge>
                       </li>
                     )
                   })}
@@ -74,7 +76,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
               </section>
 
               <section className="space-y-2">
-                <h3 className="text-sm font-semibold">Ofertas vinculadas <span className="font-normal text-muted-foreground">({ofertas.length})</span></h3>
+                <h3 className="text-sm font-semibold">Turmas <span className="font-normal text-muted-foreground">({ofertas.length})</span></h3>
                 {ofertas.length ? (
                   <ul className="divide-y rounded-lg border">
                     {ofertas.map((t) => {
@@ -99,7 +101,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
                     })}
                   </ul>
                 ) : (
-                  <EmptyState title="Nenhuma oferta criada a partir desta proposta" />
+                  <EmptyState title={p.status === 'Aprovado' ? 'Nenhuma turma ainda' : 'As turmas nascem depois da aprovação'} />
                 )}
                 <Link to="/oferta" className="inline-block text-xs underline underline-offset-2">Ir para Gestão da oferta</Link>
               </section>

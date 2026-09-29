@@ -82,7 +82,7 @@ export default function Oferta() {
   const pid = pathname.match(/^\/oferta\/proposta\/([^/]+)$/)?.[1] ?? null
   const proposta = propostas.find((p) => p.id === pid)
   const turmasDe = (id: string) => db.all.filter((t) => t.propostaId === id)
-  const aceitas = propostas.filter((p) => p.status === 'Aceita' || turmasDe(p.id).length)
+  const aceitas = propostas.filter((p) => p.status === 'Aprovado' || turmasDe(p.id).length)
   const voltar = () => navigate(proposta ? `/oferta/proposta/${proposta.id}` : '/oferta')
   const novaAberta = pathname === '/oferta/nova' || /^\/oferta\/proposta\/[^/]+\/nova$/.test(pathname)
   return (
@@ -193,7 +193,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
   // Protótipo: já abre com proposta, o primeiro curso, supervisor/analista e o cronograma gerado.
   useEffect(() => {
     if (!open || !propostas.length) return
-    const p = propostas.find((x) => x.id === propostaFixa) ?? propostas.find((x) => x.status === 'Aceita') ?? propostas[0]
+    const p = propostas.find((x) => x.id === propostaFixa) ?? propostas.find((x) => x.status === 'Aprovado') ?? propostas[0]
     const curso = p.cursos[0]
     if (!curso) return
     const pr = parametrosPadrao(curso.inicioPrevisto ?? '2026-11-02')
@@ -201,8 +201,9 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
     setPropostaId(p.id)
     setCursos([curso.nome])
     setModulos(gerar(comCh(matrizDe(curso.nome)), pr))
-    setSupervisor(equipe.find((x) => x.funcao === 'Supervisor')?.nome ?? null)
-    setAnalista(equipe.find((x) => x.funcao === 'Analista')?.nome ?? null)
+    // Equipe técnica vinculada à proposta aprovada (supervisor e analista definem o cronograma)
+    setSupervisor(p.equipeTecnica?.supervisor ?? equipe.find((x) => x.funcao === 'Supervisor')?.nome ?? null)
+    setAnalista(p.equipeTecnica?.analista ?? equipe.find((x) => x.funcao === 'Analista')?.nome ?? null)
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const reset = () => (setPropostaId(null), setCursos([]), setModulos([]), setAvisos([]))
@@ -253,7 +254,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
                   <SelectValue>{(v: string | null) => { const p = propostas.find((x) => x.id === v); return p ? `${p.numero} · SENAI-${p.drContratante}` : 'Selecione a proposta' }}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {propostas.filter((p) => p.status === 'Aceita').map((p) => <SelectItem key={p.id} value={p.id}>{p.numero} · SENAI-{p.drContratante}</SelectItem>)}
+                  {propostas.filter((p) => p.status === 'Aprovado').map((p) => <SelectItem key={p.id} value={p.id}>{p.numero} · SENAI-{p.drContratante}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
