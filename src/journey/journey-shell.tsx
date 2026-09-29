@@ -384,19 +384,17 @@ export function JourneyShell() {
                   )}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="dark min-w-52" alignItemWithTrigger={false} searchable={false}>
+              <SelectContent className="dark min-w-56" alignItemWithTrigger={false} searchable={false}>
                 {grupos.map((g) => {
                   const n = visibleJourneys.filter((j) => grupoDe(inicio(j)) === g).length
-                  const subs = membros(g).map((m) => subDe(m.name)).filter(Boolean)
                   return (
                     <SelectItem key={g} value={g}>
                       <span className="flex w-full items-center justify-between gap-3">
                         <span className="flex items-center gap-1.5">
                           <span className="size-2 rounded-full" style={{ background: membros(g)[0]?.color }} />
                           {g}
-                          {subs.length > 0 && <span className="text-[10px] text-muted-foreground">({subs.join(', ')})</span>}
                         </span>
-                        <span className="rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{n} {n === 1 ? 'jornada' : 'jornadas'}</span>
+                        <span className="shrink-0 rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{n} {n === 1 ? 'jornada' : 'jornadas'}</span>
                       </span>
                     </SelectItem>
                   )

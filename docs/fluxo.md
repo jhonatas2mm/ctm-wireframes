@@ -314,3 +314,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Busca rápida (⌘K): ao abrir mostra **Ações** (criar, conforme o perfil), **Recentes** (últimos registros abertos, por navegador), **Precisa de atenção** (TAAs encaminhados/em análise/retornados, propostas em negociação/análise) e as telas com o ícone do menu. TAAs também aparecem para a CTM.
 - 2026-09-29 — Abas (padrão, todas as telas): trilho branco com borda; aba ativa em laranja suave (como o item ativo do menu).
 - 2026-09-29 — Busca rápida: Ações em grade de 3 colunas (menos altura); TAAs no escopo do perfil (CTM: onde é contratada; DR: onde é contratante).
+- 2026-09-29 — Casca: select de Perfil lista só os perfis (DN, CTM, DR solicitante, Super admin), sem os subperfis entre parênteses (cortavam a caixa); subperfis continuam nas abas ao lado do selo.
