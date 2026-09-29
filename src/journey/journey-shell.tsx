@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, UserRound, RotateCcw, Lock, Workflow, X, Minus } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, UserRound, RotateCcw, Lock, Workflow, X, ChevronUp } from 'lucide-react'
 import { MapaProcesso } from '@/pages/processo'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -345,7 +345,7 @@ export function JourneyShell() {
         /* Mapa da jornada escolhida no select: etapas ligadas por setas */
         <div className="mx-4 mb-3 flex shrink-0 items-center gap-3 rounded-lg border bg-card p-2">
           <Button size="icon-xs" variant="outline" className="self-start" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}>
-            <Minus />
+            <ChevronUp />
           </Button>
           {/* Dois selects: primeiro o perfil, depois as jornadas que esse perfil inicia */}
           <div className="flex shrink-0 items-end gap-2">
