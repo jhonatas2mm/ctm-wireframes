@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Textarea } from '@/components/ui/textarea'
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
 import { DataTable, EmptyState, PageHeader, type Column } from '@/components/wf'
-import { useProdutos, type CursoProposta } from '@/lib/mock'
+import { dataBr, useProdutos, type CursoProposta } from '@/lib/mock'
+import { useAutor } from '@/lib/autor'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
@@ -17,6 +18,8 @@ const colunas: Column<CursoProposta & { id: string }>[] = [
   { header: 'Modalidade', value: (c) => c.modalidade, filter: true },
   { header: 'Área tecnológica', value: (c) => c.area, filter: true },
   { header: 'CH', value: (c) => `${c.cargaHoraria} h`, className: 'text-right tabular-nums' },
+  { header: 'Vagas', value: (c) => c.vagas ?? '—', className: 'text-right tabular-nums' },
+  { header: 'Início previsto', value: (c) => (c.inicioPrevisto ? dataBr(c.inicioPrevisto) : '—'), className: 'tabular-nums' },
   { header: 'Valor previsto', value: (c) => brl(c.valorPrevisto), className: 'text-right tabular-nums' },
 ]
 
@@ -33,6 +36,7 @@ type Secao = (typeof secoes)[number]['id']
 export default function GestaoProposta() {
   const { id } = useParams()
   const db = useProdutos()
+  const autor = useAutor()
   const p = db.get(id)
   const [decisao, setDecisao] = useState<null | 'Aceita' | 'Recusada'>(null)
   const [feedback, setFeedback] = useState('')
@@ -61,8 +65,13 @@ export default function GestaoProposta() {
     ['DR contratante', `SENAI-${p.drContratante}`],
     ['Cursos', p.cursos.length],
     ['Valor previsto total', <span className="font-semibold">{brl(total)}</span>],
+    ['CNPJ do contratante', <span className="tabular-nums">{p.cnpj ?? '—'}</span>],
+    ['Faturamento', p.faturamento === 'Escola' ? `Por escola: ${(p.escolas ?? []).join(', ') || '—'}` : 'Para a DR'],
+    ['Nº no CRM', p.crm ?? '—'],
+    ['Documento', p.link ? <a href={p.link} target="_blank" rel="noreferrer" className="underline underline-offset-2">Abrir link</a> : '—'],
+    ['Rodada', p.duplicadaDe ? `Nova rodada a partir da ${p.duplicadaDe}` : 'Primeira'],
   ]
-  const decidida = p.status === 'Aceita' || p.status === 'Recusada'
+  const decidida = p.status === 'Aceita' || p.status === 'Recusada' || p.status === 'Cancelada'
   return (
     <>
       <PageHeader title="Gestão da proposta" breadcrumb={crumbs} actions={
@@ -105,10 +114,10 @@ export default function GestaoProposta() {
                 </div>
               ))}
             </dl>
-            {p.status === 'Recusada' && p.feedback && (
+            {(p.status === 'Recusada' ? p.feedback : p.status === 'Cancelada' ? p.motivoCancelamento : '') && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
-                <p className="mb-1 text-xs font-medium">Motivo da recusa</p>
-                <p className="whitespace-pre-wrap">{p.feedback}</p>
+                <p className="mb-1 text-xs font-medium">{p.status === 'Cancelada' ? 'Motivo do cancelamento' : 'Motivo da recusa'}</p>
+                <p className="whitespace-pre-wrap">{p.status === 'Cancelada' ? p.motivoCancelamento : p.feedback}</p>
               </div>
             )}
           </section>
@@ -132,7 +141,19 @@ export default function GestaoProposta() {
           </section>
           <section id="sec-historico" className="scroll-mt-4 space-y-3">
             <h2 className="text-lg font-semibold">Histórico</h2>
-            <EmptyState title="Sem histórico" />
+            {p.historico?.length ? (
+              <ol className="relative space-y-4 border-l pl-5">
+                {p.historico.map((h, n) => (
+                  <li key={n} className="relative">
+                    <span className="absolute top-1.5 -left-[25px] size-2.5 rounded-full border-2 border-background bg-foreground/60" />
+                    <p className="text-sm">{h.texto}</p>
+                    <p className="text-xs text-muted-foreground tabular-nums">{new Date(h.quando).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}{h.autor && ` · ${h.autor}`}</p>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <EmptyState title="Sem histórico" />
+            )}
           </section>
         </div>
       </div>
@@ -154,7 +175,8 @@ export default function GestaoProposta() {
             <Button
               variant={decisao === 'Recusada' ? 'destructive' : 'default'}
               onClick={() => {
-                db.update(p.id, decisao === 'Recusada' ? { status: 'Recusada', feedback: feedback.trim() } : { status: 'Aceita' })
+                const h = (texto: string) => [{ quando: new Date().toISOString(), texto, autor }, ...(p.historico ?? [])]
+                db.update(p.id, decisao === 'Recusada' ? { status: 'Recusada', feedback: feedback.trim(), historico: h(`Proposta recusada${feedback.trim() ? `: ${feedback.trim()}` : ''}`) } : { status: 'Aceita', historico: h(`Proposta aceita pelo SENAI-${p.drContratante}`) })
                 setDecisao(null)
               }}
             >

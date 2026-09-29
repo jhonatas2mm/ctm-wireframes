@@ -109,7 +109,7 @@ export function PainelSupervisor() {
   const turmas = useTurmas().all
   const taas = useTaasDr().all
   const conta = (s: StatusProposta) => propostas.filter((p) => (p.status ?? 'Em elaboração') === s).length
-  const emAndamento = turmas.filter((t) => statusTurma(t) === 'Em andamento')
+  const ativas = turmas.filter((t) => !['Finalizada', 'Cancelada'].includes(statusTurma(t)))
   const aulas = turmas
     .flatMap((t) => t.modulos.flatMap((m) => m.unidades.flatMap((u) => u.aoVivo.map((a) => ({ t, u, a })))))
     .filter((x) => x.a.data >= HOJE)
@@ -124,9 +124,9 @@ export function PainelSupervisor() {
     <div className="space-y-5">
       <PageHeader title="Painel" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi icon={Send} tom="amber" rotulo="Propostas em análise" valor={conta('Em análise') + conta('Aceita pelo contratante')} extra="aguardando resposta" />
+        <Kpi icon={Send} tom="amber" rotulo="Propostas em negociação" valor={conta('Em negociação') + conta('Em análise') + conta('Aceita pelo contratante')} extra="aguardando resposta" />
         <Kpi icon={BadgeCheck} tom="green" rotulo="Propostas aceitas" valor={conta('Aceita')} extra={brlCurto(propostas.filter((p) => p.status === 'Aceita').reduce((n, p) => n + p.cursos.reduce((s, c) => s + c.valorPrevisto, 0), 0))} />
-        <Kpi icon={Video} tom="blue" rotulo="Ofertas em andamento" valor={emAndamento.length} extra={`${turmas.length} ofertas no total`} />
+        <Kpi icon={Video} tom="blue" rotulo="Ofertas ativas" valor={ativas.length} extra={`${turmas.filter((t) => statusTurma(t) === 'Buscar tutor').length} buscando tutor · ${turmas.length} no total`} />
         <Kpi icon={CalendarClock} tom="orange" rotulo="Aulas ao vivo (7 dias)" valor={prox7} extra={`${aulas.length} agendadas`} />
       </div>
 
@@ -135,11 +135,10 @@ export function PainelSupervisor() {
           <BlocoTitulo titulo="Funil de propostas" acao={ver('/produtos')} />
           <BarList
             itens={[
-              { rotulo: 'Em elaboração', valor: conta('Em elaboração'), tom: 'gray' },
-              { rotulo: 'Em análise', valor: conta('Em análise'), tom: 'amber' },
-              { rotulo: 'Aceita pelo contratante', valor: conta('Aceita pelo contratante'), tom: 'blue' },
+              { rotulo: 'Em negociação', valor: conta('Em negociação') + conta('Em elaboração') + conta('Em análise'), tom: 'amber' },
               { rotulo: 'Aceita', valor: conta('Aceita'), tom: 'green' },
               { rotulo: 'Recusada', valor: conta('Recusada'), tom: 'red' },
+              { rotulo: 'Cancelada', valor: conta('Cancelada'), tom: 'gray' },
             ]}
           />
         </Bloco>
@@ -220,7 +219,7 @@ export function PainelComercial() {
           <BlocoTitulo titulo="Pipeline por status" sub="Valor previsto das propostas" acao={ver('/produtos')} />
           <BarList
             formato={brlCurto}
-            itens={([['Em elaboração', 'gray'], ['Em análise', 'amber'], ['Aceita pelo contratante', 'blue'], ['Aceita', 'green'], ['Recusada', 'red']] as const).map(([s, tom]) => ({ rotulo: s, valor: soma((p) => st(p) === s), tom }))}
+            itens={([['Em negociação', 'amber'], ['Aceita', 'green'], ['Recusada', 'red'], ['Cancelada', 'gray']] as const).map(([s, tom]) => ({ rotulo: s, valor: soma((p) => st(p) === s), tom }))}
           />
         </Bloco>
         <Bloco>

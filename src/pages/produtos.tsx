@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Check, CheckCircle2, Copy, Eye, XCircle, Lock, Plus, Search, ThumbsDown, ThumbsUp, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Ban, Check, CheckCircle2, Copy, CopyPlus, Eye, XCircle, Lock, Plus, Search, ThumbsDown, ThumbsUp, Trash2, X } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import { EditalDetalhes } from './edital-detalhes'
 import { PropostaSheet } from './proposta-sheet'
@@ -13,7 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { AttachField, DataTable, Req, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { cn } from '@/lib/utils'
-import { useCursos, useEditais, useProdutos, useTaasDr, type Produto, type StatusProposta } from '@/lib/mock'
+import { alertaPrazo, dataBr, inicioPrevisto, useCursos, useEditais, useProdutos, useTaasDr, type Produto, type Registro } from '@/lib/mock'
+import { useAutor } from '@/lib/autor'
 
 const UFS = 'AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ')
 // DR do usuário logado (perfil Supervisor) — é sempre a ofertante.
@@ -56,6 +57,26 @@ const colunas = (abrirEdital: (numero: string) => void): Column<Produto>[] => [
     cell: (p) => (p.edital ? <button type="button" className="underline underline-offset-2 hover:text-foreground/70" onClick={() => abrirEdital(p.edital!)}>{p.edital}</button> : '—'),
   },
   { header: 'DR contratante', value: (p) => `SENAI-${p.drContratante}`, search: true, filter: true },
+  {
+    header: 'Início previsto',
+    value: (p) => (inicioPrevisto(p) ? dataBr(inicioPrevisto(p)!) : '—'),
+    className: 'tabular-nums',
+    // Alerta: ainda não aceita e a primeira turma começa em até 15 dias
+    cell: (p) => {
+      const ini = inicioPrevisto(p)
+      const d = alertaPrazo(p)
+      return (
+        <span className="flex items-center gap-1.5">
+          {ini ? dataBr(ini) : '—'}
+          {d !== null && (
+            <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900" title="Proposta ainda não aceita e a turma começa em breve">
+              <AlertTriangle className="size-3" /> {d < 0 ? 'Prazo vencido' : `Faltam ${d} dias`}
+            </Badge>
+          )}
+        </span>
+      )
+    },
+  },
   { header: 'Vigência', value: (p) => (p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'), className: 'tabular-nums' },
   { header: 'Valor previsto', value: (p) => brl(p.cursos.reduce((t, c) => t + c.valorPrevisto, 0)), className: 'text-right tabular-nums' },
   { header: 'CH total', value: (p) => `${p.cursos.reduce((t, c) => t + c.cargaHoraria, 0)} h`, className: 'text-right tabular-nums' },
@@ -72,8 +93,10 @@ export default function Produtos() {
   const [params] = useSearchParams()
   const taa = useTaasDr().get(params.get('taa') ?? undefined)
   const { all: todas, remove, update } = useProdutos()
-  // Aceite/recusa direto na listagem (recusa pede feedback), como na Gestão da proposta.
-  const [decisao, setDecisao] = useState<{ p: Produto; tipo: 'Aceita' | 'Recusada' } | null>(null)
+  const autor = useAutor()
+  // Aceite/recusa direto na listagem (recusa pede feedback), como na Gestão da proposta; aceita ainda pode ser cancelada.
+  const [decisao, setDecisao] = useState<{ p: Produto; tipo: 'Aceita' | 'Recusada' | 'Cancelada' } | null>(null)
+  const historico = (p: Produto, texto: string): Registro[] => [{ quando: new Date().toISOString(), texto, autor }, ...(p.historico ?? [])]
   const [feedback, setFeedback] = useState('')
   const [editalAberto, setEditalAberto] = useState<string | null>(null)
   const [verProposta, setVerProposta] = useState<Produto | null>(null)
@@ -103,6 +126,8 @@ export default function Produtos() {
               <span className="mr-1 inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800"><CheckCircle2 className="size-3.5" /> Aceita</span>
             ) : p.status === 'Recusada' ? (
               <span className="mr-1 inline-flex items-center gap-1 rounded-md bg-red-100 px-2 py-1 text-xs font-medium text-red-800"><XCircle className="size-3.5" /> Recusada</span>
+            ) : p.status === 'Cancelada' ? (
+              <span className="mr-1 inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground"><Ban className="size-3.5" /> Cancelada</span>
             ) : (
               <>
                 <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setDecisao({ p, tipo: 'Aceita' })}><ThumbsUp /> Aceitar</Button>
@@ -110,6 +135,10 @@ export default function Produtos() {
               </>
             )}
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVerProposta(p)} />
+            {/* Nova rodada de negociação: copia a proposta para ajustes */}
+            <RowAction label="Duplicar" icon={CopyPlus} onClick={() => navigate(`/produtos/novo?de=${p.id}${taa ? `&taa=${taa.id}` : ''}`)} />
+            {/* Aceita ainda pode ser cancelada (ex.: a DR não fechou a turma) */}
+            {p.status === 'Aceita' && <RowAction label="Cancelar proposta" icon={Ban} onClick={() => (setFeedback(''), setDecisao({ p, tipo: 'Cancelada' }))} />}
             {/* Proposta aceita não pode ser excluída: lixeira fica desabilitada */}
             <RowAction
               label="Excluir"
@@ -126,41 +155,54 @@ export default function Produtos() {
       <Dialog open={!!decisao} onOpenChange={(v) => !v && setDecisao(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{decisao?.tipo === 'Aceita' ? 'Aceitar proposta?' : 'Recusar proposta?'}</DialogTitle>
+            <DialogTitle>{decisao?.tipo === 'Aceita' ? 'Aceitar proposta?' : decisao?.tipo === 'Cancelada' ? 'Cancelar proposta aceita?' : 'Recusar proposta?'}</DialogTitle>
           </DialogHeader>
           {decisao?.tipo === 'Aceita' ? (
             <p className="text-sm text-muted-foreground">A proposta {decisao.p.numero} será registrada como aceita pelo SENAI-{decisao.p.drContratante}.</p>
           ) : (
             <label className="grid gap-1 text-xs">
-              <span className="text-muted-foreground">Feedback da recusa <Req /></span>
-              <Textarea rows={4} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Por que a proposta foi recusada?" />
+              <span className="text-muted-foreground">{decisao?.tipo === 'Cancelada' ? 'Motivo do cancelamento' : 'Feedback da recusa'} <Req /></span>
+              <Textarea rows={4} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder={decisao?.tipo === 'Cancelada' ? 'Ex.: a DR não fechou a turma' : 'Por que a proposta foi recusada?'} />
             </label>
           )}
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setDecisao(null)}>Cancelar</Button>
+            <Button variant="ghost" onClick={() => setDecisao(null)}>Voltar</Button>
             <Button
               variant="default"
-              className={cn(decisao?.tipo === 'Recusada' && 'bg-[#E31A1A] text-white hover:bg-[#C11414]')}
+              className={cn(decisao?.tipo !== 'Aceita' && 'bg-[#E31A1A] text-white hover:bg-[#C11414]')}
               onClick={() => {
                 if (!decisao) return
-                update(decisao.p.id, decisao.tipo === 'Recusada' ? { status: 'Recusada', feedback: feedback.trim() } : { status: 'Aceita' })
+                const { p, tipo } = decisao
+                const motivo = feedback.trim()
+                if (tipo === 'Aceita') update(p.id, { status: 'Aceita', historico: historico(p, `Proposta aceita pelo SENAI-${p.drContratante}`) })
+                else if (tipo === 'Recusada') update(p.id, { status: 'Recusada', feedback: motivo, historico: historico(p, `Proposta recusada${motivo ? `: ${motivo}` : ''}`) })
+                else update(p.id, { status: 'Cancelada', motivoCancelamento: motivo, historico: historico(p, `Proposta cancelada${motivo ? `: ${motivo}` : ''}`) })
                 setDecisao(null)
               }}
             >
-              {decisao?.tipo === 'Aceita' ? 'Aceitar' : 'Recusar'}
+              {decisao?.tipo === 'Aceita' ? 'Aceitar' : decisao?.tipo === 'Cancelada' ? 'Cancelar proposta' : 'Recusar'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <NovaPropostaSheet open={pathname === '/produtos/novo'} contratanteFixo={taa?.drParceira} onOpenChange={(v) => !v && navigate(`/produtos${qs}`)} />
+      <NovaPropostaSheet open={pathname === '/produtos/novo'} contratanteFixo={taa?.drParceira} origem={todas.find((p) => p.id === params.get('de'))} onOpenChange={(v) => !v && navigate(`/produtos${qs}`)} />
       {dialogo}
     </>
   )
 }
 
-function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: boolean; onOpenChange: (v: boolean) => void; contratanteFixo?: string }) {
+// origem: proposta duplicada (nova rodada de negociação) — abre com os dados dela para ajustes.
+function NovaPropostaSheet({ open, onOpenChange, contratanteFixo, origem }: { open: boolean; onOpenChange: (v: boolean) => void; contratanteFixo?: string; origem?: Produto }) {
   const cursos = useCursos().all
   const db = useProdutos()
+  const autor = useAutor()
+  const [vagas, setVagas] = useState<Record<string, string>>({})
+  const [inicios, setInicios] = useState<Record<string, string>>({}) // início previsto por curso (ISO)
+  const [cnpj, setCnpj] = useState('')
+  const [crm, setCrm] = useState('')
+  const [link, setLink] = useState('')
+  const [faturamento, setFaturamento] = useState<'DR' | 'Escola'>('DR')
+  const [escolas, setEscolas] = useState('')
   const [busca, setBusca] = useState('')
   const [ids, setIds] = useState<string[]>([])
   const [valores, setValores] = useState<Record<string, string>>({}) // centavos por curso
@@ -175,15 +217,41 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
   const [docs, setDocs] = useState<string[]>([])
   const [vigIni, setVigIni] = useState('')
   const [vigFim, setVigFim] = useState('')
-  const jaNoPortfolio = new Set(db.all.flatMap((p) => p.cursos.map((c) => c.cursoId)))
-  // Protótipo: ao abrir, já vem preenchida com dados de exemplo (para validar o fluxo sem digitar).
+  // Cada curso só entra em uma proposta; cursos de propostas recusadas/canceladas e da proposta duplicada ficam livres.
+  const jaNoPortfolio = new Set(db.all.filter((p) => p.id !== origem?.id && p.status !== 'Recusada' && p.status !== 'Cancelada').flatMap((p) => p.cursos.map((c) => c.cursoId)))
+  const isoDe = (br?: string) => (br ? br.split('/').reverse().join('-') : '')
+  // Protótipo: ao abrir, já vem preenchida com dados de exemplo (ou com a proposta duplicada).
   useEffect(() => {
     if (!open) return
+    if (origem) {
+      setEdital(origem.edital ?? null)
+      setContratante(origem.drContratante)
+      setIds(origem.cursos.map((c) => c.cursoId))
+      setValores(Object.fromEntries(origem.cursos.map((c) => [c.cursoId, String(Math.round(c.valorPrevisto * 100))])))
+      setVagas(Object.fromEntries(origem.cursos.map((c) => [c.cursoId, String(c.vagas ?? '')])))
+      setInicios(Object.fromEntries(origem.cursos.map((c) => [c.cursoId, c.inicioPrevisto ?? ''])))
+      setCnpj(origem.cnpj ?? '')
+      setCrm(origem.crm ?? '')
+      setLink(origem.link ?? '')
+      setFaturamento(origem.faturamento ?? 'DR')
+      setEscolas((origem.escolas ?? []).join(', '))
+      setDocs(origem.documentos ?? [])
+      setVigIni(isoDe(origem.vigenciaInicio))
+      setVigFim(isoDe(origem.vigenciaFim))
+      return
+    }
     const livres = cursos.filter((c) => !jaNoPortfolio.has(c.id)).slice(0, 2)
     setEdital(editais[0]?.numero ?? null)
     setContratante('BA')
     setIds(livres.map((c) => c.id))
     setValores(Object.fromEntries(livres.map((c, i) => [c.id, String((i + 1) * 350000)])))
+    setVagas(Object.fromEntries(livres.map((c, i) => [c.id, String(30 - i * 5)])))
+    setInicios(Object.fromEntries(livres.map((c, i) => [c.id, i ? '2027-02-01' : '2026-11-16'])))
+    setCnpj('03.795.071/0001-16')
+    setCrm('')
+    setLink('https://drive.senaimg.org.br/propostas/proposta-senai-ba.pdf')
+    setFaturamento('DR')
+    setEscolas('')
     setDocs(['Proposta-comercial.pdf'])
     setVigIni('2026-11-01')
     setVigFim('2027-10-31')
@@ -194,13 +262,21 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
   // Nº da proposta comercial: PC-<DR ofertante>-<seq>/<ano>
   const ano = new Date().getFullYear()
   const numero = `PC-${DR_OFERTANTE}-${String(db.all.filter((p) => p.numero?.endsWith(`/${ano}`)).length + 1).padStart(3, '0')}/${ano}`
-  const reset = () => (setBusca(''), setIds([]), setValores({}), setMarcados([]), setLoteValor(''), setContratante(null), setEdital(null), setDocs([]), setVigIni(''), setVigFim(''))
+  const reset = () => (setBusca(''), setIds([]), setValores({}), setVagas({}), setInicios({}), setMarcados([]), setLoteValor(''), setContratante(null), setEdital(null), setDocs([]), setVigIni(''), setVigFim(''), setCnpj(''), setCrm(''), setLink(''), setFaturamento('DR'), setEscolas(''))
 
   const podeSalvar = !!sel.length
-  const salvar = (status: StatusProposta) => {
+  // Registro mínimo da proposta (o documento é feito fora, no modelo): sempre nasce Em negociação.
+  const salvar = () => {
     if (!sel.length) return
-    const cs = sel.map((c) => ({ cursoId: c.id, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorPrevisto: centavos(valores[c.id]) }))
-    db.add({ numero, edital: edital ?? undefined, status, documentos: docs, drOfertante: DR_OFERTANTE, drContratante: contratante ?? '—', cursos: cs, vigenciaInicio: vigIni ? vigIni.split('-').reverse().join('/') : undefined, vigenciaFim: vigFim ? vigFim.split('-').reverse().join('/') : undefined, cadastradoEm: new Date().toISOString() })
+    const agora = new Date().toISOString()
+    const cs = sel.map((c) => ({ cursoId: c.id, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorPrevisto: centavos(valores[c.id]), vagas: Number(vagas[c.id]) || undefined, inicioPrevisto: inicios[c.id] || undefined }))
+    const historico: Registro[] = [{ quando: agora, texto: origem ? `Proposta registrada (Em negociação): nova rodada a partir da ${origem.numero}` : 'Proposta registrada (Em negociação)', autor }]
+    db.add({
+      numero, edital: edital ?? undefined, status: 'Em negociação', documentos: docs, drOfertante: DR_OFERTANTE, drContratante: contratante ?? '—', cursos: cs,
+      vigenciaInicio: vigIni ? vigIni.split('-').reverse().join('/') : undefined, vigenciaFim: vigFim ? vigFim.split('-').reverse().join('/') : undefined, cadastradoEm: agora,
+      cnpj: cnpj || undefined, crm: crm || undefined, link: link || undefined, faturamento, escolas: faturamento === 'Escola' ? escolas.split(',').map((e) => e.trim()).filter(Boolean) : undefined,
+      duplicadaDe: origem?.numero, historico,
+    })
     reset()
     onOpenChange(false)
   }
@@ -209,7 +285,11 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
     <Sheet open={open} onOpenChange={(v) => (v || reset(), onOpenChange(v))}>
       <SheetContent side="bottom" className="data-[side=bottom]:h-[95vh] gap-0 overflow-hidden rounded-t-xl p-0">
         <SheetHeader className="border-b px-6 py-4">
-          <SheetTitle className="text-lg">Nova proposta</SheetTitle>
+          <div className="flex items-center gap-3">
+            <SheetTitle className="text-lg">Nova proposta</SheetTitle>
+            <NumeroBadge numero={numero} />
+            {origem && <Badge variant="outline">Nova rodada a partir da {origem.numero}</Badge>}
+          </div>
           <SheetDescription className="sr-only">Nova proposta</SheetDescription>
         </SheetHeader>
 
@@ -258,6 +338,34 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
                 <Input type="date" value={vigFim} onChange={(e) => setVigFim(e.target.value)} />
               </label>
               </div>
+              <label className="grid gap-1 text-xs">
+                <span className="text-muted-foreground">CNPJ do contratante <Req /></span>
+                <Input inputMode="numeric" placeholder="00.000.000/0000-00" value={cnpj} onChange={(e) => setCnpj(e.target.value)} />
+              </label>
+              <label className="grid gap-1 text-xs">
+                <span className="text-muted-foreground">Faturamento <Req /></span>
+                <Select value={faturamento} onValueChange={(v) => setFaturamento(v as 'DR' | 'Escola')}>
+                  <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v === 'Escola' ? 'Por escola' : 'Para a DR')}</SelectValue></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="DR">Para a DR</SelectItem>
+                    <SelectItem value="Escola">Por escola</SelectItem>
+                  </SelectContent>
+                </Select>
+              </label>
+              {faturamento === 'Escola' && (
+                <label className="grid gap-1 text-xs">
+                  <span className="text-muted-foreground">Escolas faturadas <Req /></span>
+                  <Input placeholder="Separe por vírgula" value={escolas} onChange={(e) => setEscolas(e.target.value)} />
+                </label>
+              )}
+              <label className="grid gap-1 text-xs">
+                <span className="text-muted-foreground">Nº no CRM</span>
+                <Input placeholder="Opcional" value={crm} onChange={(e) => setCrm(e.target.value)} />
+              </label>
+              <label className="grid gap-1 text-xs">
+                <span className="text-muted-foreground">Link do documento da proposta</span>
+                <Input placeholder="https://…" value={link} onChange={(e) => setLink(e.target.value)} />
+              </label>
             </div>
             <AttachField value={docs} onChange={setDocs} />
           </div>
@@ -329,9 +437,9 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
                 {sel.map((curso) => {
                   return (
                     <div key={curso.id} className="bg-background rounded-lg border">
-                      <div className="flex items-center gap-3 px-3 py-2">
+                      <div className="flex flex-wrap items-end gap-3 px-3 py-2">
                         <input type="checkbox" aria-label={`Selecionar ${curso.nome}`} checked={marcados.includes(curso.id)} onChange={() => setMarcados((m) => (m.includes(curso.id) ? m.filter((x) => x !== curso.id) : [...m, curso.id]))} />
-                        <div className="flex-1">
+                        <div className="min-w-[14rem] flex-1 self-center">
                           <p className="text-sm font-semibold">{curso.nome}</p>
                           <div className="mt-1 flex flex-wrap items-center gap-1.5">
                             <span className="text-muted-foreground font-mono text-xs">{curso.codigo}</span>
@@ -342,7 +450,15 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
                             ))}
                           </div>
                         </div>
-                        <label className="grid w-44 shrink-0 gap-1 text-xs">
+                        <label className="grid w-20 shrink-0 gap-1 text-xs">
+                          <span className="text-muted-foreground">Vagas <Req /></span>
+                          <Input className="h-8 tabular-nums" inputMode="numeric" placeholder="0" value={vagas[curso.id] ?? ''} onChange={(e) => setVagas((v) => ({ ...v, [curso.id]: e.target.value.replace(/\D/g, '') }))} />
+                        </label>
+                        <label className="grid w-36 shrink-0 gap-1 text-xs">
+                          <span className="text-muted-foreground">Início previsto <Req /></span>
+                          <Input className="h-8" type="date" value={inicios[curso.id] ?? ''} onChange={(e) => setInicios((v) => ({ ...v, [curso.id]: e.target.value }))} />
+                        </label>
+                        <label className="grid w-40 shrink-0 gap-1 text-xs">
                           <span className="text-muted-foreground">Valor previsto <Req /></span>
                           <Input
                             className="h-8"
@@ -373,7 +489,7 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
         <SheetFooter className="flex-row items-center justify-end gap-4 border-t px-6 py-3">
           <div className="flex shrink-0 gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!podeSalvar} onClick={() => salvar('Em elaboração')}>Salvar proposta</Button>
+            <Button disabled={!podeSalvar} onClick={salvar}>Salvar proposta</Button>
           </div>
         </SheetFooter>
       </SheetContent>

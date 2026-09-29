@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet, Workflow } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -54,6 +54,7 @@ function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; 
         ref={ref}
         src={src}
         title="Protótipo"
+        allow="fullscreen" // telas do protótipo podem pedir tela cheia (ex.: Mapa do processo)
         className="absolute top-0 left-0 origin-top-left"
         style={
           k < 1
@@ -210,11 +211,13 @@ export function JourneyShell() {
         if (Date.now() < navegouAte.current) return
         // Destaque do fluxograma acompanha a tela vista: rota exata da etapa; senão, a mesma tela (padrão da rota).
         const steps = stepsRef.current
+        // Etapas podem ter query (ex.: ?aba=execucao); o protótipo informa só o caminho.
+        const caminho = (p: string) => p.split('?')[0]
         const padrao = new RegExp(`^${m.screen.replace(/:[^/]+/g, '[^/]+')}$`)
-        // A mesma rota pode aparecer em mais de uma etapa (ex.: a lista no início e, no fim, com o item criado):
-        // escolhe a ocorrência mais próxima da etapa atual, preferindo as seguintes.
-        const exatas = steps.map((x, k) => (x.path === m.path ? k : -1)).filter((k) => k >= 0)
-        const candidatas = exatas.length ? exatas : steps.map((x, k) => (padrao.test(x.path) ? k : -1)).filter((k) => k >= 0)
+        // A mesma rota pode aparecer em mais de uma etapa (ex.: a lista no início e, no fim, com o item criado; ou
+        // várias etapas na mesma tela com ?aba=): escolhe a ocorrência mais próxima da etapa atual, preferindo as seguintes.
+        const exatas = steps.map((x, k) => (caminho(x.path) === m.path ? k : -1)).filter((k) => k >= 0)
+        const candidatas = exatas.length ? exatas : steps.map((x, k) => (padrao.test(caminho(x.path)) ? k : -1)).filter((k) => k >= 0)
         if (candidatas.length)
           setState((st) => {
             if (candidatas.includes(st.step)) return st
@@ -280,6 +283,10 @@ export function JourneyShell() {
               <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
             </Button>
             <span className="mx-1 h-4 w-px bg-border" />
+            {/* Mapa do processo (BPMN) abre dentro do protótipo, sem sair da jornada */}
+            <Button size="sm" variant={screen === '/processo' ? 'secondary' : 'ghost'} onClick={() => { const w = frame.current?.contentWindow; if (w) w.location.hash = '/processo' }}>
+              <Workflow /> Mapa do processo
+            </Button>
             <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
               <ExternalLink /> Abrir protótipo livre
             </Button>
