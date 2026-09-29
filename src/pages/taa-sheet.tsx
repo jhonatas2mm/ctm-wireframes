@@ -3,20 +3,26 @@ import { Download, FileText, Paperclip } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { cn } from '@/lib/utils'
 import { nomeParte, saldoTaa, useProdutos, type Contrato } from '@/lib/mock'
 import { StatusTaaBadge } from './taa-fluxo'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
+// Indicador do saldo restante (% do valor global): verde = ainda cheio (perto de 100%), laranja = no meio, vermelho = acabando.
+const corSaldo = (pctSaldo: number) => (pctSaldo >= 70 ? 'bg-emerald-100 text-emerald-800' : pctSaldo >= 30 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800')
+const barraSaldo = (pctSaldo: number) => (pctSaldo >= 70 ? 'bg-emerald-600' : pctSaldo >= 30 ? 'bg-amber-500' : 'bg-red-600')
+
 // Saldo do TAA: valor global menos o executado (propostas aceitas entre o contratante e a CTM, nos produtos do TAA).
 export function SaldoTaa({ c, compacto }: { c: Contrato; compacto?: boolean }) {
   const { all } = useProdutos()
   const { executado, saldo, pct } = saldoTaa(c, all)
-  if (compacto) return <span className="tabular-nums">{brl(saldo)} <span className="text-xs text-muted-foreground">({100 - pct}%)</span></span>
+  const pctSaldo = Math.max(0, 100 - pct)
+  if (compacto) return <span className="inline-flex items-center gap-2 tabular-nums">{brl(saldo)} <Badge variant="secondary" className={corSaldo(pctSaldo)}>{`${pctSaldo}%`}</Badge></span>
   return (
     <div className="grid gap-1.5 rounded-lg border p-3 bg-card">
       <div className="flex justify-between text-sm"><span className="text-muted-foreground">Executado</span><span className="tabular-nums">{brl(executado)} de {brl(c.valor)}</span></div>
-      <div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-emerald-600" style={{ width: `${Math.min(100, pct)}%` }} /></div>
+      <div className="h-2 overflow-hidden rounded-full bg-muted"><div className={cn('h-full rounded-full', barraSaldo(pctSaldo))} style={{ width: `${Math.min(100, pct)}%` }} /></div>
       <div className="flex justify-between text-sm"><span className="font-medium">Saldo</span><span className="font-semibold tabular-nums">{brl(saldo)}</span></div>
     </div>
   )

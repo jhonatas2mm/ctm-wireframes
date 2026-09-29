@@ -327,15 +327,10 @@ export function DataTable<T extends { id: string }>({
           </Popover.Root>
         )}
         {menu && (transborda || expandida) && !emCards && (
-          <Button type="button" variant="outline" size="icon" className="order-last" aria-label={expandida ? 'Recolher tabela' : 'Expandir tabela'} aria-pressed={expandida} title={expandida ? 'Recolher tabela (reabre o menu lateral)' : 'Expandir tabela (fecha o menu lateral)'} onClick={alternarExpandir}>
-            {expandida ? <Minimize2 /> : <Maximize2 />}
+          // Ativo (tabela expandida, menu fechado): botão na cor principal. Sem o seletor Cards/Tabela, ele encosta na direita.
+          <Button type="button" variant={expandida ? 'default' : 'outline'} className={cn('order-last', !cards && 'ml-auto')} aria-pressed={expandida} title={expandida ? 'Recolher tabela (reabre o menu lateral)' : 'Expandir tabela (fecha o menu lateral)'} onClick={alternarExpandir}>
+            {expandida ? <><Minimize2 /> Recolher tabela</> : <><Maximize2 /> Expandir tabela</>}
           </Button>
-        )}
-        {/* Contador só sem o seletor Cards/Tabela (com ele, ficava solto no meio da barra) */}
-        {!cards && (
-          <span className="ml-auto text-xs text-muted-foreground tabular-nums">
-            {visible.length} de {rows.length}
-          </span>
         )}
       </div>
       {/* Filtros aplicados: sempre numa linha abaixo da barra, em etiquetas cinza */}
