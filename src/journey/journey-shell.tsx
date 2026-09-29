@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, UserRound, RotateCcw, Lock, Workflow, X, Minus } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, UserRound, RotateCcw, Lock, Workflow, X, Minus } from 'lucide-react'
 import { MapaProcesso } from '@/pages/processo'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -454,9 +454,6 @@ export function JourneyShell() {
                 </Button>
                 <Button size="sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}>
                   Próxima <kbd className="ml-1 rounded border border-white/60 px-1 font-mono text-[10px] leading-4">→</kbd> <ChevronRight />
-                </Button>
-                <Button size="icon-sm" variant="ghost" aria-label={cheia ? 'Sair da tela cheia' : 'Tela cheia'} title={cheia ? 'Sair da tela cheia (F)' : 'Tela cheia (F)'} onClick={alternarTelaCheia}>
-                  {cheia ? <Minimize /> : <Maximize />}
                 </Button>
               </div>
             </div>
