@@ -329,3 +329,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Painéis: listas sem as bolinhas de sigla à esquerda (a DR continua no texto de cada linha).
 - 2026-09-29 — Menu lateral: perfis da área CTM não mostram o cartão "Departamento Regional".
 - 2026-09-29 — Casca: select de Jornada mais largo e lista ajustada ao texto (até 36rem, quebra linha se preciso), sem cortar nomes.
+- 2026-09-29 — Casca: etapa selecionada no fluxograma da jornada sem o contorno branco (só o preenchimento na cor do perfil).

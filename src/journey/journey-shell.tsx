@@ -442,7 +442,7 @@ export function JourneyShell() {
                     <button
                       onClick={() => go(jid, i)}
                       title={st.note}
-                      className={cn('flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors hover:brightness-125', atual ? 'font-medium text-white ring-2 ring-white/70' : 'text-foreground/85')}
+                      className={cn('flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors hover:brightness-125', atual ? 'font-medium text-white' : 'text-foreground/85')}
                       // Preenchimento na cor do perfil: sólido na etapa atual, translúcido nas demais.
                       style={{ borderColor: cor, background: atual ? cor : `${cor}33` }}
                     >
