@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, UserRound, RotateCcw, Lock, Workflow, X, ChevronUp, Monitor } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, RotateCcw, Lock, Workflow, X, ChevronUp, Monitor } from 'lucide-react'
 import { MapaProcesso } from '@/pages/processo'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -478,7 +478,7 @@ export function JourneyShell() {
                     />
                   }
                 >
-                  <UserRound className="size-3.5" /> {grupoDe(profile)} <ChevronDown className="size-3.5 opacity-80" />
+                  <span className="font-normal opacity-80">Área:</span> {grupoDe(profile)} <ChevronDown className="size-3.5 opacity-80" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="dark w-48">
                   {grupos.map((g) => (
@@ -490,6 +490,9 @@ export function JourneyShell() {
                 </DropdownMenuContent>
               </DropdownMenu>
               {/* Subperfis do perfil (ex.: CTM → Gestor de contrato, Supervisor), enfileirados; clicar seleciona */}
+              {membros(grupoDe(profile)).length > 1 && (
+                <span className="self-center pl-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Subperfil:</span>
+              )}
               {membros(grupoDe(profile)).length > 1 &&
                 membros(grupoDe(profile)).map((m) => {
                   const ativo = m.name === profile
