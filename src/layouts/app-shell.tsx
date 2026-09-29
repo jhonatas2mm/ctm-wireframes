@@ -4,7 +4,6 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -19,7 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { screens } from '@/screens'
 import { ChevronDown, GraduationCap, LogOut, UserRound } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { BuscaRapida } from '@/components/wf/busca-rapida'
 import { Notificacoes } from '@/components/wf/notificacoes'
 import { useProfile } from '@/journey/profile'
@@ -128,33 +127,34 @@ export function AppShell() {
             )
           })}
         </SidebarContent>
-        {/* Usuário logado (fictício) */}
-        <SidebarFooter className="border-t">
-          <DropdownMenu>
-          <DropdownMenuTrigger render={<button type="button" className="flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2 py-1.5 text-left hover:bg-white/60" />}>
-            <Avatar className="size-8">
-              {/* Foto opcional: public/avatars/<e-mail>.jpg; sem arquivo, mostra as iniciais (círculo azul do DS). */}
-              <AvatarImage src={`${import.meta.env.BASE_URL}avatars/${user.email}.jpg`} alt="" />
-              <AvatarFallback className="bg-[#1670FA] font-semibold text-white">{iniciais}</AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1 text-xs leading-tight">
-              <p className="truncate font-medium">{user.nome}</p>
-              {perfil && <Badge variant="outline" className="mt-1 h-4 max-w-full px-1.5 text-[10px]"><span className="truncate">{profileOf(perfil).caixa ?? perfil}</span></Badge>}
-            </div>
-          </DropdownMenuTrigger>
-          {/* Protótipo: "Sair" volta para a primeira tela do menu. */}
-          <DropdownMenuContent side="top" align="start" className="w-52">
-            <DropdownMenuItem render={<Link to="/meu-perfil" />}><UserRound /> Meu perfil</DropdownMenuItem>
-            <DropdownMenuItem render={<Link to={noMenu[0]?.path ?? '/'} />}><LogOut /> Sair</DropdownMenuItem>
-          </DropdownMenuContent>
-          </DropdownMenu>
-        </SidebarFooter>
       </Sidebar>
       <SidebarInset className="min-w-0">
         {/* Some quando não há breadcrumb nem botão de reabrir o menu */}
-        <header className="flex h-12 items-center gap-2 px-4 md:px-6 [&:has(#topbar-slot:empty):not(:has(button))]:hidden">
+        <header className="flex h-12 items-center gap-2 px-4 md:px-6 ">
           {/* PageHeader renderiza o breadcrumb aqui via portal */}
           <div id="topbar-slot" className="min-w-0 flex-1" />
+          {/* Usuário logado (fictício): só o avatar no canto superior direito; nome e perfil ficam no dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<button type="button" aria-label={`Conta de ${user.nome}`} className="ml-auto shrink-0 rounded-full ring-offset-2 hover:ring-2 hover:ring-[#E4E8E9]" />}>
+              <Avatar className="size-9">
+                {/* Foto opcional: public/avatars/<e-mail>.jpg; sem arquivo, mostra as iniciais (círculo azul do DS). */}
+                <AvatarImage src={`${import.meta.env.BASE_URL}avatars/${user.email}.jpg`} alt="" />
+                <AvatarFallback className="bg-[#1670FA] font-semibold text-white">{iniciais}</AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            {/* Protótipo: "Sair" volta para a primeira tela do menu. */}
+            <DropdownMenuContent align="end" className="w-64">
+              <div className="px-2 py-2 leading-tight">
+                <p className="truncate text-sm font-semibold">{user.nome}</p>
+                <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                {perfil && <Badge variant="outline" className="mt-1.5 max-w-full"><span className="truncate">{profileOf(perfil).caixa ?? perfil}</span></Badge>}
+                {dr && <p className="mt-1 text-xs text-muted-foreground">{dr.sigla}</p>}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem render={<Link to="/meu-perfil" />}><UserRound /> Meu perfil</DropdownMenuItem>
+              <DropdownMenuItem render={<Link to={noMenu[0]?.path ?? '/'} />}><LogOut /> Sair</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
         <div className="w-full min-w-0 space-y-6 p-4 md:p-6">
           <Outlet />
