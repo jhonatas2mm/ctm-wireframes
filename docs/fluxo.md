@@ -13,15 +13,18 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Gestor de oferta).
 3. **Envio de TAA às DRs** (CTM: Gestor de contrato) — TAAs com as DRs → Novo TAA (um por DR) → Gestor da DR analisa → retorno para a CTM.
 4. **TAAs com CTMs** (DR solicitante: SENAI) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado para ajuste → TAA aceito (saldo).
-5. **Criação de portfólio** (CTM: Gestor de oferta; também pelo Gestor de contrato) — Gestão de Portfólio → Novo produto (produtos de um edital) → Aprovação de portfólio (DN).
+5. **Criação de portfólio** (CTM: Gestor de oferta) — Gestão de Portfólio → Novo produto (produtos de um edital).
+5a. **Aprovação de portfólio** (DN) — Aprovação de portfólio → Portfólio das CTMs.
+5b. **Portfólio das CTMs** (DR solicitante: SENAI) — consulta do portfólio aprovado.
 6. **Criação de proposta** (CTM: Gestor de contrato, o responsável; o Gestor de oferta também acessa) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
 7. **Criação de oferta** (Gestor de oferta) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
 7a. **UCs da turma** (CTM: Gestor de oferta) — Equipe → equipe de cada UC → Integração com o Moodle → Histórico.
-7b. **Acompanhamento pedagógico** (Gestor de oferta) — Tratativas pedagógicas → Nova tratativa.
-7c. **Financeiro** (Gestor de oferta) — situação de cobrança por aluno e formalizações.
-7d. **Equipe das UCs** (CTM: PCP) — Equipe → equipe de cada UC.
-7e. **Planejamento das UCs** (CTM: Pedagógico) — UC em planejamento (aulas ao vivo + presenciais) → Tratativas.
-7f. **Avaliação do planejamento** (CTM: Tutor) e **Salas e avaliações no Moodle** (CTM: Monitor).
+7b. **Equipe das UCs** (CTM: PCP) — Equipe → equipe de cada UC.
+7c. **Planejamento das UCs** (CTM: Pedagógico) — UC em planejamento (aulas ao vivo + presenciais) → Tratativas.
+7d. **Avaliação do planejamento** (CTM: Tutor) e **Salas e avaliações no Moodle** (CTM: Monitor).
+7e. **Acompanhamento pedagógico** (CTM: Gestor de oferta) — Tratativas pedagógicas → Nova tratativa.
+7f. **Financeiro** (CTM: Gestor de oferta) — situação de cobrança por aluno e formalizações.
+7g. **Criação de portfólio, de proposta e de oferta** (CTM: Gestor de contrato) — as mesmas jornadas 5, 6 e 7, pelo Gestor de contrato.
 8. **Acompanhamento da execução** (DR solicitante: SENAI) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).

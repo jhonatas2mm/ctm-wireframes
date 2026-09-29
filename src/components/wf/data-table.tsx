@@ -157,7 +157,7 @@ export function DataTable<T extends { id: string }>({
     <div data-slot="data-table" className="overflow-hidden rounded-lg border bg-card">
       <div className="flex flex-wrap items-center gap-2 border-b p-3">
         {hasSearch && (
-          <div className="relative w-full sm:w-64">
+          <div className="relative w-96">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input className="pl-8" placeholder={searchPlaceholder} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>

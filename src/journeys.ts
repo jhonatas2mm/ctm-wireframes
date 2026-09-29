@@ -63,9 +63,9 @@ export const journeys: Journey[] = [
     profile: 'Super admin',
     steps: [
       { title: 'Gestão de DRs', path: '/drs', focus: 'text=Nova DR credenciada', profile: 'Super admin', note: 'Super admin acessa todas as telas do sistema para acompanhar e corrigir dados.' },
-      { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo edital', profile: 'Super admin' },
-      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'Super admin' },
-      { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'Super admin' },
+      { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo edital', profile: 'Super admin', note: 'Editais de todas as áreas: vigência, cursos, valores e a CTM aprovada de cada produto.' },
+      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'Super admin', note: 'Propostas de todas as CTMs, com TAA vinculado, status e versões.' },
+      { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'Super admin', note: 'Turmas de todas as propostas aprovadas, com cronograma e status.' },
     ],
   },
   {

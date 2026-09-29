@@ -314,62 +314,6 @@ export function JourneyShell() {
               <span className="text-xs font-semibold text-muted-foreground">Protótipo CTM</span>
               <Button size="icon-xs" variant="outline" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}><ChevronLeft /></Button>
             </div>
-            <div className="casca-grupo grid gap-0.5 rounded-lg border bg-card/60 p-1.5">
-              <span className="px-1.5 pt-0.5 pb-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Análise</span>
-              {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
-              <Button size="sm" variant="ghost" className={cn(mapa && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} onClick={() => setMapa(!mapa)}>
-                <Workflow /> Mapa do processo
-              </Button>
-              {canEdit && (
-                <Button
-                  disabled={device !== 'desktop'} motivo="Disponível só na visão desktop"
-                  title={device !== 'desktop' ? 'Anotações só na visão desktop' : 'Marcar um ponto da tela com um requisito, dúvida ou ajuste'}
-                  size="sm"
-                  variant="ghost"
-                  className={cn(mode === 'add' && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')}
-                  onClick={() => setMode(mode === 'add' ? 'view' : 'add')}
-                >
-                  <MapPinPlus /> {mode === 'add' ? 'Clique na tela… (Esc)' : 'Anotar'}
-                </Button>
-              )}
-              <Button size="sm" variant="ghost" className={cn(panel && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Anotações desta tela" onClick={() => setPanel(!panel)}>
-                <MessageSquareText /> Anotações <span className="tabular-nums text-muted-foreground">{screenPins.length}</span>
-              </Button>
-            </div>
-            <div className="casca-grupo grid gap-0.5 rounded-lg border bg-card/60 p-1.5">
-              <span className="px-1.5 pt-0.5 pb-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Design</span>
-              <Button size="sm" variant="ghost" className={cn(guia && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
-                <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
-              </Button>
-              <Button size="sm" variant="ghost" title="Abre o protótipo em nova aba, no perfil e na tela atuais" render={<a href={`./?frame=1&perfil=${encodeURIComponent(profile)}#${shownPath}`} target="_blank" rel="noreferrer" />} nativeButton={false}>
-                <ExternalLink /> Abrir protótipo
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger render={<Button size="sm" variant="ghost" title="Resolução considerada para o protótipo (a tela é reduzida por inteiro para caber)" />}>
-                  <Monitor /> <span className="tabular-nums">{largura} px</span> <ChevronDown className="size-3.5 opacity-70" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="dark w-40">
-                  {RESOLUCOES.map((r) => (
-                    <DropdownMenuItem key={r} className={cn('tabular-nums', r === largura && 'font-semibold')} onClick={() => setLargura(r)}>
-                      {r} px{r === RESOLUCAO_PADRAO && <span className="text-muted-foreground ml-auto text-xs font-normal">padrão</span>}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <DropdownMenu>
-                <DropdownMenuTrigger render={<Button size="sm" variant="ghost" />}>
-                  <RotateCcw /> Restaurar dados
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="dark w-56">
-                  <DropdownMenuItem disabled={!telaData?.length} onClick={() => setRestaurar('tela')}>
-                    Somente desta tela
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setRestaurar('tudo')}>
-                    Todo o protótipo
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
             <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 rounded-lg border bg-card/60 p-2">
               <span className="px-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Jornada</span>
           {/* Dois selects: primeiro o perfil, depois as jornadas que esse perfil inicia */}
@@ -453,6 +397,62 @@ export function JourneyShell() {
               <Button size="sm" variant="outline" className="w-full" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronLeft /> Anterior</Button>
               <Button size="sm" className="w-full text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}>Próxima <ChevronRight /></Button>
             </div>
+            </div>
+            <div className="casca-grupo grid gap-0.5 rounded-lg border bg-card/60 p-1.5">
+              <span className="px-1.5 pt-0.5 pb-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Análise</span>
+              {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
+              <Button size="sm" variant="ghost" className={cn(mapa && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} onClick={() => setMapa(!mapa)}>
+                <Workflow /> Mapa do processo
+              </Button>
+              {canEdit && (
+                <Button
+                  disabled={device !== 'desktop'} motivo="Disponível só na visão desktop"
+                  title={device !== 'desktop' ? 'Anotações só na visão desktop' : 'Marcar um ponto da tela com um requisito, dúvida ou ajuste'}
+                  size="sm"
+                  variant="ghost"
+                  className={cn(mode === 'add' && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')}
+                  onClick={() => setMode(mode === 'add' ? 'view' : 'add')}
+                >
+                  <MapPinPlus /> {mode === 'add' ? 'Clique na tela… (Esc)' : 'Anotar'}
+                </Button>
+              )}
+              <Button size="sm" variant="ghost" className={cn(panel && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Anotações desta tela" onClick={() => setPanel(!panel)}>
+                <MessageSquareText /> Anotações <span className="tabular-nums text-muted-foreground">{screenPins.length}</span>
+              </Button>
+            </div>
+            <div className="casca-grupo grid gap-0.5 rounded-lg border bg-card/60 p-1.5">
+              <span className="px-1.5 pt-0.5 pb-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Design</span>
+              <Button size="sm" variant="ghost" className={cn(guia && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
+                <Sparkles /> Etapas guiadas {guia ? 'ligadas' : 'desligadas'}
+              </Button>
+              <Button size="sm" variant="ghost" title="Abre o protótipo em nova aba, no perfil e na tela atuais" render={<a href={`./?frame=1&perfil=${encodeURIComponent(profile)}#${shownPath}`} target="_blank" rel="noreferrer" />} nativeButton={false}>
+                <ExternalLink /> Abrir protótipo
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button size="sm" variant="ghost" title="Resolução considerada para o protótipo (a tela é reduzida por inteiro para caber)" />}>
+                  <Monitor /> <span className="tabular-nums">{largura} px</span> <ChevronDown className="size-3.5 opacity-70" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="dark w-40">
+                  {RESOLUCOES.map((r) => (
+                    <DropdownMenuItem key={r} className={cn('tabular-nums', r === largura && 'font-semibold')} onClick={() => setLargura(r)}>
+                      {r} px{r === RESOLUCAO_PADRAO && <span className="text-muted-foreground ml-auto text-xs font-normal">padrão</span>}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button size="sm" variant="ghost" />}>
+                  <RotateCcw /> Restaurar dados
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="dark w-56">
+                  <DropdownMenuItem disabled={!telaData?.length} onClick={() => setRestaurar('tela')}>
+                    Somente desta tela
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setRestaurar('tudo')}>
+                    Todo o protótipo
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </aside>
         ))}
