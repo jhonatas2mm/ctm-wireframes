@@ -139,9 +139,12 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - A formalização é registrada no sistema (antes era por e-mail), com data e a partir de quando deixa de cobrar (UC em andamento ou próxima UC).
 - **Corte no dia 20**: formalizações até o dia 20 saem da cobrança do dia 5 do mês seguinte; depois do dia 20, da cobrança do mês subsequente.
 - Resumo de alunos cobrados por escola.
-- Duas visões (abas): **Situação dos alunos** e **Relatório de cobrança**.
+- Três visões (abas): **Situação dos alunos**, **Acompanhamento dos alunos** e **Relatório de cobrança**.
+- **Ciclo financeiro** (mês de cobrança) = janela do **dia 21 do mês anterior ao dia 20** do mês (corte no dia 20).
+- **Acompanhamento dos alunos** (relatório geral, no lugar da planilha da CTM): escolhe **turma** e **ciclo**; cada aluno com e-mail, telefone, CPF, escola, **status geral** (Matriculado, Desistente, Trancado), **data de saída** e **monitor**; uma coluna por **UC do ciclo** com a situação (**Ativo**, **Suspenso** desde a data, **Não integrado nesta UC**) e se **fatura**. Indicadores: alunos (integrados), faturamentos aluno × UC, desistentes/trancados e suspensos sem formalização. Exporta planilha; atalho para o relatório de cobrança da proposta.
+  - **Fatura** a UC no ciclo: UC em andamento na janela, aluno integrado nela (ativo ou suspenso sem formalização — a CTM cobra até a DR formalizar) e sem saída formalizada antes do início da janela. UC que começa depois da saída = não integrado. Aluno não integrado pela DR (SGN/SGE) não fatura.
 - **Relatório de cobrança** (modelo da planilha da CTM, usado para cobrar a DR solicitante): a CTM escolhe a **proposta aprovada** (com turmas) e abre o relatório (`/financeiro/cobranca/:id`). Cabeçalho com dados do cliente e serviço (instituição, CNPJ, TAA, serviço, e-mails da cobrança) e **ciclo financeiro** (mês).
-  - Uma linha por **turma × escola × UC** em andamento no ciclo: curso/modalidade, escola-município, código da turma, UC, CH total, período, **CH cobrada** (CH da UC proporcional aos dias da UC dentro do mês — hipótese a validar), **nº de alunos** (integrados no AVA), **valor aluno/hora** (valor do aluno no edital ÷ CH do curso) e valor total; link de acesso para conferência.
+  - Uma linha por **turma × escola × UC** em andamento no ciclo: curso/modalidade, escola-município, código da turma, UC, CH total, período, **CH cobrada** (CH da UC proporcional aos dias da UC dentro da janela do ciclo — hipótese a validar), **nº de alunos** (os que **faturam** a UC no ciclo, do Acompanhamento dos alunos), **valor aluno/hora** (valor do aluno no edital ÷ CH do curso) e valor total; link de acesso para conferência.
   - **Ajustes de cobrança**: linhas extras do ciclo (ex.: aluno integrado depois da cobrança anterior), com observação; listadas em Observações.
   - Total do ciclo e **vencimento** (dia 28 do mês seguinte — hipótese); exporta planilha (CSV) ou imprime/PDF.
 
@@ -265,3 +268,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Novo TAA (Gestor de contrato): DR destinatária vira um select com **uma DR só** (um TAA por vez).
 - 2026-09-29 — Equipe: funções Monitor front e Monitor back unificadas em **Monitor** (Nova pessoa e alocação). Dados da equipe reiniciados (equipe-v3).
 - 2026-09-29 — **Relatório de cobrança** no Financeiro (aba): escolhe a proposta aprovada e abre o relatório por ciclo (turma × escola × UC, CH cobrada, alunos, valor aluno/hora, ajustes, total e vencimento), no modelo da planilha da CTM; exporta planilha ou PDF.
+- 2026-09-29 — **Acompanhamento dos alunos** no Financeiro (aba): turma × ciclo, aluno por aluno com situação por UC e se fatura (modelo da planilha geral da CTM). Ciclo financeiro passa a ser a janela 21→20. O nº de alunos do relatório de cobrança vem daí (alunos que faturam). Alunos das turmas da oferta gerados (fictícios) a partir das escolas.
