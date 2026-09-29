@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils'
 import { PropostaSheet } from './proposta-sheet'
 import { excedentesProposta } from '@/lib/cobranca'
 
-// CTM do usuário logado (Gestor de contrato / Supervisor da SENAI-MG): é sempre a ofertante.
+// CTM do usuário logado (Gestor EAD / Supervisor da SENAI-MG): é sempre a ofertante.
 const DR_OFERTANTE = 'MG'
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const isoDe = (br?: string) => (br && br !== '—' ? br.split('/').reverse().join('-') : '')
@@ -89,7 +89,7 @@ const colunas = (taas: Contrato[]): Column<Produto>[] => [
 ]
 
 // Gestão de propostas (CTM): a CTM cria a proposta, vinculada a um TAA/contrato aceito, depois que a negociação (fora do
-// sistema) avança. O Gestor de contrato é o responsável e muda o status conforme o retorno da DR solicitante.
+// sistema) avança. O Gestor EAD é o responsável e muda o status conforme o retorno da DR solicitante.
 // Versões vão e vêm (Nova versão), com histórico. Rotas: /produtos · /produtos/novo · /produtos/novo?versao=<id>
 export default function Produtos() {
   const { confirmar, dialogo } = useConfirmar()
@@ -132,7 +132,7 @@ export default function Produtos() {
         )}
       />
       <PropostaSheet proposta={todas.find((x) => x.id === verProposta?.id) ?? null} onClose={() => setVerProposta(null)} />
-      {/* Status: quem muda é o Gestor de contrato, registrando o retorno da DR solicitante (negociação fora do sistema) */}
+      {/* Status: quem muda é o Gestor EAD, registrando o retorno da DR solicitante (negociação fora do sistema) */}
       <Dialog open={!!mudar} onOpenChange={(v) => !v && setMudar(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -274,7 +274,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
       taaId: taa.id, edital: taa.edital, drOfertante: DR_OFERTANTE, drContratante: taa.contratante, cursos,
       vigenciaInicio: brDe(vigIni), vigenciaFim: brDe(vigFim), cnpj: cnpj || undefined, crm: crm || undefined, link: link || undefined,
       faturamento, escolas: faturamento === 'Escola' ? escolas.split(',').map((e) => e.trim()).filter(Boolean) : undefined, documentos: docs,
-      responsavel: { nome: eu?.nome ?? autor, cargo: 'Gestor de contrato' },
+      responsavel: { nome: eu?.nome ?? autor, cargo: 'Gestor EAD' },
     }
     if (base) {
       // Nova versão: a atual vai para o histórico de versões (a proposta vai e vem)
@@ -319,7 +319,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
               </dl>
             )}
             <label className="grid gap-1 text-xs">
-              <span className="text-muted-foreground">Responsável (Gestor de contrato)</span>
+              <span className="text-muted-foreground">Responsável (Gestor EAD)</span>
               <div className="flex h-9 items-center gap-1.5 rounded-md border bg-muted px-3 text-sm"><Lock className="size-3.5 text-muted-foreground" /> {eu?.nome ?? autor}</div>
             </label>
             <div className="grid grid-cols-2 gap-3">

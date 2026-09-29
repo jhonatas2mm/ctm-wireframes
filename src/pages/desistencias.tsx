@@ -9,6 +9,8 @@ import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, useConfir
 import { HOJE, dataBr, useConfirmacoesDesistencia, useTurmas, type Turma } from '@/lib/mock'
 import { alunosDaTurma, idConfirmacao, type AlunoTurma, type MatriculaUc } from '@/lib/alunos-turma'
 import { useAutor } from '@/lib/autor'
+import { useProfile } from '@/journey/profile'
+import { profileOf } from '@/journey/profiles'
 
 // Confirmação de desistências (DR solicitante): a desistência chega do Moodle e a DR faz a dupla checagem — confirma
 // POR UC (a saída vale naquela UC e o aluno para de faturar nela no próximo ciclo da UC) ou contesta (falha de integração:
@@ -18,13 +20,15 @@ const situacao = (a: Linha) => (a.m.confirmacao === 'Aguardando DR' ? 'Aguardand
 
 export default function Desistencias() {
   const autor = useAutor()
+  // Gestor/Coordenador Escolar: só as escolas vinculadas ao perfil
+  const escolas = profileOf(useProfile()).escolas
   const { confirmar, dialogo } = useConfirmar()
   const db = useConfirmacoesDesistencia()
   const turmas = useTurmas().all.filter((t) => t.fase !== 'Cancelada')
   const [contestar, setContestar] = useState<Linha | null>(null)
   const [motivo, setMotivo] = useState('')
   // Desistências vindas do Moodle (inclui as já decididas, para desfazer)
-  const linhas: Linha[] = turmas.flatMap((t) => alunosDaTurma(t, db.all).flatMap((a) => a.ucs.filter((m) => m.confirmacao).map((m) => ({ ...a, id: idConfirmacao(a.id, m.uc), turma: t, m, key: idConfirmacao(a.id, m.uc) }))))
+  const linhas: Linha[] = turmas.flatMap((t) => alunosDaTurma(t, db.all).filter((a) => !escolas || escolas.includes(a.escola)).flatMap((a) => a.ucs.filter((m) => m.confirmacao).map((m) => ({ ...a, id: idConfirmacao(a.id, m.uc), turma: t, m, key: idConfirmacao(a.id, m.uc) }))))
   const registrar = (a: Linha, s: 'Confirmada' | 'Contestada', m?: string) => {
     db.remove(a.key)
     db.add({ id: a.key, situacao: s, em: HOJE, por: autor, motivo: m })
@@ -48,7 +52,7 @@ export default function Desistencias() {
   const n = (s: string) => linhas.filter((a) => situacao(a) === s).length
   return (
     <>
-      <PageHeader title="Confirmação de desistências" />
+      <PageHeader title="Confirmação de desistências" description={escolas ? `Escolas: ${escolas.join(', ')}` : undefined} />
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <StatCard icon={Hourglass} tom="amber" label="Aguardando confirmação" value={String(n('Aguardando confirmação'))} hint="O aluno segue faturando até a DR confirmar" />
         <StatCard icon={CheckCircle2} tom="green" label="Confirmadas" value={String(n('Confirmada'))} />
