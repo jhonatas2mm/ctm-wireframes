@@ -216,6 +216,8 @@ html.ds-senai [data-slot="dialog-overlay"] {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
 }
+/* Sheets laterais (detalhes, filtros): sem escurecer nem desfocar o fundo */
+html.ds-senai [data-slot="sheet-overlay"][data-lateral] { background-color: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
 /* Cabeçalho da tabela no vidro */
 /* Botão primário com leve gradiente laranja */
 html.ds-senai button.bg-primary, html.ds-senai a.bg-primary { background-image: none; }

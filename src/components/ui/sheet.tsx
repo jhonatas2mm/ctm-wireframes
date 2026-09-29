@@ -60,7 +60,7 @@ function SheetContent({
   return (
     <SheetPortal>
       {/* Só a sheet de baixo (formulário) escurece o fundo; a lateral deixa a tabela visível (o clique fora ainda fecha). */}
-      <SheetOverlay className={side !== "bottom" ? "bg-transparent supports-backdrop-filter:backdrop-blur-none" : undefined} />
+      <SheetOverlay data-lateral={side !== "bottom" ? "" : undefined} className={side !== "bottom" ? "bg-transparent supports-backdrop-filter:backdrop-blur-none" : undefined} />
       <SheetPrimitive.Popup
         data-slot="sheet-content"
         data-side={side}
