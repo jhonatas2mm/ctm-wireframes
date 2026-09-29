@@ -1,10 +1,8 @@
 # Regras do fluxo — CTM
 
-Registro das regras de negócio e do percurso decidido. Atualizar a cada decisão nova.
+Registro das regras de negócio do sistema prototipado e do percurso decidido. Atualizar a cada decisão nova (sem detalhes visuais nem da casca). O mapa do processo (`src/lib/processo.ts`) acompanha estas regras.
 
 ## Fluxos (na ordem em que acontecem no sistema)
-Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jornada** (só as que esse perfil inicia), **numeradas dentro de cada perfil** (DN 1, 2, 3; Supervisor 1, 2…). Trocar o perfil abre a 1ª jornada dele (ou a 1ª tela do menu, se não tiver jornada).
-
 0a. **Gestão de usuários** (Super admin) — Gestão de usuários → Novo usuário → Editar usuário.
 0b. **Perfis e permissões** (Super admin) — Perfis e permissões → Permissões do perfil.
 0c. **Auditoria** (Super admin) — trilha de ações, somente leitura.
@@ -15,8 +13,8 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Gestor de oferta).
 3. **Envio de TAA às DRs** (CTM: Gestor de contrato) — TAAs com as DRs → Novo TAA (um por DR) → Gestor da DR analisa → retorno para a CTM.
 4. **TAAs com CTMs** (DR solicitante: SENAI) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado para ajuste → TAA aceito (saldo).
-5. **Criação de portfólio** (Gestor de oferta) — Gestão de Portfólio → Novo produto (produtos de um edital).
-6. **Criação de proposta** (CTM: Gestor de oferta e Gestor de contrato) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
+5. **Criação de portfólio** (CTM: Gestor de oferta; também pelo Gestor de contrato) — Gestão de Portfólio → Novo produto (produtos de um edital) → Aprovação de portfólio (DN).
+6. **Criação de proposta** (CTM: Gestor de contrato, o responsável; o Gestor de oferta também acessa) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
 7. **Criação de oferta** (Gestor de oferta) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
 7a. **UCs da turma** (CTM: Gestor de oferta) — Equipe → equipe de cada UC → Integração com o Moodle → Histórico.
 7b. **Acompanhamento pedagógico** (Gestor de oferta) — Tratativas pedagógicas → Nova tratativa.
@@ -29,13 +27,13 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
 ## Perfis
-Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Super admin**. CTM e DR solicitante têm **caixas** (subperfis): na casca, o select Perfil escolhe o principal e as caixas aparecem como abas ao lado do selo do perfil, no protótipo.
+Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Super admin**. CTM e DR solicitante têm **caixas** (subperfis). Nome do perfil = `Grupo: Caixa` (ex.: `CTM: PCP`).
 - **Super admin** (provisório) — administra usuários, perfis/permissões, auditoria e logs do sistema; vê todas as telas do menu e **os dados de toda a plataforma** (ex.: no acompanhamento, contratos/turmas/alunos de todas as DRs, com coluna/filtro de DR). Menu setorizado (DN, CTM, DR solicitante, Administração).
 - **DN** — cria e gerencia editais (com a CTM aprovada por produto), aprova o portfólio e faz a gestão de DRs. **Não contrata CTM** e não gerencia TAAs.
 - **CTM** (SENAI-MG) — caixas:
   - **Gestor de contrato** (antes "Comercial"; pode ser um supervisor, um gestor…) — envia TAAs às DRs (TAAs com as DRs), propostas e portfólio.
   - **PCP** — Gestão da oferta (aba Execução: tutor e ação por UC, aulas ao vivo), e Equipe.
-  - **Supervisor** — portfólio, propostas, oferta/cronograma, equipe da turma, tratativas e financeiro. Não gerencia TAAs.
+  - **Gestor de oferta** (antes "Supervisor") — portfólio, propostas, oferta/cronograma, equipe da turma, tratativas e financeiro. Não gerencia TAAs.
   - **Pedagógico** — Gestão da oferta (validação pedagógica) e Tratativas pedagógicas.
   - **Tutor** — avalia o planejamento das UCs. **Monitor** — cria as salas no Moodle e parametriza as avaliações.
 - **DR solicitante** (MG) — caixas:
@@ -52,7 +50,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 
 ## TAA (Termo de Acordo Administrativo)
 - **Um TAA para cada DR específica** (não é guarda-chuva), com edital, **produtos**, vigência e valor global. A CTM do TAA é a **aprovada no edital** (menor custo) para esses produtos. Nunca chamar de "TA" ou "Termo de Adesão".
-- **Caminho normal**: a CTM que ganhou o edital **envia** o TAA para cada DR (tela **TAAs com as DRs**, `/taas-ctm`; pode marcar várias DRs e sai um TAA por DR). O **Gestor** da DR solicitante analisa. A DR também pode criar o seu (`/dashboard`), e aí quem analisa é a CTM.
+- **Caminho normal**: a CTM que ganhou o edital **envia** o TAA para cada DR (tela **TAAs com as DRs**, `/taas-ctm`; escolhe **uma DR** por TAA). O **Gestor** da DR solicitante analisa. A DR também pode criar o seu (`/dashboard`), e aí quem analisa é a CTM.
 - **TAA é entre SENAI e SENAI**. **SESI não entra na v1** (sem perfil, contrato ou dados do SESI). **O DN não contrata CTM.**
 - **Status**: *Encaminhado* → *Em análise* (quem analisa abriu) → **Aceito**, **Retornado para ajuste** (com motivo; quem criou ajusta vigência/valor e reencaminha) ou **Cancelado** (recusa, com motivo, ou cancelamento por quem criou antes do aceite). Tudo fica no **histórico** do TAA.
 - **Aceito é burocrático**: destrava a **negociação da oferta**, que dá origem às **propostas** (só contratante com TAA/contrato aceito e vigente entra na Nova proposta). Um TAA aceito pode não gerar nenhuma proposta ou atividade. O termo assinado é anexado depois do aceite ("Anexar assinado").
@@ -73,10 +71,10 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Cada versão pode ter **vínculo com o itinerário** (outro sistema; botão "Vincular ao itinerário", feito pela DR/CTM; integração a detalhar) e **documentos/materiais** vinculados (nome, tipo, link — o arquivo fica no repositório/drive). Nova versão copia os vínculos.
 - Na Gestão de Portfólio da CTM, cada linha é um produto: última versão, situação, versão no portfólio, itinerário, nº de documentos e de propostas.
 
-## Produto (Supervisor)
+## Produto (Gestor de oferta)
 - "Novo produto" abre em 3 colunas na mesma tela, sem etapas: **Edital** (escolhe apenas um) → **Produtos** do edital em que a DR é a **CTM aprovada** (um ou mais) → **Módulos e UCs** do produto ativo.
 - Trocar o edital limpa a seleção.
-- Salvar só é liberado quando todos os produtos marcados têm módulos e UCs completos.
+- Salvar exige ao menos um produto marcado (módulos e UCs incompletos não bloqueiam).
 
 ### Versões de produto
 - Na listagem, cada produto tem as ações **Visualizar** (olho → side sheet de detalhes) e **Nova versão**; o side sheet também tem "Nova versão a partir da vN".
@@ -86,7 +84,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Dados do edital/catálogo (edital, área, modalidade, CH) são fixos em todas as versões.
 - A tabela mostra só a versão mais recente de cada produto; as anteriores (ex.: v1 de um produto na v2) ficam registradas no histórico de versões do side sheet, e dá para abrir cada uma.
 
-## Criação de oferta (Supervisor)
+## Criação de oferta (Gestor de oferta)
 - Objetivo: criar **turmas** a partir das propostas **aceitas** (só elas aparecem na Nova oferta).
 - Nova oferta: escolhe a proposta → um ou mais cursos dela → supervisor e analista da turma. A matriz curricular (módulos → UCs) vem do produto (última versão); **CH a distância e presencial** por UC são editáveis. A soma das CHs de cada curso **não pode passar a CH total daquele produto** na proposta (total fica vermelho e Salvar é bloqueado).
 - Nº da turma: `TU-<UF>-<seq>/<ano>` (padrão das CTMs ainda a confirmar; ver Pendências).
@@ -151,56 +149,38 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Hierarquia: **proposta → cursos → turmas → UCs → alunos** (cada um com situação).
 - Alerta de prazo: proposta ainda não aprovada com turma prevista para começar em até 15 dias.
 
-## Mapa do processo (painel da casca)
-- Visão BPMN de ponta a ponta, para todos os perfis (menu Sistema): pools (DN, CTM, DR contratante, Sistemas) e raias por ator (DN, Comercial, Supervisão, PCP, Analista, Tutor, Monitoria e pedagógico, Financeiro, DR contratante, AVA/SGE); fases no topo; tarefas, decisões, paralelos, eventos de prazo; sequência (linha cheia) e mensagem entre organizações (tracejada).
-- Tarefa tracejada = acontece fora do sistema. Clique numa etapa: detalhes, regras e **Abrir no protótipo**. Filtro por ator (select ou clique na raia) e zoom.
-- Dados em `src/lib/processo.ts`: manter junto com as regras deste arquivo.
-
 ## Pendências (reunião de processos de 28/09/2026)
 - **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (à DR, prazos, integração). Hoje os avisos aparecem só nas telas.
 - **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesma DR.
 - **Código da turma**: padrão citado = curso/modalidade + nº sequencial por DR + ano/semestre de início (ex.: T02MS, 2026-1).
 - **CH na Nova oferta**: hoje a soma das CHs acima da CH do produto **bloqueia** o "Salvar oferta", o que conflita com o padrão "nenhum campo bloqueia o protótipo". A definir: manter como regra estrutural ou só avisar (total em vermelho) sem bloquear.
-- Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, novos perfis (Analista, PCP, Monitor, Pedagógico, Tutor), acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
+- Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, perfil Analista, acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
 ## Percurso (histórico de decisões)
-- 2026-09-28 — Gestão da proposta: seções (Resumo, Cursos, Documentos, Histórico) numa página só, com âncoras fixas na lateral.
 - 2026-09-28 — Removidos "Salvar e enviar" e o fluxo de envio/aceite duplo. A proposta só é criada e depois marcada como aceita.
 - 2026-09-28 — Gestão da proposta: botões Aprovada/Recusada; recusa exige feedback.
 - 2026-09-28 — Novo produto: sem etapas; layout em colunas (edital → produtos → módulos/UCs).
-- 2026-09-28 — Jornadas: todas unidas em "Fluxo completo" (começa no DN, Novo edital); perfil da etapa aparece como etiqueta no canto superior esquerdo da tela; seletor de perfil removido da lateral.
-- 2026-09-28 — Casca: menu lateral virou mapa de jornadas horizontal (fluxograma). Fluxo principal: Gestão de Editais → Novo edital → Gestão de Portfólio → Novo produto (rota /gestao-produtos/novo). TAA e Propostas ficam soltas até serem definidas. Abrir protótipo/Restaurar dados foram para o topo.
-- 2026-09-28 — Casca: Restaurar dados virou menu (Somente desta tela / Todo o protótipo); cada tela declara suas coleções em `data` no screens.ts.
 - 2026-09-28 — Perfil "DR credenciada" renomeado para "Supervisor" (continua sendo o usuário do SENAI-MG).
 - 2026-09-28 — DN: nova tela Gestão de DRs credenciadas (/drs), jornada solta "DRs".
-- 2026-09-28 — Jornada "Fluxo principal" renomeada para "Gestão de Portfólio".
-- 2026-09-28 — Jornadas reduzidas a duas: Gestão de Portfólio e Gestão de Contratos (Gestão de TAA → Novo TAA). DRs e Propostas saíram das jornadas (telas continuam existindo).
 - 2026-09-28 — Produto: detalhes em side sheet (olho) com histórico de versões; ação "Nova versão" na listagem (não altera a anterior; mantém vínculo com a v1). Coluna Propostas removida da Gestão de Portfólio.
 - 2026-09-28 — Novo TAA: signatários removidos; campo obrigatório "TAA assinado" (anexo). Vigência e valor global na mesma linha.
 - 2026-09-28 — TAA: anexo saiu do Novo TAA; baixar modelo no Novo TAA e na listagem; upload do assinado em Gestão de TAA muda o status para Vigente.
 - 2026-09-28 — Gestão de TAA: Visualizar abre side sheet com status, dados, documentos (modelo e assinado) e andamento; anexar o assinado também pelo side sheet.
 - 2026-09-28 — TAA: todos com vigência e valor global; "produtos vinculados" removido (tabela, detalhes e dados).
-- 2026-09-28 — Jornada Gestão de Contratos: Gestão de TAA → Novo TAA → TAA em elaboração (/dashboard/4) → TAA vigente (/dashboard/1). Detalhes do TAA ganharam rota /dashboard/:id.
 - 2026-09-28 — Fluxos numerados; "Cadastro de DRs" entra como fluxo 1 (início do sistema). Ordem manual salva no navegador foi removida.
 - 2026-09-28 — Ordem dos fluxos: 1. Cadastro de DRs, 2. Gestão de Contratos, 3. Gestão de Portfólio.
 - 2026-09-28 — Tela "Minhas Propostas" (/produtos, Supervisor) renomeada para "Gestão de Contrato".
-- 2026-09-28 — Menu do Supervisor: "Gestão de Produtos" renomeada para "Gestão de Portfólio" (tela, etapas e textos).
 - 2026-09-28 — Supervisor: "Meus TAAs" → "Gestão de TAAs"; propostas movidas para dentro do TAA (ação "Gestão de propostas"), fora do menu.
 - 2026-09-28 — Dentro do TAA (Supervisor): "Gestão dos produtos" renomeada para "Gestão de propostas".
 - 2026-09-28 — Novo perfil Comercial (mesmas telas do Supervisor + Gestão de TAA/Novo TAA); fluxo 3 "Novo TAA (Comercial)".
 - 2026-09-28 — Novo TAA: termo movido para o fim do formulário; baixar só depois de preencher DR, vigência e valor.
 - 2026-09-28 — Supervisor tem as mesmas jornadas do Comercial: fluxo 4 "Novo TAA (Supervisor)"; Gestão de TAA liberada para o Supervisor.
-- 2026-09-28 — Nova versão: confirmação antes de abrir a modal preenchida.
 - 2026-09-28 — Supervisor e Comercial: "Gestão de TAA" (tela do DN) removida do menu deles; Novo TAA agora é feito dentro da Gestão de TAAs (/meus-taas/novo). DN mantém a Gestão de TAA.
 - 2026-09-28 — Fluxo 6 "Criação de portfólio": Gestão de Portfólio → Novo produto (Supervisor).
 - 2026-09-28 — DRs: botão/modal "Nova DR credenciada" (/drs/novo, UFs ainda não credenciadas) e ações Inativar/Ativar; seed só com parte das DRs.
-- 2026-09-28 — Select de jornada: numeração reinicia em cada perfil.
 - 2026-09-28 — Novo TAA em duas etapas (dados → documento para baixar). Detalhes do TAA: seção Andamento removida.
-- 2026-09-28 — Jornada do DN "Gestão de Portfólio" renomeada para "Criação de edital".
 - 2026-09-28 — Criação de edital: tela de sucesso após salvar (/editais/:id/sucesso), com resumo e ações Ver edital / Voltar.
-- 2026-09-28 — Nova versão: sem modal de confirmação; versão (vN → vN+1) em destaque no topo da modal.
-- 2026-09-28 — Protótipo: removidos todos os snackbars; nenhum campo obrigatório bloqueia salvar (asteriscos mantidos).
-- 2026-09-28 — Nova jornada Gestão da oferta (Supervisor): turmas a partir de propostas, CH/datas por UC, dias ao vivo. Casca: Anterior/Próxima ao lado da etiqueta do perfil, com atalhos ← →.
+- 2026-09-28 — Nova jornada Gestão da oferta (Supervisor): turmas a partir de propostas, CH/datas por UC, dias ao vivo.
 - 2026-09-28 — Gestão de propostas volta ao menu lateral (Supervisor/Comercial); acesso pelo TAA redireciona para /produtos?taa=<id>.
 - 2026-09-28 — Proposta passa a ter edital (campo na Nova proposta, coluna na listagem, resumo e visualização do TAA).
 - 2026-09-28 — Gestão de propostas: ações Aceitar/Recusar na listagem.
@@ -211,24 +191,18 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-28 — Gestão de propostas: Visualizar em side sheet com vínculo às ofertas.
 - 2026-09-28 — Dados de exemplo: propostas 001–003 aceitas; 001 e 002 com oferta, 003 sem oferta.
 - 2026-09-28 — Oferta: tela de detalhes (/oferta/:id) com matriz e aulas ao vivo; botão Acessar nas ofertas do side sheet da proposta e Visualizar na Gestão da oferta.
-- 2026-09-28 — Excluir/inativar em todo o sistema confirma em modal (useConfirmar), sem confirm() nativo.
 - 2026-09-28 — Comercial ganhou as mesmas jornadas do Supervisor (Criação de portfólio, Criação de proposta, Gestão da oferta), já que os menus são iguais.
 - 2026-09-28 — Nova oferta: CH a distância + presencial por UC; soma limitada à CH do produto; label "Curso".
 - 2026-09-28 — Aulas ao vivo: saíram da Nova oferta; agora por UC, em modal aberta pela ação "Aulas ao vivo" na tabela da Gestão da oferta.
-- 2026-09-28 — Jornada "Gestão da oferta" → "Criação de oferta" (Supervisor e Comercial), com etapa final Aulas ao vivo; Aulas ao vivo virou sheet de baixo com calendário por UC.
 - 2026-09-28 — Aulas ao vivo: cada dia tem horário de início e término (padrão 19:00–21:00; novo dia herda o horário do último marcado).
 - 2026-09-28 — Aulas ao vivo: calendário de um mês com navegação (abre no mês de início da UC) + campo para inserir a data; horários à direita do calendário.
 - 2026-09-28 — Aulas ao vivo: **um dia por UC** (com horário); escolher outro dia substitui o anterior.
-- 2026-09-28 — Aulas ao vivo: saiu o calendário; ficou só a lista de UCs, cada uma com botão Adicionar (data + início/término, removível).
 - 2026-09-28 — Nova oferta: curso escolhido destacado (check + "Nesta oferta"; rótulo "Curso desta oferta"); ao salvar abre confirmação "Oferta criada" (/oferta/:id/sucesso) com resumo e atalho para Aulas ao vivo — nova etapa da jornada.
 - 2026-09-28 — Oferta pode ter **vários cursos** da mesma proposta: seleção múltipla na Nova oferta; matriz agrupada por curso; limite de CH vale por curso.
 - 2026-09-28 — Nova oferta: removida a etiqueta "Nesta oferta"; curso escolhido fica marcado só pelo check e destaque.
 - 2026-09-28 — Gestão da oferta organizada por proposta: lista de propostas aceitas (vigência, nº de ofertas/turmas) → tela da proposta (/oferta/proposta/:id) com as ofertas (turmas); Nova oferta a partir dela já com a proposta fixa. Uma proposta tem várias ofertas (turmas). Sem coluna Cursos na tabela de ofertas.
 - 2026-09-28 — Proposta ganhou **vigência** (início/fim) na Nova proposta, na tabela de propostas e no side sheet.
-- 2026-09-28 — Menu lateral: item ativo com preenchimento preto e texto branco.
 - 2026-09-28 — Gestão da oferta (lista de propostas): coluna Status (da proposta); sem coluna Aulas ao vivo.
-- 2026-09-28 — DataTable: coluna Ações fixa à direita (sticky), sempre visível mesmo com rolagem horizontal (ex.: Aceitar/Recusar na Gestão de propostas).
-- 2026-09-28 — Casca: o destaque da etapa no fluxograma acompanha a tela vista no protótipo (rota exata ou mesma tela); navegar dentro do protótipo não reposiciona a tela.
 - 2026-09-28 — Gestão da oferta: listagem com uma linha por oferta (turma), repetindo proposta/status/DR/vigência; proposta aceita sem oferta aparece com "—". Ações por linha: Visualizar, Aulas ao vivo, Adicionar oferta (na mesma proposta), Excluir. Etapa "Ofertas da proposta" saiu da jornada (tela /oferta/proposta/:id segue existindo).
 - 2026-09-28 — **Oferta = uma turma = um curso.** Na Nova oferta pode-se escolher vários cursos da proposta; ao salvar, cada curso vira uma oferta (turma) própria, com código sequencial, e aparece numa linha da Gestão da oferta com a mesma proposta. A confirmação lista as ofertas criadas, cada uma com atalho para Aulas ao vivo. Detalhes da oferta mostram uma única turma/curso.
 - 2026-09-28 — Coleção de ofertas trocada para turmas-v7 para descartar ofertas antigas com vários cursos numa mesma turma.
@@ -237,76 +211,34 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-28 — Gestão da oferta: colunas Início e Término da turma (no lugar de Vigência/Período); na coluna Proposta, link "Ver mais" abre o side sheet da proposta.
 - 2026-09-28 — Status da turma (oferta) derivado das datas: **Em andamento** até o término da última UC; depois, **Finalizada**. Coluna Status da Gestão da oferta passou a ser o da turma; aparece também nos detalhes.
 - 2026-09-28 — Novo perfil **Super admin** (provisório): vê todas as telas do menu + Gestão de usuários (novo/editar/inativar), Perfis e permissões (telas por perfil) e Auditoria (somente leitura). Jornadas: Gestão de usuários, Perfis e permissões, Auditoria, Supervisão das áreas.
-- 2026-09-28 — Anotações passam a ser compartilhadas via Supabase: qualquer visitante do site publicado cria pinos (com nome); editar/excluir só pelo painel do Supabase.
-- 2026-09-28 — Casca: selo do perfil (canto superior esquerdo) ganhou seta para trocar de perfil; ao trocar, abre a 1ª jornada iniciada por ele, na 1ª etapa.
-- 2026-09-28 — Perfis Supervisor e Comercial renomeados para **CTM: Supervisor** e **CTM: Comercial**; perfil **CTN** removido. Casca: rótulo "Jornada" à esquerda do select; painel de anotações com fundo.
+- 2026-09-28 — Perfis Supervisor e Comercial renomeados para **CTM: Supervisor** e **CTM: Comercial**; perfil **CTN** removido.
 - 2026-09-28 — Gestão da oferta: coluna DR contratante logo ao lado de Proposta.
-- 2026-09-28 — Anotações: qualquer visitante pode excluir (confirmação em modal); painel de anotações sobreposto, altura toda, sem empurrar o layout. URL simulada: ctm.com.br.
 - 2026-09-28 — Novo perfil **CTM: Solicitante**: mesmas telas do CTM: Supervisor (SENAI-MG), sem jornadas próprias. Trocar para um perfil sem jornada abre a 1ª tela do menu dele.
-- 2026-09-28 — Tabelas: botão **Filtros** (gestão de filtros) em todo DataTable; qualquer coluna pode virar filtro. Os de `filter: true` já aparecem ao abrir. Painel de anotações sem a rota sob o título.
 - 2026-09-28 — Dados de exemplo: proposta PC-MG-005/2026 aberta pelo **CTM: Solicitante** para SENAI-BA, Em análise (aguardando a DR contratante). Campo `criadoPor` na proposta.
 - 2026-09-28 — Perfil CTM: Solicitante vira **DR solicitante** (SENAI-BA). CTM = a operação (não é DR). Menu próprio **Gestão de Contratos** (`/contratos`): contratos da DR com o CTM; PC-MG-005 é pedido da DR aguardando o CTM, PC-MG-006 aceito.
 - 2026-09-28 — DR solicitante passa a SENAI-MG e vira perfil de acompanhamento: Painel, Gestão de Contratos (com o CTM, empresa cliente, cursos EAD), Turmas e Alunos, com detalhes. Removidas PC-MG-005/006. Jornada “Acompanhamento da execução”.
-- 2026-09-28 — Filtros das tabelas: todos dentro do botão **Filtros** (popover com um select por coluna); fora dele só a busca e as etiquetas dos filtros aplicados (removíveis) + “Limpar tudo”.
 - 2026-09-28 — Detalhe do aluno abre em **side nav** (Sheet à direita) pelo “Visualizar” no Painel, na turma e em Alunos; `/alunos/:id` = lista de Alunos com a side nav aberta.
 - 2026-09-28 — Em listas de alunos, o código da turma é link para o detalhe da turma (`/turmas-ead/:id`).
 - 2026-09-28 — Alunos: último acesso relativo (“Há 44 dias”) na lista e na side nav; indicadores no topo (total, em dia, em risco, evadidos, sem acesso há mais de 7 dias).
 - 2026-09-28 — Turmas: tabela sem a coluna Período (fica no detalhe) para não cortar Situação; ação **Ver alunos** abre o detalhe da turma já nos alunos (`?ver=alunos`).
 - 2026-09-28 — Gestão de Contratos: “Visualizar” abre o detalhe em **side nav** (`/contratos/:id` = lista com a side nav aberta); dentro, as turmas do contrato levam ao detalhe da turma.
-- 2026-09-28 — Painel da DR solicitante vira dashboard **por contrato**: indicadores gerais; um card por contrato (vigentes e encerrados) com turmas, alunos/vagas, requer atenção e progresso médio; em cada turma, execução e os alunos com alerta (abrem em side nav).
-- 2026-09-28 — Side navs (Sheet à direita) dois degraus mais largas em todo o projeto (padrão lg; ex.: lg→3xl). Detalhe do contrato redesenhado: dados em lista, vigência e vagas com barra, contagem por situação e turmas em lista com execução e ações.
-- 2026-09-28 — Painel: turmas de cada contrato viram cards com números grandes (alunos, requer atenção, execução %), barra de execução e “Ver alunos”; saem as etiquetas de alunos.
 - 2026-09-28 — Detalhe do contrato: turmas usam o mesmo card do Painel (números grandes, execução, Ver alunos) no lugar da lista.
-- 2026-09-28 — Design system atual registrado em `docs/design-system-atual.md` (para poder trocar e voltar). Troca de design system vale só para o layout do protótipo, **nunca para a casca** de jornadas.
-- 2026-09-28 — Design system SENAI (docs/design-system.md) aplicado ao protótipo via classe `ds-senai` no <html> do iframe (`?frame=1`): Open Sans, primária laranja #BF340F, neutros SENAI, raio 8px. Casca intacta; visual anterior em docs/design-system-atual.md.
-- 2026-09-28 — DS SENAI: primária laranja, secundária azul; sheets/modais flutuantes estilo iOS (afastados das bordas, cantos arredondados); fundo liso #F5F5F7, sem gradiente.
-- 2026-09-28 — Menu lateral do protótipo flutuante (afastado das bordas, cantos arredondados), como os modais.
-- 2026-09-28 — Revisão visual do DS: primária laranja base #E84910 (hover #F5631A, click #BF340F); status em Tags suaves automáticas (Badge com data-tone por texto); controles h-36 raio 10px; tabela com cabeçalho discreto; links em azul SENAI; avatar com iniciais em círculo azul (foto opcional em public/avatars/<e-mail>.jpg); menu do Super admin setorizado (DN, CTM, DR solicitante, Administração).
-- 2026-09-28 — Tabelas no estilo do DS: card branco arredondado, cabeçalho limpo (sem fundo), linhas mais altas, 1ª coluna em destaque, ações como ícones soltos.
-- 2026-09-28 — Painel da DR solicitante redesenhado: KPIs com ícone em círculo colorido; contrato em bloco com inicial da empresa, status, resumo em colunas; cards de turma com métricas em faixa e barra de execução. Ícones do menu em neutro mais claro que o texto (ativo em laranja).
-- 2026-09-28 — Painel da DR solicitante no estilo dashboard: filtro por contrato; cards com sparkline e ícone em caixa colorida; gráfico de acessos ao portal (AVA × Portal do aluno, 14 dias, variação semanal); lista de turmas com barra de execução; feed “Requer atenção” (abre o aluno em side nav). StatCard ganhou ícone em caixa colorida (prop icon/tom). Filtros: popover com cabeçalho (contagem + Limpar), pílulas para até 6 valores e select para mais. Mock: acessos mais frequentes (alunos-ead-v2); aluno sem acesso = “Nunca acessou o portal”.
-- 2026-09-28 — Menu lateral sem cor (some no fundo; item ativo em cartão branco), caixa da DR com ícone; logo CTM (marca laranja) no lugar de “CTM · Wireframes”. DataTable: busca e filtros dentro do mesmo container da tabela.
-- 2026-09-28 — Busca rápida (⌘K) no menu lateral: telas + registros do perfil, sem acento, várias palavras, por situação/motivo. Paginação (10/página) em todo DataTable. Menu do avatar com “Sair”. Botão de esconder o menu removido.
-- 2026-09-28 — Filtros salvos por tabela (no navegador), só dentro do painel de Filtros; filtros aplicados sempre numa linha abaixo da barra, em etiquetas cinza.
-- 2026-09-28 — Ajustes de UI: modais/side navs com fundo sólido (sem transparência); tags de status com contorno; ícones de ação das tabelas em laranja; lixeira sem vermelho; “Ações” centralizado; botão Recusar proposta em vermelho; Gestão de TAAs sem coluna Cursos; nome do curso com reticências + nome completo no hover (Portfólio); detalhe do edital em side nav; total da Nova proposta no rodapé fixo da 3ª coluna.
 - 2026-09-28 — Super admin vê dados de toda a plataforma no acompanhamento (DR solicitante vê só a própria DR). Mock: contratos CTM com campo `dr` e novos contratos SP/BA (contratos-ctm-v2, turmas-ead-v2, alunos-ead-v3).
 - 2026-09-28 — Nova jornada **Logs do sistema** (Super admin): `/admin/logs` e `/admin/logs/:id` (side nav com stack trace/payload e eventos relacionados). Permissões: permissoes-v6.
 - 2026-09-28 — Logs do sistema = **ações dos usuários** na plataforma (não erros técnicos): usuário, perfil, DR, ação, módulo, registro, IP, dispositivo e alterações antes/depois (logs-v2).
 - 2026-09-28 — Logs do sistema com visão **Linha do tempo** (padrão): agrupada por dia, ícone colorido por ação, frase “Fulano editou X”, antes/depois inline, filtro por ação, busca e “Carregar mais”; alternância para Tabela.
-- 2026-09-28 — Casca: seleção dividida em dois selects, Perfil e Jornada (a jornada lista só as do perfil escolhido).
 - 2026-09-28 — Painéis por perfil (exceto Super admin): **DN** `/painel-dn` (DRs ativas, TAAs vigentes/aguardando assinatura/a vencer, editais com execução, cobertura das DRs); **CTM: Supervisor** `/painel-ctm` (funil de propostas, ofertas em execução, próximas aulas ao vivo, TAAs com DRs); **CTM: Comercial** `/painel-comercial` (em negociação, valor fechado, taxa de aceite, pipeline por status e por DR contratante, aguardando resposta, cursos mais propostos). DR solicitante segue com `/acompanhamento`. permissoes-v7.
-- 2026-09-28 — Casca: rótulos Perfil/Jornada acima dos selects.
-- 2026-09-28 — **Guia da jornada**: ao navegar pelo fluxograma (etapas, Anterior/Próxima, setas), o protótipo escurece a tela, deixa vazado o elemento em foco da etapa (`focus` em `src/journeys.ts`: seletor CSS ou `text=Texto`) e mostra um cartão com a explicação (a `note` da etapa), “Entendi” e “Próxima etapa”. Liga/desliga pelo botão “Guia” no topo da casca (lembrado no navegador).
 
-- 2026-09-28 — Casca: botão **Tela cheia** (atalho F; também ao lado de Anterior/Próxima). Esconde o topo e o mapa da jornada, deixa só o selo do perfil, a etapa atual (n/total), Anterior/Próxima e o protótipo; usa a tela cheia do navegador. Sair: mesmo botão, F ou Esc.
-- 2026-09-28 — Reunião de processos (gravação de 5h40): **proposta** nasce Em negociação, com CNPJ, faturamento/escolas, nº CRM, link, vagas e início previsto por curso; alerta de prazo; duplicar (nova rodada); cancelar aceita; histórico. **Oferta**: cronograma gerado pelo sistema (parâmetros + Calendário), versões e validação pela DR (prazo), status A iniciar → Buscar tutor → Em andamento → Finalizada / Cancelada, prorrogar início, dia do presencial, escolas, agrupamento simples. **Execução**: equipe da turma, tutor e ação por UC, e-mail ao tutor (links, sem arquivos), validação pedagógica. **Integração com o AVA**: criar salas, dados para a DR, situação por escola. Telas novas: Equipe, Calendário, Tratativas pedagógicas, Financeiro. Jornadas novas: Gestão da execução, Acompanhamento pedagógico, Financeiro. Casca: etapas podem ter query (`?aba=`).
+- 2026-09-28 — Reunião de processos (gravação de 5h40): **proposta** nasce Em negociação, com CNPJ, faturamento/escolas, nº CRM, link, vagas e início previsto por curso; alerta de prazo; duplicar (nova rodada); cancelar aceita; histórico. **Oferta**: cronograma gerado pelo sistema (parâmetros + Calendário), versões e validação pela DR (prazo), status A iniciar → Buscar tutor → Em andamento → Finalizada / Cancelada, prorrogar início, dia do presencial, escolas, agrupamento simples. **Execução**: equipe da turma, tutor e ação por UC, e-mail ao tutor (links, sem arquivos), validação pedagógica. **Integração com o AVA**: criar salas, dados para a DR, situação por escola. Telas novas: Equipe, Calendário, Tratativas pedagógicas, Financeiro. Jornadas novas: Gestão da execução, Acompanhamento pedagógico, Financeiro.
 - 2026-09-28 — Nova tela **Mapa do processo** (/processo): BPMN do processo inteiro com atores, fases e atalhos para as telas.
-- 2026-09-28 — Casca: botão **Mapa do processo** no topo (ao lado de "Abrir protótipo livre") abre /processo dentro do protótipo; fica destacado enquanto o mapa está aberto. Para voltar, basta clicar numa etapa da jornada.
-- 2026-09-28 — Mapa do processo: botão **Tela cheia** (tela cheia do navegador; se bloqueada, cobre a janela) com barra de filtro/zoom e legenda; ao entrar, encaixa largura e altura. Sair: mesmo botão ou Esc. O iframe da casca passou a permitir tela cheia (`allow="fullscreen"`).
-- 2026-09-29 — Jornadas de criação terminam no **item criado** (Usuário criado, DR credenciada, TAA criado, Produto criado, Proposta criada), com o Guia destacando a linha (`focus: 'row=…'`). Guia: com side nav de criação aberta, não escurece e o cartão fica no canto; clique no cartão não fecha a side nav. Casca: ignora ecos de rota logo após trocar de etapa (mesma rota em duas etapas). Selects Perfil/Jornada sem campo de busca.
-- 2026-09-29 — **Mapa do processo** deixa de ser tela do protótipo: vira **painel da casca** (botão no topo), sobre o protótipo; “Abrir no protótipo” leva o iframe à tela e fecha o painel. Rota /processo removida do menu.
-- 2026-09-29 — Mapa do processo (painel): ocupa toda a altura; abre e “Ajustar” encaixam pela altura (atores ocupam a altura toda, texto legível), rolagem/arrasto na horizontal. Zoom: botões −/+, Ctrl/⌘ + roda (ou pinça), teclas + − 0 (0 = ajustar); arrastar com o mouse move o diagrama.
-- 2026-09-29 — **Sem versão responsiva**: o protótipo é sempre desktop. Removidos os botões tablet/celular da casca; o protótipo usa viewport de 1440 e largura mínima de 1280px (em telas menores, rola em vez de se reorganizar); menu lateral nunca vira gaveta.
-- 2026-09-29 — Casca: removido o botão “Tela cheia” do topo; continua o ícone ao lado de Anterior/Próxima e o atalho F.
 - 2026-09-29 — **TAA/contrato é de quem contrata**: a DR solicitante (ou o DN) cria o TAA para contratar uma CTM; a CTM não gerencia TAAs (saíram Gestão de TAAs da CTM, /meus-taas, e as jornadas "Novo TAA" de Comercial/Supervisor). DN não gerencia os TAAs da rede, só os seus. TAA só SENAI ↔ SENAI; SESI ↔ SENAI é contrato. Tela "Gestão de TAA" → **TAAs com CTMs** (DN, DR solicitante e Super admin); Novo TAA escolhe a CTM. Propostas: contratante só com TAA/contrato, coluna TAA / contrato. Jornadas: Contratação de CTM (DN) e Contratação da CTM (DR solicitante). Mapa do processo atualizado.
-- 2026-09-29 — Casca: painel de Perfil/Jornada minimizável (ícone − no canto superior direito); minimizado vira uma linha com perfil · jornada · etapa e botão de expandir (lembrado no navegador).
-- 2026-09-29 — Casca: removido o ícone de tela cheia ao lado de Anterior/Próxima; tela cheia só pelo atalho F (Esc/F para sair).
 - 2026-09-29 — Perfis: **CTM** é um perfil, com subperfis **Supervisor** e **Comercial**. No select da casca aparece só CTM (jornadas dos dois, numeradas juntas, com o subperfil entre parênteses). No protótipo, ao lado do selo de perfil (canto superior esquerdo), os subperfis ficam enfileirados; clicar seleciona o subperfil e abre a jornada equivalente dele na mesma etapa.
-- 2026-09-29 — Casca: barra do topo em dois grupos rotulados — **Análise** (Mapa do processo, Anotar, Anotações) e **Design** (Guia, Abrir protótipo livre, Restaurar dados).
-- 2026-09-29 — Guia da jornada **desligado por padrão**; liga pelo botão (lembrado no navegador).
-- 2026-09-29 — Casca: na barra Análise/Design, o item ativo (Mapa aberto, Anotar, Anotações abertas, Guia ligado) fica com preenchimento branco.
 - 2026-09-29 — Super admin vê os dados de todos: cada tela mostra de quem é o dado (coluna de origem, com filtro). Equipe: coluna **CTM**; a CTM vê só a própria equipe.
-- 2026-09-29 — Casca: protótipo com a mesma largura das caixas do topo, mais perto do painel de jornada; painel de jornada **fechado por padrão** (lembrado no navegador).
-- 2026-09-29 — Casca: protótipo renderizado em largura padrão de 1600px e reduzido por inteiro (mantém proporções); em telas maiores não estica além disso.
-- 2026-09-29 — Casca: na barra Design, seletor da **resolução** do protótipo (1280 a 2560 px, padrão 1600; lembrado no navegador).
 - 2026-09-29 — Perfil **CTM: Comercial** renomeado para **CTM: Gestor de contrato**; ganha a tela **Gestão de contratos** (`/gestao-contratos`): TAAs/contratos em que a CTM é contratada, só consulta (sem Novo TAA, anexar ou excluir).
 - 2026-09-29 — Gestão de Portfólio: colunas Modalidade e Área tecnológica saem da tabela; vão para o botão **Detalhes** (ícone ao lado do nome do curso). Continuam como filtros.
-- 2026-09-29 — Menu lateral: mais espaço entre logo, identificação da DR, busca e menus.
-- 2026-09-29 — Casca: Anterior/Próxima saem de cima do protótipo e vão para o canto direito do painel de jornada, só ícones, um em cima do outro (atalhos ← → mantidos; em tela cheia continuam sobre o protótipo).
-- 2026-09-29 — Menu lateral organizado em grupos com rótulo por perfil: DN (Credenciamento, Contratação), CTM (Comercial, Execução, Financeiro), DR solicitante (Contratos, Execução); Painel solto no topo. Super admin: rótulo "Setor · Grupo".
 - 2026-09-29 — **Edital define a CTM por produto**: a CTM aprovada é a de menor custo (novo campo no Novo edital; destaque nos detalhes). **TAA tem produtos**: no Novo TAA o contratante escolhe edital e produtos e a CTM vem da aprovação (produtos de outra CTM = outro TAA). Portfólio da CTM só com produtos em que ela é a aprovada. Nova proposta só com os produtos do TAA/contrato do contratante. Catálogo ganhou Mecânico de Manutenção de Máquinas e Desenhista de Produtos Gráficos.
-- 2026-09-29 — **Perfis em três grupos com caixas**: DN, CTM (Comercial, PCP, Supervisor, Pedagógico; Tutor e Monitor em avaliação) e DR solicitante (SENAI, SESI), mais o Super admin. Casca: grupos e caixas vêm de profiles.ts (grupo/caixa) e aparecem nas abas de subperfil ao lado do selo (Tutor/Monitor tracejados, em avaliação). "DR solicitante" virou "DR solicitante: SENAI"; novo "DR solicitante: SESI" cria **contrato** (resolve quem registra o contrato do SESI). Menus por caixa; menu "Contratação de CTM" com título conforme o perfil. Jornadas novas: Contratação da CTM (contrato) e acompanhamento do SESI, Alocação de tutores (PCP), Validação e acompanhamento (Pedagógico), Tutor e Monitor (em avaliação).
-- 2026-09-29 — **Portfólio com aprovação do DN**: novo produto e nova versão viram solicitações (*Aguardando aprovação*); DN aprova/reprova (motivo) em **Aprovação de portfólio**; o aprovado aparece no **Portfólio das CTMs** para todas as DRs e vai para a oferta. Produto ganhou vínculo com o **itinerário** (botão, sem integração ainda) e **documentos/materiais** (links). Gestão de Portfólio reescrita por produto (sem as linhas derivadas das propostas). Jornadas: Aprovação de portfólio (DN) e Portfólio das CTMs (DR solicitante). Casca: grupos/caixas de profiles.ts nas abas de subperfil do Jhonatas.
+- 2026-09-29 — **Perfis em três grupos com caixas**: DN, CTM (Comercial, PCP, Supervisor, Pedagógico; Tutor e Monitor em avaliação) e DR solicitante (SENAI, SESI), mais o Super admin.
+- 2026-09-29 — **Portfólio com aprovação do DN**: novo produto e nova versão viram solicitações (*Aguardando aprovação*); DN aprova/reprova (motivo) em **Aprovação de portfólio**; o aprovado aparece no **Portfólio das CTMs** para todas as DRs e vai para a oferta. Produto ganhou vínculo com o **itinerário** (botão, sem integração ainda) e **documentos/materiais** (links). Gestão de Portfólio reescrita por produto (sem as linhas derivadas das propostas). Jornadas: Aprovação de portfólio (DN) e Portfólio das CTMs (DR solicitante).
 - 2026-09-29 — **Calendário → Feriados nacionais**, só do Super admin (`/admin/feriados`, novo/editar/excluir). Serve apenas para o cronograma pular feriados nacionais; saíram os recessos/férias da CTM e o Calendário dos menus da CTM (Supervisor, Comercial, PCP). Jornada nova: Feriados nacionais (Super admin).
 - 2026-09-29 — **Gestor**: na DR solicitante, quem pede a contratação da CTM é o Gestor (coordenador, interlocutor…). Caixas viraram **Gestor SENAI** e **Gestor SESI**; o Novo TAA/contrato tem o grupo **Gestor solicitante** (nome do usuário + cargo), mostrado nos detalhes e na lista.
 - 2026-09-29 — **TAA por DR, enviado pela CTM**: a CTM vencedora envia um TAA para cada DR (tela TAAs com as DRs, `/taas-ctm`); o Gestor da DR analisa. Novos status **Encaminhado, Em análise, Retornado para ajuste, Aceito, Cancelado** (saem Em elaboração/Vigente/Encerrado), com histórico, ajuste e reencaminhamento. **Saldo** do TAA (valor − executado). TAA aceito é burocrático: destrava a negociação/propostas e pode não gerar nada. **DN não contrata mais CTM** (sai da tela de TAAs; painel do DN mostra solicitações de portfólio). **Comercial → Gestor de contrato** (pode ser supervisor, gestor…).
@@ -314,44 +246,13 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Proposta reformulada**: sempre da CTM, vinculada a um TAA/contrato aceito; responsável = Gestor de contrato; cursos do TAA com alunos e início, matriz do portfólio e valor do edital × alunos; status **Rascunho, Em andamento, Aguardando retorno do cliente, Aprovado, Cancelado** (o Gestor de contrato muda); **versões** (vai e vem) com histórico; aprovadas executam o **saldo do TAA**. Depois de aprovada, **equipe técnica** (supervisor e analista) define o cronograma/agrupamento e segue para as turmas. Saíram aceitar/recusar, duplicar e a regra de curso único.
 - 2026-09-29 — Padrão: toda caixa com borda (blocos de informação, grupos de campos, listas) tem fundo (bg-card), para facilitar a leitura. Aplicado em todas as telas.
 - 2026-09-29 — Detalhes da turma: sai o menu "Mais ações"; Prorrogar início, Adicionar oferta e Cancelar turma viram botões no topo.
-- 2026-09-29 — Hierarquia de botões: 3º nível = só outline e cor neutra. Botões com texto dentro das tabelas (ex.: Anexar assinado, Detalhes) deixam o laranja e ficam neutros; ícones de ação continuam como estão.
-- 2026-09-29 — Busca rápida (⌘K): ao abrir mostra **Ações** (criar, conforme o perfil), **Recentes** (últimos registros abertos, por navegador), **Precisa de atenção** (TAAs encaminhados/em análise/retornados, propostas em negociação/análise) e as telas com o ícone do menu. TAAs também aparecem para a CTM.
-- 2026-09-29 — Abas (padrão, todas as telas): trilho branco com borda; aba ativa em laranja suave (como o item ativo do menu).
-- 2026-09-29 — Busca rápida: Ações em grade de 3 colunas (menos altura); TAAs no escopo do perfil (CTM: onde é contratada; DR: onde é contratante).
-- 2026-09-29 — Casca: select de Perfil lista só os perfis (DN, CTM, DR solicitante, Super admin), sem os subperfis entre parênteses (cortavam a caixa); subperfis continuam nas abas ao lado do selo.
 - 2026-09-29 — Perfil **CTM: Supervisor** renomeado para **CTM: Gestor de oferta** (a função Supervisor da equipe/turma continua).
 - 2026-09-29 — Padrão: nada de campos ou texto direto sobre o fundo da página. Campos sempre com fundo branco (global); Detalhes da turma: bloco Dia do encontro presencial + Escolas dentro de uma caixa.
-- 2026-09-29 — Padrão: todo botão desabilitado mostra um tooltip com o que está pendente (ex.: Confirmar turma → "O cronograma precisa estar validado pela DR"). Implementado no Button (prop motivo), com texto genérico quando não houver motivo; motivos escritos para todos os botões desabilitados atuais.
-- 2026-09-29 — Mapa do processo: zoom com Ctrl/⌘ + roda bem mais lento e proporcional ao giro (trackpad). Casca: ao recarregar a página, o protótipo volta para a tela em que o usuário estava (guardado na sessão do navegador), não para a tela da etapa.
 - 2026-09-29 — Padrão reforçado: elementos com borda sobre o fundo (linhas de listas, opções selecionáveis) também com fundo branco, incluindo os que mudam de estado (ex.: escolas na Integração com o AVA).
-- 2026-09-29 — Menu lateral: cartão da DR sem o ícone ao lado.
-- 2026-09-29 — Menu lateral: campo Buscar sem preenchimento (só borda), para ter menos destaque.
-- 2026-09-29 — DataTable ganhou a 2ª visualização em **cards** (prop `cards`): um card por linha, código e status no topo, ações à direita e demais colunas em grade — sem rolagem horizontal. Botão Cards/Tabela na barra da tabela (lembrado por tela). Ativado em Gestão de propostas (abre em cards).
-- 2026-09-29 — Filtros (todas as tabelas): DR, CTM, estado, contratante, nomes, empresa, escola etc. — e qualquer filtro com mais de 10 opções — viram **campo de busca** com resultados abaixo e **vários valores** escolhidos como etiquetas (mostra linhas com qualquer um deles). Poucos valores continuam em pílulas.
-- 2026-09-29 — Casca: selo do perfil mostra "Área: <perfil>" (sem ícone de pessoa); abas de subperfil com rótulo "Subperfil:".
-- 2026-09-29 — Busca rápida: seção Telas também em grade de 3 colunas (com o ícone de cada tela).
 - 2026-09-29 — Painéis: listas sem as bolinhas de sigla à esquerda (a DR continua no texto de cada linha).
-- 2026-09-29 — Menu lateral: perfis da área CTM não mostram o cartão "Departamento Regional".
-- 2026-09-29 — Casca: select de Jornada mais largo e lista ajustada ao texto (até 36rem, quebra linha se preciso), sem cortar nomes.
-- 2026-09-29 — Casca: etapa selecionada no fluxograma da jornada sem o contorno branco (só o preenchimento na cor do perfil).
 - 2026-09-29 — **UCs da turma**: aba "Execução" vira **UCs**. Cada UC tem equipe técnica (pedagógico, tutor, monitor) e o fluxo sala no Moodle (monitor, Em criação/Criada) → planejamento (pedagógico: aulas ao vivo online + atividades presenciais) → avaliação do tutor (aprova/devolve) → e-mail ao monitor para parametrizar avaliações → Pronta. Todas prontas: e-mail à DR solicitante (SGN/SGE). Sai o modelo antigo (PCP aloca tutor, planejamento/apropriação, e-mail copiado). Tutor e Monitor deixam de ser "em avaliação". Mapa do processo e jornadas refeitos.
-- 2026-09-29 — Padrão: containers com o mesmo arredondamento (20px, como cards e tabelas do DS). Blocos dos painéis (antes ~26px), cards de indicadores e caixas de informação das telas (antes 12px) igualados.
-- 2026-09-29 — Padrão: cores dos status unificadas num mapa único (verde concluído, azul em curso, laranja aguardando/atenção, vermelho negativo, cinza inicial/encerrado), valendo para propostas, TAAs, turmas, portfólio, cronograma, alunos, DRs e usuários. Badge padrão sem status conhecido fica cinza — nenhuma badge na cor principal (ex.: "Aguardando…" no painel).
-- 2026-09-29 — Tabelas: na coluna Ações todos os botões (com texto ou só ícone) iguais — contorno neutro, ícone e texto na cor principal.
-- 2026-09-29 — Selects (todos): a lista se ajusta ao texto (no mínimo a largura do campo, até 36rem e o espaço da tela) e quebra linha se preciso, sem cortar opções (ex.: contratos no painel do Gestor SENAI).
-- 2026-09-29 — Painel da DR solicitante (Gestor SENAI/SESI): sem os ícones ao lado dos números em Alunos ativos, Requer atenção e Acessos ao portal.
-- 2026-09-29 — Painel da DR solicitante: listas de Turmas e Requer atenção sem as bolinhas de iniciais.
-- 2026-09-29 — Selects (todos): a lista abre abaixo do campo com altura de até 24rem (ou o espaço da tela), só o necessário quando há poucas opções — antes abria sobre o campo e ficava curta.
-- 2026-09-29 — Badges de identificador (proposta, turma, TAA, versão etc.) em cor neutra (cinza), não mais azul.
 - 2026-09-29 — **Editais só do DN**: a CTM não faz gestão de editais, apenas participa (oferece o custo, fora do sistema) e consulta o edital em modo leitura. Regra explícita no fluxo e no mapa do processo; telas já restritas ao DN.
-- 2026-09-29 — Tabelas com barra de execução: o percentual fica logo ao lado da barra.
 - 2026-09-29 — **Sem SESI na v1**: saem o perfil DR solicitante: SESI, as jornadas "Contratos com CTMs" e "Acompanhamento" do SESI, os contratos `CT-…` (seeds, coluna Instrumento, título/número de contrato no Novo TAA) e o contrato/turma EAD do SESI-MG. Tudo é TAA entre SENAI e SENAI.
 - 2026-09-29 — **Cronograma em linha do tempo**: a aba Cronograma da turma troca a planilha por um Gantt semanal (módulos, UCs, encontros presenciais, aulas ao vivo, feriados, hoje) com detalhe da UC em side nav; a tabela vira visão alternativa.
-- 2026-09-29 — Filtros: Curso/Produto/UC também viram campo de busca com vários valores (multiselect) em todas as tabelas.
-- 2026-09-29 — Casca: barra Análise/Design e painel de jornada viram uma **coluna à esquerda** do protótipo (ferramentas empilhadas; Perfil e Jornada em selects; etapas em lista vertical; Anterior/Próxima). A coluna **recolhe** para uma faixa estreita (expandir, cor do perfil, etapa anterior/próxima); começa recolhida e o navegador lembra.
-- 2026-09-29 — Tabelas: colunas Curso/Cursos/Produto/Produtos com largura limitada (~16rem) e texto quebrando linha.
-- 2026-09-29 — Casca: coluna lateral mais estreita por padrão (256px) e redimensionável arrastando a borda direita, só para diminuir (até 200px; lembrado no navegador). Botões de Análise e Design com rótulo alinhado à esquerda.
-- 2026-09-29 — Filtros: Turma, Modalidade e Área tecnológica também viram campo de busca multiselect em todas as tabelas.
-- 2026-09-29 — Novo TAA (Gestor de contrato): DR destinatária vira um select com **uma DR só** (um TAA por vez). Casca: conteúdo da coluna lateral não extrapola mais a caixa (selects e etapas encolhem; textos longos com reticências).
+- 2026-09-29 — Novo TAA (Gestor de contrato): DR destinatária vira um select com **uma DR só** (um TAA por vez).
 - 2026-09-29 — Equipe: funções Monitor front e Monitor back unificadas em **Monitor** (Nova pessoa e alocação). Dados da equipe reiniciados (equipe-v3).
-- 2026-09-29 — Visualização em cards: botões de ação com o mesmo padrão da coluna Ações (contorno neutro, ícone na cor principal).

@@ -63,8 +63,8 @@ export default function TaaCtm() {
   )
 }
 
-// Novo TAA (CTM): edital → produtos em que a CTM é a aprovada → DRs SENAI destinatárias. Gera um TAA por DR,
-// com status "Encaminhado", que aparece para o Gestor de cada DR analisar.
+// Novo TAA (CTM): edital → produtos em que a CTM é a aprovada → uma DR SENAI destinatária (um TAA por vez),
+// com status "Encaminhado", que aparece para o Gestor da DR analisar.
 function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boolean; onOpenChange: (v: boolean) => void }) {
   const db = useContratos()
   const editais = useEditais().all.filter((e) => e.cursos.some((c) => aprovadaDe(c) === ctm))
