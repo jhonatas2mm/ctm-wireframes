@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Eye, Pencil, Plus, Power, PowerOff } from 'lucide-react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { NovaDrSheet } from './nova-dr-sheet'
 import { Badge } from '@/components/ui/badge'
 import { CopiaTexto, DataTable, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
-import { useDrs, useEditais, type Dr } from '@/lib/mock'
+import { useDrs, useEditais, useEscolas, type Dr } from '@/lib/mock'
 import { DrSheet } from './dr-sheet'
 import { EditarDrSheet } from './editar-dr-sheet'
 
@@ -16,7 +16,13 @@ export default function GestaoDrs() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const { all: editais } = useEditais()
-  const [ver, setVer] = useState<Dr | null>(null)
+  const [params, setParams] = useSearchParams()
+  const [verState, setVer] = useState<Dr | null>(null)
+  // Detalhe aberto pela URL (?ver=RJ) para a jornada de validação de escolas
+  const ver = verState ?? all.find((d) => d.uf === params.get('ver')) ?? null
+  const fechar = () => (setVer(null), params.get('ver') && setParams({}, { replace: true }))
+  const { all: escolas } = useEscolas()
+  const escolasDe = (uf: string) => escolas.filter((e) => e.dr === uf)
   const [editar, setEditar] = useState<Dr | null>(null)
   const qtdEditais = (uf: string) => editais.filter((e) => e.drs.includes(uf)).length
   const colunas: Column<Dr>[] = [
@@ -26,6 +32,13 @@ export default function GestaoDrs() {
     { header: 'E-mail', value: (d) => d.email, search: true, className: 'text-muted-foreground', cell: (d) => <CopiaTexto texto={d.email} rotulo="Copiar e-mail" /> },
     { header: 'Telefone', value: (d) => d.telefone, className: 'text-muted-foreground tabular-nums', cell: (d) => <CopiaTexto texto={d.telefone} rotulo="Copiar telefone" /> },
     { header: 'Editais', value: (d) => qtdEditais(d.uf), className: 'text-right tabular-nums' },
+    {
+      header: 'Escolas', value: (d) => escolasDe(d.uf).length,
+      cell: (d) => {
+        const pend = escolasDe(d.uf).filter((e) => e.status === 'Aguardando validação').length
+        return <span className="flex items-center gap-2 tabular-nums">{escolasDe(d.uf).length}{pend > 0 && <Badge variant="outline">{pend} aguardando validação</Badge>}</span>
+      },
+    },
     { header: 'Status', value: (d) => d.status, filter: true, cell: (d) => <Badge variant={d.status === 'Ativo' ? 'default' : 'outline'}>{d.status}</Badge> },
   ]
   return (
@@ -52,7 +65,7 @@ export default function GestaoDrs() {
           </>
         )}
       />
-      <DrSheet dr={ver} onClose={() => setVer(null)} />
+      <DrSheet dr={ver} onClose={fechar} />
       <EditarDrSheet dr={editar} onClose={() => setEditar(null)} />
       <NovaDrSheet open={pathname === '/drs/novo'} onOpenChange={(v) => !v && navigate('/drs')} />
       {dialogo}

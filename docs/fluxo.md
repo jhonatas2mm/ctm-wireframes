@@ -9,6 +9,7 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 0c1. **Feriados nacionais** (Super admin) — Feriados nacionais → Novo feriado.
 0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): ações dos usuários na plataforma (login, visualizou, criou, editou com antes/depois, excluiu, aceitou/recusou, exportou, anexou).
 0d. **Supervisão das áreas** (Super admin) — Gestão de DRs → Editais → Propostas → Oferta.
+1a. **Cadastro e validação de escolas** (DR solicitante: Gestor EAD → DN) — Escolas → Nova escola → DN valida no detalhe do DR.
 1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs → Novo DR credenciado. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
 2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Coordenador EAD).
 3. **Envio de TAA aos DRs** (CTM: Gestor EAD) — TAAs com os DRs → Novo TAA (um por DR) → Gestor do DR analisa → retorno para a CTM.
@@ -43,6 +44,13 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
   - **Gestor EAD** e **Coordenador EAD** — o DR toda: TAAs com CTMs, portfólio, acompanhamento (painel, contratos, turmas, alunos) e confirmação de desistências. O TAA registra o **Gestor solicitante** (nome e cargo).
   - **Gestor Escolar** e **Coordenador Escolar** — os **mesmos acessos**, porém **vinculados a uma ou mais escolas**: só veem os dados (alunos, desistências) das suas escolas. No protótipo: Gestor Escolar = SENAI Maracanã; Coordenador Escolar = SENAI Maracanã e SENAI Tijuca (SENAI-RJ). Por enquanto o filtro por escola está aplicado na Confirmação de desistências.
 - Uma mesmo DR pode ser **CTM** (ofertante) e **DR solicitante** (contratante) — são perfis diferentes.
+
+## Escolas (DR solicitante cadastra, DN valida)
+- Cada DR tem suas **escolas** (nome, código, cidade, responsável, e-mail). **Quem cadastra é o DR solicitante** (tela **Escolas**, `/escolas`, Gestor/Coordenador EAD); cada escola entra **Aguardando validação**.
+- **O DN valida**: Gestão de DRs → detalhe do DR → seção Escolas (pendentes no topo): **Validar** ou **Recusar** com motivo. A lista de DRs mostra quantas escolas cada um tem e quantas aguardam validação.
+- Recusada: o DR vê o motivo, **ajusta e reenvia** (volta a Aguardando validação). Editar uma escola validada também volta para a validação. Escola validada não pode ser excluída.
+- **Só escolas validadas entram nas turmas** (Adicionar escola na turma lista as validadas do DR contratante).
+- Gestor/Coordenador Escolar veem só as suas escolas e não cadastram.
 
 ## Acompanhamento (DR solicitante)
 - Contrato = DR solicitante ↔ CTM, com empresa cliente, só cursos EAD, vigência, valor, vagas e status (Vigente / Em elaboração / Encerrado).
@@ -313,3 +321,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Agente inteligente removido** (botão no topo, chat e jornada de exemplo).
 - 2026-09-29 — Nomenclatura: **DR no masculino** (Departamento Regional) em todos os textos: botão **Novo DR credenciado**, "o DR", "do DR", "DRs credenciados".
 - 2026-09-29 — Tela "Gestão de DRs credenciados" passa a se chamar **Gestão de DRs**.
+- 2026-09-29 — **Escolas**: o DR solicitante cadastra as escolas (tela Escolas); o DN valida ou recusa com motivo no detalhe do DR (Gestão de DRs, coluna Escolas com pendentes). Só escolas validadas entram nas turmas. Nova jornada "Cadastro e validação de escolas".

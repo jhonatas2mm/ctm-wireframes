@@ -77,7 +77,17 @@ export const journeys: Journey[] = [
       { title: 'Novo DR credenciado', path: '/drs/novo', profile: 'DN', note: 'Escolhe o DR (UF ainda não credenciada) e preenche o contato. Nasce Ativa; pode ser inativada depois.' },
       { title: 'DR credenciado', path: '/drs', focus: 'row=SENAI-PE', profile: 'DN', note: 'Ao salvar, o DR aparece na lista como Ativa, com responsável e contato (ex.: SENAI-PE). Dali pode ser editada ou inativada.' },
     ],
+  },  {
+    id: 'escolas',
+    title: 'Cadastro e validação de escolas',
+    profile: 'DR solicitante: Gestor EAD',
+    steps: [
+      { title: 'Escolas', path: '/escolas', focus: 'text=Nova escola', profile: 'DR solicitante: Gestor EAD', note: 'O DR solicitante cadastra as suas escolas; cada uma vai para a validação do DN. Recusada, o DR ajusta e reenvia.' },
+      { title: 'Nova escola', path: '/escolas/nova', profile: 'DR solicitante: Gestor EAD', note: 'Nome, código, cidade e responsável; entra como Aguardando validação.' },
+      { title: 'DN valida as escolas', path: '/drs?ver=RJ', profile: 'DN', note: 'Gestão de DRs → detalhe do DR: escolas aguardando validação no topo; Validar ou Recusar com motivo. Só escolas validadas entram nas turmas.' },
+    ],
   },
+
   {
     id: 'fluxo',
     title: 'Criação de edital',

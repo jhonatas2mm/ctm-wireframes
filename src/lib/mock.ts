@@ -589,7 +589,31 @@ const ajustesCobranca: AjusteCobranca[] = [
 export type ConfirmacaoDesistencia = { id: string; situacao: 'Confirmada' | 'Contestada'; em: string; por: string; motivo?: string }
 export const useConfirmacoesDesistencia = () => useCollection<ConfirmacaoDesistencia>('desistencias-v2', [])
 export const useAjustesCobranca = () => useCollection<AjusteCobranca>('ajustes-cobranca-v1', ajustesCobranca)
-export const escolasDr: Record<string, string[]> = { MG: ['SENAI CETEL', 'SENAI Contagem', 'SENAI Betim'], SP: ['SENAI Anchieta', 'SENAI Campinas'], BA: ['SENAI Dendezeiros'] }
+// Escolas de cada DR: o DR solicitante cadastra; o DN valida (Validada) ou recusa com motivo (Recusada: o DR ajusta e
+// reenvia). Só escolas validadas entram nas turmas.
+export type StatusEscola = 'Aguardando validação' | 'Validada' | 'Recusada'
+export type Escola = { id: string; dr: string; nome: string; codigo: string; cidade: string; responsavel: string; email: string; status: StatusEscola; motivo?: string; cadastradaEm: string; validadaEm?: string; historico?: Registro[] }
+const esc = (id: string, dr: string, nome: string, codigo: string, cidade: string, responsavel: string, status: StatusEscola = 'Validada', extra: Partial<Escola> = {}): Escola => ({
+  id, dr, nome, codigo, cidade, responsavel, email: `${responsavel.split(' ')[0].toLowerCase()}@senai${dr.toLowerCase()}.org.br`, status,
+  cadastradaEm: '2026-06-10', validadaEm: status === 'Validada' ? '2026-06-15' : undefined, ...extra,
+})
+const escolasSeed: Escola[] = [
+  esc('es1', 'MG', 'SENAI CETEL', 'MG-0101', 'Belo Horizonte', 'Renato Lopes'),
+  esc('es2', 'MG', 'SENAI Contagem', 'MG-0102', 'Contagem', 'Cláudia Freitas'),
+  esc('es3', 'MG', 'SENAI Betim', 'MG-0103', 'Betim', 'Joana Paiva'),
+  esc('es4', 'MG', 'SENAI Uberlândia', 'MG-0104', 'Uberlândia', 'Fábio Nogueira', 'Aguardando validação', { cadastradaEm: '2026-09-24' }),
+  esc('es5', 'MG', 'SENAI Centro BH', 'MG-0105', 'Belo Horizonte', 'Sílvia Rocha', 'Recusada', { cadastradaEm: '2026-09-10', motivo: 'Unidade já cadastrada como SENAI CETEL (mesmo endereço).' }),
+  esc('es6', 'RJ', 'SENAI Maracanã', 'RJ-0201', 'Rio de Janeiro', 'Luciana Prates'),
+  esc('es7', 'RJ', 'SENAI Benfica', 'RJ-0202', 'Rio de Janeiro', 'André Moura'),
+  esc('es8', 'RJ', 'SENAI Tijuca', 'RJ-0203', 'Rio de Janeiro', 'Priscila Neves'),
+  esc('es9', 'RJ', 'SENAI Duque de Caxias', 'RJ-0204', 'Duque de Caxias', 'Rodrigo Tavares', 'Aguardando validação', { cadastradaEm: '2026-09-26' }),
+  esc('es10', 'SP', 'SENAI Anchieta', 'SP-0301', 'São Paulo', 'Helena Duarte'),
+  esc('es11', 'SP', 'SENAI Campinas', 'SP-0302', 'Campinas', 'Marcelo Viana'),
+  esc('es12', 'SP', 'SENAI Santo André', 'SP-0303', 'Santo André', 'Beatriz Lemos', 'Aguardando validação', { cadastradaEm: '2026-09-27' }),
+  esc('es13', 'BA', 'SENAI Dendezeiros', 'BA-0401', 'Salvador', 'Carla Menezes'),
+]
+export const useEscolas = () => useCollection<Escola>('escolas-v1', escolasSeed)
+export const escolasDr: Record<string, string[]> ={ MG: ['SENAI CETEL', 'SENAI Contagem', 'SENAI Betim'], SP: ['SENAI Anchieta', 'SENAI Campinas'], BA: ['SENAI Dendezeiros'] }
 
 // Super admin: usuários do sistema, permissões por perfil e trilha de auditoria.
 export type StatusUsuario = 'Ativo' | 'Inativo'

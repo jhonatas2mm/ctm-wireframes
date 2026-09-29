@@ -32,7 +32,7 @@ const badgeVariants = cva(
 // Badge padrão com texto fora desta lista fica cinza (nunca na cor principal).
 const tones: Record<string, "green" | "blue" | "orange" | "red" | "gray"> = {
   Pronta: "green", Criada: "green", "Em planejamento": "blue", "Em criação": "blue", "Em avaliação do tutor": "orange", "Parametrizar avaliações": "orange", "Não criada": "gray",
-  Vigente: "green", Considerado: "green", Confirmada: "green", Contestada: "red", Ativo: "green", Ativa: "green", Aceito: "green", Aceita: "green", Aprovado: "green", Aprovada: "green", Validado: "green", Integrada: "green", "Em dia": "green", Criou: "green", Aceitou: "green",
+  Vigente: "green", Considerado: "green", Confirmada: "green", Contestada: "red", Ativo: "green", Ativa: "green", Aceito: "green", Validada: "green", Aceita: "green", Aprovado: "green", Aprovada: "green", Validado: "green", Integrada: "green", "Em dia": "green", Criou: "green", Aceitou: "green",
   "Em andamento": "blue", Encaminhado: "blue", "Em negociação": "blue", "A iniciar": "blue", "Aceita pelo contratante": "blue", Anexou: "blue", Exportou: "blue", Transferido: "blue",
   "Em análise": "orange", "Em risco": "orange", "Buscar tutor": "orange", Retornado: "orange", Aguardando: "orange", Editou: "orange", Trancado: "orange",
   Recusada: "red", Recusado: "red", Reprovado: "red", Reprovada: "red", Evadido: "red", Desistente: "red", Excluiu: "red", Recusou: "red",

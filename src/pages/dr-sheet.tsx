@@ -1,17 +1,32 @@
-import { Mail, Phone, UserRound } from 'lucide-react'
+import { useState } from 'react'
+import { Check, Mail, Phone, UserRound, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { useAutor } from '@/lib/autor'
 import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { EmptyState } from '@/components/wf'
-import { useContratos, useEditais, type Dr } from '@/lib/mock'
+import { EmptyState, Req, useConfirmar } from '@/components/wf'
+import { HOJE, dataBr, useContratos, useEditais, useEscolas, type Dr, type Escola } from '@/lib/mock'
 import { StatusTaaBadge } from './taa-fluxo'
 
-// Detalhes do DR (side sheet, perfil DN): contato, editais em que está credenciado e TAAs com o DN.
+// Detalhes do DR (side sheet, perfil DN): contato, escolas (cadastradas pelo DR solicitante; o DN valida ou recusa com
+// motivo), editais em que está credenciado e TAAs.
 export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void }) {
   const { all: editais } = useEditais()
   const { all: contratos } = useContratos()
   const meusEditais = dr ? editais.filter((e) => e.drs.includes(dr.uf)) : []
   // TAAs em que a DR é a CTM contratada
   const taas = dr ? contratos.filter((c) => c.dr === dr.uf) : []
+  const escDb = useEscolas()
+  const autor = useAutor()
+  const { confirmar, dialogo } = useConfirmar()
+  const [recusar, setRecusar] = useState<Escola | null>(null)
+  const [motivo, setMotivo] = useState('')
+  const escolas = dr ? escDb.all.filter((e) => e.dr === dr.uf).sort((a, b) => (a.status === 'Aguardando validação' ? -1 : 0) - (b.status === 'Aguardando validação' ? -1 : 0)) : []
+  const pendentes = escolas.filter((e) => e.status === 'Aguardando validação').length
+  const hist = (e: Escola, texto: string) => [{ quando: new Date().toISOString(), texto, autor }, ...(e.historico ?? [])]
   return (
     <Sheet open={!!dr} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
@@ -32,6 +47,31 @@ export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void })
                   <li className="flex items-center gap-2"><Mail className="size-4 text-muted-foreground" /> {dr.email}</li>
                   <li className="flex items-center gap-2 tabular-nums"><Phone className="size-4 text-muted-foreground" /> {dr.telefone}</li>
                 </ul>
+              </section>
+
+              <section className="space-y-2">
+                <h3 className="text-sm font-semibold">Escolas <span className="font-normal text-muted-foreground">({escolas.length}{pendentes ? ` · ${pendentes} aguardando validação` : ''})</span></h3>
+                {escolas.length ? (
+                  <ul className="divide-y rounded-lg border bg-card">
+                    {escolas.map((e) => (
+                      <li key={e.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-medium">{e.nome} <span className="font-mono text-xs font-normal text-muted-foreground">{e.codigo}</span></span>
+                          <span className="block text-xs text-muted-foreground">{e.cidade} · {e.responsavel} · cadastrada em {dataBr(e.cadastradaEm)}{e.status === 'Recusada' && e.motivo ? ` · ${e.motivo}` : ''}</span>
+                        </span>
+                        <Badge variant="outline" className="shrink-0">{e.status}</Badge>
+                        {e.status === 'Aguardando validação' && (
+                          <span className="flex shrink-0 gap-1">
+                            <Button size="sm" variant="outline" onClick={() => confirmar({ titulo: `Validar a escola ${e.nome}?`, descricao: 'Validada, ela pode entrar nas turmas das CTMs.', acao: 'Validar', onConfirmar: () => escDb.update(e.id, { status: 'Validada', validadaEm: HOJE, motivo: undefined, historico: hist(e, 'Validada pelo DN') }) })}><Check /> Validar</Button>
+                            <Button size="sm" variant="outline" onClick={() => (setMotivo('Código da escola não confere com o cadastro nacional.'), setRecusar(e))}><X /> Recusar</Button>
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <EmptyState title="Nenhuma escola cadastrada por este DR" />
+                )}
               </section>
 
               <section className="space-y-2">
@@ -78,6 +118,20 @@ export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void })
           </>
         )}
       </SheetContent>
+      <Dialog open={!!recusar} onOpenChange={(v) => !v && setRecusar(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Recusar a escola {recusar?.nome}?</DialogTitle>
+            <DialogDescription>O DR solicitante vê o motivo, ajusta o cadastro e reenvia para validação.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-1.5"><Label>Motivo <Req /></Label><Textarea rows={3} value={motivo} onChange={(ev) => setMotivo(ev.target.value)} /></div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRecusar(null)}>Cancelar</Button>
+            <Button onClick={() => (recusar && escDb.update(recusar.id, { status: 'Recusada', motivo: motivo.trim(), historico: hist(recusar, `Recusada pelo DN: ${motivo.trim()}`) }), setRecusar(null))}>Recusar escola</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {dialogo}
     </Sheet>
   )
 }

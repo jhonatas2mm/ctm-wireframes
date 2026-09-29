@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { EmptyState, PageHeader, Req, useConfirmar } from '@/components/wf'
 import {
   HOJE, agrupaveis, chUc, dataBr as br, diasEntre, diasSemana, periodoTurma, situacaoCronograma, statusTurma,
-  useCalendarioAtivo, useProdutos, useTurmas, type AulaAoVivo, type EscolaTurma, type Turma,
+  useCalendarioAtivo, useEscolas, useProdutos, useTurmas, type AulaAoVivo, type EscolaTurma, type Turma,
 } from '@/lib/mock'
 import { deslocar, gerarCronograma, parametrosPadrao } from '@/lib/cronograma'
 import { useAutor } from '@/lib/autor'
@@ -41,6 +41,7 @@ export default function OfertaDetalhe() {
   const { confirmar, dialogo } = useConfirmar()
   const { all: propostas } = useProdutos()
   const { all: calendario } = useCalendarioAtivo()
+  const { all: escolasDb } = useEscolas()
   const [verProposta, setVerProposta] = useState(false)
   const [visao, setVisao] = useState<'linha' | 'tabela'>('linha')
   // UC em edição (módulo, UC) e rascunho da aula ao vivo; um dia por UC.
@@ -170,7 +171,7 @@ export default function OfertaDetalhe() {
               <section className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Escolas da turma <span className="font-normal text-muted-foreground">({(t.escolas ?? []).reduce((s, e) => s + e.alunos, 0)} estudantes)</span></Label>
-                  <Button size="sm" variant="outline" onClick={() => (setEscola({ nome: 'SENAI Tijuca', cidade: 'Rio de Janeiro', alunos: 15 }), setModal('escola'))}><Plus /> Adicionar escola</Button>
+                  <Button size="sm" variant="outline" onClick={() => { const e = escolasDb.find((x) => x.dr === t.drContratante && x.status === 'Validada' && !(t.escolas ?? []).some((y) => y.nome === x.nome)); setEscola({ nome: e?.nome ?? '', cidade: e?.cidade ?? '', alunos: 15 }); setModal('escola') }}><Plus /> Adicionar escola</Button>
                 </div>
                 {(t.escolas ?? []).length ? (
                   <ul className="divide-y rounded-lg border bg-card">
@@ -394,9 +395,15 @@ export default function OfertaDetalhe() {
                 <DialogDescription>Escola do DR contratante que terá estudantes nesta turma.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-3">
-                <div className="grid gap-1.5"><Label>Escola <Req /></Label><Input value={escola.nome} onChange={(e) => setEscola({ ...escola, nome: e.target.value })} /></div>
+                <div className="grid gap-1.5">
+                  <Label>Escola <Req /> <span className="font-normal text-muted-foreground">(validadas pelo DN)</span></Label>
+                  <Select value={escola.nome || null} onValueChange={(v) => { const e = escolasDb.find((x) => x.nome === v); setEscola({ ...escola, nome: v as string, cidade: e?.cidade ?? '' }) }}>
+                    <SelectTrigger className="w-full"><SelectValue>{(v: string | null) => v ?? 'Nenhuma escola validada disponível'}</SelectValue></SelectTrigger>
+                    <SelectContent>{escolasDb.filter((x) => x.dr === t.drContratante && x.status === 'Validada' && !(t.escolas ?? []).some((y) => y.nome === x.nome)).map((x) => <SelectItem key={x.id} value={x.nome}>{x.nome} · {x.cidade}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-[1fr_7rem] gap-3">
-                  <div className="grid gap-1.5"><Label>Cidade <Req /></Label><Input value={escola.cidade} onChange={(e) => setEscola({ ...escola, cidade: e.target.value })} /></div>
+                  <div className="grid gap-1.5"><Label>Cidade</Label><Input readOnly value={escola.cidade} className="bg-muted" /></div>
                   <div className="grid gap-1.5"><Label>Estudantes</Label><Input inputMode="numeric" value={escola.alunos || ''} onChange={(e) => setEscola({ ...escola, alunos: Number(e.target.value.replace(/\D/g, '')) })} /></div>
                 </div>
               </div>

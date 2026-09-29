@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { UserX } from 'lucide-react'
+import { School, UserX } from 'lucide-react'
 import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, BookOpenCheck, ClipboardCheck, Send } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
@@ -17,6 +17,7 @@ import Tratativas from '@/pages/tratativas'
 import Financeiro from '@/pages/financeiro'
 import RelatorioCobranca from '@/pages/relatorio-cobranca'
 import Desistencias from '@/pages/desistencias'
+import Escolas from '@/pages/escolas'
 import Portfolio from '@/pages/portfolio'
 import TaaCtm from '@/pages/taa-ctm'
 import Components from '@/pages/components'
@@ -85,6 +86,8 @@ export const screens: Screen[] = [
   { path: '/alunos', title: 'Estudantes', group: 'Telas', icon: UserRound, component: Alunos, profiles: ['DR solicitante: Gestor EAD', 'DR solicitante: Coordenador EAD', 'DR solicitante: Gestor Escolar', 'DR solicitante: Coordenador Escolar', 'Super admin'], data: ['alunos-ead'] },
   { path: '/alunos/:id', title: 'Detalhes do estudante', group: 'Telas', icon: UserRound, component: Alunos, hidden: true, data: ['alunos-ead'] },
   { path: '/desistencias', title: 'Confirmação de desistências', group: 'Telas', icon: UserX, component: Desistencias, profiles: ['DR solicitante: Gestor EAD', 'DR solicitante: Coordenador EAD', 'DR solicitante: Gestor Escolar', 'DR solicitante: Coordenador Escolar', 'Super admin'], data: ['desistencias'] },
+  { path: '/escolas', title: 'Escolas', group: 'Telas', icon: School, component: Escolas, profiles: ['DR solicitante: Gestor EAD', 'DR solicitante: Coordenador EAD', 'DR solicitante: Gestor Escolar', 'DR solicitante: Coordenador Escolar', 'Super admin'], data: ['escolas'] },
+  { path: '/escolas/nova', title: 'Nova escola', group: 'Telas', icon: School, component: Escolas, hidden: true, data: ['escolas'] },
   { path: '/oferta/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/proposta/:pid', title: 'Ofertas da proposta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/proposta/:pid/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
