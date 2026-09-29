@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, CalendarClock, ClipboardList, Plus, UserX, Users } from 'lucide-react'
+import { AlertTriangle, CalendarClock, ClipboardList, Eye, Plus, UserX, Users } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -22,6 +23,12 @@ const corDesfecho: Record<DesfechoTratativa, string> = {
   'Alerta de desistência': 'bg-red-100 text-red-800',
   'Plano de recuperação': 'bg-amber-100 text-amber-800',
 }
+
+const corTipo: Record<Tratativa['tipo'], string> = {
+  Ativa: 'bg-sky-100 text-sky-800',
+  Receptiva: 'bg-violet-100 text-violet-800',
+}
+const corRetorno = (retornou: boolean) => (retornou ? 'bg-emerald-100 text-emerald-800' : 'bg-muted text-muted-foreground')
 
 // Tratativas pedagógicas e de monitoria: registro categorizado (tipo, motivo, retorno, desfecho) sobre um aluno ou
 // a turma toda. Substitui os registros livres na planilha; permite filtrar os alunos críticos e o que precisa de retorno.
@@ -43,10 +50,22 @@ export default function Tratativas() {
       search: true,
       cell: (t) => (t.alunoId ? alunoDe(t)?.nome ?? '—' : <span className="flex items-center gap-1 text-muted-foreground"><Users className="size-3.5" /> Turma toda</span>),
     },
-    { header: 'Tipo', value: (t) => t.tipo, filter: true },
+    { header: 'Tipo', value: (t) => t.tipo, filter: true, cell: (t) => <Badge variant="secondary" className={corTipo[t.tipo]}>{t.tipo}</Badge> },
     { header: 'Motivo', value: (t) => t.motivo, filter: true },
-    { header: 'Descrição', value: (t) => t.descricao, search: true, cell: (t) => <span className="line-clamp-2 max-w-80 text-sm">{t.descricao}</span> },
-    { header: 'Retorno do aluno', value: (t) => (t.retorno ? 'Sim' : 'Não'), filter: true },
+    {
+      header: 'Descrição', value: (t) => t.descricao, search: true,
+      // Botão que abre um dropdown com o texto completo
+      cell: (t) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button type="button" size="xs" variant="outline" />}><Eye /> Visualizar</DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-80 p-3">
+            <p className="mb-1 text-xs font-semibold text-muted-foreground">Descrição</p>
+            <p className="text-sm whitespace-normal">{t.descricao}</p>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+    { header: 'Retorno do aluno', value: (t) => (t.retorno ? 'Sim' : 'Não'), filter: true, cell: (t) => <Badge variant="secondary" className={corRetorno(t.retorno)}>{t.retorno ? 'Sim' : 'Não'}</Badge> },
     { header: 'Desfecho', value: (t) => t.desfecho, filter: true, cell: (t) => <Badge variant="secondary" className={corDesfecho[t.desfecho]}>{t.desfecho}</Badge> },
     {
       header: 'Acompanhar em',
