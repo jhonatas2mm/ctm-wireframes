@@ -285,3 +285,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-29 — Casca: protótipo renderizado em largura padrão de 1600px e reduzido por inteiro (mantém proporções); em telas maiores não estica além disso.
 - 2026-09-29 — Casca: na barra Design, seletor da **resolução** do protótipo (1280 a 2560 px, padrão 1600; lembrado no navegador).
 - 2026-09-29 — Perfil **CTM: Comercial** renomeado para **CTM: Gestor de contrato**; ganha a tela **Gestão de contratos** (`/gestao-contratos`): TAAs/contratos em que a CTM é contratada, só consulta (sem Novo TAA, anexar ou excluir).
+- 2026-09-29 — Gestão de Portfólio: colunas Modalidade e Área tecnológica saem da tabela; vão para o botão **Detalhes** (ícone ao lado do nome do curso). Continuam como filtros.

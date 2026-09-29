@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Eye, GitBranchPlus, Plus } from 'lucide-react'
+import { Eye, GitBranchPlus, Info, Plus } from 'lucide-react'
+import { Popover } from '@base-ui/react/popover'
 import { useState } from 'react'
 import { NovaVersaoSheet, ProdutoSheet } from '@/pages/produto-sheets'
 import { Button } from '@/components/ui/button'
@@ -15,8 +16,43 @@ type ProdutoDr = { id: string; codigo: string; nome: string; modalidade: string;
 // Versão fictícia (1 a 3) para os cursos vindos das propostas, estável por curso.
 const versaoFicticia = (id: string) => ([...id].reduce((t, ch) => t + ch.charCodeAt(0), 0) % 3) + 1
 
+// Visão rápida do curso (dados do catálogo), no botão ao lado do nome.
+function CursoDetalhes({ p }: { p: ProdutoDr }) {
+  const itens: [string, string][] = [['Modalidade', p.modalidade], ['Área tecnológica', p.area], ['Carga horária', `${p.cargaHoraria} h`]]
+  return (
+    <Popover.Root>
+      <Popover.Trigger render={<Button size="icon-xs" variant="ghost" aria-label="Detalhes do curso" title="Detalhes do curso" />}>
+        <Info />
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner align="start" sideOffset={6} className="z-50">
+          <Popover.Popup className="w-64 rounded-xl border bg-popover p-3 text-sm text-popover-foreground shadow-lg outline-none">
+            <p className="mb-2 font-semibold">{p.nome}</p>
+            <dl className="space-y-1.5">
+              {itens.map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">{k}</dt>
+                  <dd className="text-right font-medium">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
+  )
+}
+
 const colunas = (abrirEdital: (numero: string) => void): Column<ProdutoDr>[] => [
-  { header: 'Curso', value: (p) => p.nome, search: true, className: 'font-medium', cell: (p) => <span className="block max-w-72 truncate" title={p.nome}>{p.nome}</span> },
+  {
+    header: 'Curso', value: (p) => p.nome, search: true, className: 'font-medium',
+    cell: (p) => (
+      <span className="flex items-center gap-1.5">
+        <span className="block max-w-72 truncate" title={p.nome}>{p.nome}</span>
+        <CursoDetalhes p={p} />
+      </span>
+    ),
+  },
   {
     header: 'Edital',
     value: (p) => p.edital ?? '—',
@@ -26,8 +62,6 @@ const colunas = (abrirEdital: (numero: string) => void): Column<ProdutoDr>[] => 
     cell: (p) => (p.edital ? <button type="button" className="underline underline-offset-2 hover:text-foreground/70" onClick={() => abrirEdital(p.edital!)}>{p.edital}</button> : '—'),
   },
   { header: 'Versão', value: (p) => `v${p.versao}`, filter: true, className: 'tabular-nums' },
-  { header: 'Modalidade', value: (p) => p.modalidade, filter: true },
-  { header: 'Área tecnológica', value: (p) => p.area, filter: true },
   { header: 'CH', value: (p) => `${p.cargaHoraria} h`, className: 'text-right tabular-nums' },
   { header: 'Valor médio', value: (p) => brl(p.valorMedio), className: 'text-right tabular-nums' },
 ]
@@ -71,6 +105,10 @@ export default function GestaoProdutos() {
         rows={linhas}
         columns={colunas(setEditalAberto)}
         searchPlaceholder="Buscar curso…"
+        filters={[
+          { label: 'Modalidade', values: (p) => [p.modalidade] },
+          { label: 'Área tecnológica', values: (p) => [p.area] },
+        ]}
         actions={(p) => {
           const temEstrutura = criados.some((c) => c.id === p.id)
           const semEstrutura = () => {}
