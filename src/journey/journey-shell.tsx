@@ -357,6 +357,11 @@ export function JourneyShell() {
             <span className="text-muted-foreground">·</span>
             <span className="truncate">{journey.id ? `${numero(journey.id)}. ${journey.title}` : 'Sem jornada'}</span>
             {journey.id && <span className="text-muted-foreground">· Etapa {step + 1} de {journey.steps.length}: {current.title}</span>}
+            {/* Anterior/Próxima (atalhos ← e →), só ícones */}
+            <div className={cn('ml-auto flex shrink-0 gap-1', 'flex-row')}>
+              <Button size="icon-xs" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} onClick={() => go(jid, step - 1)}><ChevronLeft /></Button>
+              <Button size="icon-xs" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}><ChevronRight /></Button>
+            </div>
           </div>
         ) : (
         /* Mapa da jornada escolhida no select: etapas ligadas por setas */
@@ -447,6 +452,11 @@ export function JourneyShell() {
               })}
             </div>
           </div>
+          {/* Anterior/Próxima (atalhos ← e →), só ícones */}
+            <div className={cn('ml-auto flex shrink-0 gap-1', 'flex-col')}>
+              <Button size="icon-xs" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} onClick={() => go(jid, step - 1)}><ChevronLeft /></Button>
+              <Button size="icon-xs" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}><ChevronRight /></Button>
+            </div>
         </div>
         )}
         </>)}
@@ -494,20 +504,18 @@ export function JourneyShell() {
                     </button>
                   )
                 })}
-              {/* Navegação entre etapas, com atalhos ← e → */}
-              <div className="ml-auto flex items-center gap-2 pb-1.5">
-                {cheia && (
-                  <span className="mr-1 text-xs text-muted-foreground">
+              {/* Navegação entre etapas, com atalhos ← e →: fica no painel de jornada; aqui só em tela cheia (painel escondido) */}
+              {cheia && <div className="ml-auto flex items-center gap-2 pb-1.5">
+                <span className="mr-1 text-xs text-muted-foreground">
                     {journey.title} · <span className="tabular-nums">{step + 1}/{journey.steps.length}</span> {current.title}
                   </span>
-                )}
                 <Button variant="outline" size="sm" style={{ borderColor: profileDef.color, color: profileDef.color }} disabled={step === 0} onClick={() => go(jid, step - 1)}>
                   <ChevronLeft /> Anterior <kbd className="ml-1 rounded border border-current px-1 font-mono text-[10px] leading-4 opacity-70">←</kbd>
                 </Button>
                 <Button size="sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}>
                   Próxima <kbd className="ml-1 rounded border border-white/60 px-1 font-mono text-[10px] leading-4">→</kbd> <ChevronRight />
                 </Button>
-              </div>
+              </div>}
             </div>
             <div
               ref={frameRef}

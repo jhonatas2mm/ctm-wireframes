@@ -32,6 +32,14 @@ const secaoDe = (path: string): (typeof secoes)[number] =>
   : path.startsWith('/componentes') ? 'Sistema'
   : 'CTM'
 
+// Organizadores dentro de cada setor (menus longos); o Painel fica solto no topo.
+const subgrupos: Record<string, [string, string[]][]> = {
+  DN: [['Credenciamento', ['/drs']], ['Editais e portfólio', ['/editais', '/portfolio']]],
+  CTM: [['Contratos', ['/gestao-contratos', '/produtos', '/gestao-produtos', '/portfolio']], ['Execução', ['/oferta', '/equipe', '/tratativas']], ['Financeiro', ['/financeiro']]],
+  'DR solicitante': [['Contratos', ['/contratos', '/dashboard']], ['Execução', ['/turmas-ead', '/alunos']]],
+}
+const subgrupoDe = (sec: string, path: string) => subgrupos[sec]?.find(([, ps]) => ps.some((p) => path.startsWith(p)))?.[0] ?? ''
+
 export function AppShell() {
   const { pathname } = useLocation()
   // Menu e avatar seguem o perfil ativo na casca (fora dela, mostra tudo).
@@ -44,7 +52,7 @@ export function AppShell() {
   return (
     <SidebarProvider style={{ '--sidebar-width': '15rem' } as React.CSSProperties}>
       <Sidebar variant="floating">
-        <SidebarHeader className="flex-row items-center justify-between py-2 pr-2 pl-3">
+        <SidebarHeader className="flex-row items-center justify-between pt-3 pb-4 pr-2 pl-3">
           {/* Logo do protótipo: marca laranja + nome */}
           <div className="flex items-center gap-2.5">
             <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5631A] to-[#BF340F] text-white shadow-sm">
@@ -54,7 +62,7 @@ export function AppShell() {
           </div>
         </SidebarHeader>
         {dr && (
-          <div className="mx-2 mb-2 flex items-center gap-3 rounded-2xl border bg-card p-2.5">
+          <div className="mx-2 mb-4 flex items-center gap-3 rounded-2xl border bg-card p-2.5">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF6ED] text-[#E84910]">
               <Building2 className="size-5" />
             </div>
@@ -64,28 +72,34 @@ export function AppShell() {
             </div>
           </div>
         )}
-        <div className="mx-2 mb-1">
+        <div className="mx-2 mb-3">
           <BuscaRapida telas={noMenu.map((s) => s.path)} />
         </div>
         <SidebarContent>
           {secoes
             .map((sec) => ({ sec, itens: noMenu.filter((s) => secaoDe(s.path) === sec) }))
             .filter((x) => x.itens.length)
-            .map(({ sec, itens }, _, todas) => (
-            <SidebarGroup key={sec}>
-              {/* Rótulo só quando o perfil vê mais de um setor (ex.: Super admin) */}
-              {todas.length > 1 && <SidebarGroupLabel>{sec}</SidebarGroupLabel>}
+            .flatMap(({ sec, itens }, _, todas) => {
+              // Painel solto (sem rótulo) e depois um grupo por organizador; com mais de um setor (Super admin), o rótulo leva o setor.
+              const nomes = ['', ...(subgrupos[sec] ?? []).map(([n]) => n)]
+              return nomes
+                .map((n) => ({ n, lista: itens.filter((s) => subgrupoDe(sec, s.path) === n) }))
+                .filter((g) => g.lista.length)
+                .map((g) => ({ key: `${sec}-${g.n}`, rotulo: todas.length > 1 ? [sec, g.n].filter(Boolean).join(' · ') : g.n, lista: g.lista }))
+            })
+            .map(({ key, rotulo, lista }) => (
+            <SidebarGroup key={key} className="py-1">
+              {rotulo && <SidebarGroupLabel>{rotulo}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {itens
-                    .map((s) => (
-                      <SidebarMenuItem key={s.path}>
-                        <SidebarMenuButton isActive={pathname === s.path || pathname.startsWith(s.path + '/')} render={<Link to={s.path} />}>
-                          <s.icon />
-                          <span>{s.title}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
+                  {lista.map((s) => (
+                    <SidebarMenuItem key={s.path}>
+                      <SidebarMenuButton isActive={pathname === s.path || pathname.startsWith(s.path + '/')} render={<Link to={s.path} />}>
+                        <s.icon />
+                        <span>{s.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

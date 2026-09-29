@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Eye, Lock, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,7 +17,7 @@ import { StatusTaaBadge, useFluxoTaa } from './taa-fluxo'
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const fmt = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '—')
 
-// TAAs da CTM (/taas-ctm): normalmente a CTM que ganhou o edital envia um TAA para cada DR específica, com os
+// Gestão de contratos da CTM (/gestao-contratos): normalmente a CTM que ganhou o edital envia um TAA para cada DR específica, com os
 // produtos em que ela é a aprovada; o Gestor da DR analisa. A CTM ajusta e reencaminha o que voltou, cancela o que
 // enviou e analisa os TAAs que as DRs criaram com ela.
 export default function TaaCtm() {
@@ -28,7 +28,9 @@ export default function TaaCtm() {
   const { all } = useContratos()
   const rows = all.filter((c) => !ctm || c.dr === ctm)
   const fluxo = useFluxoTaa(ctm ? 'ctm' : 'admin')
-  const [ver, setVer] = useState<string | null>(null)
+  // Detalhes com rota própria (/gestao-contratos/:id) para poder ser etapa de jornada.
+  const { id: ver } = useParams()
+  const setVer = (id: string | null) => navigate(id ? `/gestao-contratos/${id}` : '/gestao-contratos')
   const colunas: Column<Contrato>[] = [
     { header: 'Nº', value: (c) => c.numero, search: true, className: 'font-mono' },
     ...(!ctm ? [{ header: 'CTM', value: (c: Contrato) => `SENAI-${c.dr}`, filter: true }] : []),
@@ -43,7 +45,7 @@ export default function TaaCtm() {
   const aberto = all.find((c) => c.id === ver) ?? null
   return (
     <>
-      <PageHeader title="TAAs com as DRs" actions={ctm && <Button onClick={() => navigate('/taas-ctm/novo')}><Send /> Novo TAA</Button>} />
+      <PageHeader title="Gestão de contratos" actions={ctm && <Button onClick={() => navigate('/gestao-contratos/novo')}><Send /> Novo TAA</Button>} />
       <DataTable
         rows={rows}
         columns={colunas}
@@ -56,7 +58,7 @@ export default function TaaCtm() {
         )}
       />
       <TaaSheet taa={aberto} onClose={() => setVer(null)} rodape={aberto && fluxo.botoes(aberto, 'rodape')} />
-      {ctm && <NovoTaaCtmSheet ctm={ctm} open={pathname === '/taas-ctm/novo'} onOpenChange={(v) => !v && navigate('/taas-ctm')} />}
+      {ctm && <NovoTaaCtmSheet ctm={ctm} open={pathname === '/gestao-contratos/novo'} onOpenChange={(v) => !v && navigate('/gestao-contratos')} />}
       {fluxo.dialogos}
     </>
   )

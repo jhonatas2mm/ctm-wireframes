@@ -25,13 +25,13 @@ const norm = (t: string) => t.normalize('NFD').replace(/\p{Diacritic}/gu, '').to
 // Nº da proposta num badge com botão de copiar dentro.
 function NumeroBadge({ numero }: { numero: string }) {
   return (
-    <Badge variant="secondary" className="gap-1 pr-1 font-mono">
+    <Badge variant="outline" className="gap-1 border-neutral-200 bg-neutral-100 pr-1 font-mono text-neutral-700">
       {numero}
       <button
         type="button"
         aria-label={`Copiar ${numero}`}
         title="Copiar número"
-        className="hover:bg-foreground/10 rounded p-0.5"
+        className="rounded p-0.5 text-neutral-500 hover:bg-neutral-200 hover:text-neutral-800"
         onClick={(e) => {
           e.stopPropagation()
           void navigator.clipboard.writeText(numero).catch(() => {})

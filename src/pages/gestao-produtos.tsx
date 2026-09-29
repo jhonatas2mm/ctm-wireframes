@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Eye, GitBranchPlus, Plus } from 'lucide-react'
+import { Popover } from '@base-ui/react/popover'
 import { useState } from 'react'
 import { NovaVersaoSheet, ProdutoSheet, SituacaoBadge } from '@/pages/produto-sheets'
 import { Button } from '@/components/ui/button'
@@ -10,11 +11,38 @@ import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { EditalDetalhes } from '@/pages/edital-detalhes'
 
+// Visão rápida do curso (dados do catálogo), no botão Detalhes ao lado do nome.
+function CursoDetalhes({ c }: { c: CursoDr }) {
+  const itens: [string, string][] = [['Modalidade', c.modalidade ?? '—'], ['Área tecnológica', c.area ?? '—'], ['Carga horária', `${c.cargaHorariaEdital ?? 0} h`]]
+  return (
+    <Popover.Root>
+      <Popover.Trigger render={<Button size="xs" variant="outline" className="border-neutral-300 bg-white font-normal text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900" />}>
+        Detalhes
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Positioner align="start" sideOffset={6} className="z-50">
+          <Popover.Popup className="w-64 rounded-xl border bg-popover p-3 text-sm text-popover-foreground shadow-lg outline-none">
+            <p className="mb-2 font-semibold">{c.nome}</p>
+            <dl className="space-y-1.5">
+              {itens.map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-3">
+                  <dt className="text-muted-foreground">{k}</dt>
+                  <dd className="text-right font-medium">{v}</dd>
+                </div>
+              ))}
+            </dl>
+          </Popover.Popup>
+        </Popover.Positioner>
+      </Popover.Portal>
+    </Popover.Root>
+  )
+}
+
 // Linha = produto (família de versões): a versão mais recente e a que está no portfólio (última aprovada).
 type Linha = { id: string; atual: CursoDr; noPortfolio?: CursoDr; pendente: boolean; propostas: number }
 
 const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<Linha>[] => [
-  { header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium', cell: (l) => <span className="block max-w-72 truncate" title={l.atual.nome}>{l.atual.nome}</span> },
+  { header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium', cell: (l) => <span className="flex items-center gap-1.5"><span className="block max-w-72 truncate" title={l.atual.nome}>{l.atual.nome}</span><CursoDetalhes c={l.atual} /></span> },
   ...(todas ? [{ header: 'CTM', value: (l: Linha) => (l.atual.ctm ? `SENAI-${l.atual.ctm}` : '—'), filter: true }] : []),
   {
     header: 'Edital',
@@ -27,7 +55,6 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
   { header: 'Última versão', value: (l) => `v${l.atual.versao ?? 1}`, className: 'tabular-nums' },
   { header: 'Situação', value: (l) => situacaoDe(l.atual), filter: true, cell: (l) => <SituacaoBadge c={l.atual} /> },
   { header: 'No portfólio', value: (l) => (l.noPortfolio ? `v${l.noPortfolio.versao ?? 1}` : '—'), className: 'tabular-nums' },
-  { header: 'Área tecnológica', value: (l) => l.atual.area ?? '—', filter: true },
   { header: 'Itinerário', value: (l) => (l.atual.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
   { header: 'Documentos', value: (l) => l.atual.materiais?.length ?? 0, className: 'text-right tabular-nums' },
   { header: 'Propostas', value: (l) => l.propostas, className: 'text-right tabular-nums' },
@@ -72,6 +99,10 @@ export default function GestaoProdutos() {
         rows={linhas}
         columns={colunas(setEditalAberto, !ctm)}
         searchPlaceholder="Buscar produto…"
+        filters={[
+          { label: 'Modalidade', values: (l) => [l.atual.modalidade ?? '—'] },
+          { label: 'Área tecnológica', values: (l) => [l.atual.area ?? '—'] },
+        ]}
         actions={(l) => (
           <>
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(l.atual.id)} />
