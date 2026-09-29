@@ -255,9 +255,9 @@ export function DataTable<T extends { id: string }>({
                       Limpar
                     </button>
                   </div>
-                  <div className="grid max-h-[60vh] grid-cols-4 gap-x-6 gap-y-5 overflow-y-auto p-4">
+                  <div className="max-h-[60vh] space-y-5 overflow-y-auto p-4">
                     {salvos.length > 0 && (
-                      <div className="col-span-full space-y-2 border-b pb-4">
+                      <div className="space-y-2 border-b pb-4">
                         <span className="text-xs font-semibold text-muted-foreground">Filtros salvos</span>
                         <div className="flex flex-wrap gap-1.5">
                           {salvos.map((f) => (
@@ -271,6 +271,8 @@ export function DataTable<T extends { id: string }>({
                         </div>
                       </div>
                     )}
+                    {/* Filtros em 4 colunas separadas por linhas verticais */}
+                    <div className="grid grid-cols-4 gap-y-5 [&>*]:border-l [&>*]:px-5 [&>*:nth-child(4n+1)]:border-l-0 [&>*:nth-child(4n+1)]:pl-0 [&>*:nth-child(4n)]:pr-0">
                     {all.map((d) => {
                       const opts = options[d.label]
                       const atual = filters[d.label] || ''
@@ -308,6 +310,7 @@ export function DataTable<T extends { id: string }>({
                         </div>
                       )
                     })}
+                    </div>
                   </div>
                   {nAtivos > 0 && (
                     <div className="flex items-center gap-2 border-t bg-muted/40 px-4 py-3">
