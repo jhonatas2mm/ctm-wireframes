@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet, Workflow } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -54,6 +54,7 @@ function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; 
         ref={ref}
         src={src}
         title="Protótipo"
+        allow="fullscreen" // telas do protótipo podem pedir tela cheia (ex.: Mapa do processo)
         className="absolute top-0 left-0 origin-top-left"
         style={
           k < 1
@@ -205,10 +206,13 @@ export function JourneyShell() {
         setScreen(m.screen)
         // Destaque do fluxograma acompanha a tela vista: rota exata da etapa; senão, a mesma tela (padrão da rota).
         const steps = stepsRef.current
+        // Etapas podem ter query (ex.: ?aba=execucao); o protótipo informa só o caminho.
+        const caminho = (p: string) => p.split('?')[0]
         const padrao = new RegExp(`^${m.screen.replace(/:[^/]+/g, '[^/]+')}$`)
-        let i = steps.findIndex((x) => x.path === m.path)
-        if (i < 0) i = steps.findIndex((x) => padrao.test(x.path))
-        if (i >= 0) setState((st) => (st.step === i ? st : ((doFrame.current = true), { ...st, step: i })))
+        let i = steps.findIndex((x) => caminho(x.path) === m.path)
+        if (i < 0) i = steps.findIndex((x) => padrao.test(caminho(x.path)))
+        // Etapa atual já está nesse caminho (várias etapas na mesma tela): mantém.
+        if (i >= 0) setState((st) => (st.step === i || caminho(steps[st.step]?.path ?? '') === m.path ? st : ((doFrame.current = true), { ...st, step: i })))
         setDraft(null)
         setActive(null)
       } else if (m.type === 'pick') {
@@ -267,6 +271,10 @@ export function JourneyShell() {
               <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
             </Button>
             <span className="mx-1 h-4 w-px bg-border" />
+            {/* Mapa do processo (BPMN) abre dentro do protótipo, sem sair da jornada */}
+            <Button size="sm" variant={screen === '/processo' ? 'secondary' : 'ghost'} onClick={() => { const w = frame.current?.contentWindow; if (w) w.location.hash = '/processo' }}>
+              <Workflow /> Mapa do processo
+            </Button>
             <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
               <ExternalLink /> Abrir protótipo livre
             </Button>

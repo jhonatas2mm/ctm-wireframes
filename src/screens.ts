@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText } from 'lucide-react'
+import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, Workflow } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
 import Produtos from '@/pages/produtos'
@@ -11,6 +11,11 @@ import GestaoDrs from '@/pages/gestao-drs'
 import Oferta from '@/pages/oferta'
 import { Alunos, Contratos, Painel, Turmas } from '@/pages/acompanhamento'
 import OfertaDetalhe from '@/pages/oferta-detalhe'
+import Equipe from '@/pages/equipe'
+import Calendario from '@/pages/calendario'
+import Tratativas from '@/pages/tratativas'
+import Financeiro from '@/pages/financeiro'
+import Processo from '@/pages/processo'
 import Components from '@/pages/components'
 import { Auditoria, Perfis, Usuarios } from '@/pages/admin'
 import Logs from '@/pages/logs'
@@ -54,7 +59,14 @@ export const screens: Screen[] = [
   { path: '/gestao-produtos/novo', title: 'Novo produto', group: 'Telas', icon: Boxes, component: GestaoProdutos, hidden: true, data: ['cursos-dr'] },
   { path: '/produtos/novo', title: 'Nova proposta', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
   { path: '/produtos/:id', title: 'Gestão da proposta', group: 'Telas', icon: Package, component: GestaoProposta, hidden: true, data: ['produtos'] },
-  { path: '/oferta', title: 'Gestão da oferta', group: 'Telas', icon: GraduationCap, component: Oferta, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['turmas'] },
+  { path: '/oferta', title: 'Gestão da oferta', group: 'Telas', icon: GraduationCap, component: Oferta, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['turmas', 'calendario'] },
+  { path: '/equipe', title: 'Equipe', group: 'Telas', icon: UsersRound, component: Equipe, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['equipe'] },
+  { path: '/equipe/nova', title: 'Nova pessoa', group: 'Telas', icon: UsersRound, component: Equipe, hidden: true, data: ['equipe'] },
+  { path: '/calendario', title: 'Calendário', group: 'Telas', icon: CalendarDays, component: Calendario, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['calendario'] },
+  { path: '/calendario/novo', title: 'Novo período', group: 'Telas', icon: CalendarDays, component: Calendario, hidden: true, data: ['calendario'] },
+  { path: '/tratativas', title: 'Tratativas pedagógicas', group: 'Telas', icon: ClipboardList, component: Tratativas, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['tratativas'] },
+  { path: '/tratativas/nova', title: 'Nova tratativa', group: 'Telas', icon: ClipboardList, component: Tratativas, hidden: true, data: ['tratativas'] },
+  { path: '/financeiro', title: 'Financeiro', group: 'Telas', icon: Wallet, component: Financeiro, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['formalizacoes'] },
   { path: '/acompanhamento', title: 'Painel', group: 'Telas', icon: Gauge, component: Painel, profiles: ['DR solicitante', 'Super admin'], data: ['contratos-ctm', 'turmas-ead', 'alunos-ead'] },
   { path: '/contratos', title: 'Gestão de Contratos', group: 'Telas', icon: FileSignature, component: Contratos, profiles: ['DR solicitante', 'Super admin'], data: ['contratos-ctm'] },
   { path: '/contratos/:id', title: 'Detalhes do contrato', group: 'Telas', icon: FileSignature, component: Contratos, hidden: true, data: ['contratos-ctm'] },
@@ -66,9 +78,10 @@ export const screens: Screen[] = [
   { path: '/oferta/proposta/:pid', title: 'Ofertas da proposta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/proposta/:pid/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/:id/sucesso', title: 'Oferta criada', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
-  { path: '/oferta/:id', title: 'Detalhes da oferta', group: 'Telas', icon: GraduationCap, component: OfertaDetalhe, hidden: true, data: ['turmas'] },
+  { path: '/oferta/:id', title: 'Detalhes da oferta', group: 'Telas', icon: GraduationCap, component: OfertaDetalhe, hidden: true, data: ['turmas', 'calendario', 'equipe'] },
   { path: '/meus-taas/novo', title: 'Novo TAA', group: 'Telas', icon: FileSignature, component: MeusTaas, hidden: true, data: ['taas-dr'] },
   { path: '/meus-taas/:taaId/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
   { path: '/meus-taas/:taaId/produtos/novo', title: 'Nova proposta', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
+  { path: '/processo', title: 'Mapa do processo', group: 'Sistema', icon: Workflow, component: Processo },
   { path: '/componentes', title: 'Componentes', group: 'Sistema', icon: Palette, component: Components, hidden: true },
 ]

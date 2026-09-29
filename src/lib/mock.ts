@@ -1,6 +1,12 @@
 // Dados falsos para os wireframes (seed). Cada coleção vira persistente com useCollection (src/lib/db.ts).
 import { useCollection } from './db'
 
+// Datas: HOJE fixo para o protótipo; datas ISO (aaaa-mm-dd).
+export const HOJE = '2026-09-28'
+const dia = 86_400_000
+export const diasEntre = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / dia)
+export const dataBr = (iso: string) => iso.split('-').reverse().join('/')
+
 // Produto = curso do catálogo, no modelo dos Itinerários Nacionais do SENAI.
 // Nomes inspirados no catálogo real; códigos e cargas horárias são FICTÍCIOS.
 export type Modalidade = 'Técnico' | 'Qualificação Profissional' | 'Aprendizagem Industrial' | 'Aperfeiçoamento'
@@ -139,22 +145,50 @@ export const ucsDoCurso: Record<string, UC[]> = {
 
 // Propostas da DR ofertante para uma DR contratante: cursos importados do Itinerário Nacional (cada curso só uma vez),
 // com valor previsto por curso.
-export type CursoProposta = { cursoId: string; codigo: string; nome: string; modalidade: string; area: string; cargaHoraria: number; valorPrevisto: number }
-// Fluxo: Salvar → Em elaboração; Salvar e enviar → Em análise (DR contratante);
-// contratante aceita → Aceita pelo contratante; o criador também aceita → Aceita.
-export type StatusProposta = 'Em elaboração' | 'Em análise' | 'Aceita pelo contratante' | 'Aceita' | 'Recusada'
-export type Produto = { id: string; numero: string; drOfertante: string; drContratante: string; cursos: CursoProposta[]; cadastradoEm: string; status?: StatusProposta; documentos?: string[]; feedback?: string; edital?: string; vigenciaInicio?: string; vigenciaFim?: string; criadoPor?: string } // vigência dd/mm/aaaa; edital = nº do edital a que a proposta pertence; criadoPor = perfil que abriu
-const cp = (cursoId: string, valorPrevisto: number): CursoProposta => {
-  const c = cursos.find((x) => x.id === cursoId)!
-  return { cursoId, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorPrevisto }
+export type CursoProposta = { cursoId: string; codigo: string; nome: string; modalidade: string; area: string; cargaHoraria: number; valorPrevisto: number; vagas?: number; inicioPrevisto?: string } // inicioPrevisto ISO (aaaa-mm-dd)
+// Fluxo (reunião de processos 28/09): Salvar → Em negociação; o resultado é registrado depois (Aceita / Recusada);
+// proposta aceita ainda pode ser Cancelada. Em elaboração / Em análise / Aceita pelo contratante ficam por compatibilidade.
+export type StatusProposta = 'Em elaboração' | 'Em negociação' | 'Em análise' | 'Aceita pelo contratante' | 'Aceita' | 'Recusada' | 'Cancelada'
+export type Registro = { quando: string; texto: string; autor?: string } // histórico (quando ISO)
+export type Produto = {
+  id: string; numero: string; drOfertante: string; drContratante: string; cursos: CursoProposta[]; cadastradoEm: string; status?: StatusProposta; documentos?: string[]; feedback?: string; edital?: string; vigenciaInicio?: string; vigenciaFim?: string; criadoPor?: string // vigência dd/mm/aaaa; edital = nº do edital a que a proposta pertence; criadoPor = perfil que abriu
+  cnpj?: string // CNPJ do contratante (faturamento)
+  crm?: string // nº da proposta no CRM ou sistema externo (opcional)
+  link?: string // link do documento da proposta (o sistema não gera nem guarda o documento)
+  faturamento?: 'DR' | 'Escola' // para quem se fatura
+  escolas?: string[] // escolas faturadas (quando faturamento = Escola)
+  motivoCancelamento?: string
+  duplicadaDe?: string // nº da proposta de origem (rodada de negociação)
+  historico?: Registro[]
 }
+const cp = (cursoId: string, valorPrevisto: number, vagas?: number, inicioPrevisto?: string): CursoProposta => {
+  const c = cursos.find((x) => x.id === cursoId)!
+  return { cursoId, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorPrevisto, vagas, inicioPrevisto }
+}
+const reg = (quando: string, texto: string, autor = 'Juliana Pereira'): Registro => ({ quando, texto, autor })
 const propostas: Produto[] = [
-  { id: '1', numero: 'PC-MG-001/2026', edital: 'ED-001/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'SP', cursos: [cp('2', 9600), cp('3', 9600)], vigenciaInicio: '01/04/2026', vigenciaFim: '31/03/2027', cadastradoEm: '2026-03-10T10:00:00Z' },
-  { id: '2', numero: 'PC-MG-002/2026', edital: 'ED-002/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'RJ', cursos: [cp('8', 1280), cp('7', 1600), cp('10', 320)], vigenciaInicio: '01/05/2026', vigenciaFim: '30/04/2027', cadastradoEm: '2026-04-22T10:00:00Z' },
-  { id: '3', numero: 'PC-MG-003/2026', edital: 'ED-001/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'ES', cursos: [cp('4', 10200)], vigenciaInicio: '01/07/2026', vigenciaFim: '30/06/2027', cadastradoEm: '2026-06-05T10:00:00Z' },
-  { id: '4', numero: 'PC-MG-004/2026', edital: 'ED-005/2026', status: 'Em elaboração', drOfertante: 'MG', drContratante: 'GO', cursos: [cp('11', 5600), cp('14', 400)], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z' },
+  { id: '1', numero: 'PC-MG-001/2026', edital: 'ED-001/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'SP', cnpj: '03.774.819/0001-02', crm: 'CRM-2026-0142', link: 'https://drive.senaimg.org.br/propostas/PC-MG-001-2026.pdf', faturamento: 'DR', cursos: [cp('2', 9600, 40, '2026-11-03'), cp('3', 9600, 35, '2026-11-03')], vigenciaInicio: '01/04/2026', vigenciaFim: '31/03/2027', cadastradoEm: '2026-03-10T10:00:00Z',
+    historico: [reg('2026-03-10T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-03-24T15:30:00Z', 'Proposta aceita pelo SENAI-SP')] },
+  { id: '2', numero: 'PC-MG-002/2026', edital: 'ED-002/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'RJ', cnpj: '03.851.105/0001-42', link: 'https://drive.senaimg.org.br/propostas/PC-MG-002-2026.pdf', faturamento: 'Escola', escolas: ['SENAI Maracanã', 'SENAI Benfica'], cursos: [cp('8', 1280, 30, '2026-10-05'), cp('7', 1600, 25, '2027-02-01'), cp('10', 320, 20, '2027-03-01')], vigenciaInicio: '01/05/2026', vigenciaFim: '30/04/2027', cadastradoEm: '2026-04-22T10:00:00Z',
+    historico: [reg('2026-04-22T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-05-06T09:10:00Z', 'Proposta aceita pelo SENAI-RJ')] },
+  { id: '3', numero: 'PC-MG-003/2026', edital: 'ED-001/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'ES', cnpj: '03.785.466/0001-78', faturamento: 'DR', cursos: [cp('4', 10200, 30, '2027-02-08')], vigenciaInicio: '01/07/2026', vigenciaFim: '30/06/2027', cadastradoEm: '2026-06-05T10:00:00Z',
+    historico: [reg('2026-06-05T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-06-19T14:00:00Z', 'Proposta aceita pelo SENAI-ES')] },
+  // Em negociação com turma prevista para daqui a 10 dias: aparece com alerta de prazo.
+  { id: '4', numero: 'PC-MG-004/2026', edital: 'ED-005/2026', status: 'Em negociação', drOfertante: 'MG', drContratante: 'GO', cnpj: '03.769.437/0001-10', crm: 'CRM-2026-0388', faturamento: 'DR', cursos: [cp('11', 5600, 25, '2026-10-08'), cp('14', 400, 40, '2026-11-09')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z',
+    historico: [reg('2026-08-18T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-09-02T11:20:00Z', 'Nova rodada: vagas de Mecânico de Usinagem de 20 para 25')] },
+  { id: '5', numero: 'PC-MG-005/2026', edital: 'ED-001/2026', status: 'Cancelada', drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'A DR cancelou a turma por não atingir o mínimo de inscritos (regra interna de 25 alunos).', cursos: [cp('5', 3200, 15, '2026-09-14')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
+    historico: [reg('2026-07-01T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-07-20T10:00:00Z', 'Proposta aceita pelo SENAI-PE'), reg('2026-09-04T16:45:00Z', 'Proposta cancelada: a DR não fechou a turma')] },
 ]
-export const useProdutos = () => useCollection<Produto>('produtos-v14', propostas)
+export const useProdutos = () => useCollection<Produto>('produtos-v15', propostas)
+// Alerta de prazo: proposta ainda não aceita com turma prevista para começar em até 15 dias.
+export const PRAZO_ALERTA_DIAS = 15
+export const inicioPrevisto = (p: Pick<Produto, 'cursos'>) => p.cursos.map((c) => c.inicioPrevisto).filter((x): x is string => !!x).sort()[0]
+export const alertaPrazo = (p: Produto) => {
+  const ini = inicioPrevisto(p)
+  if (!ini || !['Em negociação', 'Em elaboração', 'Em análise'].includes(p.status ?? 'Em elaboração')) return null
+  const d = diasEntre(HOJE, ini)
+  return d <= PRAZO_ALERTA_DIAS ? d : null
+}
 
 // Cursos criados pela Supervisor em Gestão de Portfólio: módulos → unidades curriculares com CH.
 export type UnidadeCurricular = { nome: string; cargaHoraria: number }
@@ -202,17 +236,43 @@ const drs: Dr[] = credenciadas.sort().map((uf, i) => {
 export const useDrs = () => useCollection<Dr>('drs-v2', drs)
 
 // Turmas (Gestão da oferta, Supervisor): criadas a partir de um curso de uma proposta.
-// A matriz curricular (módulos → UCs) vem do produto; o Supervisor complementa CH e datas de cada UC.
-export type UcTurma = { nome: string; chEad: number; chPresencial: number; inicio: string; fim: string; aoVivo: AulaAoVivo[] } // CH a distância + presencial; datas ISO (aaaa-mm-dd)
+// A matriz curricular (módulos → UCs) vem do produto; o cronograma (datas por UC) é gerado pelo sistema e ajustável.
+// Depois vêm a gestão da execução (equipe por UC) e a integração com o AVA. Regras em docs/fluxo.md.
+export type AcaoTutor = 'Planejamento' | 'Replanejamento' | 'Apropriação'
+export type LinksUc = { planoCurso?: string; planoEnsino?: string; pasta?: string }
+export type UcTurma = {
+  nome: string; chEad: number; chPresencial: number; inicio: string; fim: string; aoVivo: AulaAoVivo[] // CH a distância + presencial; datas ISO (aaaa-mm-dd)
+  semanas?: number; encontros?: number; aulasPrevistas?: number // calculados pelo gerador de cronograma
+  tutor?: string; acao?: AcaoTutor; tutorConfirmado?: boolean; validacaoPedagogica?: boolean // gestão da execução
+  links?: LinksUc // links do material (o sistema não guarda arquivos)
+  salaAva?: string // ID da sala criada no AVA
+}
 export type AulaAoVivo = { data: string; inicio: string; fim: string } // horários hh:mm
 export const aoVivoTurma = (t: { modulos: { unidades: UcTurma[] }[] }) => t.modulos.reduce((n, m) => n + m.unidades.reduce((k, u) => k + u.aoVivo.length, 0), 0)
-// Status da turma, derivado das datas: passou do término da última UC → Finalizada; senão Em andamento.
-export type StatusTurma = 'Em andamento' | 'Finalizada'
-export const statusTurma = (t: { modulos: { unidades: UcTurma[] }[] }): StatusTurma => {
-  const fim = t.modulos.flatMap((m) => m.unidades).map((u) => u.fim).filter(Boolean).sort().at(-1)
-  return fim && fim < new Date().toISOString().slice(0, 10) ? 'Finalizada' : 'Em andamento'
+// Fase registrada pela CTM; o status exibido junta a fase com o calendário.
+// A iniciar → Buscar tutor (cronograma validado + turma confirmada pela DR: dispara PCP e criação de salas)
+// → Em andamento (a partir do início) → Finalizada (depois do término). Cancelada a qualquer momento antes do fim.
+export type FaseTurma = 'A iniciar' | 'Buscar tutor' | 'Cancelada'
+export type StatusTurma = 'A iniciar' | 'Buscar tutor' | 'Em andamento' | 'Finalizada' | 'Cancelada'
+export const periodoTurma = (t: { modulos: { unidades: UcTurma[] }[] }) => {
+  const ucs = t.modulos.flatMap((m) => m.unidades)
+  return { inicio: ucs.map((u) => u.inicio).filter(Boolean).sort()[0] ?? '', fim: ucs.map((u) => u.fim).filter(Boolean).sort().at(-1) ?? '' }
+}
+export const statusTurma = (t: { modulos: { unidades: UcTurma[] }[]; fase?: FaseTurma }): StatusTurma => {
+  if (t.fase === 'Cancelada') return 'Cancelada'
+  const { inicio, fim } = periodoTurma(t)
+  if (fim && fim < HOJE) return 'Finalizada'
+  if (inicio && inicio <= HOJE) return 'Em andamento'
+  return t.fase ?? 'A iniciar'
 }
 export const chUc = (u: UcTurma) => (u.chEad || 0) + (u.chPresencial || 0)
+// Cronograma: versão enviada à DR contratante para validação; sem resposta até o prazo, conta como validado.
+export type SituacaoCronograma = 'Rascunho' | 'Aguardando validação' | 'Validado'
+export type Cronograma = { versao: number; situacao: SituacaoCronograma; prazo?: string; validadoEm?: string; porPrazo?: boolean }
+export const situacaoCronograma = (c?: Cronograma): SituacaoCronograma =>
+  c?.situacao === 'Aguardando validação' && c.prazo && c.prazo < HOJE ? 'Validado' : c?.situacao ?? 'Rascunho'
+export type EscolaTurma = { nome: string; cidade: string; alunos: number; integrados?: number } // integrados = alunos que a DR já integrou no AVA
+export type EquipeTurma = { monitorFront?: string; monitorBack?: string; pedagogico?: string; interlocutor?: string }
 export type Turma = {
   id: string
   codigo: string
@@ -222,24 +282,154 @@ export type Turma = {
   cursos: string[] // uma oferta pode ter vários cursos da mesma proposta
   modulos: { curso: string; nome: string; unidades: UcTurma[] }[] // módulos de todos os cursos, marcados com o curso de origem
   criadoEm: string
+  fase?: FaseTurma
+  cronograma?: Cronograma
+  diaPresencial?: string // dia da semana do encontro presencial (informado pela DR)
+  supervisor?: string
+  analista?: string
+  equipe?: EquipeTurma
+  escolas?: EscolaTurma[]
+  salasCriadas?: boolean
+  motivoCancelamento?: string
+  historico?: Registro[]
 }
+const ucT = (nome: string, chEad: number, chPresencial: number, inicio: string, fim: string, extra: Partial<UcTurma> = {}): UcTurma => ({
+  nome, chEad, chPresencial, inicio, fim, aoVivo: [],
+  semanas: Math.max(1, Math.round((diasEntre(inicio, fim) + 3) / 7)), encontros: Math.max(1, Math.round(chPresencial / 4)), aulasPrevistas: Math.max(1, Math.round(chEad / 20)),
+  ...extra,
+})
+const links = (curso: string): LinksUc => ({ planoCurso: `https://drive.ctm.senaimg.org.br/${curso}/plano-de-curso`, planoEnsino: `https://drive.ctm.senaimg.org.br/${curso}/plano-de-ensino`, pasta: `https://drive.ctm.senaimg.org.br/${curso}/ucs` })
 const turmas: Turma[] = [
+  // Confirmada pela DR (Buscar tutor): cronograma validado, salas criadas, equipe em alocação.
   {
     id: 't1', codigo: 'TU-MG-001/2026', propostaId: '2', propostaNumero: 'PC-MG-002/2026', drContratante: 'RJ', cursos: ['Soldador'], criadoEm: '2026-08-01T10:00:00Z',
+    fase: 'Buscar tutor', cronograma: { versao: 2, situacao: 'Validado', validadoEm: '2026-09-10' }, diaPresencial: 'Quinta-feira', supervisor: 'Carlos Andrade', analista: 'Renata Guimarães', salasCriadas: true,
+    equipe: { monitorFront: 'Lívia Campos', monitorBack: 'Otávio Reis', pedagogico: 'Sônia Prado', interlocutor: 'Marcos Leal' },
+    escolas: [{ nome: 'SENAI Maracanã', cidade: 'Rio de Janeiro', alunos: 18, integrados: 18 }, { nome: 'SENAI Benfica', cidade: 'Rio de Janeiro', alunos: 12, integrados: 0 }],
     modulos: [
-      { curso: 'Soldador', nome: 'Fundamentos', unidades: [{ nome: 'Segurança em soldagem', chEad: 10, chPresencial: 10, inicio: '2026-10-05', fim: '2026-10-09', aoVivo: [{ data: '2026-10-07', inicio: '19:00', fim: '21:00' }] }, { nome: 'Leitura de desenho técnico', chEad: 10, chPresencial: 10, inicio: '2026-10-12', fim: '2026-10-16', aoVivo: [{ data: '2026-10-14', inicio: '19:00', fim: '21:00' }] }] },
-      { curso: 'Soldador', nome: 'Processos', unidades: [{ nome: 'Soldagem com eletrodo revestido', chEad: 30, chPresencial: 30, inicio: '2026-10-19', fim: '2026-11-06', aoVivo: [{ data: '2026-10-21', inicio: '19:00', fim: '21:00' }] }, { nome: 'Soldagem MIG/MAG', chEad: 30, chPresencial: 30, inicio: '2026-11-09', fim: '2026-11-27', aoVivo: [{ data: '2026-11-11', inicio: '19:00', fim: '21:00' }] }] },
+      { curso: 'Soldador', nome: 'Fundamentos', unidades: [
+        ucT('Segurança em soldagem', 10, 10, '2026-10-05', '2026-10-09', { aoVivo: [{ data: '2026-10-07', inicio: '19:00', fim: '21:00' }], tutor: 'Fabiana Rocha', acao: 'Apropriação', tutorConfirmado: true, links: links('soldador'), salaAva: 'AVA-88213' }),
+        ucT('Leitura de desenho técnico', 10, 10, '2026-10-12', '2026-10-16', { aoVivo: [{ data: '2026-10-14', inicio: '19:00', fim: '21:00' }], tutor: 'Diego Carvalho', acao: 'Replanejamento', links: links('soldador'), salaAva: 'AVA-88214' }),
+      ] },
+      { curso: 'Soldador', nome: 'Processos', unidades: [
+        ucT('Soldagem com eletrodo revestido', 30, 30, '2026-10-19', '2026-11-06', { aoVivo: [{ data: '2026-10-21', inicio: '19:00', fim: '21:00' }], salaAva: 'AVA-88215' }),
+        ucT('Soldagem MIG/MAG', 30, 30, '2026-11-09', '2026-11-27', { aoVivo: [{ data: '2026-11-11', inicio: '19:00', fim: '21:00' }], salaAva: 'AVA-88216' }),
+      ] },
+    ],
+    historico: [
+      { quando: '2026-08-01T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' },
+      { quando: '2026-08-20T10:00:00Z', texto: 'Cronograma v1 enviado à DR para validação (prazo 30/08/2026)', autor: 'Carlos Andrade' },
+      { quando: '2026-08-28T10:00:00Z', texto: 'DR pediu ajuste: presencial às quintas. Cronograma v2 gerado e reenviado', autor: 'Carlos Andrade' },
+      { quando: '2026-09-10T10:00:00Z', texto: 'Cronograma v2 validado pelo SENAI-RJ', autor: 'Carlos Andrade' },
+      { quando: '2026-09-15T10:00:00Z', texto: 'Turma confirmada pela DR: status Buscar tutor', autor: 'Carlos Andrade' },
+      { quando: '2026-09-15T10:05:00Z', texto: 'Salas criadas no AVA (4 UCs)', autor: 'Sistema' },
     ],
   },
+  // Aguardando a DR validar o cronograma.
   {
     id: 't2', codigo: 'TU-MG-002/2026', propostaId: '1', propostaNumero: 'PC-MG-001/2026', drContratante: 'SP', cursos: ['Técnico em Mecatrônica'], criadoEm: '2026-08-20T10:00:00Z',
+    fase: 'A iniciar', cronograma: { versao: 1, situacao: 'Aguardando validação', prazo: '2026-10-08' }, supervisor: 'Carlos Andrade', analista: 'Renata Guimarães',
+    escolas: [{ nome: 'SENAI Anchieta', cidade: 'São Paulo', alunos: 22 }, { nome: 'SENAI Campinas', cidade: 'Campinas', alunos: 18 }],
     modulos: [
-      { curso: 'Técnico em Mecatrônica', nome: 'Básico', unidades: [{ nome: 'Eletricidade aplicada', chEad: 60, chPresencial: 60, inicio: '2026-11-03', fim: '2026-12-11', aoVivo: [{ data: '2026-11-05', inicio: '19:00', fim: '21:00' }] }, { nome: 'Mecânica aplicada', chEad: 60, chPresencial: 60, inicio: '2026-12-14', fim: '2027-02-12', aoVivo: [{ data: '2026-12-16', inicio: '19:00', fim: '21:00' }] }] },
-      { curso: 'Técnico em Mecatrônica', nome: 'Específico', unidades: [{ nome: 'Automação e CLP', chEad: 80, chPresencial: 80, inicio: '2027-02-15', fim: '2027-04-09', aoVivo: [{ data: '2027-02-17', inicio: '19:00', fim: '21:00' }] }, { nome: 'Robótica industrial', chEad: 80, chPresencial: 80, inicio: '2027-04-12', fim: '2027-06-04', aoVivo: [{ data: '2027-04-14', inicio: '19:00', fim: '21:00' }] }] },
+      { curso: 'Técnico em Mecatrônica', nome: 'Básico', unidades: [ucT('Eletricidade aplicada', 60, 60, '2026-11-03', '2026-12-11'), ucT('Mecânica aplicada', 60, 60, '2026-12-14', '2027-02-12')] },
+      { curso: 'Técnico em Mecatrônica', nome: 'Específico', unidades: [ucT('Automação e CLP', 80, 80, '2027-02-15', '2027-04-09'), ucT('Robótica industrial', 80, 80, '2027-04-12', '2027-06-04')] },
+    ],
+    historico: [
+      { quando: '2026-08-20T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' },
+      { quando: '2026-09-28T09:00:00Z', texto: 'Cronograma v1 enviado à DR para validação (prazo 08/10/2026)', autor: 'Carlos Andrade' },
     ],
   },
+  // Rascunho: mesma UC e data da TU-MG-002 (sugestão de agrupamento).
+  {
+    id: 't3', codigo: 'TU-MG-003/2026', propostaId: '1', propostaNumero: 'PC-MG-001/2026', drContratante: 'SP', cursos: ['Técnico em Automação Industrial'], criadoEm: '2026-09-22T10:00:00Z',
+    fase: 'A iniciar', cronograma: { versao: 1, situacao: 'Rascunho' }, supervisor: 'Carlos Andrade',
+    modulos: [
+      { curso: 'Técnico em Automação Industrial', nome: 'Básico', unidades: [ucT('Eletricidade aplicada', 60, 60, '2026-11-03', '2026-12-11'), ucT('Instrumentação industrial', 60, 60, '2026-12-14', '2027-02-12')] },
+      { curso: 'Técnico em Automação Industrial', nome: 'Específico', unidades: [ucT('Controladores Lógicos Programáveis', 80, 80, '2027-02-15', '2027-04-09'), ucT('Redes industriais', 80, 80, '2027-04-12', '2027-06-04')] },
+    ],
+    historico: [{ quando: '2026-09-22T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' }],
+  },
 ]
-export const useTurmas = () => useCollection<Turma>('turmas-v7', turmas)
+export const useTurmas = () => useCollection<Turma>('turmas-v8', turmas)
+// Agrupamento: outra turma com a mesma UC começando na mesma semana pode rodar junto (até ~300 alunos).
+export const agrupaveis = (todas: Turma[], t: Turma, uc: UcTurma) =>
+  todas.filter((o) => o.id !== t.id && o.fase !== 'Cancelada' && o.modulos.some((m) => m.unidades.some((u) => u.nome === uc.nome && u.inicio && uc.inicio && Math.abs(diasEntre(u.inicio, uc.inicio)) <= 7)))
+
+// Calendário da CTM: feriados nacionais (fixos) e recessos/férias coletivas (cadastrados pela CTM).
+// O gerador de cronograma pula esses dias. Datas ISO; fim só em períodos.
+export type TipoData = 'Feriado nacional' | 'Recesso' | 'Férias coletivas'
+export type DataCalendario = { id: string; nome: string; tipo: TipoData; inicio: string; fim?: string }
+const calendario: DataCalendario[] = [
+  ...([
+    ['2026-10-12', 'Nossa Senhora Aparecida'], ['2026-11-02', 'Finados'], ['2026-11-15', 'Proclamação da República'], ['2026-11-20', 'Dia da Consciência Negra'],
+    ['2026-12-25', 'Natal'], ['2027-01-01', 'Confraternização Universal'], ['2027-02-08', 'Carnaval'], ['2027-02-09', 'Carnaval'], ['2027-03-26', 'Sexta-feira Santa'],
+    ['2027-04-21', 'Tiradentes'], ['2027-05-01', 'Dia do Trabalho'], ['2027-05-27', 'Corpus Christi'], ['2027-09-07', 'Independência do Brasil'],
+  ] as const).map(([inicio, nome], i): DataCalendario => ({ id: `f${i + 1}`, nome, tipo: 'Feriado nacional', inicio })),
+  { id: 'r1', nome: 'Férias coletivas de fim de ano', tipo: 'Férias coletivas', inicio: '2026-12-21', fim: '2027-01-15' },
+  { id: 'r2', nome: 'Recesso de julho', tipo: 'Recesso', inicio: '2027-07-12', fim: '2027-07-23' },
+]
+export const useCalendario = () => useCollection<DataCalendario>('calendario-v1', calendario)
+
+// Equipe da CTM (gestão da execução): quem pode ser alocado nas turmas. Funções configuráveis por CTM.
+export type FuncaoEquipe = 'Tutor' | 'Monitor front' | 'Monitor back' | 'Pedagógico' | 'Interlocutor' | 'Analista' | 'Supervisor'
+export const funcoesEquipe: FuncaoEquipe[] = ['Tutor', 'Monitor front', 'Monitor back', 'Pedagógico', 'Interlocutor', 'Analista', 'Supervisor']
+export const diasSemana = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
+export type Pessoa = { id: string; nome: string; email: string; funcao: FuncaoEquipe; competencias: string[]; disponibilidade: string[]; status: 'Ativo' | 'Inativo' }
+const p = (id: string, nome: string, funcao: FuncaoEquipe, competencias: string[] = [], disponibilidade: string[] = diasSemana.slice(0, 5), status: Pessoa['status'] = 'Ativo'): Pessoa => ({
+  id, nome, funcao, competencias, disponibilidade, status,
+  email: `${nome.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').replace(/ /g, '.')}@senaimg.org.br`,
+})
+const equipe: Pessoa[] = [
+  p('e1', 'Fabiana Rocha', 'Tutor', ['Segurança em soldagem', 'Soldagem com eletrodo revestido', 'Soldagem MIG/MAG'], ['Segunda-feira', 'Quarta-feira']),
+  p('e2', 'Diego Carvalho', 'Tutor', ['Leitura de desenho técnico', 'Soldagem MIG/MAG']),
+  p('e3', 'Helena Duarte', 'Tutor', ['Eletricidade aplicada', 'Instrumentação industrial', 'Automação e CLP'], ['Terça-feira', 'Quinta-feira']),
+  p('e4', 'Rodrigo Mattos', 'Tutor', ['Mecânica aplicada', 'Robótica industrial', 'Controladores Lógicos Programáveis']),
+  p('e5', 'Patrícia Nunes', 'Tutor', ['Redes industriais', 'Eletricidade aplicada'], ['Segunda-feira', 'Terça-feira', 'Quarta-feira']),
+  p('e6', 'Lívia Campos', 'Monitor front'),
+  p('e7', 'Otávio Reis', 'Monitor back'),
+  p('e8', 'Sônia Prado', 'Pedagógico'),
+  p('e9', 'Marcos Leal', 'Interlocutor'),
+  p('e10', 'Renata Guimarães', 'Analista'),
+  p('e11', 'Carlos Andrade', 'Supervisor'),
+  p('e12', 'Tiago Moreira', 'Tutor', ['Segurança em soldagem'], diasSemana.slice(0, 5), 'Inativo'),
+]
+export const useEquipe = () => useCollection<Pessoa>('equipe-v1', equipe)
+// Histórico de execuções anteriores de UCs (base para sugerir Planejamento × Apropriação e para o PCP).
+export const execucoesAnteriores: { uc: string; tutor: string; turma: string; acao: AcaoTutor; fim: string }[] = [
+  { uc: 'Segurança em soldagem', tutor: 'Fabiana Rocha', turma: 'TU-MG-014/2025', acao: 'Planejamento', fim: '2025-09-12' },
+  { uc: 'Segurança em soldagem', tutor: 'Fabiana Rocha', turma: 'TU-MG-022/2025', acao: 'Apropriação', fim: '2025-11-28' },
+  { uc: 'Leitura de desenho técnico', tutor: 'Diego Carvalho', turma: 'TU-MG-014/2025', acao: 'Planejamento', fim: '2025-09-26' },
+  { uc: 'Soldagem com eletrodo revestido', tutor: 'Fabiana Rocha', turma: 'TU-MG-014/2025', acao: 'Planejamento', fim: '2025-10-24' },
+  { uc: 'Eletricidade aplicada', tutor: 'Helena Duarte', turma: 'TU-MG-031/2025', acao: 'Planejamento', fim: '2025-12-12' },
+]
+// Sugestão da ação do tutor: UC nunca executada → Planejamento; já executada → Apropriação (Replanejamento só quando a supervisão pede).
+export const acaoSugerida = (uc: string): AcaoTutor => (execucoesAnteriores.some((e) => e.uc === uc) ? 'Apropriação' : 'Planejamento')
+
+// Tratativas pedagógicas e de monitoria (registradas na plataforma, categorizadas), sobre alunos ou a turma toda.
+export type MotivoTratativa = 'Baixo acesso' | 'Baixo desempenho' | 'Atividade não entregue' | 'Saúde' | 'Trabalho' | 'Financeiro' | 'Dúvida de conteúdo' | 'Outro'
+export type DesfechoTratativa = 'Resolvido' | 'Acompanhar novamente' | 'Alerta de desistência' | 'Plano de recuperação'
+export const motivosTratativa: MotivoTratativa[] = ['Baixo acesso', 'Baixo desempenho', 'Atividade não entregue', 'Saúde', 'Trabalho', 'Financeiro', 'Dúvida de conteúdo', 'Outro']
+export const desfechosTratativa: DesfechoTratativa[] = ['Resolvido', 'Acompanhar novamente', 'Alerta de desistência', 'Plano de recuperação']
+export type Tratativa = { id: string; quando: string; turmaId: string; alunoId?: string; tipo: 'Ativa' | 'Receptiva'; motivo: MotivoTratativa; descricao: string; retorno: boolean; desfecho: DesfechoTratativa; responsavel: string; acompanharEm?: string } // alunoId vazio = turma toda
+const tratativas: Tratativa[] = [
+  { id: 'tr1', quando: '2026-09-25T14:10:00Z', turmaId: 't1', alunoId: 'a2', tipo: 'Ativa', motivo: 'Baixo acesso', descricao: 'Contato por WhatsApp: aluno sem acesso há 10 dias.', retorno: true, desfecho: 'Acompanhar novamente', responsavel: 'Lívia Campos', acompanharEm: '2026-10-02' },
+  { id: 'tr2', quando: '2026-09-24T10:00:00Z', turmaId: 't1', alunoId: 'a4', tipo: 'Ativa', motivo: 'Saúde', descricao: 'Aluna internada; baixo desempenho não é de conteúdo. Combinado reforço com o tutor.', retorno: true, desfecho: 'Plano de recuperação', responsavel: 'Sônia Prado' },
+  { id: 'tr3', quando: '2026-09-22T16:30:00Z', turmaId: 't3', tipo: 'Ativa', motivo: 'Atividade não entregue', descricao: 'Aviso coletivo no AVA e e-mail sobre o prazo da Atividade 2.', retorno: false, desfecho: 'Acompanhar novamente', responsavel: 'Lívia Campos', acompanharEm: '2026-09-29' },
+  { id: 'tr4', quando: '2026-09-20T09:15:00Z', turmaId: 't7', alunoId: 'a36', tipo: 'Receptiva', motivo: 'Trabalho', descricao: 'Aluno mudou de turno na empresa e pediu orientação para reorganizar os estudos.', retorno: true, desfecho: 'Resolvido', responsavel: 'Lívia Campos' },
+  { id: 'tr5', quando: '2026-09-18T11:40:00Z', turmaId: 't1', alunoId: 'a8', tipo: 'Ativa', motivo: 'Baixo acesso', descricao: 'Três tentativas de contato sem resposta.', retorno: false, desfecho: 'Alerta de desistência', responsavel: 'Lívia Campos', acompanharEm: '2026-09-28' },
+]
+export const useTratativas = () => useCollection<Tratativa>('tratativas-v1', tratativas)
+
+// Financeiro: a CTM cobra o aluno até a DR formalizar a saída (desistência, trancamento, validação, transferência).
+// Mudança de status no AVA sem formalização não para a cobrança. Formalizações até o dia 20 entram na cobrança do dia 5 seguinte.
+export type SituacaoFormal = 'Desistente' | 'Trancado' | 'Validado' | 'Transferido'
+export type Formalizacao = { id: string; situacao: SituacaoFormal; data: string; aPartirDe: string; registradoPor: string } // id = id do aluno; aPartirDe = UC a partir da qual não se cobra
+const formalizacoes: Formalizacao[] = [
+  { id: 'a11', situacao: 'Desistente', data: '2026-09-12', aPartirDe: 'Módulo atual', registradoPor: 'SENAI-MG (e-mail)' },
+  { id: 'a25', situacao: 'Trancado', data: '2026-09-19', aPartirDe: 'Módulo atual', registradoPor: 'SENAI-MG' },
+]
+export const useFormalizacoes = () => useCollection<Formalizacao>('formalizacoes-v1', formalizacoes)
+export const escolasDr: Record<string, string[]> = { MG: ['SENAI CETEL', 'SENAI Contagem', 'SENAI Betim'], SP: ['SENAI Anchieta', 'SENAI Campinas'], BA: ['SENAI Dendezeiros'] }
 
 // Super admin: usuários do sistema, permissões por perfil e trilha de auditoria.
 export type StatusUsuario = 'Ativo' | 'Inativo'
@@ -258,12 +448,12 @@ export const useUsuarios = () => useCollection<Usuario>('usuarios-v5', usuarios)
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
   { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/dashboard', '/editais'] },
-  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
+  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
   { id: 'DR solicitante', perfil: 'DR solicitante', telas: ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'] },
-  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
-  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
+  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
+  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v7', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v8', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [
@@ -280,10 +470,6 @@ export const useAuditoria = () => useCollection<Evento>('auditoria-v2', auditori
 // ── Acompanhamento (DR solicitante) ─────────────────────────────────────────
 // A DR solicitante vende o curso a uma empresa e contrata o CTM para operar o EAD (tutoria e monitoria).
 // Datas ISO (aaaa-mm-dd). HOJE fixo para o protótipo.
-export const HOJE = '2026-09-28'
-const dia = 86_400_000
-export const diasEntre = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / dia)
-export const dataBr = (iso: string) => iso.split('-').reverse().join('/')
 
 export type StatusContratoCtm = 'Vigente' | 'Em elaboração' | 'Encerrado'
 export type ContratoCtm = { id: string; numero: string; dr: string; empresa: string; cnpj: string; cursos: string[]; vagas: number; valor: number; inicio: string; fim: string; status: StatusContratoCtm }

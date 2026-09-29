@@ -37,6 +37,10 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
                   ['DR ofertante', `SENAI-${p.drOfertante}`],
                   ['DR contratante', `SENAI-${p.drContratante}`],
                   ['Vigência', p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'],
+                  ['CNPJ do contratante', p.cnpj ?? '—'],
+                  ['Faturamento', p.faturamento === 'Escola' ? `Por escola: ${(p.escolas ?? []).join(', ') || '—'}` : 'Para a DR'],
+                  ['Nº no CRM', p.crm ?? '—'],
+                  ['Documento', p.link ? <a href={p.link} target="_blank" rel="noreferrer" className="underline underline-offset-2">Abrir link</a> : '—'],
                 ] as [string, React.ReactNode][]).map(([k, v]) => (
                   <div key={k}>
                     <dt className="text-xs text-muted-foreground">{k}</dt>
@@ -44,10 +48,10 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
                   </div>
                 ))}
               </dl>
-              {p.status === 'Recusada' && p.feedback && (
+              {(p.status === 'Recusada' ? p.feedback : p.status === 'Cancelada' ? p.motivoCancelamento : '') && (
                 <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900">
-                  <p className="mb-1 text-xs font-medium">Motivo da recusa</p>
-                  <p className="whitespace-pre-wrap">{p.feedback}</p>
+                  <p className="mb-1 text-xs font-medium">{p.status === 'Cancelada' ? 'Motivo do cancelamento' : 'Motivo da recusa'}</p>
+                  <p className="whitespace-pre-wrap">{p.status === 'Cancelada' ? p.motivoCancelamento : p.feedback}</p>
                 </div>
               )}
 
@@ -60,7 +64,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
                       <li key={c.cursoId} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                         <span className="min-w-0 flex-1">
                           <span className="block truncate font-medium">{c.nome}</span>
-                          <span className="block text-xs text-muted-foreground">{c.modalidade} · {c.cargaHoraria} h · {brl(c.valorPrevisto)}</span>
+                          <span className="block text-xs text-muted-foreground">{c.modalidade} · {c.cargaHoraria} h · {brl(c.valorPrevisto)}{c.vagas ? ` · ${c.vagas} vagas` : ''}{c.inicioPrevisto ? ` · início ${dataBr(c.inicioPrevisto)}` : ''}</span>
                         </span>
                         <Badge variant={n ? 'default' : 'outline'} className="shrink-0">{n ? `${n} oferta(s)` : 'Sem oferta'}</Badge>
                       </li>

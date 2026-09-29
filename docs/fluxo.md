@@ -16,8 +16,11 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 4. **Novo TAA** (Supervisor) — o mesmo fluxo, feito pelo perfil Supervisor.
 5. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Supervisor).
 6. **Criação de portfólio** (Supervisor) — Gestão de Portfólio → Novo produto (produtos de um edital).
-7. **Criação de proposta** (Supervisor) — Gestão de propostas → Nova proposta → aceitar/recusar na listagem.
-8. **Criação de oferta** (Supervisor) — Gestão da oferta → Nova oferta → Oferta criada → Aulas ao vivo.
+7. **Criação de proposta** (Supervisor) — Gestão de propostas → Nova proposta (Em negociação) → aceitar/recusar na listagem (cancelar/duplicar depois).
+8. **Criação de oferta** (Supervisor) — Calendário → Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
+8a. **Gestão da execução** (Supervisor) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
+8b. **Acompanhamento pedagógico** (Supervisor) — Tratativas pedagógicas → Nova tratativa.
+8c. **Financeiro** (Supervisor) — situação de cobrança por aluno e formalizações.
 9. **Acompanhamento da execução** (DR solicitante) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
@@ -68,24 +71,83 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - **Gestão de propostas** tem menu próprio (Supervisor/Comercial, `/produtos`) com todas as propostas. Entrando pelo TAA, há **redirect** para `/produtos?taa=<id>`, que filtra pela DR parceira do TAA (breadcrumb volta para Gestão de TAAs).
 
 ## Criação de oferta (Supervisor)
-- Objetivo: criar **turmas** a partir das propostas.
-- Nova oferta: escolhe a proposta → um ou mais cursos dela; a matriz curricular (módulos → UCs) vem do produto (última versão) e é complementada com **CH a distância, CH presencial, início e término de cada UC**. A soma das CHs de cada curso **não pode passar a CH total daquele produto** na proposta (total fica vermelho e Salvar é bloqueado).
-- **Aulas ao vivo são por UC**: configuradas depois, pela ação **Aulas ao vivo** na tabela da Gestão da oferta (sheet de baixo, rota `/oferta/:id/aulas-ao-vivo`: lista de UCs por módulo; cada UC tem um dia de aula ao vivo com horário, incluído pelo botão Adicionar). Não fazem parte do formulário Nova oferta, mas são a última etapa da jornada.
-- Nº da turma: `TU-<UF>-<seq>/<ano>`.
+- Objetivo: criar **turmas** a partir das propostas **aceitas** (só elas aparecem na Nova oferta).
+- Nova oferta: escolhe a proposta → um ou mais cursos dela → supervisor e analista da turma. A matriz curricular (módulos → UCs) vem do produto (última versão); **CH a distância e presencial** por UC são editáveis. A soma das CHs de cada curso **não pode passar a CH total daquele produto** na proposta (total fica vermelho e Salvar é bloqueado).
+- Nº da turma: `TU-<UF>-<seq>/<ano>` (padrão das CTMs ainda a confirmar; ver Pendências).
+- Detalhes da oferta em abas (`?aba=cronograma|execucao|integracao|historico`); toda mudança entra no **Histórico** da turma.
+
+### Cronograma (gerado pelo sistema)
+- Substitui o script da planilha. Parâmetros na Nova oferta: **início da turma** (vem do início previsto do curso na proposta), **horas por semana** (padrão 20), **ambientação** (junto com a 1ª UC ou semana própria), **intervalo entre módulos** (5/7/10/15 dias), **UC termina na sexta**, **pode iniciar módulo em dezembro** (se não, empurra para depois do recesso).
+- Regra: UCs em sequência; semanas da UC = CH da UC ÷ horas por semana (arredonda para cima); conta **só dias úteis** e pula **feriados nacionais, recessos e férias** do Calendário. Cada curso começa na data de início.
+- Por UC o sistema calcula **semanas de estudo**, **encontros presenciais** (1 a cada 4 h presenciais) e **aulas ao vivo previstas** (CH a distância ÷ 20). As fórmulas de encontros/aulas são hipótese a validar com a CTM.
+- As datas podem ser ajustadas à mão antes de salvar; avisos aparecem quando o sistema move uma data (dia não útil, módulo em dezembro).
+- **Agrupamento**: UC com o mesmo nome em outra turma (não cancelada) começando na mesma semana aparece como **Agrupável** (versão simples; a análise com troca de ordem das UCs fica para depois).
+
+### Validação do cronograma e status da turma
+- Cronograma tem **versão** e situação: *Rascunho* → *Aguardando validação* (registra o envio à DR com **prazo**) → *Validado* (DR validou ou **passou o prazo sem resposta**). "DR pediu ajuste" gera a **próxima versão** (novo início + o que a DR pediu) e volta a Rascunho.
+- Status da turma: **A iniciar** → **Buscar tutor** (ação "Confirmar turma", só com cronograma validado: a DR confirmou que a turma vai começar; libera o PCP e a criação de salas) → **Em andamento** (a partir do início) → **Finalizada** (depois do término). **Cancelada** a qualquer momento antes do fim, com motivo (a DR deve avisar com 10 dias).
+- **Prorrogar início**: nova data + motivo; todas as datas (UCs e aulas ao vivo) andam junto, sem aditivo. Só antes de começar.
+- **Dia do encontro presencial** (informado pela DR) e **escolas da turma** (nome, cidade, alunos) ficam na aba Cronograma.
+- **Aulas ao vivo são por UC** (um dia com horário), definidas pelo PCP na matriz da aba Cronograma.
+
+### Gestão da execução (aba Execução)
+- Só a partir de **Buscar tutor**. Supervisão aloca a equipe da turma: **monitor front, monitor back, pedagógico, interlocutor** (funções configuráveis por CTM).
+- PCP aloca o **tutor por UC**: quem tem a UC nas competências aparece primeiro (estrela), com os dias disponíveis e quantas vezes já deu a UC.
+- **Ação do tutor** por UC: *Planejamento* (UC nunca executada), *Apropriação* (já executada; usa a sala modelo) ou *Replanejamento* (quando a supervisão/pedagógico pede). O sistema sugere pelo histórico.
+- **E-mail ao tutor**: o sistema monta assunto e mensagem (turma, UC, período, encontros, aulas ao vivo, equipe e links: plano de curso, plano de ensino, pasta, sala). Os documentos continuam no drive: o sistema guarda **só os links**. O envio é fora (copiar); depois, **Marcar tutor confirmado**.
+- Planejamento/replanejamento: situação *Em planejamento* até o pedagógico marcar **Validado pelo pedagógico** (aí o monitor back sobe o material). Apropriação vai direto a *Tutor confirmado*.
+
+### Integração com o AVA (aba Integração)
+- **Criar salas no AVA**: botão (MVP), liberado a partir de Buscar tutor; cada UC recebe o ID da sala.
+- **Dados de integração para a DR**: código CTM por escola (`<turma>-<ESCOLA>`) + ID da sala de cada UC + início + semestre, com "Copiar tabela" para a DR parametrizar no SGE.
+- **Situação da integração** por escola (integrados × alunos): Integrada / Parcial / Não integrada; alerta quando faltam 5 dias ou menos para o início e a DR ainda não integrou. "Consultar AVA" simula o serviço do AVA.
+
+## Calendário (CTM)
+- Feriados nacionais são fixos (não se excluem). A CTM cadastra **recessos e férias coletivas** (Novo período). O gerador de cronograma pula todos.
+
+## Equipe (CTM)
+- Pessoas com função, **e-mail corporativo único** (não cadastra duas vezes), competências (UCs) e dias disponíveis. Inativar pede confirmação e tira a pessoa da alocação.
+
+## Tratativas pedagógicas (CTM)
+- Registro categorizado por **aluno ou turma toda**: tipo (Ativa/Receptiva), **motivo** (baixo acesso, baixo desempenho, atividade não entregue, saúde, trabalho, financeiro, dúvida, outro), retorno do aluno, **desfecho** (resolvido, acompanhar novamente, alerta de desistência, plano de recuperação) e data para acompanhar de novo.
+- Indicadores: retornos pendentes até hoje, alunos em alerta de desistência, tratativas sem retorno.
+
+## Financeiro (CTM)
+- A CTM **cobra o aluno até a DR formalizar a saída** (desistente, trancado, validado, transferido). Status no AVA sem formalização não para a cobrança: vira alerta "Sem formalização".
+- A formalização é registrada no sistema (antes era por e-mail), com data e a partir de quando deixa de cobrar (UC em andamento ou próxima UC).
+- **Corte no dia 20**: formalizações até o dia 20 saem da cobrança do dia 5 do mês seguinte; depois do dia 20, da cobrança do mês subsequente.
+- Resumo de alunos cobrados por escola.
 
 ## Proposta comercial (Supervisor)
 - DR ofertante (a própria, fixa) → DR contratante.
-- Pode ter vários cursos, cada um com valor previsto.
-- Cada curso só pode entrar em uma proposta.
+- Pode ter vários cursos, cada um com **vagas, início previsto e valor previsto**.
+- Cada curso só pode entrar em uma proposta (cursos de propostas recusadas/canceladas voltam a ficar livres).
+- Registro mínimo (o documento é feito fora, no modelo): edital, DR contratante, **CNPJ do contratante**, **faturamento** (para a DR ou por escola, com as escolas), **nº no CRM** (opcional), **link do documento** e anexo.
 - Número: `PC-<UF>-<seq>/<ano>`.
 - **O sistema não envia nada para ninguém.** O acordo é fechado fora do sistema.
-- Criação: "Nova proposta" → "Salvar proposta" (status *Em elaboração*).
+- Criação: "Nova proposta" → "Salvar proposta" (status **Em negociação**).
+- **Duplicar** (listagem): nova rodada de negociação — abre a Nova proposta com os dados da original e registra de qual proposta veio.
+- **Alerta de prazo**: proposta ainda não aceita com turma prevista para começar em até 15 dias aparece com "Faltam N dias" / "Prazo vencido" na coluna Início previsto.
+- Proposta **aceita pode ser cancelada** (ação na listagem, com motivo) → status *Cancelada*.
+- Histórico da proposta (registro, rodadas, aceite, recusa, cancelamento) na Gestão da proposta.
 - Depois de criada, o perfil registra o resultado na Gestão da proposta: **Aprovada** (status *Aceita*) ou **Recusada** (status *Recusada*).
 - Aceitar/recusar também direto no menu de ações da listagem de propostas (enquanto não decidida).
 - **Visualizar** (olho) abre side sheet com dados, cursos (quantas ofertas cada um tem) e **ofertas vinculadas**.
 - Proposta **aceita não pode ser excluída** (lixeira desabilitada).
 - Recusar pede **feedback** (motivo), que aparece no Resumo da proposta.
 - Depois de aprovada ou recusada, os botões somem.
+
+## Mapa do processo (/processo)
+- Visão BPMN de ponta a ponta, para todos os perfis (menu Sistema): pools (DN, CTM, DR contratante, Sistemas) e raias por ator (DN, Comercial, Supervisão, PCP, Analista, Tutor, Monitoria e pedagógico, Financeiro, DR contratante, AVA/SGE); fases no topo; tarefas, decisões, paralelos, eventos de prazo; sequência (linha cheia) e mensagem entre organizações (tracejada).
+- Tarefa tracejada = acontece fora do sistema. Clique numa etapa: detalhes, regras e **Abrir no protótipo**. Filtro por ator (select ou clique na raia) e zoom.
+- Dados em `src/lib/processo.ts`: manter junto com as regras deste arquivo.
+
+## Pendências (reunião de processos de 28/09/2026)
+- **Quem assina o TAA**: na reunião, TAA é CTM ↔ DR contratante (modelo do DN, preenchido pelo comercial); o protótipo trata como DN ↔ DR.
+- **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (à DR, prazos, integração). Hoje os avisos aparecem só nas telas.
+- **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesma DR.
+- **Código da turma**: padrão citado = curso/modalidade + nº sequencial por DR + ano/semestre de início (ex.: T02MS, 2026-1).
+- Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, novos perfis (Analista, PCP, Monitor, Pedagógico, Tutor), acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
 ## Percurso (histórico de decisões)
 - 2026-09-28 — Gestão da proposta: seções (Resumo, Cursos, Documentos, Histórico) numa página só, com âncoras fixas na lateral.
@@ -203,3 +265,7 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-28 — **Guia da jornada**: ao navegar pelo fluxograma (etapas, Anterior/Próxima, setas), o protótipo escurece a tela, deixa vazado o elemento em foco da etapa (`focus` em `src/journeys.ts`: seletor CSS ou `text=Texto`) e mostra um cartão com a explicação (a `note` da etapa), “Entendi” e “Próxima etapa”. Liga/desliga pelo botão “Guia” no topo da casca (lembrado no navegador).
 
 - 2026-09-28 — Casca: botão **Tela cheia** (atalho F; também ao lado de Anterior/Próxima). Esconde o topo e o mapa da jornada, deixa só o selo do perfil, a etapa atual (n/total), Anterior/Próxima e o protótipo; usa a tela cheia do navegador. Sair: mesmo botão, F ou Esc.
+- 2026-09-28 — Reunião de processos (gravação de 5h40): **proposta** nasce Em negociação, com CNPJ, faturamento/escolas, nº CRM, link, vagas e início previsto por curso; alerta de prazo; duplicar (nova rodada); cancelar aceita; histórico. **Oferta**: cronograma gerado pelo sistema (parâmetros + Calendário), versões e validação pela DR (prazo), status A iniciar → Buscar tutor → Em andamento → Finalizada / Cancelada, prorrogar início, dia do presencial, escolas, agrupamento simples. **Execução**: equipe da turma, tutor e ação por UC, e-mail ao tutor (links, sem arquivos), validação pedagógica. **Integração com o AVA**: criar salas, dados para a DR, situação por escola. Telas novas: Equipe, Calendário, Tratativas pedagógicas, Financeiro. Jornadas novas: Gestão da execução, Acompanhamento pedagógico, Financeiro. Casca: etapas podem ter query (`?aba=`).
+- 2026-09-28 — Nova tela **Mapa do processo** (/processo): BPMN do processo inteiro com atores, fases e atalhos para as telas.
+- 2026-09-28 — Casca: botão **Mapa do processo** no topo (ao lado de "Abrir protótipo livre") abre /processo dentro do protótipo; fica destacado enquanto o mapa está aberto. Para voltar, basta clicar numa etapa da jornada.
+- 2026-09-28 — Mapa do processo: botão **Tela cheia** (tela cheia do navegador; se bloqueada, cobre a janela) com barra de filtro/zoom e legenda; ao entrar, encaixa largura e altura. Sair: mesmo botão ou Esc. O iframe da casca passou a permitir tela cheia (`allow="fullscreen"`).
