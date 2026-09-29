@@ -10,7 +10,7 @@ export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void })
   const { all: editais } = useEditais()
   const { all: contratos } = useContratos()
   const meusEditais = dr ? editais.filter((e) => e.drs.includes(dr.uf)) : []
-  const taas = dr ? contratos.filter((c) => c.dr === dr.uf) : []
+  const taas = dr ? contratos.filter((c) => c.contratante === 'DN' && c.dr === dr.uf) : []
   return (
     <Sheet open={!!dr} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">

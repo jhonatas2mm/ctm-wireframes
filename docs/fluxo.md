@@ -11,26 +11,26 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): ações dos usuários na plataforma (login, visualizou, criou, editou com antes/depois, excluiu, aceitou/recusou, exportou, anexou).
 0d. **Supervisão das áreas** (Super admin) — Gestão de DRs → Editais → Propostas → Oferta.
 1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciadas → Nova DR credenciada. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
-2. **Gestão de Contratos** (DN) — Gestão de TAA → Novo TAA → TAA em elaboração → TAA vigente.
-3. **Novo TAA** (Comercial) — Gestão de TAAs → Novo TAA, feito pelo perfil Comercial.
-4. **Novo TAA** (Supervisor) — o mesmo fluxo, feito pelo perfil Supervisor.
-5. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Supervisor).
-6. **Criação de portfólio** (Supervisor) — Gestão de Portfólio → Novo produto (produtos de um edital).
-7. **Criação de proposta** (Supervisor) — Gestão de propostas → Nova proposta (Em negociação) → aceitar/recusar na listagem (cancelar/duplicar depois).
-8. **Criação de oferta** (Supervisor) — Calendário → Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
-8a. **Gestão da execução** (Supervisor) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
-8b. **Acompanhamento pedagógico** (Supervisor) — Tratativas pedagógicas → Nova tratativa.
-8c. **Financeiro** (Supervisor) — situação de cobrança por aluno e formalizações.
-9. **Acompanhamento da execução** (DR solicitante) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
+2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Supervisor).
+3. **Contratação de CTM (TAA)** (DN) — TAAs com CTMs → Novo TAA → TAA em elaboração → TAA vigente.
+4. **Contratação da CTM (TAA)** (DR solicitante) — o mesmo fluxo, com a DR solicitante como contratante.
+5. **Criação de portfólio** (Supervisor) — Gestão de Portfólio → Novo produto (produtos de um edital).
+6. **Criação de proposta** (Supervisor) — Gestão de propostas → Nova proposta (Em negociação) → aceitar/recusar na listagem (cancelar/duplicar depois).
+7. **Criação de oferta** (Supervisor) — Calendário → Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
+7a. **Gestão da execução** (Supervisor) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
+7b. **Acompanhamento pedagógico** (Supervisor) — Tratativas pedagógicas → Nova tratativa.
+7c. **Financeiro** (Supervisor) — situação de cobrança por aluno e formalizações.
+8. **Acompanhamento da execução** (DR solicitante) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
 ## Perfis
 - **Super admin** (provisório) — administra usuários, perfis/permissões, auditoria e logs do sistema; vê todas as telas do menu e **os dados de toda a plataforma** (ex.: no acompanhamento, contratos/turmas/alunos de todas as DRs, com coluna/filtro de DR). Menu setorizado (DN, CTM, DR solicitante, Administração).
-- **DN** — cria e gerencia editais e faz a gestão de DRs (contatos, status, editais em que cada DR está credenciado).
-- **Comercial** — por enquanto tem as mesmas telas do Supervisor e também pode criar TAA pela própria Gestão de TAAs.
-- **Supervisor** (ex.: SENAI-MG) — cadastra produtos, cria propostas comerciais e também pode criar TAA (mesmas jornadas do Comercial).
-- **DR solicitante** (ex.: SENAI-MG) — vende o curso a uma empresa (ex.: Panvel) e contrata o CTM para operar o EAD (tutoria e monitoria). Perfil de **acompanhamento**, somente leitura: Painel, Gestão de Contratos, Turmas e Alunos.
+- **DN** — cria e gerencia editais e faz a gestão de DRs. **Não gerencia os TAAs da rede**: só cria/acompanha os TAAs em que ele mesmo contrata uma CTM (TAAs com CTMs).
+- **Comercial** — mesmas telas do Supervisor. **Não gerencia TAAs**, só propostas.
+- **Supervisor** (ex.: SENAI-MG) — cadastra produtos, cria propostas comerciais e opera a oferta. **Não gerencia TAAs**; nas propostas vê o TAA/contrato de cada contratante.
+- **DR solicitante** (ex.: SENAI-MG) — contrata uma CTM: cria o **TAA** (TAAs com CTMs) e acompanha a execução (Painel, Gestão de Contratos, Turmas e Alunos). Vende o curso a uma empresa (ex.: Panvel) e contrata o CTM para operar o EAD.
+- Uma mesma DR pode ser **CTM** (ofertante) e **DR solicitante** (contratante) — são perfis diferentes.
 
 ## Acompanhamento (DR solicitante)
 - Contrato = DR solicitante ↔ CTM, com empresa cliente, só cursos EAD, vigência, valor, vagas e status (Vigente / Em elaboração / Encerrado).
@@ -38,13 +38,17 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - Aluno **requer atenção** (turma não finalizada) se: sem acesso há mais de 7 dias, média < 6, atividade não entregue, ou progresso mais de 10 p.p. abaixo do esperado pelo calendário.
 - Situação do aluno: **Evadido** (sem acesso há mais de 30 dias), **Em risco** (algum alerta), **Em dia**.
 
-## TAA (Termo de Acordo Administrativo)
-- Acordo DN ↔ DR. Nunca chamar de "TA" ou "Termo de Adesão".
+## TAA (Termo de Acordo Administrativo) e contrato
+- **Quem contrata cria**: a DR solicitante (ou o DN) cria o instrumento para contratar uma **CTM** (DR credenciada). A CTM não gerencia TAAs, só propostas.
+- **TAA é só entre SENAI e SENAI**: DR solicitante SENAI-XX (ou o SENAI DN) ↔ CTM. Nunca chamar de "TA" ou "Termo de Adesão".
+- **SESI-XX ↔ SENAI é contrato** (não é TAA). No protótipo o contratante SESI aparece como `SESI-UF` e o instrumento como *Contrato* (nº `CT-<seq>/<ano>`).
+- Tela **TAAs com CTMs** (`/dashboard`): DN e DR solicitante veem só os seus (em que são contratantes); Super admin vê todos, com colunas Contratante e Instrumento.
+- A proposta só pode ser feita para quem tem TAA ou contrato (não encerrado) com a CTM; a coluna **TAA / contrato** da Gestão de propostas mostra o instrumento ou "Sem TAA/contrato".
 - Todo TAA criado tem **vigência e valor global** preenchidos (obrigatórios no Novo TAA). TAA não tem produtos vinculados.
 - **Sem fluxo de assinatura no sistema.** Percurso do TAA:
-  1. Novo TAA em **duas etapas** — Etapa 1 (Dados): DR, vigência e valor → **Salvar e avançar** (TAA salvo, *Em elaboração*). Etapa 2 (Documento): o termo com os dados preenchidos → **Baixar TAA** para enviar → Concluir.
+  1. Novo TAA em **duas etapas** — Etapa 1 (Dados): contratante (fixo, o do perfil), CTM contratada, vigência e valor → **Salvar e avançar** (TAA salvo, *Em elaboração*). Etapa 2 (Documento): o termo com os dados preenchidos → **Baixar TAA** para enviar → Concluir.
   2. Assinaturas acontecem fora do sistema; o status fica *Em elaboração*.
-  3. Em Gestão de TAA, ação **Anexar TAA assinado** (só em *Em elaboração*) → upload → status *Vigente*.
+  3. Em TAAs com CTMs, ação **Anexar TAA assinado** (só em *Em elaboração*) → upload → status *Vigente*.
 
 ## Edital (DN)
 - Tem vigência e cursos.
@@ -63,12 +67,6 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - Toda versão mantém o vínculo com a v1 (a "mãe") e registra de qual versão foi copiada.
 - Dados do edital/catálogo (edital, área, modalidade, CH) são fixos em todas as versões.
 - A tabela mostra só a versão mais recente de cada produto; as anteriores (ex.: v1 de um produto na v2) ficam registradas no histórico de versões do side sheet, e dá para abrir cada uma.
-
-## Gestão de TAAs (Supervisor)
-- Menu "Gestão de TAAs" (antes "Meus TAAs"): TAAs da DR com outras DRs.
-- No menu de ações de cada TAA, **Gestão de propostas** leva às propostas com a DR parceira daquele TAA.
-- Nova proposta aberta de dentro de um TAA já vem com a DR contratante fixa (a parceira do TAA).
-- **Gestão de propostas** tem menu próprio (Supervisor/Comercial, `/produtos`) com todas as propostas. Entrando pelo TAA, há **redirect** para `/produtos?taa=<id>`, que filtra pela DR parceira do TAA (breadcrumb volta para Gestão de TAAs).
 
 ## Criação de oferta (Supervisor)
 - Objetivo: criar **turmas** a partir das propostas **aceitas** (só elas aparecem na Nova oferta).
@@ -143,10 +141,10 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - Dados em `src/lib/processo.ts`: manter junto com as regras deste arquivo.
 
 ## Pendências (reunião de processos de 28/09/2026)
-- **Quem assina o TAA**: na reunião, TAA é CTM ↔ DR contratante (modelo do DN, preenchido pelo comercial); o protótipo trata como DN ↔ DR.
 - **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (à DR, prazos, integração). Hoje os avisos aparecem só nas telas.
 - **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesma DR.
 - **Código da turma**: padrão citado = curso/modalidade + nº sequencial por DR + ano/semestre de início (ex.: T02MS, 2026-1).
+- **Quem cria o contrato com o SESI**: o SESI não tem perfil no protótipo; hoje os contratos SESI aparecem como dados (Super admin e coluna nas propostas da CTM).
 - Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, novos perfis (Analista, PCP, Monitor, Pedagógico, Tutor), acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
 ## Percurso (histórico de decisões)
@@ -274,3 +272,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-29 — Mapa do processo (painel): ocupa toda a altura; abre e “Ajustar” encaixam pela altura (atores ocupam a altura toda, texto legível), rolagem/arrasto na horizontal. Zoom: botões −/+, Ctrl/⌘ + roda (ou pinça), teclas + − 0 (0 = ajustar); arrastar com o mouse move o diagrama.
 - 2026-09-29 — **Sem versão responsiva**: o protótipo é sempre desktop. Removidos os botões tablet/celular da casca; o protótipo usa viewport de 1440 e largura mínima de 1280px (em telas menores, rola em vez de se reorganizar); menu lateral nunca vira gaveta.
 - 2026-09-29 — Casca: removido o botão “Tela cheia” do topo; continua o ícone ao lado de Anterior/Próxima e o atalho F.
+- 2026-09-29 — **TAA/contrato é de quem contrata**: a DR solicitante (ou o DN) cria o TAA para contratar uma CTM; a CTM não gerencia TAAs (saíram Gestão de TAAs da CTM, /meus-taas, e as jornadas "Novo TAA" de Comercial/Supervisor). DN não gerencia os TAAs da rede, só os seus. TAA só SENAI ↔ SENAI; SESI ↔ SENAI é contrato. Tela "Gestão de TAA" → **TAAs com CTMs** (DN, DR solicitante e Super admin); Novo TAA escolhe a CTM. Propostas: contratante só com TAA/contrato, coluna TAA / contrato. Jornadas: Contratação de CTM (DN) e Contratação da CTM (DR solicitante). Mapa do processo atualizado.

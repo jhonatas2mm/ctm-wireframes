@@ -3,7 +3,7 @@ import { AlertTriangle, Ban, Check, CheckCircle2, Copy, CopyPlus, Eye, XCircle, 
 import { Textarea } from '@/components/ui/textarea'
 import { EditalDetalhes } from './edital-detalhes'
 import { PropostaSheet } from './proposta-sheet'
-import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -13,10 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { AttachField, DataTable, Req, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { cn } from '@/lib/utils'
-import { alertaPrazo, dataBr, inicioPrevisto, useCursos, useEditais, useProdutos, useTaasDr, type Produto, type Registro } from '@/lib/mock'
+import { alertaPrazo, dataBr, inicioPrevisto, instrumentoDe, nomeParte, taaEntre, useContratos, useCursos, useEditais, useProdutos, type Contrato, type Produto, type Registro } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
 
-const UFS = 'AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ')
 // DR do usuário logado (perfil Supervisor) — é sempre a ofertante.
 const DR_OFERTANTE = 'MG'
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -44,7 +43,7 @@ function NumeroBadge({ numero }: { numero: string }) {
   )
 }
 
-const colunas = (abrirEdital: (numero: string) => void): Column<Produto>[] => [
+const colunas = (abrirEdital: (numero: string) => void, taas: Contrato[]): Column<Produto>[] => [
   { header: 'Código da proposta', value: (p) => p.numero ?? '—', search: true, className: 'font-mono text-xs', cell: (p) => <NumeroBadge numero={p.numero} /> },
   { header: 'Status', value: (p) => p.status ?? 'Em elaboração', filter: true, cell: (p) => <StatusPropostaBadge status={p.status} /> },
   {
@@ -56,7 +55,19 @@ const colunas = (abrirEdital: (numero: string) => void): Column<Produto>[] => [
     // Link para os detalhes do edital
     cell: (p) => (p.edital ? <button type="button" className="underline underline-offset-2 hover:text-foreground/70" onClick={() => abrirEdital(p.edital!)}>{p.edital}</button> : '—'),
   },
-  { header: 'DR contratante', value: (p) => `SENAI-${p.drContratante}`, search: true, filter: true },
+  { header: 'DR contratante', value: (p) => nomeParte(p.drContratante), search: true, filter: true },
+  {
+    // TAA (SENAI) ou contrato (SESI) que o contratante criou para contratar esta CTM; a CTM só consulta
+    header: 'TAA / contrato',
+    value: (p) => { const t = taaEntre(taas, p.drContratante, p.drOfertante); return t ? `${instrumentoDe(t.contratante)} ${t.numero}` : `Sem ${instrumentoDe(p.drContratante)}` },
+    filter: true,
+    cell: (p) => {
+      const t = taaEntre(taas, p.drContratante, p.drOfertante)
+      return t
+        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">{instrumentoDe(t.contratante)}</span> <span className="font-mono">{t.numero}</span>{t.status !== 'Vigente' && <Badge variant="outline">{t.status}</Badge>}</span>
+        : <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900"><AlertTriangle className="size-3" /> Sem {instrumentoDe(p.drContratante)}</Badge>
+    },
+  },
   {
     header: 'Início previsto',
     value: (p) => (inicioPrevisto(p) ? dataBr(inicioPrevisto(p)!) : '—'),
@@ -82,16 +93,13 @@ const colunas = (abrirEdital: (numero: string) => void): Column<Produto>[] => [
   { header: 'CH total', value: (p) => `${p.cursos.reduce((t, c) => t + c.cargaHoraria, 0)} h`, className: 'text-right tabular-nums' },
 ]
 
-// Gestão de propostas de um TAA (Supervisor): aberta pelo menu de ações em Gestão de TAAs.
-// Gestão de propostas (Supervisor/Comercial): menu próprio. Vindo de um TAA (/meus-taas/:taaId/produtos),
-// redireciona para /produtos?taa=<id>, que filtra pelas propostas com a DR parceira do TAA.
+// Gestão de propostas (CTM: Supervisor/Comercial): propostas da CTM para os contratantes que têm TAA com ela.
 export default function Produtos() {
   const { confirmar, dialogo } = useConfirmar()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { taaId } = useParams()
   const [params] = useSearchParams()
-  const taa = useTaasDr().get(params.get('taa') ?? undefined)
+  const taas = useContratos().all
   const { all: todas, remove, update } = useProdutos()
   const autor = useAutor()
   // Aceite/recusa direto na listagem (recusa pede feedback), como na Gestão da proposta; aceita ainda pode ser cancelada.
@@ -101,23 +109,20 @@ export default function Produtos() {
   const [editalAberto, setEditalAberto] = useState<string | null>(null)
   const [verProposta, setVerProposta] = useState<Produto | null>(null)
   const editaisTodos = useEditais().all
-  if (taaId) return <Navigate to={`/produtos${pathname.endsWith('/novo') ? '/novo' : ''}?taa=${taaId}`} replace />
-  const all = taa ? todas.filter((p) => p.drContratante === taa.drParceira) : todas
-  const qs = taa ? `?taa=${taa.id}` : ''
+  const all = todas
   return (
     <>
       <PageHeader
-        title={<span className="flex items-center gap-3">Gestão de propostas {taa && <NumeroBadge numero={`TAA ${taa.numero}`} />}</span>}
-        breadcrumb={taa ? [{ label: 'Gestão de TAAs', to: '/meus-taas' }, { label: `TAA ${taa.numero} · SENAI-${taa.drParceira}` }] : undefined}
+        title="Gestão de propostas"
         actions={
-          <Button onClick={() => navigate(`/produtos/novo${qs}`)}>
+          <Button onClick={() => navigate('/produtos/novo')}>
             <Plus /> Nova proposta
           </Button>
         }
       />
       <DataTable
         rows={all}
-        columns={colunas(setEditalAberto)}
+        columns={colunas(setEditalAberto, taas)}
         searchPlaceholder="Buscar por código ou curso…"
         actions={(p) => (
           <>
@@ -136,7 +141,7 @@ export default function Produtos() {
             )}
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVerProposta(p)} />
             {/* Nova rodada de negociação: copia a proposta para ajustes */}
-            <RowAction label="Duplicar" icon={CopyPlus} onClick={() => navigate(`/produtos/novo?de=${p.id}${taa ? `&taa=${taa.id}` : ''}`)} />
+            <RowAction label="Duplicar" icon={CopyPlus} onClick={() => navigate(`/produtos/novo?de=${p.id}`)} />
             {/* Aceita ainda pode ser cancelada (ex.: a DR não fechou a turma) */}
             {p.status === 'Aceita' && <RowAction label="Cancelar proposta" icon={Ban} onClick={() => (setFeedback(''), setDecisao({ p, tipo: 'Cancelada' }))} />}
             {/* Proposta aceita não pode ser excluída: lixeira fica desabilitada */}
@@ -185,14 +190,14 @@ export default function Produtos() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <NovaPropostaSheet open={pathname === '/produtos/novo'} contratanteFixo={taa?.drParceira} origem={todas.find((p) => p.id === params.get('de'))} onOpenChange={(v) => !v && navigate(`/produtos${qs}`)} />
+      <NovaPropostaSheet open={pathname === '/produtos/novo'} origem={todas.find((p) => p.id === params.get('de'))} onOpenChange={(v) => !v && navigate('/produtos')} />
       {dialogo}
     </>
   )
 }
 
 // origem: proposta duplicada (nova rodada de negociação) — abre com os dados dela para ajustes.
-function NovaPropostaSheet({ open, onOpenChange, contratanteFixo, origem }: { open: boolean; onOpenChange: (v: boolean) => void; contratanteFixo?: string; origem?: Produto }) {
+function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOpenChange: (v: boolean) => void; origem?: Produto }) {
   const cursos = useCursos().all
   const db = useProdutos()
   const autor = useAutor()
@@ -212,8 +217,9 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo, origem }: { op
   const [escolhida, setContratante] = useState<string | null>(null)
   const [edital, setEdital] = useState<string | null>(null)
   const editais = useEditais().all.filter((e) => e.drs.includes(DR_OFERTANTE))
-  // Dentro de um TAA, a DR contratante é a parceira do TAA (fixa).
-  const contratante = contratanteFixo ?? escolhida
+  const contratante = escolhida
+  // Contratantes possíveis: quem tem TAA (não encerrado) com esta CTM — DR solicitante ou o DN.
+  const comTaa = useContratos().all.filter((c) => c.dr === DR_OFERTANTE && c.status !== 'Encerrado')
   const [docs, setDocs] = useState<string[]>([])
   const [vigIni, setVigIni] = useState('')
   const [vigFim, setVigFim] = useState('')
@@ -316,14 +322,14 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo, origem }: { op
                 </Select>
               </label>
               <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">DR contratante <Req /></span>
-                <Select disabled={!!contratanteFixo} value={contratante} onValueChange={(v) => setContratante(v as string)}>
+                <span className="text-muted-foreground">Contratante (com TAA ou contrato) <Req /></span>
+                <Select value={contratante} onValueChange={(v) => setContratante(v as string)}>
                   <SelectTrigger className="w-full">
-                    <SelectValue>{(v: string | null) => (v ? `SENAI-${v}` : 'Selecione a DR')}</SelectValue>
+                    <SelectValue>{(v: string | null) => (v ? nomeParte(v) : 'Selecione o contratante')}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {UFS.filter((uf) => uf !== DR_OFERTANTE).map((uf) => (
-                      <SelectItem key={uf} value={uf}>SENAI-{uf}</SelectItem>
+                    {comTaa.map((t) => (
+                      <SelectItem key={t.id} value={t.contratante}>{nomeParte(t.contratante)} <span className="text-xs text-muted-foreground">· {instrumentoDe(t.contratante)} {t.numero}{t.status !== 'Vigente' ? ` (${t.status})` : ''}</span></SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

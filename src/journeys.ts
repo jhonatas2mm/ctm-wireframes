@@ -70,37 +70,6 @@ export const journeys: Journey[] = [
     ],
   },
   {
-    id: 'contratos',
-    title: 'Gestão de Contratos',
-    profile: 'DN',
-    steps: [
-      { title: 'Gestão de TAA', path: '/dashboard', focus: 'text=Novo TAA', profile: 'DN', note: 'DN clica em “Novo TAA”.' },
-      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DN', note: 'Preenche DR, vigência e valor global, baixa o modelo e salva. O TAA fica Em elaboração.' },
-      { title: 'TAA em elaboração', path: '/dashboard/4', profile: 'DN', note: 'Assinaturas acontecem fora do sistema. Ao voltar, o DN clica em “Anexar TAA assinado”.' },
-      { title: 'TAA vigente', path: '/dashboard/1', profile: 'DN', note: 'Com o TAA assinado anexado, o status passa a Vigente.' },
-    ],
-  },
-  {
-    id: 'novo-taa-comercial',
-    title: 'Novo TAA',
-    profile: 'CTM: Comercial',
-    steps: [
-      { title: 'Gestão de TAAs', path: '/meus-taas', focus: 'text=Novo TAA', profile: 'CTM: Comercial', note: 'O Comercial clica em “Novo TAA”.' },
-      { title: 'Novo TAA', path: '/meus-taas/novo', profile: 'CTM: Comercial', note: 'Preenche DR, vigência e valor global, baixa o modelo e salva. O TAA fica Em elaboração.' },
-      { title: 'TAA criado', path: '/meus-taas', focus: 'row=103/2026', profile: 'CTM: Comercial', note: 'Ao salvar, o TAA aparece na lista Em elaboração (ex.: 103/2026 com SENAI-ES). As assinaturas acontecem fora do sistema.' },
-    ],
-  },
-  {
-    id: 'novo-taa-supervisor',
-    title: 'Novo TAA',
-    profile: 'CTM: Supervisor',
-    steps: [
-      { title: 'Gestão de TAAs', path: '/meus-taas', focus: 'text=Novo TAA', profile: 'CTM: Supervisor', note: 'O Supervisor clica em “Novo TAA”.' },
-      { title: 'Novo TAA', path: '/meus-taas/novo', profile: 'CTM: Supervisor', note: 'Preenche DR, vigência e valor global, baixa o modelo e salva. O TAA fica Em elaboração.' },
-      { title: 'TAA criado', path: '/meus-taas', focus: 'row=103/2026', profile: 'CTM: Supervisor', note: 'Ao salvar, o TAA aparece na lista Em elaboração (ex.: 103/2026 com SENAI-ES). As assinaturas acontecem fora do sistema.' },
-    ],
-  },
-  {
     id: 'fluxo',
     title: 'Criação de edital',
     profile: 'DN',
@@ -111,6 +80,28 @@ export const journeys: Journey[] = [
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Novo produto”.' },
       { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital, marca os produtos e cadastra módulos e UCs.' },
       { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Supervisor', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
+    ],
+  },
+  {
+    id: 'contratos',
+    title: 'Contratação de CTM (TAA)',
+    profile: 'DN',
+    steps: [
+      { title: 'TAAs com CTMs', path: '/dashboard', focus: 'text=Novo TAA', profile: 'DN', note: 'O DN não gerencia os TAAs da rede: aqui ficam só os TAAs em que o DN contrata uma CTM. Clica em “Novo TAA”.' },
+      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DN', note: 'Contratante fixo (SENAI DN); escolhe a CTM (DR credenciada), vigência e valor global; baixa o termo. Fica Em elaboração.' },
+      { title: 'TAA em elaboração', path: '/dashboard/3', profile: 'DN', note: 'Assinaturas fora do sistema. Ao voltar, “Anexar TAA assinado”.' },
+      { title: 'TAA vigente', path: '/dashboard/1', profile: 'DN', note: 'Com o TAA assinado anexado, o status passa a Vigente. A CTM já pode registrar propostas para o DN.' },
+    ],
+  },
+  {
+    id: 'dr-contratacao',
+    title: 'Contratação da CTM (TAA)',
+    profile: 'DR solicitante',
+    steps: [
+      { title: 'TAAs com CTMs', path: '/dashboard', focus: 'text=Novo TAA', profile: 'DR solicitante', note: 'A DR solicitante (SENAI-MG) contrata outra CTM. SENAI com SENAI é TAA; se o solicitante for SESI, o instrumento é contrato.' },
+      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DR solicitante', note: 'Contratante fixo (a própria DR); escolhe a CTM, vigência e valor global; baixa o termo. Fica Em elaboração.' },
+      { title: 'TAA em elaboração', path: '/dashboard/5', profile: 'DR solicitante', note: 'Assinaturas fora do sistema. Ao voltar, “Anexar TAA assinado”.' },
+      { title: 'TAA vigente', path: '/dashboard/4', profile: 'DR solicitante', note: 'Vigente: a CTM contratada registra as propostas para esta DR.' },
     ],
   },
   {
@@ -129,8 +120,8 @@ export const journeys: Journey[] = [
     profile: 'CTM: Supervisor',
     steps: [
       { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Nova proposta”.' },
-      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Supervisor', note: 'Registro mínimo (o documento é feito fora, no modelo): edital, DR contratante, CNPJ, faturamento (DR ou escolas), nº no CRM e link do documento; por curso, vagas, início previsto e valor. Salva Em negociação.' },
-      { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Supervisor', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em elaboração, com os cursos e valores previstos; dali é enviada à DR contratante.' },
+      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Supervisor', note: 'Contratante: só quem tem TAA (SENAI) ou contrato (SESI) com a CTM. Registro mínimo (o documento é feito fora, no modelo): edital, contratante, CNPJ, faturamento (DR ou escolas), nº no CRM e link do documento; por curso, vagas, início previsto e valor. Salva Em negociação.' },
+      { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Supervisor', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em negociação, com os cursos, vagas e valores previstos; o acordo é fechado fora do sistema.' },
       { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Aceitar', profile: 'CTM: Supervisor', note: 'Depois do acordo (fora do sistema), marca Aceita ou Recusada (recusa pede feedback). Alerta quando a turma começa em até 15 dias e a proposta não foi aceita. Duplicar abre nova rodada; aceita ainda pode ser cancelada (com motivo).' },
     ],
   },
@@ -192,8 +183,8 @@ export const journeys: Journey[] = [
     profile: 'CTM: Comercial',
     steps: [
       { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Comercial', note: 'Comercial clica em “Nova proposta”.' },
-      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Comercial', note: 'Registro mínimo (o documento é feito fora, no modelo): edital, DR contratante, CNPJ, faturamento (DR ou escolas), nº no CRM e link do documento; por curso, vagas, início previsto e valor. Salva Em negociação.' },
-      { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Comercial', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em elaboração, com os cursos e valores previstos; dali é enviada à DR contratante.' },
+      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Comercial', note: 'Contratante: só quem tem TAA (SENAI) ou contrato (SESI) com a CTM. Registro mínimo (o documento é feito fora, no modelo): edital, contratante, CNPJ, faturamento (DR ou escolas), nº no CRM e link do documento; por curso, vagas, início previsto e valor. Salva Em negociação.' },
+      { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Comercial', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em negociação, com os cursos, vagas e valores previstos; o acordo é fechado fora do sistema.' },
       { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Aceitar', profile: 'CTM: Comercial', note: 'Depois do acordo (fora do sistema), marca Aceita ou Recusada (recusa pede feedback). Alerta quando a turma começa em até 15 dias e a proposta não foi aceita. Duplicar abre nova rodada; aceita ainda pode ser cancelada (com motivo).' },
     ],
   },

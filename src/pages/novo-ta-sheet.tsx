@@ -9,19 +9,16 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Badge } from '@/components/ui/badge'
 import { Check, Download, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useContratos } from '@/lib/mock'
+import { nomeParte, taaEntre, useContratos, useDrs } from '@/lib/mock'
 
-const UFS = 'AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ')
 const fmtData = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '____/____/______')
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-const PARTES = ['SENAI Departamento Nacional', 'SENAI Departamento Regional'] as const
-
-// Termo de Acordo Administrativo (TAA): contrato guarda-chuva entre o DN e um DR.
+// Termo de Acordo Administrativo (TAA): quem contrata (DR solicitante ou DN) cria o TAA para contratar uma CTM.
 // O texto do modelo é fixo (não editável); só os campos variáveis são preenchidos.
-// onSalvar: onde gravar (padrão: TAAs do DN). Na Gestão de TAAs da DR, grava nos TAAs da DR.
-type DadosTaa = { numero: string; dr: string; vigenciaInicio: string; vigenciaFim: string; valor: number }
-export function NovoTaSheet({ open, onOpenChange, onSalvar, local = 'Gestão de TAA' }: { open: boolean; onOpenChange: (v: boolean) => void; onSalvar?: (d: DadosTaa) => void; local?: string }) {
+export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean; onOpenChange: (v: boolean) => void; contratante: string }) {
   const db = useContratos()
+  // CTMs possíveis: DRs credenciadas ativas, menos a própria contratante.
+  const ctms = useDrs().all.filter((d) => d.status === 'Ativo' && d.uf !== contratante)
   const [dr, setDr] = useState<string | null>(null)
   const [inicio, setInicio] = useState('')
   const [fim, setFim] = useState('')
@@ -33,11 +30,11 @@ export function NovoTaSheet({ open, onOpenChange, onSalvar, local = 'Gestão de 
   // Protótipo: já abre preenchido com dados de exemplo.
   useEffect(() => {
     if (!open) return
-    setDr('BA')
+    setDr((ctms.find((d) => !taaEntre(db.all, contratante, d.uf)) ?? ctms[0])?.uf ?? null)
     setInicio('2026-10-01')
     setFim('2027-09-30')
     setValor('42000000')
-  }, [open])
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
   // Etapa 1: dados. Etapa 2: TAA salvo; baixa o documento com os dados para enviar (assinatura fora do sistema).
   const [salvo, setSalvo] = useState<{ numero: string; dr: string; inicio: string; fim: string; valor: string } | null>(null)
   const arquivo = salvo ? `TAA-${salvo.numero.replace('/', '-')}.docx` : ''
@@ -87,14 +84,14 @@ export function NovoTaSheet({ open, onOpenChange, onSalvar, local = 'Gestão de 
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{arquivo}</p>
-                  <p className="text-xs text-muted-foreground">Baixe e envie para assinatura. Depois, anexe o TAA assinado em {local}.</p>
+                  <p className="text-xs text-muted-foreground">Baixe e envie à CTM para assinatura. Depois, anexe o TAA assinado em TAAs com CTMs.</p>
                 </div>
                 <Button type="button" size="sm" onClick={() => {}}>
                   <Download /> Baixar TAA
                 </Button>
               </div>
               <div className="rounded-lg bg-muted/50 p-4">
-                <TermoDoc {...salvo} className="mx-auto shadow-sm" />
+                <TermoDoc {...salvo} contratante={contratante} className="mx-auto shadow-sm" />
               </div>
             </div>
           ) : (
@@ -103,25 +100,35 @@ export function NovoTaSheet({ open, onOpenChange, onSalvar, local = 'Gestão de 
             className="h-full space-y-8 overflow-y-auto px-6 py-6"
             onSubmit={(e) => {
               e.preventDefault()
-              const dados = { numero, dr: dr ?? '—', vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim), valor: valorNum }
-              if (onSalvar) onSalvar(dados)
-              else db.add({ ...dados, status: 'Em elaboração' })
+              db.add({ numero, contratante, dr: dr ?? '—', vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim), valor: valorNum, status: 'Em elaboração' })
               setSalvo({ numero, dr: dr ?? '—', inicio, fim, valor: brl(valorNum) })
             }}
           >
-            <Group n={1} title={<>Departamento Regional <Req /></>}>
-              <Select value={dr} onValueChange={(v) => setDr(v as string)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue>{(v: string | null) => (v ? `SENAI-${v}` : 'Selecione o DR')}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {UFS.map((uf) => (
-                    <SelectItem key={uf} value={uf}>
-                      SENAI-{uf}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <Group n={1} title={<>Partes</>}>
+              <div className="grid grid-cols-2 gap-3">
+                <div className={field}>
+                  <Label>Contratante</Label>
+                  <div className="flex h-9 items-center rounded-md border bg-muted px-3 text-sm">{nomeParte(contratante)}</div>
+                </div>
+                <div className={field}>
+                  <Label>CTM contratada <Req /></Label>
+                  <Select value={dr} onValueChange={(v) => setDr(v as string)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue>{(v: string | null) => (v ? `SENAI-${v}` : 'Selecione a CTM')}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ctms.map((d) => {
+                        const ja = taaEntre(db.all, contratante, d.uf)
+                        return (
+                          <SelectItem key={d.uf} value={d.uf}>
+                            SENAI-{d.uf}{ja && <span className="text-xs text-muted-foreground"> · já tem TAA {ja.numero}</span>}
+                          </SelectItem>
+                        )
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </Group>
 
             <Group n={2} title="Vigência e valor">
@@ -176,6 +183,7 @@ export function NovoTaSheet({ open, onOpenChange, onSalvar, local = 'Gestão de 
 
 function TermoDoc({
   numero,
+  contratante,
   dr,
   inicio,
   fim,
@@ -183,6 +191,7 @@ function TermoDoc({
   className,
 }: {
   numero: string
+  contratante: string
   dr: string | null
   inicio: string
   fim: string
@@ -198,9 +207,9 @@ function TermoDoc({
     >
       <h4 className="text-center text-sm font-bold tracking-wide">TERMO DE ACORDO ADMINISTRATIVO Nº {numero}</h4>
       <p>
-        <b>CLÁUSULA PRIMEIRA — DO OBJETO.</b> O presente termo formaliza o acordo administrativo do{' '}
-        <Var>{dr ? `SENAI Departamento Regional de ${dr}` : 'Departamento Regional'}</Var> à oferta nacional de cursos,
-        conforme os itinerários formativos vigentes, mediante vinculação posterior de produtos a este instrumento.
+        <b>CLÁUSULA PRIMEIRA — DO OBJETO.</b> O presente termo formaliza a contratação, pelo <Var>{nomeParte(contratante)}</Var>, do{' '}
+        <Var>{dr ? `SENAI Departamento Regional de ${dr}` : 'Departamento Regional'}</Var> como CTM, para a execução de
+        cursos a distância conforme o edital de credenciamento, mediante propostas comerciais posteriores.
       </p>
       <p>
         <b>CLÁUSULA SEGUNDA — DA VIGÊNCIA.</b> Este termo vigora de <Var>{fmtData(inicio)}</Var> a{' '}
@@ -208,14 +217,14 @@ function TermoDoc({
       </p>
       <p>
         <b>CLÁUSULA TERCEIRA — DO VALOR.</b> O valor global estimado deste termo é de <Var>{valor || 'R$ ______'}</Var>,
-        a ser executado conforme os produtos vinculados.
+        a ser executado conforme as propostas comerciais aceitas.
       </p>
       <p>
         <b>CLÁUSULA QUARTA — DAS ALTERAÇÕES.</b> Este termo não admite alteração após a assinatura. Mudanças de escopo
         devem ser feitas por novo instrumento.
       </p>
       <div className="grid grid-cols-2 gap-8 pt-12 text-center text-xs">
-        {PARTES.map((parte) => (
+        {[nomeParte(contratante), dr ? `SENAI-${dr} (CTM)` : 'CTM'].map((parte) => (
           <div key={parte} className="border-t border-neutral-400 pt-2 font-semibold">
             {parte}
           </div>

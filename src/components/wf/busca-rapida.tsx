@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { screens } from '@/screens'
 import {
   alertasAluno, situacaoAluno, statusTurmaEad,
-  useAlunosEad, useContratos, useContratosCtm, useDrs, useEditais, useProdutos, useTurmasEad, useUsuarios,
+  instrumentoDe, nomeParte, useAlunosEad, useContratos, useContratosCtm, useDrs, useEditais, useProdutos, useTurmasEad, useUsuarios,
 } from '@/lib/mock'
 
 // Busca rápida (⌘K / Ctrl+K): telas do menu + registros que o perfil enxerga.
@@ -71,7 +71,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
     if (pode('/produtos'))
       propostas.forEach((p) => r.push({ grupo: 'Propostas', titulo: p.numero, sub: `SENAI-${p.drContratante} · ${p.status ?? 'Em elaboração'}`, to: `/produtos/${p.id}`, icon: Package, chaves: p.cursos.map((c) => c.nome).join(' ') }))
     if (pode('/dashboard'))
-      taas.forEach((t) => r.push({ grupo: 'TAAs', titulo: `TAA ${t.numero}`, sub: `SENAI-${t.dr} · ${t.status}`, to: `/dashboard/${t.id}`, icon: FileSignature }))
+      taas.forEach((t) => r.push({ grupo: 'TAAs e contratos', titulo: `${instrumentoDe(t.contratante)} ${t.numero}`, sub: `${nomeParte(t.contratante)} → CTM SENAI-${t.dr} · ${t.status}`, to: `/dashboard/${t.id}`, icon: FileSignature }))
     if (pode('/drs'))
       drs.forEach((d) => r.push({ grupo: 'DRs', titulo: d.nome, sub: `SENAI-${d.uf} · ${d.status}`, to: '/drs', icon: Building2, chaves: `${d.responsavel} ${d.regiao}` }))
     if (pode('/admin/usuarios'))

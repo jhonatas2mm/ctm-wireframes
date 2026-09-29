@@ -22,7 +22,7 @@ export type Fase = { id: string; nome: string }
 export const pools: Pool[] = [
   { id: 'dn', nome: 'SENAI DN', cor: '#0284c7' },
   { id: 'ctm', nome: 'CTM (DR ofertante)', cor: '#ea580c' },
-  { id: 'dr', nome: 'DR contratante', cor: '#ca8a04' },
+  { id: 'dr', nome: 'Contratante', cor: '#ca8a04' },
   { id: 'sis', nome: 'Sistemas', cor: '#64748b' },
 ]
 
@@ -35,13 +35,13 @@ export const raias: Raia[] = [
   { id: 'tutor', nome: 'Tutor', pool: 'ctm' },
   { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm' },
   { id: 'financeiro', nome: 'Financeiro', pool: 'ctm' },
-  { id: 'dr', nome: 'DR contratante', pool: 'dr', perfil: 'DR solicitante' },
+  { id: 'dr', nome: 'DR solicitante (SENAI/SESI) ou DN', pool: 'dr', perfil: 'DR solicitante' },
   { id: 'ava', nome: 'AVA / SGE', pool: 'sis' },
 ]
 
 export const fases: Fase[] = [
   { id: 'credenciamento', nome: 'Credenciamento' },
-  { id: 'contrato', nome: 'Contrato (TAA)' },
+  { id: 'contrato', nome: 'Contratação (TAA / contrato)' },
   { id: 'proposta', nome: 'Proposta comercial' },
   { id: 'oferta', nome: 'Gestão da oferta' },
   { id: 'execucao', nome: 'Gestão da execução' },
@@ -58,9 +58,9 @@ export const nos: No[] = [
   { id: 'produto', tipo: 'tarefa', raia: 'supervisor', col: 3, rotulo: 'Cadastrar produto (matriz)', fase: 'credenciamento', tela: '/gestao-produtos/novo', descricao: 'Cada CTM cadastra seus produtos: módulos e UCs conforme o plano de curso.', regras: ['Nova versão não altera o que já foi negociado na anterior.', 'Versões podem rodar ao mesmo tempo.'] },
 
   // Contrato
-  { id: 'taa', tipo: 'tarefa', raia: 'comercial', col: 4, rotulo: 'Elaborar TAA (modelo do DN)', fase: 'contrato', tela: '/meus-taas/novo', descricao: 'Guarda-chuva com a DR: vigência e valor global (teto). Sem produtos.', regras: ['Modelo padrão do DN, por edital.', 'Passar do teto exige aditivo.'] },
-  { id: 'assinar-taa', tipo: 'tarefa', raia: 'dr', col: 5, rotulo: 'Assinar TAA', fase: 'contrato', fora: true, descricao: 'Assinatura fora do sistema (assinatura digital ou sistema da DR).' },
-  { id: 'taa-vigente', tipo: 'tarefa', raia: 'comercial', col: 6, rotulo: 'Anexar TAA assinado', fase: 'contrato', tela: '/meus-taas', descricao: 'Com o termo assinado anexado, o TAA fica Vigente.' },
+  { id: 'taa', tipo: 'tarefa', raia: 'dr', col: 4, rotulo: 'Criar TAA / contrato com a CTM', fase: 'contrato', tela: '/dashboard/novo-ta', descricao: 'Quem contrata cria o instrumento escolhendo a CTM: vigência e valor global (teto). Sem produtos.', regras: ['SENAI ↔ SENAI (DR solicitante SENAI-XX ou o DN): TAA, no modelo do DN.', 'SESI-XX ↔ SENAI: contrato (não é TAA).', 'A CTM não gerencia TAAs, só propostas.', 'Passar do teto exige aditivo.'] },
+  { id: 'assinar-taa', tipo: 'tarefa', raia: 'comercial', col: 5, rotulo: 'CTM assina', fase: 'contrato', fora: true, descricao: 'Assinaturas fora do sistema (assinatura digital).' },
+  { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Anexar assinado (Vigente)', fase: 'contrato', tela: '/dashboard', descricao: 'Quem contratou anexa o termo assinado; o TAA/contrato fica Vigente e a CTM passa a vê-lo nas propostas.' },
 
   // Proposta
   { id: 'proposta', tipo: 'tarefa', raia: 'comercial', col: 7, rotulo: 'Registrar proposta', fase: 'proposta', tela: '/produtos/novo', descricao: 'O documento é feito no modelo, fora; no sistema fica o registro mínimo: DR, CNPJ, faturamento, nº CRM, link e cursos com vagas, início previsto e valor.', regras: ['Nasce Em negociação.', 'Cada curso só em uma proposta (pendente de validação).'] },
@@ -108,10 +108,10 @@ export const arestas: Aresta[] = [
   { de: 'inicio', para: 'credenciar' },
   { de: 'credenciar', para: 'edital' },
   { de: 'edital', para: 'produto' },
-  { de: 'produto', para: 'taa' },
+  { de: 'produto', para: 'taa', rotulo: 'portfólio' },
   { de: 'taa', para: 'assinar-taa', rotulo: 'envia' },
   { de: 'assinar-taa', para: 'taa-vigente', rotulo: 'assinado' },
-  { de: 'taa-vigente', para: 'proposta' },
+  { de: 'taa-vigente', para: 'proposta', rotulo: 'vigente' },
   { de: 'proposta', para: 'dr-aceita', rotulo: 'negocia' },
   { de: 'proposta', para: 'alerta-prazo' },
   { de: 'dr-aceita', para: 'nova-rodada', rotulo: 'ajustar' },
