@@ -23,7 +23,7 @@ const journeysOf = (_profile: Profile) => journeys
 // Perfil sem jornadas: navega livre a partir da tela inicial.
 const FREE: Journey = { id: '', title: 'Sem jornada', profile: '', steps: [{ title: 'Início', path: '/dashboard' }] }
 
-// Perfis agrupados (grupo/caixa em profiles.ts): CTM → Gestor de contrato, PCP, Gestor de oferta, Pedagógico, Tutor, Monitor; DR solicitante → SENAI.
+// Perfis agrupados (grupo/caixa em profiles.ts): CTM → Gestor EAD, PCP, Coordenador EAD, Pedagógico, Tutor, Monitor; DR solicitante → SENAI.
 const grupoDe = (nome: string) => profileOf(nome).grupo ?? nome
 const subDe = (nome: string) => profileOf(nome).caixa ?? null
 const grupos = [...new Set(profiles.map((p) => grupoDe(p.name)))]
@@ -160,7 +160,7 @@ export function JourneyShell() {
   const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') === '1' } catch { return false } })
   const setGuia = (v: boolean) => { setGuiaState(v); try { localStorage.setItem('guia-jornada', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   const trocarPerfil = (p: Profile) => setState({ pid: p, jid: (journeys.find((j) => inicio(j) === p) ?? journeys.find((j) => grupoDe(inicio(j)) === grupoDe(p)) ?? FREE).id, step: 0 })
-  // Subperfil (ex.: CTM: Gestor de contrato): abre a jornada equivalente dele (mesmo título), na mesma etapa; senão, a 1ª dele.
+  // Subperfil (ex.: CTM: Gestor EAD): abre a jornada equivalente dele (mesmo título), na mesma etapa; senão, a 1ª dele.
   const trocarSubperfil = (p: Profile) => {
     const eq = journeys.find((j) => inicio(j) === p && j.title === journey.title)
     if (eq) setState({ pid: p, jid: eq.id, step: Math.min(step, eq.steps.length - 1) })
@@ -487,7 +487,7 @@ export function JourneyShell() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {/* Subperfis do perfil (ex.: CTM → Gestor de contrato, Gestor de oferta), enfileirados; clicar seleciona */}
+              {/* Subperfis do perfil (ex.: CTM → Gestor EAD, Coordenador EAD), enfileirados; clicar seleciona */}
               {membros(grupoDe(profile)).length > 1 && (
                 <span className="self-center pl-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Subperfil:</span>
               )}

@@ -62,11 +62,11 @@ export function Usuarios() {
 
 function UsuarioSheet({ open, usuario, onClose }: { open: boolean; usuario: Usuario | null; onClose: () => void }) {
   const db = useUsuarios()
-  const [f, setF] = useState({ nome: '', email: '', perfil: 'CTM: Gestor de oferta', dr: 'MG' })
+  const [f, setF] = useState({ nome: '', email: '', perfil: 'CTM: Coordenador EAD', dr: 'MG' })
   // Protótipo: novo já abre preenchido; edição abre com os dados do usuário.
   useEffect(() => {
     if (!open) return
-    setF(usuario ? { nome: usuario.nome, email: usuario.email, perfil: usuario.perfil, dr: usuario.dr } : { nome: 'Lucas Martins', email: 'lucas.martins@senaimg.org.br', perfil: 'CTM: Gestor de contrato', dr: 'MG' })
+    setF(usuario ? { nome: usuario.nome, email: usuario.email, perfil: usuario.perfil, dr: usuario.dr } : { nome: 'Lucas Martins', email: 'lucas.martins@senaimg.org.br', perfil: 'CTM: Gestor EAD', dr: 'MG' })
   }, [open, usuario?.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const drs = ['DN', 'MG', 'SP', 'RJ', 'ES', 'BA', 'GO']
   const salvar = () => {

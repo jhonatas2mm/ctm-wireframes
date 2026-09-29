@@ -99,7 +99,7 @@ export function PainelDn() {
   )
 }
 
-// ── CTM: Gestor de oferta — operação: propostas, ofertas/turmas, aulas ao vivo, TAAs com DRs ──
+// ── CTM: Coordenador EAD — operação: propostas, ofertas/turmas, aulas ao vivo, TAAs com DRs ──
 export function PainelSupervisor() {
   const navigate = useNavigate()
   const propostas = useProdutos().all
@@ -186,7 +186,7 @@ export function PainelSupervisor() {
   )
 }
 
-// ── CTM: Gestor de contrato — pipeline: valores por status, DRs contratantes, taxa de aceite, portfólio ──
+// ── CTM: Gestor EAD — pipeline: valores por status, DRs contratantes, taxa de aceite, portfólio ──
 export function PainelComercial() {
   const navigate = useNavigate()
   const propostas = useProdutos().all

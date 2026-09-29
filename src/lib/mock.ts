@@ -188,10 +188,10 @@ export const ucsDoCurso: Record<string, UC[]> = {
   '15': [{ nome: 'Arquitetura de CLPs', cargaHoraria: 20 }, { nome: 'Programação Ladder', cargaHoraria: 40 }],
 }
 
-// Proposta comercial: criada SEMPRE pela CTM (o Gestor de contrato é o responsável), vinculada a um TAA/contrato aceito,
+// Proposta comercial: criada SEMPRE pela CTM (o Gestor EAD é o responsável), vinculada a um TAA/contrato aceito,
 // depois que a negociação (fora do sistema) avança. Cursos = produtos do TAA, com a matriz do portfólio (versão aprovada).
 // Valor parametrizado pelo edital: valor do curso (por aluno) × quantidade de alunos — não se digita.
-// Status (quem muda é o Gestor de contrato, conforme o retorno da DR solicitante): Rascunho, Em andamento,
+// Status (quem muda é o Gestor EAD, conforme o retorno da DR solicitante): Rascunho, Em andamento,
 // Aguardando, Aprovado, Cancelado. Versões vão e vêm (v1, v2…), com todo o histórico.
 // Propostas aprovadas executam o saldo do TAA. Aprovada, vincula-se a equipe técnica (supervisor e analista), que define o
 // cronograma das turmas (com agrupamento de UCs); a proposta aprovada segue para o processo de turmas (oferta).
@@ -204,7 +204,7 @@ export type VersaoProposta = { versao: number; cursos: CursoProposta[]; vigencia
 export type Produto = {
   id: string; numero: string; drOfertante: string; drContratante: string; cursos: CursoProposta[]; cadastradoEm: string; status?: StatusProposta; documentos?: string[]; edital?: string; vigenciaInicio?: string; vigenciaFim?: string // vigência dd/mm/aaaa (início e fim)
   taaId?: string // TAA aceito ao qual a proposta está vinculada
-  responsavel?: { nome: string; cargo: string } // Gestor de contrato da CTM
+  responsavel?: { nome: string; cargo: string } // Gestor EAD da CTM
   equipeTecnica?: { supervisor: string; analista: string } // vinculada depois da aprovação; define o cronograma das turmas
   versao?: number // versão atual (1 = original)
   versoes?: VersaoProposta[] // versões anteriores (a proposta vai e vem)
@@ -226,7 +226,7 @@ const cp = (cursoId: string, alunos: number, inicioPrevisto: string, edital: str
   return { cursoId, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorAluno, vagas: alunos, valorPrevisto: valorAluno * alunos, inicioPrevisto }
 }
 const reg = (quando: string, texto: string, autor = 'Juliana Pereira'): Registro => ({ quando, texto, autor })
-const gestorContrato = { nome: 'Juliana Pereira', cargo: 'Gestor de contrato' }
+const gestorContrato = { nome: 'Juliana Pereira', cargo: 'Gestor EAD' }
 const propostas: Produto[] = [
   { id: '1', numero: 'PC-MG-001/2026', taaId: '7', edital: 'ED-001/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, equipeTecnica: { supervisor: 'Carlos Andrade', analista: 'Renata Guimarães' }, drOfertante: 'MG', drContratante: 'SP', cnpj: '03.774.819/0001-02', crm: 'CRM-2026-0142', link: 'https://drive.senaimg.org.br/propostas/PC-MG-001-2026.pdf', faturamento: 'DR', cursos: [cp('2', 40, '2026-11-03', 'ED-001/2026'), cp('3', 35, '2026-11-03', 'ED-001/2026')], vigenciaInicio: '01/04/2026', vigenciaFim: '31/03/2027', cadastradoEm: '2026-03-10T10:00:00Z',
     historico: [reg('2026-03-24T15:30:00Z', 'Status: Aprovado (SENAI-SP aprovou)'), reg('2026-03-12T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-03-10T10:00:00Z', 'Proposta criada (Rascunho)')] },
@@ -591,40 +591,45 @@ export type StatusUsuario = 'Ativo' | 'Inativo'
 export type Usuario = { id: string; nome: string; email: string; perfil: string; dr: string; status: StatusUsuario; ultimoAcesso: string }
 const usuarios: Usuario[] = [
   { id: 'u1', nome: 'Maria Silva', email: 'maria.silva@senai.br', perfil: 'DN', dr: 'DN', status: 'Ativo', ultimoAcesso: '27/09/2026 17:42' },
-  { id: 'u2', nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Gestor de oferta', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 09:10' },
-  { id: 'u3', nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Gestor de contrato', dr: 'MG', status: 'Ativo', ultimoAcesso: '26/09/2026 14:05' },
-  { id: 'u7', nome: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', perfil: 'DR solicitante: SENAI', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 11:00' },
-  { id: 'u8', nome: 'Eduardo Lima', email: 'eduardo.lima@senaimg.org.br', perfil: 'CTM: PCP', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 08:40' },
-  { id: 'u9', nome: 'Sônia Prado', email: 'sonia.prado@senaimg.org.br', perfil: 'CTM: Pedagógico', dr: 'MG', status: 'Ativo', ultimoAcesso: '27/09/2026 16:12' },
-  { id: 'u5', nome: 'Roberto Lima', email: 'roberto.lima@senaisp.org.br', perfil: 'CTM: Gestor de oferta', dr: 'SP', status: 'Inativo', ultimoAcesso: '02/08/2026 08:15' },
+  { id: 'u2', nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Coordenador EAD', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 09:10' },
+  { id: 'u3', nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Gestor EAD', dr: 'MG', status: 'Ativo', ultimoAcesso: '26/09/2026 14:05' },
+  { id: 'u7', nome: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', perfil: 'DR solicitante: Gestor EAD', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 11:00' },
+  { id: 'u11', nome: 'Ana Ribeiro', email: 'ana.ribeiro@senaimg.org.br', perfil: 'DR solicitante: Coordenador EAD', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 10:40' },
+  { id: 'u12', nome: 'Marcos Teixeira', email: 'marcos.teixeira@firjan.com.br', perfil: 'DR solicitante: Gestor Escolar', dr: 'RJ', status: 'Ativo', ultimoAcesso: '27/09/2026 15:20' },
+  { id: 'u13', nome: 'Patrícia Gomes', email: 'patricia.gomes@firjan.com.br', perfil: 'DR solicitante: Coordenador Escolar', dr: 'RJ', status: 'Ativo', ultimoAcesso: '28/09/2026 09:05' },
+  { id: 'u8', nome: 'Eduardo Lima', email: 'eduardo.lima@senaimg.org.br', perfil: 'CTM: Coordenador EAD', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 08:40' },
+  { id: 'u9', nome: 'Sônia Prado', email: 'sonia.prado@senaimg.org.br', perfil: 'CTM: Coordenador Pedagógico', dr: 'MG', status: 'Ativo', ultimoAcesso: '27/09/2026 16:12' },
+  { id: 'u5', nome: 'Roberto Lima', email: 'roberto.lima@senaisp.org.br', perfil: 'CTM: Coordenador EAD', dr: 'SP', status: 'Inativo', ultimoAcesso: '02/08/2026 08:15' },
   { id: 'u6', nome: 'Fernanda Costa', email: 'fernanda.costa@senai.br', perfil: 'Super admin', dr: 'DN', status: 'Ativo', ultimoAcesso: '28/09/2026 10:02' },
 ]
-export const useUsuarios = () => useCollection<Usuario>('usuarios-v8', usuarios)
+export const useUsuarios = () => useCollection<Usuario>('usuarios-v9', usuarios)
 
 // Permissões: por perfil, as telas (path do menu) que ele acessa.
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
   { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/editais', '/portfolio/aprovacoes', '/portfolio'] },
-  { id: 'CTM: Gestor de oferta', perfil: 'CTM: Gestor de oferta', telas: ['/painel-ctm', '/taas-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
-  { id: 'CTM: PCP', perfil: 'CTM: PCP', telas: ['/oferta', '/equipe'] },
-  { id: 'CTM: Pedagógico', perfil: 'CTM: Pedagógico', telas: ['/oferta', '/tratativas'] },
+  { id: 'CTM: Coordenador EAD', perfil: 'CTM: Coordenador EAD', telas: ['/painel-ctm', '/taas-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
+  { id: 'CTM: Coordenador Pedagógico', perfil: 'CTM: Coordenador Pedagógico', telas: ['/oferta', '/tratativas'] },
   { id: 'CTM: Tutor', perfil: 'CTM: Tutor', telas: ['/oferta'] },
   { id: 'CTM: Monitor', perfil: 'CTM: Monitor', telas: ['/oferta', '/tratativas'] },
-  { id: 'DR solicitante: SENAI', perfil: 'DR solicitante: SENAI', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
-  { id: 'CTM: Gestor de contrato', perfil: 'CTM: Gestor de contrato', telas: ['/painel-comercial', '/taas-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
+  { id: 'DR solicitante: Gestor EAD', perfil: 'DR solicitante: Gestor EAD', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos', '/desistencias'] },
+  { id: 'DR solicitante: Coordenador EAD', perfil: 'DR solicitante: Coordenador EAD', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos', '/desistencias'] },
+  { id: 'DR solicitante: Gestor Escolar', perfil: 'DR solicitante: Gestor Escolar', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos', '/desistencias'] },
+  { id: 'DR solicitante: Coordenador Escolar', perfil: 'DR solicitante: Coordenador Escolar', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos', '/desistencias'] },
+  { id: 'CTM: Gestor EAD', perfil: 'CTM: Gestor EAD', telas: ['/painel-comercial', '/taas-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
   { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/taas-ctm', '/editais', '/portfolio/aprovacoes', '/portfolio', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs', '/admin/feriados'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v15', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v16', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [
   { id: 'e1', quando: '28/09/2026 10:02', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Login', alvo: '—' },
-  { id: 'e2', quando: '28/09/2026 09:15', usuario: 'Carlos Andrade', perfil: 'CTM: Gestor de oferta', acao: 'Criação', alvo: 'Oferta TU-MG-002/2026' },
+  { id: 'e2', quando: '28/09/2026 09:15', usuario: 'Carlos Andrade', perfil: 'CTM: Coordenador EAD', acao: 'Criação', alvo: 'Oferta TU-MG-002/2026' },
   { id: 'e3', quando: '27/09/2026 17:40', usuario: 'Maria Silva', perfil: 'DN', acao: 'Alteração', alvo: 'Edital ED-002/2026' },
-  { id: 'e4', quando: '27/09/2026 16:22', usuario: 'Juliana Pereira', perfil: 'CTM: Gestor de contrato', acao: 'Aceite', alvo: 'Proposta PC-MG-002/2026' },
+  { id: 'e4', quando: '27/09/2026 16:22', usuario: 'Juliana Pereira', perfil: 'CTM: Gestor EAD', acao: 'Aceite', alvo: 'Proposta PC-MG-002/2026' },
   { id: 'e5', quando: '26/09/2026 11:08', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Inativação', alvo: 'Usuário Roberto Lima' },
   { id: 'e6', quando: '25/09/2026 15:47', usuario: 'Maria Silva', perfil: 'DN', acao: 'Criação', alvo: 'TAA TAA-004/2026' },
-  { id: 'e7', quando: '24/09/2026 09:30', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Alteração', alvo: 'Permissões do perfil Gestor de contrato' },
+  { id: 'e7', quando: '24/09/2026 09:30', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Alteração', alvo: 'Permissões do perfil Gestor EAD' },
 ]
 export const useAuditoria = () => useCollection<Evento>('auditoria-v3', auditoria)
 
@@ -719,10 +724,10 @@ export type Alteracao = { campo: string; antes: string; depois: string }
 export type LogSistema = { id: string; quando: string; usuario: string; email: string; perfil: string; dr: string; acao: AcaoLog; modulo: string; registro: string; ip: string; dispositivo: string; alteracoes: Alteracao[] } // quando ISO
 const pessoasLog = [
   { usuario: 'Fernanda Costa', email: 'fernanda.costa@senai.br', perfil: 'Super admin', dr: 'DN' },
-  { usuario: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Gestor de oferta', dr: 'MG' },
-  { usuario: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Gestor de contrato', dr: 'MG' },
+  { usuario: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Coordenador EAD', dr: 'MG' },
+  { usuario: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Gestor EAD', dr: 'MG' },
   { usuario: 'Maria Silva', email: 'maria.silva@senai.br', perfil: 'DN', dr: 'DN' },
-  { usuario: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', perfil: 'DR solicitante: SENAI', dr: 'MG' },
+  { usuario: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', perfil: 'DR solicitante: Gestor EAD', dr: 'MG' },
 ]
 const acoesLog: [AcaoLog, string, string, Alteracao[]][] = [
   ['Login', 'Autenticação', '—', []],

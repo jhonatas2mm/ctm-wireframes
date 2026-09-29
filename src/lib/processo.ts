@@ -28,14 +28,14 @@ export const pools: Pool[] = [
 
 export const raias: Raia[] = [
   { id: 'dn', nome: 'DN', pool: 'dn', perfil: 'DN' },
-  { id: 'comercial', nome: 'Gestor de contrato', pool: 'ctm', perfil: 'CTM: Gestor de contrato' },
-  { id: 'supervisor', nome: 'Supervisão', pool: 'ctm', perfil: 'CTM: Gestor de oferta' },
-  { id: 'pcp', nome: 'PCP', pool: 'ctm', perfil: 'CTM: PCP' },
+  { id: 'comercial', nome: 'Gestor EAD', pool: 'ctm', perfil: 'CTM: Gestor EAD' },
+  { id: 'supervisor', nome: 'Coordenador EAD', pool: 'ctm', perfil: 'CTM: Coordenador EAD' },
+  { id: 'pcp', nome: 'PCP (Coordenador EAD)', pool: 'ctm', perfil: 'CTM: Coordenador EAD' },
   { id: 'analista', nome: 'Analista', pool: 'ctm' },
   { id: 'tutor', nome: 'Tutor', pool: 'ctm', perfil: 'CTM: Tutor' },
-  { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm', perfil: 'CTM: Pedagógico' },
+  { id: 'monitoria', nome: 'Monitoria e Coordenador Pedagógico', pool: 'ctm', perfil: 'CTM: Coordenador Pedagógico' },
   { id: 'financeiro', nome: 'Financeiro', pool: 'ctm' },
-  { id: 'dr', nome: 'Gestor da DR solicitante', pool: 'dr', perfil: 'DR solicitante: SENAI' },
+  { id: 'dr', nome: 'Gestor da DR solicitante', pool: 'dr', perfil: 'DR solicitante: Gestor EAD' },
   { id: 'ava', nome: 'AVA / SGE', pool: 'sis' },
 ]
 
@@ -64,9 +64,9 @@ export const nos: No[] = [
   { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Aceito: assinar e anexar', fase: 'contrato', fora: true, tela: '/dashboard/4', descricao: 'Aceito, o termo é assinado fora do sistema e anexado. É burocrático: só destrava a negociação da oferta, que dá origem às propostas — pode não gerar nenhuma. O saldo cai conforme a execução.' },
 
   // Proposta
-  { id: 'proposta', tipo: 'tarefa', raia: 'comercial', col: 7, rotulo: 'Criar proposta (Rascunho)', fase: 'proposta', tela: '/produtos/novo', descricao: 'A negociação é fora do sistema; quando avança, a CTM (Gestor de contrato, responsável) cria a proposta vinculada ao TAA aceito: produtos do TAA, alunos, início e fim; matriz do portfólio; valor = valor do edital × alunos.', regras: ['Status: Rascunho, Em andamento, Aguardando, Aprovado, Cancelado.', 'Quem muda o status é o Gestor de contrato.', 'Curso pode se repetir em propostas do mesmo TAA.'] },
+  { id: 'proposta', tipo: 'tarefa', raia: 'comercial', col: 7, rotulo: 'Criar proposta (Rascunho)', fase: 'proposta', tela: '/produtos/novo', descricao: 'A negociação é fora do sistema; quando avança, a CTM (Gestor EAD, responsável) cria a proposta vinculada ao TAA aceito: produtos do TAA, alunos, início e fim; matriz do portfólio; valor = valor do edital × alunos.', regras: ['Status: Rascunho, Em andamento, Aguardando, Aprovado, Cancelado.', 'Quem muda o status é o Gestor EAD.', 'Curso pode se repetir em propostas do mesmo TAA.'] },
   { id: 'alerta-prazo', tipo: 'tempo', raia: 'comercial', col: 8, rotulo: 'Início em ≤ 15 dias', fase: 'proposta', tela: '/produtos', descricao: 'Proposta ainda não aceita com turma prevista para começar em até 15 dias aparece com alerta.' },
-  { id: 'dr-aceita', tipo: 'decisao', raia: 'dr', col: 8, rotulo: 'Aprova?', fase: 'proposta', fora: true, descricao: 'A DR solicitante avalia fora do sistema; o Gestor de contrato registra o retorno (Aguardando, Aprovado ou Cancelado).' },
+  { id: 'dr-aceita', tipo: 'decisao', raia: 'dr', col: 8, rotulo: 'Aprova?', fase: 'proposta', fora: true, descricao: 'A DR solicitante avalia fora do sistema; o Gestor EAD registra o retorno (Aguardando, Aprovado ou Cancelado).' },
   { id: 'nova-rodada', tipo: 'tarefa', raia: 'comercial', col: 9, rotulo: 'Nova versão (vai e vem)', fase: 'proposta', tela: '/produtos/4', descricao: 'A DR pede ajuste: nova versão (v2, v3…) com a anterior guardada no histórico.' },
   { id: 'aceite', tipo: 'tarefa', raia: 'supervisor', col: 10, rotulo: 'Vincular equipe técnica', fase: 'proposta', tela: '/produtos/1', descricao: 'Proposta aprovada (executa o saldo do TAA): vincula-se a equipe técnica (supervisor e analista), que define o cronograma das turmas.' },
 
