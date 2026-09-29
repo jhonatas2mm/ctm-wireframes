@@ -74,7 +74,7 @@ export function NovaDrSheet({ open, onOpenChange }: { open: boolean; onOpenChang
         </form>
         <SheetFooter className="flex-row justify-end gap-2 border-t px-6 py-3">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button type="submit" form="nova-dr" disabled={!uf}>Salvar DR credenciada</Button>
+          <Button type="submit" form="nova-dr" disabled={!uf} motivo="Escolha o estado">Salvar DR credenciada</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

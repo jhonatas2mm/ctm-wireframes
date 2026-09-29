@@ -229,7 +229,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
                 <Button variant="ghost" onClick={() => onOpenChange(false)}>
                   Cancelar
                 </Button>
-                <Button type="submit" form="novo-ta" disabled={!dr || !nomes.length}>
+                <Button type="submit" form="novo-ta" disabled={!dr || !nomes.length} motivo={!dr ? 'Escolha a CTM' : 'Selecione ao menos um produto'}>
                   Salvar e avançar
                 </Button>
               </>

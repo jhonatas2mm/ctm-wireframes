@@ -179,7 +179,7 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
           <span className="text-sm text-muted-foreground">{destinos.length ? `Nº ${numeros.join(', ')}` : 'Escolha as DRs'}</span>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!destinos.length || !escolhidos.length} onClick={enviar}><Send /> Salvar e enviar {destinos.length > 1 ? `${destinos.length} TAAs` : 'TAA'}</Button>
+            <Button disabled={!destinos.length || !escolhidos.length} motivo={!escolhidos.length ? 'Selecione ao menos um produto' : 'Selecione ao menos uma DR destinatária'} onClick={enviar}><Send /> Salvar e enviar {destinos.length > 1 ? `${destinos.length} TAAs` : 'TAA'}</Button>
           </div>
         </SheetFooter>
       </SheetContent>

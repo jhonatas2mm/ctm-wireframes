@@ -171,7 +171,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
           </p>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!podeSalvar} onClick={salvar}>Salvar {sel.length > 1 ? `${sel.length} produtos` : 'produto'}</Button>
+            <Button disabled={!podeSalvar} motivo="Selecione ao menos um produto" onClick={salvar}>Salvar {sel.length > 1 ? `${sel.length} produtos` : 'produto'}</Button>
           </div>
         </SheetFooter>
       </SheetContent>

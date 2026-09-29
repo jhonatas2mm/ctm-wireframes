@@ -208,7 +208,7 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
               </div>
               {itens.length > 0 && (
                 <div className="flex items-center gap-3">
-                  <Button type="button" size="sm" variant="outline" disabled={!marcados.length} onClick={() => setReplicarAberto(true)}>
+                  <Button type="button" size="sm" variant="outline" disabled={!marcados.length} motivo="Selecione ao menos um curso" onClick={() => setReplicarAberto(true)}>
                       <Copy /> Replicar valores{marcados.length > 0 && ` (${marcados.length})`}
                   </Button>
                   <label className="flex items-center gap-2 text-xs">
@@ -216,10 +216,10 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
                     Selecionar todos
                   </label>
                   <div className="flex gap-1 border-l pl-2">
-                    <Button type="button" size="icon-sm" variant="ghost" aria-label="Desfazer" title="Desfazer" disabled={!hist.past.length} onClick={desfazer}>
+                    <Button type="button" size="icon-sm" variant="ghost" aria-label="Desfazer" title="Desfazer" disabled={!hist.past.length} motivo="Nada para desfazer" onClick={desfazer}>
                       <Undo2 />
                     </Button>
-                    <Button type="button" size="icon-sm" variant="ghost" aria-label="Avançar" title="Avançar" disabled={!hist.future.length} onClick={avancar}>
+                    <Button type="button" size="icon-sm" variant="ghost" aria-label="Avançar" title="Avançar" disabled={!hist.future.length} motivo="Nada para refazer" onClick={avancar}>
                       <Redo2 />
                     </Button>
                   </div>
@@ -314,7 +314,7 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
             <Button type="button" variant="ghost" onClick={() => setReplicarAberto(false)}>Cancelar</Button>
             <Button
               type="button"
-              disabled={!loteDrs.length && !loteValor}
+              disabled={!loteDrs.length && !loteValor} motivo="Informe um valor ou DRs para replicar"
               onClick={() => {
                 replicar({ ...(loteDrs.length ? { drs: loteDrs } : {}), ...(loteValor ? { valor: loteValor } : {}) })
                 setLoteDrs([])

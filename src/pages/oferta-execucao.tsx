@@ -117,7 +117,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button size="sm" variant="outline" className="h-7" disabled={!u.tutor} onClick={() => setEmail({ i, k })}><Mail /> {u.tutorConfirmado ? 'Ver' : 'Gerar'}</Button>
+                      <Button size="sm" variant="outline" className="h-7" disabled={!u.tutor} motivo="Aloque um tutor na unidade" onClick={() => setEmail({ i, k })}><Mail /> {u.tutorConfirmado ? 'Ver' : 'Gerar'}</Button>
                     </TableCell>
                   </TableRow>
                 )
@@ -218,7 +218,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <h3 className="font-semibold">Salas no AVA</h3>
-          {!t.salasCriadas && <Button disabled={!liberada} title={liberada ? undefined : 'Disponível depois de confirmar a turma'} onClick={criarSalas}><MonitorPlay /> Criar salas no AVA</Button>}
+          {!t.salasCriadas && <Button disabled={!liberada} motivo="Aguardando a turma ser confirmada" title={liberada ? undefined : 'Disponível depois de confirmar a turma'} onClick={criarSalas}><MonitorPlay /> Criar salas no AVA</Button>}
         </div>
         {t.salasCriadas ? (
           <ul className="grid gap-1.5 sm:grid-cols-2">
@@ -240,7 +240,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
             <h3 className="font-semibold">Dados de integração para a DR</h3>
             <p className="text-sm text-muted-foreground">Código CTM por escola + ID da sala de cada UC, para o SENAI-{t.drContratante} parametrizar no SGE. A integração roda 5 dias antes do início.</p>
           </div>
-          <Button variant="outline" disabled={!t.salasCriadas || !linhas.length} onClick={() => void navigator.clipboard.writeText([['Código CTM', 'UC', 'ID da sala', 'Início', 'Semestre'], ...linhas].map((l) => l.join('\t')).join('\n')).catch(() => {})}><Copy /> Copiar tabela</Button>
+          <Button variant="outline" disabled={!t.salasCriadas || !linhas.length} motivo="Crie as salas no AVA primeiro" onClick={() => void navigator.clipboard.writeText([['Código CTM', 'UC', 'ID da sala', 'Início', 'Semestre'], ...linhas].map((l) => l.join('\t')).join('\n')).catch(() => {})}><Copy /> Copiar tabela</Button>
         </div>
         {!escolas.length ? (
           <EmptyState title="Nenhuma escola na turma" description="Cadastre as escolas na aba Cronograma." />

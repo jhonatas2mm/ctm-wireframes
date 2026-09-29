@@ -371,7 +371,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
               ) : (
                 <div className="grid gap-3">
                   <div className="flex items-center justify-end gap-3">
-                    <Button type="button" size="sm" variant="outline" disabled={!marcados.length} onClick={() => setReplicar(true)}><Copy /> Replicar alunos{marcados.length > 0 && ` (${marcados.length})`}</Button>
+                    <Button type="button" size="sm" variant="outline" disabled={!marcados.length} motivo="Selecione ao menos um curso" onClick={() => setReplicar(true)}><Copy /> Replicar alunos{marcados.length > 0 && ` (${marcados.length})`}</Button>
                     <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={marcados.length === cursos.length} onChange={(e) => setMarcados(e.target.checked ? cursos.map((c) => c.nome) : [])} /> Selecionar todos</label>
                   </div>
                   {cursos.map((c) => {
@@ -422,7 +422,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
 
         <SheetFooter className="flex-row items-center justify-end gap-2 border-t px-6 py-3">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button disabled={!taa || !cursos.length} onClick={salvar}>{base ? `Salvar versão v${versao}` : 'Salvar proposta'}</Button>
+          <Button disabled={!taa || !cursos.length} motivo={!taa ? 'O contratante precisa de TAA/contrato com a CTM' : 'Selecione ao menos um curso'} onClick={salvar}>{base ? `Salvar versão v${versao}` : 'Salvar proposta'}</Button>
         </SheetFooter>
       </SheetContent>
       <Dialog open={replicar} onOpenChange={setReplicar}>
@@ -431,7 +431,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
           <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Quantidade de alunos</span><Input inputMode="numeric" value={loteAlunos} onChange={(e) => setLoteAlunos(e.target.value.replace(/\D/g, ''))} /></label>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setReplicar(false)}>Cancelar</Button>
-            <Button disabled={!loteAlunos} onClick={() => (setAlunos((a) => ({ ...a, ...Object.fromEntries(marcados.map((n) => [n, loteAlunos])) })), setLoteAlunos(''), setReplicar(false))}>Aplicar</Button>
+            <Button disabled={!loteAlunos} motivo="Informe a quantidade de alunos" onClick={() => (setAlunos((a) => ({ ...a, ...Object.fromEntries(marcados.map((n) => [n, loteAlunos])) })), setLoteAlunos(''), setReplicar(false))}>Aplicar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

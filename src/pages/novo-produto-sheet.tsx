@@ -83,7 +83,7 @@ export function NovoProdutoSheet({ open, onOpenChange }: { open: boolean; onOpen
 
         <SheetFooter className="border-t">
           <Button
-            disabled={!curso}
+            disabled={!curso} motivo="Escolha um curso"
             onClick={() => {}}
           >
             Selecionar curso

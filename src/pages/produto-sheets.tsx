@@ -183,7 +183,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
               <SheetFooter className="flex-row justify-end gap-2 border-t px-6 py-3">
                 {acoes?.(p)}
                 {!somenteLeitura && onNovaVersao && (
-                  <Button disabled={pendente} title={pendente ? 'Já existe uma versão aguardando aprovação do DN' : undefined} onClick={() => onNovaVersao(p.id)}>
+                  <Button disabled={pendente} motivo="Já existe uma versão aguardando aprovação do DN" title={pendente ? 'Já existe uma versão aguardando aprovação do DN' : undefined} onClick={() => onNovaVersao(p.id)}>
                     <GitBranchPlus /> Nova versão a partir da v{v(p)}
                   </Button>
                 )}

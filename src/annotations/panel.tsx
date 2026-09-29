@@ -65,7 +65,7 @@ function PinForm({
         <Button type="button" size="sm" variant="ghost" onClick={onCancel}>
           Cancelar
         </Button>
-        <Button type="submit" size="sm" disabled={!text.trim()}>
+        <Button type="submit" size="sm" disabled={!text.trim()} motivo="Escreva a anotação">
           Salvar
         </Button>
       </div>

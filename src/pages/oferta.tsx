@@ -335,7 +335,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={params.terminarNaSexta} onChange={(e) => setP({ terminarNaSexta: e.target.checked })} /> UC termina na sexta-feira</label>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={params.iniciarModuloDezembro} onChange={(e) => setP({ iniciarModuloDezembro: e.target.checked })} /> Pode iniciar módulo em dezembro</label>
               <p className="text-xs text-muted-foreground">Só dias úteis; pula os feriados nacionais.</p>
-              <Button type="button" variant="outline" disabled={!modulos.length} onClick={() => setModulos(gerar(modulos))}><CalendarCog /> Gerar cronograma</Button>
+              <Button type="button" variant="outline" disabled={!modulos.length} motivo="Sem módulos para gerar o cronograma" onClick={() => setModulos(gerar(modulos))}><CalendarCog /> Gerar cronograma</Button>
             </div>
           </section>
 
@@ -399,7 +399,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
           </p>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!proposta || !cursos.length || excedidos.length > 0} onClick={salvar}>Salvar oferta</Button>
+            <Button disabled={!proposta || !cursos.length || excedidos.length > 0} motivo={!proposta ? 'Escolha a proposta' : !cursos.length ? 'Selecione ao menos um curso' : 'Há cursos acima das vagas da proposta'} onClick={salvar}>Salvar oferta</Button>
           </div>
         </SheetFooter>
       </SheetContent>

@@ -1,4 +1,5 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
@@ -39,18 +40,29 @@ const buttonVariants = cva(
   }
 )
 
+// Botão desabilitado sempre explica o que está pendente num tooltip (motivo; sem motivo, texto genérico).
+// O tooltip fica num invólucro porque o botão desabilitado não recebe o mouse. semTooltip: quem já trata (ex.: RowAction).
 function Button({
   className,
   variant = "default",
   size = "default",
+  motivo,
+  semTooltip,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
-  return (
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & { motivo?: string; semTooltip?: boolean }) {
+  const botao = (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
+  )
+  if (!props.disabled || semTooltip) return botao
+  return (
+    <Tooltip>
+      <TooltipTrigger render={<span tabIndex={0} className="inline-flex cursor-not-allowed" />}>{botao}</TooltipTrigger>
+      <TooltipContent>{motivo ?? "Indisponível no momento"}</TooltipContent>
+    </Tooltip>
   )
 }
 

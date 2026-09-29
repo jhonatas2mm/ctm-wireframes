@@ -89,7 +89,7 @@ export default function OfertaDetalhe() {
             {/* Confirmar turma = a DR confirmou que vai começar: libera o PCP (Buscar tutor) e a criação das salas */}
             {aberta && (
               <Button
-                disabled={sitCron !== 'Validado'}
+                disabled={sitCron !== 'Validado'} motivo="O cronograma precisa estar validado pela DR"
                 title={sitCron !== 'Validado' ? 'O cronograma precisa estar validado pela DR' : undefined}
                 onClick={() => confirmar({
                   titulo: 'Confirmar a turma?',
@@ -101,9 +101,9 @@ export default function OfertaDetalhe() {
                 <CheckCircle2 /> Confirmar turma
               </Button>
             )}
-            <Button variant="outline" disabled={status === 'Em andamento' || status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('prorrogar', inicio)}><CalendarClock /> Prorrogar início</Button>
+            <Button variant="outline" disabled={status === 'Em andamento' || status === 'Finalizada' || status === 'Cancelada'} motivo={`Turma ${status.toLowerCase()}: não dá para prorrogar`} onClick={() => abrir('prorrogar', inicio)}><CalendarClock /> Prorrogar início</Button>
             <Button variant="outline" onClick={() => navigate(`/oferta/proposta/${t.propostaId}/nova`)}><Plus /> Adicionar oferta</Button>
-            <Button variant="outline" disabled={status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('cancelar')}><Ban /> Cancelar turma</Button>
+            <Button variant="outline" disabled={status === 'Finalizada' || status === 'Cancelada'} motivo={`Turma já ${status.toLowerCase()}`} onClick={() => abrir('cancelar')}><Ban /> Cancelar turma</Button>
           </>
         }
       />

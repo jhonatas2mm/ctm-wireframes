@@ -35,6 +35,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **Formulários de criação**: Sheet **de baixo** (`side="bottom"`, `data-[side=bottom]:h-[95vh]`, `rounded-t-xl`), cabeçalho e rodapé fixos, colunas que rolam por dentro; rota própria (`/x/novo`) para virar etapa de jornada.
 - Sem textos de ajuda sob títulos; sem numeração de seções.
 - **Hierarquia de botões**: 1) principal preenchido; 2) outline com ícone na cor principal; 3) **só outline, cor neutra** (ex.: ações com texto nas linhas das tabelas, "Detalhes").
+- **Botão desabilitado sempre tem tooltip** com o que está pendente: `<Button disabled={…} motivo="…">` (sem `motivo` mostra "Indisponível no momento"); em `RowAction`, prop `motivo`.
 - **Nada direto sobre o fundo cinza da página**: caixas com borda têm fundo (`bg-card`); campos (input, select, textarea) têm fundo branco; blocos de campos/texto ficam dentro de uma caixa (`rounded-lg border bg-card p-4`).
 - Dados vindos do catálogo/itinerário são **somente leitura** (etiqueta com cadeado); só o que é do usuário é editável (ex.: valor).
 - Seleção múltipla com "Selecionar todos" + botão **"Replicar valores (N)"** que abre modal; desfazer/avançar quando houver edição em lote.

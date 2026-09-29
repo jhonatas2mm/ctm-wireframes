@@ -318,7 +318,7 @@ export function RowAction({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-     
+      semTooltip
     >
       <Icon />
     </Button>

@@ -295,7 +295,7 @@ export function JourneyShell() {
               </Button>
               {canEdit && (
                 <Button
-                  disabled={device !== 'desktop'}
+                  disabled={device !== 'desktop'} motivo="Disponível só na visão desktop"
                   title={device !== 'desktop' ? 'Anotações só na visão desktop' : 'Marcar um ponto da tela com um requisito, dúvida ou ajuste'}
                   size="sm"
                   variant="ghost"
@@ -359,8 +359,8 @@ export function JourneyShell() {
             {journey.id && <span className="text-muted-foreground">· Etapa {step + 1} de {journey.steps.length}: {current.title}</span>}
             {/* Anterior/Próxima (atalhos ← e →), só ícones */}
             <div className={cn('ml-auto flex shrink-0 gap-1', 'flex-row')}>
-              <Button size="icon-xs" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} onClick={() => go(jid, step - 1)}><ChevronLeft /></Button>
-              <Button size="icon-xs" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}><ChevronRight /></Button>
+              <Button size="icon-xs" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronLeft /></Button>
+              <Button size="icon-xs" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}><ChevronRight /></Button>
             </div>
           </div>
         ) : (
@@ -452,8 +452,8 @@ export function JourneyShell() {
           </div>
           {/* Anterior/Próxima (atalhos ← e →), só ícones */}
             <div className={cn('ml-auto flex shrink-0 gap-1', 'flex-col')}>
-              <Button size="icon-xs" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} onClick={() => go(jid, step - 1)}><ChevronLeft /></Button>
-              <Button size="icon-xs" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}><ChevronRight /></Button>
+              <Button size="icon-xs" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronLeft /></Button>
+              <Button size="icon-xs" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}><ChevronRight /></Button>
             </div>
         </div>
         )}
@@ -507,10 +507,10 @@ export function JourneyShell() {
                 <span className="mr-1 text-xs text-muted-foreground">
                     {journey.title} · <span className="tabular-nums">{step + 1}/{journey.steps.length}</span> {current.title}
                   </span>
-                <Button variant="outline" size="sm" style={{ borderColor: profileDef.color, color: profileDef.color }} disabled={step === 0} onClick={() => go(jid, step - 1)}>
+                <Button variant="outline" size="sm" style={{ borderColor: profileDef.color, color: profileDef.color }} disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}>
                   <ChevronLeft /> Anterior <kbd className="ml-1 rounded border border-current px-1 font-mono text-[10px] leading-4 opacity-70">←</kbd>
                 </Button>
-                <Button size="sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}>
+                <Button size="sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}>
                   Próxima <kbd className="ml-1 rounded border border-white/60 px-1 font-mono text-[10px] leading-4">→</kbd> <ChevronRight />
                 </Button>
               </div>}

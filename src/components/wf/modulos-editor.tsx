@@ -26,7 +26,7 @@ export function ModulosEditor({ modulos, onChange }: { modulos: Modulo[]; onChan
                   aria-label={`Nome do módulo ${i + 1}`}
                   className="h-8 border-0 bg-transparent font-medium shadow-none focus-visible:ring-0"
                 />
-                <Button type="button" variant="ghost" size="icon-sm" aria-label={`Remover módulo ${i + 1}`} disabled={modulos.length === 1} onClick={() => setModulos((ms) => ms.filter((_, j) => j !== i))}>
+                <Button type="button" variant="ghost" size="icon-sm" aria-label={`Remover módulo ${i + 1}`} disabled={modulos.length === 1} motivo="O produto precisa de pelo menos um módulo" onClick={() => setModulos((ms) => ms.filter((_, j) => j !== i))}>
                   <Trash2 />
                 </Button>
               </div>
@@ -44,7 +44,7 @@ export function ModulosEditor({ modulos, onChange }: { modulos: Modulo[]; onChan
                       aria-label={`Unidade curricular ${i + 1}.${k + 1}`}
                       className="h-8"
                     />
-                    <Button type="button" variant="ghost" size="icon-sm" aria-label="Remover unidade" className="opacity-0 group-hover:opacity-100" disabled={m.unidades.length === 1} onClick={() => setMod(i, { unidades: m.unidades.filter((_, j) => j !== k) })}>
+                    <Button type="button" variant="ghost" size="icon-sm" aria-label="Remover unidade" className="opacity-0 group-hover:opacity-100" disabled={m.unidades.length === 1} motivo="O módulo precisa de pelo menos uma unidade" onClick={() => setMod(i, { unidades: m.unidades.filter((_, j) => j !== k) })}>
                       <X />
                     </Button>
                   </li>

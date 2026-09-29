@@ -317,3 +317,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Casca: select de Perfil lista só os perfis (DN, CTM, DR solicitante, Super admin), sem os subperfis entre parênteses (cortavam a caixa); subperfis continuam nas abas ao lado do selo.
 - 2026-09-29 — Perfil **CTM: Supervisor** renomeado para **CTM: Gestor de oferta** (a função Supervisor da equipe/turma continua).
 - 2026-09-29 — Padrão: nada de campos ou texto direto sobre o fundo da página. Campos sempre com fundo branco (global); Detalhes da turma: bloco Dia do encontro presencial + Escolas dentro de uma caixa.
+- 2026-09-29 — Padrão: todo botão desabilitado mostra um tooltip com o que está pendente (ex.: Confirmar turma → "O cronograma precisa estar validado pela DR"). Implementado no Button (prop motivo), com texto genérico quando não houver motivo; motivos escritos para todos os botões desabilitados atuais.
