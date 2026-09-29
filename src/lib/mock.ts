@@ -451,7 +451,7 @@ const turmas: Turma[] = [
   {
     id: 't2', codigo: 'TU-MG-002/2026', propostaId: '1', propostaNumero: 'PC-MG-001/2026', drContratante: 'SP', cursos: ['Técnico em Mecatrônica'], criadoEm: '2026-08-20T10:00:00Z',
     fase: 'A iniciar', cronograma: { versao: 1, situacao: 'Aguardando validação', prazo: '2026-10-08' }, supervisor: 'Carlos Andrade', analista: 'Renata Guimarães',
-    escolas: [{ nome: 'SENAI Anchieta', cidade: 'São Paulo', alunos: 22 }, { nome: 'SENAI Campinas', cidade: 'Campinas', alunos: 18 }],
+    escolas: [{ nome: 'SENAI Anchieta', cidade: 'São Paulo', alunos: 25 }, { nome: 'SENAI Campinas', cidade: 'Campinas', alunos: 18 }], // 43 no Moodle × 40 na proposta: aditivo
     modulos: [
       { curso: 'Técnico em Mecatrônica', nome: 'Básico', unidades: [ucT('Eletricidade aplicada', 60, 60, '2026-11-03', '2026-12-11'), ucT('Mecânica aplicada', 60, 60, '2026-12-14', '2027-02-12')] },
       { curso: 'Técnico em Mecatrônica', nome: 'Específico', unidades: [ucT('Automação e CLP', 80, 80, '2027-02-15', '2027-04-09'), ucT('Robótica industrial', 80, 80, '2027-04-12', '2027-06-04')] },
@@ -472,7 +472,7 @@ const turmas: Turma[] = [
     historico: [{ quando: '2026-09-22T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' }],
   },
 ]
-export const useTurmas = () => useCollection<Turma>('turmas-v9', turmas)
+export const useTurmas = () => useCollection<Turma>('turmas-v10', turmas)
 // Agrupamento: outra turma com a mesma UC começando na mesma semana pode rodar junto (até ~300 alunos).
 export const agrupaveis = (todas: Turma[], t: Turma, uc: UcTurma) =>
   todas.filter((o) => o.id !== t.id && o.fase !== 'Cancelada' && o.modulos.some((m) => m.unidades.some((u) => u.nome === uc.nome && u.inicio && uc.inicio && Math.abs(diasEntre(u.inicio, uc.inicio)) <= 7)))

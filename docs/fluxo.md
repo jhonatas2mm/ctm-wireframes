@@ -162,6 +162,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Hierarquia: **proposta → cursos → turmas → UCs → alunos** (cada um com situação).
 - Alerta de prazo: proposta ainda não aprovada com turma prevista para começar em até 15 dias.
 
+- **Aditivo**: a proposta tem o nº de alunos por curso. Se as salas do Moodle das turmas da proposta (aprovada) tiverem **mais alunos do que a proposta**, a CTM recebe uma **notificação** (sino no topo, perfis CTM e Super admin) para fazer um **aditivo**. Na Gestão da proposta aparece o aviso com **Fazer aditivo** (também na lista de propostas); o aditivo é uma **nova versão** da proposta (permitida mesmo aprovada) com os alunos do Moodle já preenchidos e o motivo; a versão anterior fica no histórico. Status segue Aprovado (hipótese). Alunos no Moodle = integrados de cada escola da turma.
 ## Pendências (reunião de processos de 28/09/2026)
 - **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (à DR, prazos, integração). Hoje os avisos aparecem só nas telas.
 - **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesma DR.
@@ -273,3 +274,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Acompanhamento dos alunos** no Financeiro (aba): turma × ciclo, aluno por aluno com situação por UC e se fatura (modelo da planilha geral da CTM). Ciclo financeiro passa a ser a janela 21→20. O nº de alunos do relatório de cobrança vem daí (alunos que faturam). Alunos das turmas da oferta gerados (fictícios) a partir das escolas.
 - 2026-09-29 — **Desistência com dupla checagem da DR**: Desistente vem do Moodle e só vale com a confirmação da DR solicitante (nova tela Confirmação de desistências: confirmar ou contestar com motivo). Até confirmar, o aluno segue faturando; contestada = falha de integração, volta a Matriculado. Indicador de desistências aguardando a DR no acompanhamento da CTM.
 - 2026-09-29 — **Cobrança mensal**: saída confirmada pela DR tira o aluno da cobrança seguinte à confirmação (corte dia 20). Relatório com navegação mês a mês e movimentação em relação ao mês anterior (alunos cobrados, entradas e saídas).
+- 2026-09-29 — **Aditivo**: mais alunos nas salas do Moodle do que na proposta gera notificação à CTM (sino no topo) e aviso na proposta com Fazer aditivo (nova versão com os alunos do Moodle). Seed: Mecatrônica 43 no Moodle × 40 na PC-MG-001.

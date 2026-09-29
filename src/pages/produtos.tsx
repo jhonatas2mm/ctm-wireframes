@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AlertTriangle, ArrowRightLeft, ChevronDown, Copy, Eye, GitBranchPlus, Layers, Lock, Plus, SquareArrowOutUpRight, Trash2, X } from 'lucide-react'
+import { AlertTriangle, ArrowRightLeft, ChevronDown, Copy, Eye, FilePlus2, GitBranchPlus, Layers, Lock, Plus, SquareArrowOutUpRight, Trash2, X } from 'lucide-react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ import { AttachField, DataTable, PageHeader, Req, RowAction, type Column, useCon
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
 import {
   alertaPrazo, alunosProposta, aprovadosAtuais, contratoAtivo, dataBr, inicioPrevisto, nomeParte, saldoTaa, statusProposta,
-  totalProposta, useContratos, useCursos, useCursosDr, useProdutos, valorNoEdital,
+  totalProposta, useContratos, useCursos, useCursosDr, useProdutos, useTurmas, valorNoEdital,
   type Contrato, type CursoProposta, type Produto, type Registro, type StatusProposta,
 } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
@@ -21,6 +21,7 @@ import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { cn } from '@/lib/utils'
 import { PropostaSheet } from './proposta-sheet'
+import { excedentesProposta } from '@/lib/cobranca'
 
 // CTM do usuário logado (Gestor de contrato / Supervisor da SENAI-MG): é sempre a ofertante.
 const DR_OFERTANTE = 'MG'
@@ -97,6 +98,7 @@ export default function Produtos() {
   const [params] = useSearchParams()
   const taas = useContratos().all
   const { all: todas, remove, update } = useProdutos()
+  const turmas = useTurmas().all
   const autor = useAutor()
   const [verProposta, setVerProposta] = useState<Produto | null>(null)
   const [mudar, setMudar] = useState<Produto | null>(null)
@@ -123,6 +125,7 @@ export default function Produtos() {
             {!fechada(p) && <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => abrirStatus(p)}><ArrowRightLeft /> Status</Button>}
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVerProposta(p)} />
             <RowAction label="Abrir gestão da proposta" icon={SquareArrowOutUpRight} onClick={() => navigate(`/produtos/${p.id}`)} />
+            {excedentesProposta(p, turmas).length > 0 && <RowAction label="Fazer aditivo" icon={FilePlus2} onClick={() => navigate(`/produtos/novo?versao=${p.id}&aditivo=1`)} />}
             <RowAction label="Nova versão" icon={GitBranchPlus} disabled={fechada(p)} motivo="Proposta assinada ou cancelada" onClick={() => navigate(`/produtos/novo?versao=${p.id}`)} />
             <RowAction label="Excluir" icon={Trash2} disabled={p.status !== 'Rascunho'} motivo="Só rascunho pode ser excluído" onClick={() => confirmar({ titulo: `Excluir o rascunho ${p.numero}?`, onConfirmar: () => remove(p.id) })} />
           </>
@@ -167,7 +170,7 @@ export default function Produtos() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <NovaPropostaSheet open={pathname === '/produtos/novo'} base={todas.find((p) => p.id === params.get('versao'))} onOpenChange={(v) => !v && navigate('/produtos')} />
+      <NovaPropostaSheet open={pathname === '/produtos/novo'} base={todas.find((p) => p.id === params.get('versao'))} aditivo={params.get('aditivo') === '1'} onOpenChange={(v) => !v && navigate('/produtos')} />
       {dialogo}
     </>
   )
@@ -176,8 +179,11 @@ export default function Produtos() {
 // Nova proposta (ou nova versão de uma existente, com base): TAA/contrato aceito → produtos do TAA → alunos e início
 // por curso. Matriz curricular do portfólio (versão aprovada); valor por aluno do edital (fixo). Salva como Rascunho;
 // nova versão guarda a anterior no histórico de versões.
-function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpenChange: (v: boolean) => void; base?: Produto }) {
+function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolean; onOpenChange: (v: boolean) => void; base?: Produto; aditivo?: boolean }) {
   const db = useProdutos()
+  // Aditivo: proposta aprovada com mais alunos no Moodle do que o contratado (vem da notificação)
+  const turmas = useTurmas().all
+  const excedentes = base && aditivo ? excedentesProposta(base, turmas) : []
   const catalogo = useCursos().all
   const portfolio = aprovadosAtuais(useCursosDr().all).filter((c) => (c.ctm ?? 'MG') === DR_OFERTANTE)
   const contratos = useContratos().all
@@ -209,7 +215,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
     if (base) {
       setTaaId(base.taaId ?? null)
       setNomes(base.cursos.map((c) => c.nome))
-      setAlunos(Object.fromEntries(base.cursos.map((c) => [c.nome, String(c.vagas ?? '')])))
+      setAlunos(Object.fromEntries(base.cursos.map((c) => [c.nome, String(excedentes.find((e) => e.curso === c.nome)?.moodle ?? c.vagas ?? '')])))
       setInicios(Object.fromEntries(base.cursos.map((c) => [c.nome, c.inicioPrevisto ?? ''])))
       setVigIni(isoDe(base.vigenciaInicio))
       setVigFim(isoDe(base.vigenciaFim))
@@ -219,7 +225,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
       setFaturamento(base.faturamento ?? 'DR')
       setEscolas((base.escolas ?? []).join(', '))
       setDocs(base.documentos ?? [])
-      setMotivoVersao('A DR pediu ajuste na quantidade de alunos.')
+      setMotivoVersao(excedentes.length ? `Aditivo: ${excedentes.map((e) => `${e.curso} de ${e.proposta} para ${e.moodle} alunos (Moodle)`).join('; ')}.` : 'A DR pediu ajuste na quantidade de alunos.')
       return
     }
     const t = taas.find((x) => x.contratante === 'BA') ?? taas[0]
@@ -273,7 +279,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
     if (base) {
       // Nova versão: a atual vai para o histórico de versões (a proposta vai e vem)
       const anterior = { versao: base.versao ?? 1, cursos: base.cursos, vigenciaInicio: base.vigenciaInicio, vigenciaFim: base.vigenciaFim, salvaEm: agora, motivo: motivoVersao.trim() || undefined }
-      db.update(base.id, { ...dados, versao, versoes: [...(base.versoes ?? []), anterior], historico: [{ quando: agora, texto: `Nova versão v${versao}${motivoVersao.trim() ? `: ${motivoVersao.trim()}` : ''}`, autor }, ...(base.historico ?? [])] })
+      db.update(base.id, { ...dados, versao, versoes: [...(base.versoes ?? []), anterior], historico: [{ quando: agora, texto: `${aditivo ? 'Aditivo' : 'Nova versão'} v${versao}${motivoVersao.trim() ? `: ${motivoVersao.trim()}` : ''}`, autor }, ...(base.historico ?? [])] })
     } else {
       db.add({ ...dados, numero, status: 'Rascunho', versao: 1, cadastradoEm: agora, historico: [{ quando: agora, texto: 'Proposta criada (Rascunho)', autor }] })
     }
@@ -285,7 +291,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
       <SheetContent side="bottom" className="data-[side=bottom]:h-[95vh] gap-0 overflow-hidden rounded-t-xl p-0">
         <SheetHeader className="border-b px-6 py-4">
           <div className="flex flex-wrap items-center gap-3">
-            <SheetTitle className="text-lg">{base ? 'Nova versão da proposta' : 'Nova proposta'}</SheetTitle>
+            <SheetTitle className="text-lg">{base ? (aditivo ? 'Aditivo da proposta' : 'Nova versão da proposta') : 'Nova proposta'}</SheetTitle>
             <NumeroBadge numero={numero} />
             <span className="flex items-center gap-2 rounded-md border-2 border-foreground px-2.5 py-0.5 text-sm font-semibold tabular-nums">
               {base && <span className="text-muted-foreground">v{base.versao ?? 1} →</span>} v{versao}
@@ -322,7 +328,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
             </div>
             {base && (
               <label className="grid gap-1 text-xs">
-                <span className="text-muted-foreground">O que mudou nesta versão <Req /></span>
+                <span className="text-muted-foreground">{aditivo ? 'Motivo do aditivo' : 'O que mudou nesta versão'} <Req /></span>
                 <Textarea rows={3} value={motivoVersao} onChange={(e) => setMotivoVersao(e.target.value)} />
               </label>
             )}

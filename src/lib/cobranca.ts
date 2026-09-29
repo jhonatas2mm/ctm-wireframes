@@ -55,3 +55,14 @@ export function movimentacao(turmas: Turma[], ciclo: string, anterior: string | 
     outrasSaidas: sairam.filter((x) => !corteSaida(x.aluno)).length,
   }
 }
+
+// Aditivo: alunos nas salas do Moodle (turmas da proposta, por curso) acima do contratado na proposta → a CTM é notificada
+// para fazer um aditivo (nova versão da proposta com mais alunos).
+export const alunosNoMoodle = (t: Turma) => (t.escolas ?? []).reduce((n, e) => n + (e.integrados ?? e.alunos), 0)
+export function excedentesProposta(p: Produto, turmas: Turma[]) {
+  if (p.status !== 'Aprovado') return []
+  const ts = turmas.filter((t) => t.propostaId === p.id && t.fase !== 'Cancelada')
+  return p.cursos
+    .map((c) => ({ curso: c.nome, proposta: c.vagas ?? 0, moodle: ts.filter((t) => t.cursos.includes(c.nome)).reduce((n, t) => n + alunosNoMoodle(t), 0) }))
+    .filter((x) => x.moodle > x.proposta)
+}
