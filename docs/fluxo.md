@@ -202,3 +202,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-28 — Casca: rótulos Perfil/Jornada acima dos selects.
 - 2026-09-28 — **Guia da jornada**: ao navegar pelo fluxograma (etapas, Anterior/Próxima, setas), o protótipo escurece a tela, deixa vazado o elemento em foco da etapa (`focus` em `src/journeys.ts`: seletor CSS ou `text=Texto`) e mostra um cartão com a explicação (a `note` da etapa), “Entendi” e “Próxima etapa”. Liga/desliga pelo botão “Guia” no topo da casca (lembrado no navegador).
 
+- 2026-09-28 — Casca: botão **Tela cheia** (atalho F; também ao lado de Anterior/Próxima). Esconde o topo e o mapa da jornada, deixa só o selo do perfil, a etapa atual (n/total), Anterior/Próxima e o protótipo; usa a tela cheia do navegador. Sair: mesmo botão, F ou Esc.
