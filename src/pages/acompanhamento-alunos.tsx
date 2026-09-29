@@ -68,7 +68,7 @@ export function AcompanhamentoAlunos() {
         return (
           <span className="block min-w-36">
             <span className={cn('block text-sm', tomSituacao[s.situacao])}>{s.situacao}{s.desde && ` · ${curto(s.desde)}`}</span>
-            <span className={cn('text-xs font-semibold', f ? 'text-emerald-700' : 'text-muted-foreground')}>{f ? 'Fatura' : 'Não fatura'}</span>
+            <span className={cn('text-xs font-semibold', f ? 'text-emerald-700' : 'text-muted-foreground')}>{f ? (s.situacao === 'Não integrado nesta UC' ? 'Fatura (sai na próxima cobrança)' : 'Fatura') : 'Não fatura'}</span>
           </span>
         )
       },

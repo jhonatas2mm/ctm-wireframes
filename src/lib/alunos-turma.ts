@@ -89,10 +89,13 @@ export function ciclosDe(turmas: Turma[]) {
   return out
 }
 
-// Fatura a UC no ciclo: UC em andamento na janela, aluno integrado nela (ativo, suspenso ou desistente no Moodle ainda sem
-// confirmação da DR — a CTM cobra até a DR confirmar/formalizar) e sem saída confirmada antes do início da janela.
+// Fatura a UC no ciclo: UC em andamento na janela, aluno integrado pela DR (ativo, suspenso ou desistente no Moodle ainda sem
+// confirmação — a CTM cobra até a DR confirmar/formalizar) e sem saída confirmada antes do início da janela.
+// A cobrança é mensal: a saída só tira o aluno da cobrança SEGUINTE à confirmação da DR (desistência) ou à formalização
+// (trancamento), pelo corte do dia 20 — ex.: confirmada em 10/11 → sai da cobrança de 12; em 25/11 → sai da de 01.
+export const corteSaida = (a: AlunoTurma) => (!saidaValida(a) ? undefined : a.status === 'Trancado' ? a.dataSaida : a.confirmacaoEm ?? a.dataSaida)
 export function fatura(a: AlunoTurma, u: UcTurma, c: string) {
-  if (!ucNoCiclo(u, c)) return false
-  if (situacaoNaUc(a, u).situacao === 'Não integrado nesta UC') return false
-  return !(saidaValida(a) && a.dataSaida! < janelaCiclo(c).ini)
+  if (!ucNoCiclo(u, c) || !a.integrado) return false
+  const corte = corteSaida(a)
+  return !(corte && corte < janelaCiclo(c).ini)
 }
