@@ -377,10 +377,10 @@ export const useCalendario = () => useCollection<DataCalendario>('calendario-v1'
 export type FuncaoEquipe = 'Tutor' | 'Monitor front' | 'Monitor back' | 'Pedagógico' | 'Interlocutor' | 'Analista' | 'Supervisor'
 export const funcoesEquipe: FuncaoEquipe[] = ['Tutor', 'Monitor front', 'Monitor back', 'Pedagógico', 'Interlocutor', 'Analista', 'Supervisor']
 export const diasSemana = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
-export type Pessoa = { id: string; nome: string; email: string; funcao: FuncaoEquipe; competencias: string[]; disponibilidade: string[]; status: 'Ativo' | 'Inativo' }
-const p = (id: string, nome: string, funcao: FuncaoEquipe, competencias: string[] = [], disponibilidade: string[] = diasSemana.slice(0, 5), status: Pessoa['status'] = 'Ativo'): Pessoa => ({
-  id, nome, funcao, competencias, disponibilidade, status,
-  email: `${nome.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').replace(/ /g, '.')}@senaimg.org.br`,
+export type Pessoa = { id: string; ctm: string; nome: string; email: string; funcao: FuncaoEquipe; competencias: string[]; disponibilidade: string[]; status: 'Ativo' | 'Inativo' }
+const p = (id: string, nome: string, funcao: FuncaoEquipe, competencias: string[] = [], disponibilidade: string[] = diasSemana.slice(0, 5), status: Pessoa['status'] = 'Ativo', ctm = 'SENAI-MG'): Pessoa => ({
+  id, ctm, nome, funcao, competencias, disponibilidade, status,
+  email: `${nome.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').replace(/ /g, '.')}@senai${ctm.slice(6).toLowerCase()}.org.br`,
 })
 const equipe: Pessoa[] = [
   p('e1', 'Fabiana Rocha', 'Tutor', ['Segurança em soldagem', 'Soldagem com eletrodo revestido', 'Soldagem MIG/MAG'], ['Segunda-feira', 'Quarta-feira']),
@@ -395,8 +395,12 @@ const equipe: Pessoa[] = [
   p('e10', 'Renata Guimarães', 'Analista'),
   p('e11', 'Carlos Andrade', 'Supervisor'),
   p('e12', 'Tiago Moreira', 'Tutor', ['Segurança em soldagem'], diasSemana.slice(0, 5), 'Inativo'),
+  // Outras CTMs: só o Super admin vê
+  p('e13', 'Bruno Tavares', 'Tutor', ['Eletricidade aplicada'], diasSemana.slice(0, 5), 'Ativo', 'SENAI-SP'),
+  p('e14', 'Aline Freitas', 'Supervisor', [], diasSemana.slice(0, 5), 'Ativo', 'SENAI-SP'),
+  p('e15', 'Gustavo Lima', 'Tutor', ['Soldagem MIG/MAG'], diasSemana.slice(0, 5), 'Ativo', 'SENAI-SC'),
 ]
-export const useEquipe = () => useCollection<Pessoa>('equipe-v1', equipe)
+export const useEquipe = () => useCollection<Pessoa>('equipe-v2', equipe)
 // Histórico de execuções anteriores de UCs (base para sugerir Planejamento × Apropriação e para o PCP).
 export const execucoesAnteriores: { uc: string; tutor: string; turma: string; acao: AcaoTutor; fim: string }[] = [
   { uc: 'Segurança em soldagem', tutor: 'Fabiana Rocha', turma: 'TU-MG-014/2025', acao: 'Planejamento', fim: '2025-09-12' },

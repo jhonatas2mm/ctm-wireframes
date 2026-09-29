@@ -279,3 +279,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-29 — Casca: barra do topo em dois grupos rotulados — **Análise** (Mapa do processo, Anotar, Anotações) e **Design** (Guia, Abrir protótipo livre, Restaurar dados).
 - 2026-09-29 — Guia da jornada **desligado por padrão**; liga pelo botão (lembrado no navegador).
 - 2026-09-29 — Casca: na barra Análise/Design, o item ativo (Mapa aberto, Anotar, Anotações abertas, Guia ligado) fica com preenchimento branco.
+- 2026-09-29 — Super admin vê os dados de todos: cada tela mostra de quem é o dado (coluna de origem, com filtro). Equipe: coluna **CTM**; a CTM vê só a própria equipe.

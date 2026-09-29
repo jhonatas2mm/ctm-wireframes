@@ -10,12 +10,18 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { DataTable, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { diasSemana, funcoesEquipe, useEquipe, useTurmas, type FuncaoEquipe, type Pessoa } from '@/lib/mock'
 import { cn } from '@/lib/utils'
+import { useProfile } from '@/journey/profile'
+import { profileOf } from '@/journey/profiles'
 
 // Equipe da CTM (gestão da execução): tutores, monitores, pedagógico etc., com competências (UCs) e dias disponíveis.
 // O PCP usa a lista para alocar tutores; a supervisão aloca a equipe técnica. E-mail corporativo identifica a pessoa (sem duplicar).
 export default function Equipe() {
   const { confirmar, dialogo } = useConfirmar()
-  const { all, update } = useEquipe()
+  const perfil = useProfile()
+  const superAdmin = perfil === 'Super admin'
+  const { all: todos, update } = useEquipe()
+  // Super admin vê a equipe de todas as CTMs (coluna CTM); a CTM vê só a própria.
+  const all = superAdmin ? todos : todos.filter((p) => p.ctm === (profileOf(perfil).dr?.sigla ?? 'SENAI-MG'))
   const { all: turmas } = useTurmas()
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -41,6 +47,7 @@ export default function Equipe() {
         </div>
       ),
     },
+    ...(superAdmin ? [{ header: 'CTM', value: (p: Pessoa) => p.ctm, filter: true }] : []),
     { header: 'Função', value: (p) => p.funcao, filter: true },
     { header: 'Disponibilidade', value: (p) => p.disponibilidade.map((d) => d.slice(0, 3)).join(', '), className: 'text-muted-foreground' },
     { header: 'Alocações', value: (p) => alocacoes(p), className: 'text-right tabular-nums' },
@@ -67,6 +74,7 @@ export default function Equipe() {
 
 function NovaPessoaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const db = useEquipe()
+  const perfilNovo = useProfile()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [funcao, setFuncao] = useState<FuncaoEquipe>('Tutor')
@@ -84,7 +92,7 @@ function NovaPessoaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
   const duplicado = db.all.some((p) => p.email.toLowerCase() === email.trim().toLowerCase())
   const salvar = () => {
     if (duplicado) return
-    db.add({ nome: nome.trim(), email: email.trim(), funcao, competencias: competencias.split(',').map((c) => c.trim()).filter(Boolean), disponibilidade: dias, status: 'Ativo' })
+    db.add({ ctm: profileOf(perfilNovo).dr?.sigla ?? 'SENAI-MG', nome: nome.trim(), email: email.trim(), funcao, competencias: competencias.split(',').map((c) => c.trim()).filter(Boolean), disponibilidade: dias, status: 'Ativo' })
     onOpenChange(false)
   }
   return (
