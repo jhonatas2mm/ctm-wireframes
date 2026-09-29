@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { brl, ciclosDe, linhasCobranca } from './relatorio-cobranca'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -148,13 +148,13 @@ function SituacaoAlunos() {
           <RowAction label="Registrar formalização" icon={FileCheck2} onClick={() => abrir(a)} />
         )}
       />
-      <Dialog open={!!aberto} onOpenChange={(v) => !v && setAberto(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Registrar formalização</DialogTitle>
-            <DialogDescription>{aberto?.nome} · {aberto && turmaDe(aberto)?.codigo}. A cobrança para a partir da cobrança seguinte ao corte do dia 20.</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-3">
+      <Sheet open={!!aberto} onOpenChange={(v) => !v && setAberto(null)}>
+        <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-lg">
+          <SheetHeader className="border-b px-6 py-4">
+            <SheetTitle className="text-lg">Registrar formalização</SheetTitle>
+            <SheetDescription>{aberto?.nome} · {aberto && turmaDe(aberto)?.codigo}. A cobrança para a partir da cobrança seguinte ao corte do dia 20.</SheetDescription>
+          </SheetHeader>
+          <div className="grid flex-1 content-start gap-3 overflow-y-auto px-6 py-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1.5">
                 <Label>Situação <Req /></Label>
@@ -174,12 +174,12 @@ function SituacaoAlunos() {
             </div>
             <p className="text-xs text-muted-foreground">Cobrança deixa de incluir o aluno em {dataBr(proximaCobranca(f.data || HOJE))}.</p>
           </div>
-          <DialogFooter>
+          <SheetFooter className="flex-row justify-end gap-2 border-t px-6 py-3">
             <Button variant="ghost" onClick={() => setAberto(null)}>Cancelar</Button>
             <Button onClick={() => (aberto && formal.add({ id: aberto.id, ...f, registradoPor: autor }), setAberto(null))}>Salvar formalização</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
       {dialogo}
     </>
   )
