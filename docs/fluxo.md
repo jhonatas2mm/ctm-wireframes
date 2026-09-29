@@ -334,3 +334,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Padrão: cores dos status unificadas num mapa único (verde concluído, azul em curso, laranja aguardando/atenção, vermelho negativo, cinza inicial/encerrado), valendo para propostas, TAAs, turmas, portfólio, cronograma, alunos, DRs e usuários. Badge padrão sem status conhecido fica cinza — nenhuma badge na cor principal (ex.: "Aguardando…" no painel).
 - 2026-09-29 — Tabelas: na coluna Ações todos os botões (com texto ou só ícone) iguais — contorno neutro, ícone e texto na cor principal.
 - 2026-09-29 — Selects (todos): a lista se ajusta ao texto (no mínimo a largura do campo, até 36rem e o espaço da tela) e quebra linha se preciso, sem cortar opções (ex.: contratos no painel do Gestor SENAI).
+- 2026-09-29 — Painel da DR solicitante (Gestor SENAI/SESI): sem os ícones ao lado dos números em Alunos ativos, Requer atenção e Acessos ao portal.

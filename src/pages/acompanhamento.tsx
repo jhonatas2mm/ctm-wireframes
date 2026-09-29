@@ -3,7 +3,7 @@ import { profileOf } from '@/journey/profiles'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import type * as React from 'react'
-import { CalendarRange, CheckCircle2, Eye, GraduationCap, MonitorSmartphone, TrendingUp, TriangleAlert, UserX, Users, type LucideIcon } from 'lucide-react'
+import { CalendarRange, CheckCircle2, Eye, GraduationCap, MonitorSmartphone, TrendingUp, TriangleAlert, UserX, Users } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -183,9 +183,6 @@ const tons = {
   red: 'bg-[#FBE6E5] text-[#C11414]', amber: 'bg-[#FDF0E6] text-[#C23C0D]', gray: 'bg-[#F0F1F2] text-[#536167]',
 }
 export type Tom = keyof typeof tons
-function IconBox({ icon: Icon, tom }: { icon: LucideIcon; tom: Tom }) {
-  return <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', tons[tom])}><Icon className="size-5" /></div>
-}
 
 const Bloco = ({ className, ...p }: React.ComponentProps<'section'>) => <section className={cn('rounded-[1.25rem] bg-card p-5', className)} {...p} />
 
@@ -236,7 +233,7 @@ export function Painel() {
               <span className="font-semibold">Alunos ativos</span>
               <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver alunos</Button>
             </div>
-            <div className="flex items-center gap-3"><IconBox icon={Users} tom="orange" /><span className="text-3xl font-bold tabular-nums">{alunos.length}</span><span className="text-sm text-muted-foreground">em {ativas.length} turmas</span></div>
+            <div className="flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{alunos.length}</span><span className="text-sm text-muted-foreground">em {ativas.length} turmas</span></div>
             <div className="grid grid-cols-[1fr_auto] items-end gap-4">
               <Sparkline v={total} cor="#E84910" />
               <p className="w-32 text-xs text-muted-foreground"><b className="text-foreground">{ativos7}</b> acessaram o portal nos últimos 7 dias</p>
@@ -247,7 +244,7 @@ export function Painel() {
               <span className="font-semibold">Requer atenção</span>
               <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver detalhes</Button>
             </div>
-            <div className="flex items-center gap-3"><IconBox icon={TriangleAlert} tom="amber" /><span className="text-3xl font-bold tabular-nums">{atencao.length}</span><span className="text-sm text-muted-foreground">alunos · {evadidos} evadidos</span></div>
+            <div className="flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{atencao.length}</span><span className="text-sm text-muted-foreground">alunos · {evadidos} evadidos</span></div>
             <div className="flex h-2 overflow-hidden rounded-full bg-muted">
               <div className="bg-[#00A369]" style={{ width: `${((alunos.length - atencao.length) / Math.max(1, alunos.length)) * 100}%` }} />
               <div className="bg-[#F8833F]" style={{ width: `${((atencao.length - evadidos) / Math.max(1, alunos.length)) * 100}%` }} />
@@ -266,7 +263,7 @@ export function Painel() {
             <div>
               <div className="text-lg font-bold">Acessos ao portal</div>
               <div className="mt-1 text-xs text-muted-foreground">Últimos 7 dias</div>
-              <div className="mt-1 flex items-center gap-3"><IconBox icon={MonitorSmartphone} tom="green" /><span className="text-3xl font-bold tabular-nums">{sem7}</span><Variacao pct={varAcessos} /></div>
+              <div className="mt-1 flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{sem7}</span><Variacao pct={varAcessos} /></div>
             </div>
             <div className="flex gap-4 text-sm">
               <span className="flex items-center gap-1.5"><i className="size-2.5 rounded-full bg-[#E84910]" />AVA</span>
