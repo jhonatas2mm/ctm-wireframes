@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Eye, GitBranchPlus, Info, Plus } from 'lucide-react'
+import { Eye, GitBranchPlus, Plus } from 'lucide-react'
 import { Popover } from '@base-ui/react/popover'
 import { useState } from 'react'
 import { NovaVersaoSheet, ProdutoSheet } from '@/pages/produto-sheets'
@@ -16,13 +16,13 @@ type ProdutoDr = { id: string; codigo: string; nome: string; modalidade: string;
 // Versão fictícia (1 a 3) para os cursos vindos das propostas, estável por curso.
 const versaoFicticia = (id: string) => ([...id].reduce((t, ch) => t + ch.charCodeAt(0), 0) % 3) + 1
 
-// Visão rápida do curso (dados do catálogo), no botão ao lado do nome.
+// Visão rápida do curso (dados do catálogo), no botão Detalhes ao lado do nome.
 function CursoDetalhes({ p }: { p: ProdutoDr }) {
   const itens: [string, string][] = [['Modalidade', p.modalidade], ['Área tecnológica', p.area], ['Carga horária', `${p.cargaHoraria} h`]]
   return (
     <Popover.Root>
-      <Popover.Trigger render={<Button size="icon-xs" variant="ghost" aria-label="Detalhes do curso" title="Detalhes do curso" />}>
-        <Info />
+      <Popover.Trigger render={<Button size="xs" variant="outline" className="text-muted-foreground font-normal" />}>
+        Detalhes
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner align="start" sideOffset={6} className="z-50">
