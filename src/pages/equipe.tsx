@@ -42,7 +42,6 @@ export default function Equipe() {
       ),
     },
     { header: 'Função', value: (p) => p.funcao, filter: true },
-    { header: 'Competências (UCs)', value: (p) => p.competencias.join(', ') || '—', search: true, cell: (p) => <span className="line-clamp-2 max-w-72 text-sm">{p.competencias.join(', ') || '—'}</span> },
     { header: 'Disponibilidade', value: (p) => p.disponibilidade.map((d) => d.slice(0, 3)).join(', '), className: 'text-muted-foreground' },
     { header: 'Alocações', value: (p) => alocacoes(p), className: 'text-right tabular-nums' },
     { header: 'Status', value: (p) => p.status, filter: true, cell: (p) => <Badge variant={p.status === 'Ativo' ? 'default' : 'outline'}>{p.status}</Badge> },
