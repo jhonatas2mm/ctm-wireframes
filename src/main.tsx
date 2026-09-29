@@ -6,6 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { AnnotationsProvider } from '@/components/wf/annotations'
 import { JourneyShell } from '@/journey/journey-shell'
 import { PinLayer } from '@/annotations/pin-layer'
+import { Spotlight } from '@/journey/spotlight'
 import './index.css'
 import App from './App.tsx'
 
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')!).render(
             <AnnotationsProvider>
               <App />
               {parent !== window && <PinLayer />}
+              {parent !== window && <Spotlight />}
             </AnnotationsProvider>
           </HashRouter>
         ) : (

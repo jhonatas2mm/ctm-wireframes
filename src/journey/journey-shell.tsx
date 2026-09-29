@@ -1,10 +1,11 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import type { TourMsg } from '@/journey/spotlight'
 import { cn } from '@/lib/utils'
 import { resetDb } from '@/lib/db'
 import { journeys, type Journey, type Profile } from '@/journeys'
@@ -111,6 +112,9 @@ export function JourneyShell() {
   const [src] = useState(() => `./?frame=1#${current.path}`)
 
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
+  // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
+  const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') !== '0' } catch { return true } })
+  const setGuia = (v: boolean) => { setGuiaState(v); try { localStorage.setItem('guia-jornada', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   const trocarPerfil = (p: Profile) => setState({ pid: p, jid: (journeys.find((j) => inicio(j) === p) ?? FREE).id, step: 0 })
 
   // Restaurar dados: confirma num diálogo próprio (confirm() nativo pode ser bloqueado), apaga o que o usuário
@@ -142,8 +146,27 @@ export function JourneyShell() {
     const win = frame.current?.contentWindow
     // Se a etapa mudou porque o usuário navegou dentro do protótipo, não reposiciona a tela.
     if (doFrame.current) doFrame.current = false
-    else if (win) win.location.hash = current.path
+    else if (win) {
+      win.location.hash = current.path
+      // Guia: ao navegar pelo fluxograma, destaca o foco da etapa e explica o passo (overlay no protótipo).
+      if (guia && journey.id) {
+        const tour: TourMsg = { focus: current.focus, title: current.title, note: current.note, index: step, total: journey.steps.length, profile, color: profileDef.color, last: step === journey.steps.length - 1 }
+        const t = setTimeout(() => win.postMessage({ src: 'ctm-guia', type: 'tour', tour }, location.origin), 450)
+        return () => clearTimeout(t)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pid, jid, step, current.path])
+
+  // "Próxima etapa" clicada no cartão do guia (dentro do protótipo).
+  useEffect(() => {
+    const on = (e: MessageEvent) => {
+      if (e.origin !== location.origin || e.data?.src !== 'ctm-tour' || e.data.type !== 'next') return
+      setState((st) => ({ ...st, step: st.step + 1 }))
+    }
+    addEventListener('message', on)
+    return () => removeEventListener('message', on)
+  }, [])
 
   useEffect(() => {
     const onHash = () => setState(readHash())
@@ -223,6 +246,9 @@ export function JourneyShell() {
             <Button size="sm" variant={panel ? 'secondary' : 'ghost'} onClick={() => setPanel(!panel)}>
               <MessageSquareText /> <span className="tabular-nums">{screenPins.length}</span>
             </Button>
+            <Button size="sm" variant={guia ? 'secondary' : 'ghost'} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
+              <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
+            </Button>
             <span className="mx-1 h-4 w-px bg-border" />
             <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
               <ExternalLink /> Abrir protótipo livre
@@ -264,36 +290,62 @@ export function JourneyShell() {
 
         {/* Mapa da jornada escolhida no select: etapas ligadas por setas */}
         <div className="mx-4 mb-3 flex shrink-0 items-center gap-3 rounded-lg border bg-card p-2">
-          <div className="flex shrink-0 items-center gap-2">
-            <span className="pl-1 text-xs font-bold">Jornada</span>
-            <Select value={jid} onValueChange={(v) => go(v as string, 0)}>
-              <SelectTrigger size="sm" className="w-44 shrink-0">
-                <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}` : 'Jornada' }}</SelectValue>
+          {/* Dois selects: primeiro o perfil, depois as jornadas que esse perfil inicia */}
+          <div className="flex shrink-0 items-end gap-2">
+            <label className="grid gap-1">
+            <span className="pl-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Perfil</span>
+            <Select value={pid} onValueChange={(v) => trocarPerfil(v as Profile)}>
+              <SelectTrigger size="sm" className="w-40 shrink-0">
+                <SelectValue>
+                  {(v: string) => (
+                    <span className="flex items-center gap-1.5">
+                      <span className="size-2 rounded-full" style={{ background: profileOf(v).color }} />
+                      {v}
+                    </span>
+                  )}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent className="dark min-w-72" alignItemWithTrigger={false}>
-                {/* Agrupadas pelo perfil que inicia a jornada (perfil da 1ª etapa), na ordem dos perfis */}
-                {profiles
-                  .map((pf) => ({ pf, js: visibleJourneys.filter((j) => inicio(j) === pf.name) }))
-                  .filter((g) => g.js.length)
-                  .map(({ pf, js }, gi) => (
-                    <SelectGroup key={pf.name}>
-                      {gi > 0 && <SelectSeparator />}
-                      <SelectLabel className="flex items-center gap-1.5">
-                        <span className="size-2 rounded-full" style={{ background: pf.color }} />
-                        {pf.name}
-                      </SelectLabel>
-                      {js.map((j) => (
-                        <SelectItem key={j.id} value={j.id}>
-                          <span className="flex w-full items-center justify-between gap-3">
-                            <span>{numero(j.id)}. {j.title}</span>
-                            <span className="rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{j.steps.length} {j.steps.length === 1 ? 'etapa' : 'etapas'}</span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  ))}
+              <SelectContent className="dark min-w-52" alignItemWithTrigger={false}>
+                {profiles.map((pf) => {
+                  const n = visibleJourneys.filter((j) => inicio(j) === pf.name).length
+                  return (
+                    <SelectItem key={pf.name} value={pf.name}>
+                      <span className="flex w-full items-center justify-between gap-3">
+                        <span className="flex items-center gap-1.5">
+                          <span className="size-2 rounded-full" style={{ background: pf.color }} />
+                          {pf.name}
+                        </span>
+                        <span className="rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{n} {n === 1 ? 'jornada' : 'jornadas'}</span>
+                      </span>
+                    </SelectItem>
+                  )
+                })}
               </SelectContent>
             </Select>
+            </label>
+            <label className="grid gap-1">
+            <span className="pl-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Jornada</span>
+            {(() => {
+              const doPerfil = visibleJourneys.filter((j) => inicio(j) === pid)
+              return (
+                <Select value={doPerfil.some((j) => j.id === jid) ? jid : ''} onValueChange={(v) => go(v as string, 0)} disabled={!doPerfil.length}>
+                  <SelectTrigger size="sm" className="w-52 shrink-0">
+                    <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="dark min-w-72" alignItemWithTrigger={false}>
+                    {doPerfil.map((j) => (
+                      <SelectItem key={j.id} value={j.id}>
+                        <span className="flex w-full items-center justify-between gap-3">
+                          <span>{numero(j.id)}. {j.title}</span>
+                          <span className="rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{j.steps.length} {j.steps.length === 1 ? 'etapa' : 'etapas'}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )
+            })()}
+            </label>
           </div>
           {/* Só as etapas rolam na horizontal */}
           <div className="min-w-0 flex-1 overflow-x-auto rounded-md border bg-background px-2 py-1.5">

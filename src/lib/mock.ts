@@ -257,13 +257,13 @@ export const useUsuarios = () => useCollection<Usuario>('usuarios-v5', usuarios)
 // Permissões: por perfil, as telas (path do menu) que ele acessa.
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
-  { id: 'DN', perfil: 'DN', telas: ['/drs', '/dashboard', '/editais'] },
-  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
+  { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/dashboard', '/editais'] },
+  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
   { id: 'DR solicitante', perfil: 'DR solicitante', telas: ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'] },
-  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
+  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
   { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v6', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v7', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [

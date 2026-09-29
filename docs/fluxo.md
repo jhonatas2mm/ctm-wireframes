@@ -3,7 +3,7 @@
 Registro das regras de negócio e do percurso decidido. Atualizar a cada decisão nova.
 
 ## Fluxos (na ordem em que acontecem no sistema)
-Na casca, o select agrupa por perfil que inicia a jornada e **numera dentro de cada perfil** (DN 1, 2, 3; Supervisor 1, 2…).
+Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jornada** (só as que esse perfil inicia), **numeradas dentro de cada perfil** (DN 1, 2, 3; Supervisor 1, 2…). Trocar o perfil abre a 1ª jornada dele (ou a 1ª tela do menu, se não tiver jornada).
 
 0a. **Gestão de usuários** (Super admin) — Gestão de usuários → Novo usuário → Editar usuário.
 0b. **Perfis e permissões** (Super admin) — Perfis e permissões → Permissões do perfil.
@@ -197,3 +197,8 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-28 — Nova jornada **Logs do sistema** (Super admin): `/admin/logs` e `/admin/logs/:id` (side nav com stack trace/payload e eventos relacionados). Permissões: permissoes-v6.
 - 2026-09-28 — Logs do sistema = **ações dos usuários** na plataforma (não erros técnicos): usuário, perfil, DR, ação, módulo, registro, IP, dispositivo e alterações antes/depois (logs-v2).
 - 2026-09-28 — Logs do sistema com visão **Linha do tempo** (padrão): agrupada por dia, ícone colorido por ação, frase “Fulano editou X”, antes/depois inline, filtro por ação, busca e “Carregar mais”; alternância para Tabela.
+- 2026-09-28 — Casca: seleção dividida em dois selects, Perfil e Jornada (a jornada lista só as do perfil escolhido).
+- 2026-09-28 — Painéis por perfil (exceto Super admin): **DN** `/painel-dn` (DRs ativas, TAAs vigentes/aguardando assinatura/a vencer, editais com execução, cobertura das DRs); **CTM: Supervisor** `/painel-ctm` (funil de propostas, ofertas em execução, próximas aulas ao vivo, TAAs com DRs); **CTM: Comercial** `/painel-comercial` (em negociação, valor fechado, taxa de aceite, pipeline por status e por DR contratante, aguardando resposta, cursos mais propostos). DR solicitante segue com `/acompanhamento`. permissoes-v7.
+- 2026-09-28 — Casca: rótulos Perfil/Jornada acima dos selects.
+- 2026-09-28 — **Guia da jornada**: ao navegar pelo fluxograma (etapas, Anterior/Próxima, setas), o protótipo escurece a tela, deixa vazado o elemento em foco da etapa (`focus` em `src/journeys.ts`: seletor CSS ou `text=Texto`) e mostra um cartão com a explicação (a `note` da etapa), “Entendi” e “Próxima etapa”. Liga/desliga pelo botão “Guia” no topo da casca (lembrado no navegador).
+

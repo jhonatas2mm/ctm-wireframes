@@ -14,6 +14,7 @@ import OfertaDetalhe from '@/pages/oferta-detalhe'
 import Components from '@/pages/components'
 import { Auditoria, Perfis, Usuarios } from '@/pages/admin'
 import Logs from '@/pages/logs'
+import { PainelComercial, PainelDn, PainelSupervisor } from '@/pages/paineis'
 
 // Registro de telas: adicione uma entrada aqui e ela aparece na rota e no menu.
 export type Screen = {
@@ -36,6 +37,7 @@ export const screens: Screen[] = [
   { path: '/admin/auditoria', title: 'Auditoria', group: 'Telas', icon: History, component: Auditoria, profiles: ['Super admin'], data: ['auditoria'] },
   { path: '/admin/logs', title: 'Logs do sistema', group: 'Telas', icon: ScrollText, component: Logs, profiles: ['Super admin'], data: ['logs'] },
   { path: '/admin/logs/:id', title: 'Detalhe do log', group: 'Telas', icon: ScrollText, component: Logs, hidden: true, data: ['logs'] },
+  { path: '/painel-dn', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelDn, profiles: ['DN'], data: ['contratos', 'editais', 'drs'] },
   { path: '/drs', title: 'Gestão de DRs', group: 'Telas', icon: Building2, component: GestaoDrs, profiles: ['DN', 'Super admin'], data: ['drs'] },
   { path: '/drs/novo', title: 'Nova DR credenciada', group: 'Telas', icon: Building2, component: GestaoDrs, hidden: true, data: ['drs'] },
   { path: '/dashboard', title: 'Gestão de TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, profiles: ['DN', 'Super admin'], data: ['contratos'] },
@@ -44,6 +46,8 @@ export const screens: Screen[] = [
   { path: '/editais', title: 'Gestão de Editais', group: 'Telas', icon: FileSpreadsheet, component: Editais, profiles: ['DN', 'Super admin'], data: ['editais'] },
   { path: '/editais/novo', title: 'Novo edital', group: 'Telas', icon: FileSpreadsheet, component: Editais, hidden: true, data: ['editais'] },
   { path: '/editais/:id/sucesso', title: 'Edital criado', group: 'Telas', icon: FileSpreadsheet, component: Editais, hidden: true, data: ['editais'] },
+  { path: '/painel-ctm', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelSupervisor, profiles: ['CTM: Supervisor'], data: ['produtos', 'turmas', 'taas-dr'] },
+  { path: '/painel-comercial', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelComercial, profiles: ['CTM: Comercial'], data: ['produtos', 'cursos-dr'] },
   { path: '/meus-taas', title: 'Gestão de TAAs', group: 'Telas', icon: FileSignature, component: MeusTaas, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['taas-dr'] },
   { path: '/gestao-produtos', title: 'Gestão de Portfólio', group: 'Telas', icon: Boxes, component: GestaoProdutos, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['cursos-dr'] },
   { path: '/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['produtos'] },

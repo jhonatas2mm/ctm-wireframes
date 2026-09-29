@@ -26,7 +26,7 @@ import { profileOf } from '@/journey/profiles'
 const secoes = ['DN', 'CTM', 'DR solicitante', 'Administração', 'Sistema'] as const
 const secaoDe = (path: string): (typeof secoes)[number] =>
   path.startsWith('/admin') ? 'Administração'
-  : ['/drs', '/dashboard', '/editais'].some((p) => path.startsWith(p)) ? 'DN'
+  : ['/painel-dn', '/drs', '/dashboard', '/editais'].some((p) => path.startsWith(p)) ? 'DN'
   : ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'].some((p) => path.startsWith(p)) ? 'DR solicitante'
   : path.startsWith('/componentes') ? 'Sistema'
   : 'CTM'
