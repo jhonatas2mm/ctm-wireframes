@@ -73,6 +73,8 @@ function CobrancaPropostas() {
     { header: 'TAA', value: (p) => taas.find((t) => t.id === p.taaId)?.numero ?? '—', className: 'font-mono text-xs' },
     { header: 'Cursos', value: (p) => p.cursos.map((c) => c.nome).join(', '), search: true },
     { header: 'Turmas', value: (p) => turmasDe(p).length, className: 'text-right tabular-nums' },
+    // Outras propostas aprovadas no mesmo TAA (podem ir juntas no relatório)
+    { header: 'Mesmo TAA', value: (p) => propostas.filter((x) => x.id !== p.id && x.taaId === p.taaId && x.drContratante === p.drContratante).map((x) => x.numero).join(', ') || '—', className: 'font-mono text-xs' },
     { header: 'Ciclo', value: (p) => { const c = cicloAtual(p); return c ? `${Number(c.slice(5))}/${c.slice(0, 4)}` : '—' }, className: 'tabular-nums' },
     { header: 'Valor do ciclo', value: (p) => valorCiclo(p), cell: (p) => <span className="font-medium tabular-nums">{brl(valorCiclo(p))}</span>, className: 'text-right' },
   ]

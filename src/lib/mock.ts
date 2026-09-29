@@ -240,13 +240,13 @@ const propostas: Produto[] = [
     historico: [reg('2026-09-02T11:30:00Z', 'Status: Aguardando retorno do cliente'), reg('2026-09-02T11:20:00Z', 'Nova versão v2: a DR pediu 25 alunos (antes 20)'), reg('2026-08-20T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-08-18T10:00:00Z', 'Proposta criada (Rascunho)')] },
   { id: '5', numero: 'PC-MG-005/2026', taaId: '11', edital: 'ED-001/2026', status: 'Cancelado', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'A DR não fechou a turma (mínimo de 25 inscritos).', cursos: [cp('6', 15, '2026-09-14', 'ED-001/2026')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
     historico: [reg('2026-09-04T16:45:00Z', 'Status: Cancelado — a DR não fechou a turma'), reg('2026-07-01T10:00:00Z', 'Proposta criada (Rascunho)')] },
-  { id: '6', numero: 'PC-MG-006/2026', taaId: '8', edital: 'ED-002/2026', status: 'Em andamento', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'RJ', cnpj: '03.439.316/0001-06', faturamento: 'DR', cursos: [cp('7', 30, '2027-04-05', 'ED-002/2026')], vigenciaInicio: '15/04/2026', vigenciaFim: '14/04/2027', cadastradoEm: '2026-09-15T10:00:00Z',
-    historico: [reg('2026-09-16T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-09-15T10:00:00Z', 'Proposta criada (Rascunho)')] },
+  { id: '6', numero: 'PC-MG-006/2026', taaId: '8', edital: 'ED-002/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, equipeTecnica: { supervisor: 'Carlos Andrade', analista: 'Renata Guimarães' }, drOfertante: 'MG', drContratante: 'RJ', cnpj: '03.439.316/0001-06', faturamento: 'DR', cursos: [cp('7', 30, '2026-10-13', 'ED-002/2026')], vigenciaInicio: '15/04/2026', vigenciaFim: '14/04/2027', cadastradoEm: '2026-09-15T10:00:00Z',
+    historico: [reg('2026-09-25T10:00:00Z', 'Status: Aprovado'), reg('2026-09-16T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-09-15T10:00:00Z', 'Proposta criada (Rascunho)')] },
   // Segunda turma de Mecatrônica no mesmo TAA (curso pode se repetir), ainda em rascunho
   { id: '7', numero: 'PC-MG-007/2026', taaId: '7', edital: 'ED-001/2026', status: 'Rascunho', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'SP', cnpj: '03.774.819/0001-02', faturamento: 'DR', cursos: [cp('2', 20, '2027-03-01', 'ED-001/2026')], vigenciaInicio: '01/03/2027', vigenciaFim: '28/02/2028', cadastradoEm: '2026-09-27T10:00:00Z',
     historico: [reg('2026-09-27T10:00:00Z', 'Proposta criada (Rascunho)')] },
 ]
-export const useProdutos = () => useCollection<Produto>('produtos-v20', propostas)
+export const useProdutos = () => useCollection<Produto>('produtos-v21', propostas)
 // Alerta de prazo: proposta ainda não assinada com turma prevista para começar em até 15 dias.
 export const PRAZO_ALERTA_DIAS = 15
 export const inicioPrevisto = (p: Pick<Produto, 'cursos'>) => p.cursos.map((c) => c.inicioPrevisto).filter((x): x is string => !!x).sort()[0]
@@ -478,8 +478,19 @@ const turmas: Turma[] = [
     ],
     historico: [{ quando: '2026-09-22T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' }],
   },
+  // Segunda proposta aprovada no mesmo TAA do SENAI-RJ (pode entrar no mesmo relatório de cobrança da PC-MG-002)
+  {
+    id: 't4', codigo: 'TU-MG-004/2026', propostaId: '6', propostaNumero: 'PC-MG-006/2026', drContratante: 'RJ', cursos: ['Eletricista Instalador Predial'], criadoEm: '2026-09-26T10:00:00Z',
+    fase: 'Buscar tutor', cronograma: { versao: 1, situacao: 'Validado', validadoEm: '2026-09-28' }, diaPresencial: 'Terça-feira', supervisor: 'Carlos Andrade', analista: 'Renata Guimarães',
+    escolas: [{ nome: 'SENAI Maracanã', cidade: 'Rio de Janeiro', alunos: 16 }, { nome: 'SENAI Tijuca', cidade: 'Rio de Janeiro', alunos: 12 }],
+    modulos: [
+      { curso: 'Eletricista Instalador Predial', nome: 'Básico', unidades: [ucT('Segurança em eletricidade (NR-10)', 20, 20, '2026-10-13', '2026-10-30'), ucT('Instalações elétricas prediais', 40, 40, '2026-11-03', '2026-12-11')] },
+      { curso: 'Eletricista Instalador Predial', nome: 'Específico', unidades: [ucT('Comandos elétricos', 40, 40, '2026-12-14', '2027-02-05')] },
+    ],
+    historico: [{ quando: '2026-09-26T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' }],
+  },
 ]
-export const useTurmas = () => useCollection<Turma>('turmas-v11', turmas)
+export const useTurmas = () => useCollection<Turma>('turmas-v12', turmas)
 // Agrupamento: outra turma com a mesma UC começando na mesma semana pode rodar junto (até ~300 alunos).
 export const agrupaveis = (todas: Turma[], t: Turma, uc: UcTurma) =>
   todas.filter((o) => o.id !== t.id && o.fase !== 'Cancelada' && o.modulos.some((m) => m.unidades.some((u) => u.nome === uc.nome && u.inicio && uc.inicio && Math.abs(diasEntre(u.inicio, uc.inicio)) <= 7)))

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { ArrowDownRight, ArrowUpRight, ChevronLeft, ChevronRight, ExternalLink, FileDown, Plus, Printer, Trash2 } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Check, ChevronLeft, ChevronRight, ExternalLink, FileDown, Plus, Printer, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -19,6 +19,7 @@ import { cicloBr as mesBr, ciclosDe } from '@/lib/alunos-turma'
 import { brl, linhasCobranca, movimentacao } from '@/lib/cobranca'
 
 // Relatório de cobrança (CTM → DR solicitante), no modelo da planilha da CTM: por proposta e ciclo financeiro (mês),
+// podendo juntar outras propostas aprovadas da MESMA DR e do MESMO TAA (TAA diferente não entra) — ?propostas=2,6.
 // uma linha por turma × escola × UC com a CH cobrada no ciclo, nº de alunos que faturam e valor aluno/hora.
 // Regras em docs/fluxo.md.
 
@@ -28,24 +29,33 @@ const proxMes = (c: string) => { const d = new Date(Date.UTC(Number(c.slice(0, 4
 export default function RelatorioCobranca() {
   const { id } = useParams()
   const [params, setParams] = useSearchParams()
-  const p = useProdutos().get(id)
+  const { all: propostas } = useProdutos()
+  const p = propostas.find((x) => x.id === id)
   const { all: todas } = useTurmas()
   const { all: taas } = useContratos()
   const aj = useAjustesCobranca()
   const conf = useConfirmacoesDesistencia().all
   const { confirmar, dialogo } = useConfirmar()
   const [novo, setNovo] = useState<Omit<AjusteCobranca, 'id'> | null>(null)
-  const crumbs = [{ label: 'Financeiro', to: '/financeiro?aba=cobranca' }, { label: p ? `Relatório de cobrança · ${p.numero}` : 'Relatório de cobrança' }]
+  const turmasDe = (pid: string) => todas.filter((t) => t.propostaId === pid && t.fase !== 'Cancelada')
+  // Propostas que podem entrar juntas: aprovadas, com turmas, da mesma DR e do mesmo TAA
+  const irmas = p ? propostas.filter((x) => x.taaId === p.taaId && x.drContratante === p.drContratante && x.status === 'Aprovado' && turmasDe(x.id).length) : []
+  const pedidas = (params.get('propostas') ?? '').split(',').filter(Boolean)
+  const sel = p ? [p, ...irmas.filter((x) => x.id !== p.id && pedidas.includes(x.id))] : []
+  const numeros = sel.map((x) => x.numero).join(' + ')
+  const crumbs = [{ label: 'Financeiro', to: '/financeiro?aba=cobranca' }, { label: p ? `Relatório de cobrança · ${numeros}` : 'Relatório de cobrança' }]
   if (!p) return (<><PageHeader title="Relatório de cobrança" breadcrumb={crumbs} /><EmptyState title="Proposta não encontrada" /></>)
-  const turmas = todas.filter((t) => t.propostaId === p.id && t.fase !== 'Cancelada')
+  const turmas = sel.flatMap((x) => turmasDe(x.id))
+  const mudar = (k: string, v: string) => setParams((q) => { const n = new URLSearchParams(q); if (v) n.set(k, v); else n.delete(k); return n }, { replace: true })
+  const alternar = (pid: string) => { const ids = sel.slice(1).map((x) => x.id); mudar('propostas', (ids.includes(pid) ? ids.filter((i) => i !== pid) : [...ids, pid]).join(',')) }
   const ciclos = ciclosDe(turmas)
   const ciclo = ciclos.find((c) => c === params.get('ciclo')) ?? ciclos.find((c) => c >= HOJE.slice(0, 7)) ?? ciclos[0] ?? HOJE.slice(0, 7)
-  const linhas = linhasCobranca(p, turmas, ciclo, conf)
+  const linhas = sel.flatMap((x) => linhasCobranca(x, turmasDe(x.id), ciclo, conf))
   const idx = ciclos.indexOf(ciclo)
   const anterior = idx > 0 ? ciclos[idx - 1] : undefined
   const mov = movimentacao(turmas, ciclo, anterior, conf)
-  const irPara = (c?: string) => c && setParams({ ciclo: c }, { replace: true })
-  const ajustes = aj.all.filter((a) => a.propostaId === p.id && a.ciclo === ciclo)
+  const irPara = (c?: string) => c && mudar('ciclo', c)
+  const ajustes = aj.all.filter((a) => sel.some((x) => x.id === a.propostaId) && a.ciclo === ciclo)
   const total = linhas.reduce((s, l) => s + l.valor, 0) + ajustes.reduce((s, a) => s + a.ch * a.alunos * a.valorHora, 0)
   const taa = taas.find((t) => t.id === p.taaId)
   const dr = p.drContratante.toLowerCase()
@@ -56,12 +66,12 @@ export default function RelatorioCobranca() {
   const exportar = () => {
     const cab = ['Proposta', 'Modalidade', 'Curso', 'Escola-Município', 'Turma', 'Unidade Curricular', 'CH Total', 'Início', 'Final', 'Ciclo', 'Ciclo da UC', 'CH Cobrada', 'Nº alunos', 'Valor aluno/hora', 'Valor total']
     const rows = [
-      ...linhas.map((l) => [p.numero, l.modalidade, l.curso, `${l.escola} - ${l.cidade}`, l.codigo, l.uc, l.chTotal, dataBr(l.inicio), dataBr(l.fim), mesBr(ciclo), `${dataBr(l.cicloIni)} a ${dataBr(l.cicloFim)}`, horas(l.chCobrada), l.alunos, l.valorHora.toFixed(2), l.valor.toFixed(2)]),
-      ...ajustes.map((a, n) => [p.numero, '', '', a.turma, '', `Ajuste de cobrança ${n + 1} - ${a.uc}`, '', '', '', mesBr(ciclo), '', horas(a.ch), a.alunos, a.valorHora.toFixed(2), (a.ch * a.alunos * a.valorHora).toFixed(2)]),
+      ...linhas.map((l) => [l.proposta, l.modalidade, l.curso, `${l.escola} - ${l.cidade}`, l.codigo, l.uc, l.chTotal, dataBr(l.inicio), dataBr(l.fim), mesBr(ciclo), `${dataBr(l.cicloIni)} a ${dataBr(l.cicloFim)}`, horas(l.chCobrada), l.alunos, l.valorHora.toFixed(2), l.valor.toFixed(2)]),
+      ...ajustes.map((a, n) => [propostas.find((x) => x.id === a.propostaId)?.numero ?? '', '', '', a.turma, '', `Ajuste de cobrança ${n + 1} - ${a.uc}`, '', '', '', mesBr(ciclo), '', horas(a.ch), a.alunos, a.valorHora.toFixed(2), (a.ch * a.alunos * a.valorHora).toFixed(2)]),
     ]
     const csv = [cab, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n')
     const url = URL.createObjectURL(new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' }))
-    Object.assign(document.createElement('a'), { href: url, download: `cobranca-${p.numero.replace(/\W+/g, '-')}-${ciclo}.csv` }).click()
+    Object.assign(document.createElement('a'), { href: url, download: `cobranca-${sel.map((x) => x.numero.replace(/\W+/g, '-')).join('+')}-${ciclo}.csv` }).click()
     URL.revokeObjectURL(url)
   }
 
@@ -78,12 +88,35 @@ export default function RelatorioCobranca() {
         }
       />
       <div className="space-y-6">
+        {/* Propostas neste relatório: só as do mesmo TAA e da mesma DR */}
+        <section className="rounded-[1.25rem] border bg-card p-4">
+          <div className="mb-2 flex flex-wrap items-baseline gap-x-3">
+            <h2 className="text-sm font-semibold">Propostas neste relatório <span className="font-normal text-muted-foreground">({sel.length})</span></h2>
+            <span className="text-xs text-muted-foreground">Mesma DR ({nomeParte(p.drContratante)}) e mesmo TAA{taas.find((t) => t.id === p.taaId) ? ` ${taas.find((t) => t.id === p.taaId)!.numero}` : ''}; proposta de outro TAA não entra.</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {irmas.map((x) => {
+              const on = sel.some((y) => y.id === x.id)
+              const fixa = x.id === p.id
+              return (
+                <button key={x.id} type="button" disabled={fixa} aria-pressed={on} onClick={() => alternar(x.id)} title={fixa ? 'Proposta de origem do relatório' : on ? 'Tirar do relatório' : 'Juntar neste relatório'}
+                  className={cn('flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm', on ? 'border-foreground/30 bg-muted font-medium' : 'text-muted-foreground hover:bg-muted/50', fixa && 'cursor-default')}>
+                  <span className={cn('flex size-4 items-center justify-center rounded border', on && 'border-foreground bg-foreground text-background')}>{on && <Check className="size-3" />}</span>
+                  <span className="font-mono">{x.numero}</span>
+                  <span className="text-xs text-muted-foreground">{x.cursos.map((c) => c.nome).join(', ')}</span>
+                </button>
+              )
+            })}
+            {irmas.length <= 1 && <span className="text-sm text-muted-foreground">Não há outra proposta aprovada neste TAA para juntar.</span>}
+          </div>
+        </section>
+
         <div className="flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
           <div className="grid gap-1.5">
             <Label>Cobrança do mês <span className="font-normal text-muted-foreground">(cada UC no seu ciclo)</span></Label>
             <div className="flex items-center gap-1">
             <Button size="icon" variant="outline" aria-label="Mês anterior" disabled={!anterior} motivo="Primeiro mês de cobrança" onClick={() => irPara(anterior)}><ChevronLeft /></Button>
-            <Select value={ciclo} onValueChange={(v) => setParams({ ciclo: v as string }, { replace: true })}>
+            <Select value={ciclo} onValueChange={(v) => mudar('ciclo', v as string)}>
               <SelectTrigger className="w-44"><SelectValue>{(v: string | null) => (v ? mesBr(v) : '—')}</SelectValue></SelectTrigger>
               <SelectContent>{ciclos.map((c) => <SelectItem key={c} value={c}>{mesBr(c)}</SelectItem>)}</SelectContent>
             </Select>
@@ -106,7 +139,7 @@ export default function RelatorioCobranca() {
                 {mov.atual < mov.anterior ? <ArrowDownRight className="size-4" /> : mov.atual > mov.anterior ? <ArrowUpRight className="size-4" /> : null}
                 {mov.atual === mov.anterior ? 'Igual a' : `${mov.atual > mov.anterior ? '+' : ''}${mov.atual - mov.anterior} em relação a`} {mesBr(anterior!)} ({mov.anterior})
               </p>
-            ) : <p className="text-sm text-muted-foreground">Primeira cobrança da proposta</p>}
+            ) : <p className="text-sm text-muted-foreground">Primeira cobrança</p>}
           </div>
           <div className="space-y-2 text-sm">
             {mov.anterior !== undefined && (
@@ -154,6 +187,7 @@ export default function RelatorioCobranca() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    {sel.length > 1 && <TableHead>Proposta</TableHead>}
                     <TableHead>Curso</TableHead>
                     <TableHead>Escola</TableHead>
                     <TableHead>Turma</TableHead>
@@ -171,6 +205,7 @@ export default function RelatorioCobranca() {
                 <TableBody>
                   {linhas.map((l, n) => (
                     <TableRow key={n} className={cn(!l.alunos && 'text-muted-foreground')}>
+                      {sel.length > 1 && <TableCell className="font-mono text-xs">{l.proposta}</TableCell>}
                       <TableCell><span className="block">{l.curso}</span><span className="text-xs text-muted-foreground">{l.modalidade}</span></TableCell>
                       <TableCell><span className="block">{l.escola}</span><span className="text-xs text-muted-foreground">{l.cidade}</span></TableCell>
                       <TableCell className="font-mono text-xs">{l.codigo}</TableCell>
@@ -187,7 +222,7 @@ export default function RelatorioCobranca() {
                   ))}
                   {ajustes.map((a, n) => (
                     <TableRow key={a.id} className="bg-amber-50/60">
-                      <TableCell colSpan={3}><Badge variant="outline">Ajuste de cobrança {n + 1}</Badge> <span className="text-sm">{a.turma}</span></TableCell>
+                      <TableCell colSpan={sel.length > 1 ? 4 : 3}><Badge variant="outline">Ajuste de cobrança {n + 1}</Badge> <span className="text-sm">{a.turma}</span></TableCell>
                       <TableCell><span className="block">{a.uc}</span><span className="text-xs text-muted-foreground">{a.observacao}</span></TableCell>
                       <TableCell /><TableCell /><TableCell />
                       <TableCell className="text-right tabular-nums">{horas(a.ch)}</TableCell>
@@ -202,7 +237,7 @@ export default function RelatorioCobranca() {
                 </TableBody>
                 <TableFooter>
                   <TableRow>
-                    <TableCell colSpan={10} className="text-right font-semibold">Total · vencimento {dataBr(vencimento)}</TableCell>
+                    <TableCell colSpan={sel.length > 1 ? 11 : 10} className="text-right font-semibold">Total · vencimento {dataBr(vencimento)}</TableCell>
                     <TableCell className="text-right text-base font-semibold tabular-nums">{brl(total)}</TableCell>
                     <TableCell />
                   </TableRow>
