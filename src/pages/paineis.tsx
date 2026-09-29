@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { VisaoOperacional, VisaoRelatorio, filtroInicial, type FiltroPeriodo } from './painel-dn-visoes'
+import { FiltrosPeriodo, VisaoOperacional, VisaoRelatorio, filtroInicial, type FiltroPeriodo } from './painel-dn-visoes'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   BadgeCheck, Boxes, Building2, CalendarClock, CircleDollarSign, Clock, FileSignature, FileSpreadsheet, Handshake, Percent, Send, Video,
@@ -99,11 +99,15 @@ export function PainelDn() {
     <div className="space-y-5">
       <PageHeader title="Painel" tituloOculto />
       <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
+        {/* Filtros de período e CTM (valem para a aba toda) à direita das abas */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
         <TabsList>
           <TabsTrigger value="geral">Visão geral</TabsTrigger>
           <TabsTrigger value="operacional">Visão operacional</TabsTrigger>
           <TabsTrigger value="relatorio">Relatório</TabsTrigger>
         </TabsList>
+        {aba !== 'geral' && <FiltrosPeriodo f={filtro} onChange={setFiltro} compacto />}
+        </div>
         <TabsContent value="geral" className="pt-4"><VisaoGeralDn /></TabsContent>
         <TabsContent value="operacional" className="pt-4"><VisaoOperacional f={filtro} onChange={setFiltro} /></TabsContent>
         <TabsContent value="relatorio" className="pt-4"><VisaoRelatorio f={filtro} onChange={setFiltro} /></TabsContent>

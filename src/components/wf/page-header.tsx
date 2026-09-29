@@ -39,9 +39,7 @@ export function PageHeader({
   // Sem repetir rótulos seguidos (ex.: organizador "Financeiro" e tela "Financeiro")
   const crumbs: Crumb[] = [...area, ...(breadcrumb ?? (typeof title === 'string' ? [{ label: title }] : []))]
     .filter((c, i, xs) => i === 0 || c.label !== xs[i - 1].label || !!c.to)
-  return (
-    <div className="space-y-2">
-      {crumbs.length > 0 && slot && createPortal(
+  const portal = crumbs.length > 0 && slot && createPortal(
         <Breadcrumb>
           <BreadcrumbList>
             {crumbs.map((c, i) => (
@@ -55,8 +53,13 @@ export function PageHeader({
           </BreadcrumbList>
         </Breadcrumb>,
         slot,
-      )}
-      {!tituloOculto && <div className="flex flex-wrap items-end justify-between gap-4">
+      )
+  // Título oculto: só o breadcrumb (nada ocupa espaço na tela)
+  if (tituloOculto) return <>{portal}</>
+  return (
+    <div className="space-y-2">
+      {portal}
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-start gap-2">
           {voltar && (
             <Button variant="outline" size="icon" className="mt-0.5" aria-label={`Voltar para ${voltar.label}`} render={<Link to={voltar.to!} />}>
@@ -69,7 +72,7 @@ export function PageHeader({
           </div>
         </div>
         {actions && <div className="flex gap-2">{actions}</div>}
-      </div>}
+      </div>
     </div>
   )
 }

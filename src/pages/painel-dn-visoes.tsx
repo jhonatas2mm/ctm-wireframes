@@ -28,10 +28,10 @@ export function filtrar(f: FiltroPeriodo) {
       : t.inicio.startsWith(f.periodo)))
 }
 
-export function FiltrosPeriodo({ f, onChange }: { f: FiltroPeriodo; onChange: (f: FiltroPeriodo) => void }) {
+export function FiltrosPeriodo({ f, onChange, compacto }: { f: FiltroPeriodo; onChange: (f: FiltroPeriodo) => void; compacto?: boolean }) {
   const rotulo = (v: string) => (v === 'todos' ? 'Todo o período' : v === 'personalizado' ? 'Período personalizado' : v.includes('/') ? `${v.replace('/', ' · ')}º semestre` : `Ano ${v}`)
   return (
-    <div className="flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
+    <div className={compacto ? 'flex items-center gap-2 [&_label]:sr-only' : 'flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4'}>
       <div className="grid gap-1.5">
         <Label>Período</Label>
         <Select value={f.periodo} onValueChange={(v) => onChange({ ...f, periodo: v as string })}>
@@ -71,7 +71,7 @@ const agrupar = (ts: TurmaMatricula[], chave: (t: TurmaMatricula) => string, sub
     .map((g) => ({ id: chave(g[0]), nome: chave(g[0]), sub: sub?.(g[0]), ctms: [...new Set(g.map((t) => t.ctm))], turmas: g.length, escolas: new Set(g.map((t) => t.escola)).size, estudantes: soma(g) }))
     .sort((a, b) => b.estudantes - a.estudantes)
 
-export function VisaoOperacional({ f, onChange }: { f: FiltroPeriodo; onChange: (f: FiltroPeriodo) => void }) {
+export function VisaoOperacional({ f }: { f: FiltroPeriodo; onChange?: (f: FiltroPeriodo) => void }) {
   const [grupo, setGrupo] = useState<Grupo>('dr')
   const ts = filtrar(f)
   const porCtm = Object.keys(ctms).map((uf) => {
@@ -99,7 +99,6 @@ export function VisaoOperacional({ f, onChange }: { f: FiltroPeriodo; onChange: 
   const turmasDe = (l: Linha) => ts.filter((t) => chaveDe[grupo](t) === l.id)
   return (
     <div className="space-y-6">
-      <FiltrosPeriodo f={f} onChange={onChange} />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} tom="blue" label="Estudantes" value={n(soma(ts))} />
         <StatCard icon={GraduationCap} tom="green" label="Turmas" value={n(ts.length)} />
@@ -162,7 +161,7 @@ export function VisaoOperacional({ f, onChange }: { f: FiltroPeriodo; onChange: 
 }
 
 // Relatório no formato da planilha: DR (linha de Total + uma por modalidade) × CTM (matrículas), com total geral
-export function VisaoRelatorio({ f, onChange }: { f: FiltroPeriodo; onChange: (f: FiltroPeriodo) => void }) {
+export function VisaoRelatorio({ f }: { f: FiltroPeriodo; onChange?: (f: FiltroPeriodo) => void }) {
   const ts = filtrar(f)
   const cols = Object.keys(ctms).filter((uf) => ts.some((t) => t.ctm === uf))
   const porDr = Object.entries(ts.reduce<Record<string, TurmaMatricula[]>>((r, t) => ((r[t.dr] ??= []).push(t), r), {}))
@@ -183,7 +182,6 @@ export function VisaoRelatorio({ f, onChange }: { f: FiltroPeriodo; onChange: (f
   }
   return (
     <div className="space-y-6">
-      <FiltrosPeriodo f={f} onChange={onChange} />
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Matrículas por DR, modalidade e CTM</h2>
         <Button variant="outline" onClick={exportar}><FileDown /> Exportar planilha</Button>
