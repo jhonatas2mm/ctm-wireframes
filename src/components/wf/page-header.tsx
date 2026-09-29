@@ -1,10 +1,14 @@
 import { Fragment, useEffect, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useProfile } from '@/journey/profile'
+import { secaoDe, subgrupoDe } from '@/lib/menu'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
 
+// Toda tela tem breadcrumb: área do menu › organizador › tela (automático). Telas internas passam `breadcrumb`
+// (lista de origem com link › registro), e a área do menu entra antes.
 // breadcrumb: padrão para telas internas. Itens com `to` viram link; o último é a página atual.
 //   <PageHeader title="Gestão da proposta" breadcrumb={[{ label: 'Gestão de Contrato', to: '/produtos' }, { label: 'PC-MG-001/2026' }]} />
 export type Crumb = { label: string; to?: string }
@@ -25,12 +29,20 @@ export function PageHeader({
   useEffect(() => setSlot(document.getElementById('topbar-slot')), [])
   // Voltar: último item do breadcrumb que tem link.
   const voltar = breadcrumb?.filter((c) => c.to).at(-1)
+  const { pathname } = useLocation()
+  const perfil = useProfile()
+  const sec = secaoDe(pathname, perfil)
+  // Meu perfil não é de nenhuma área do menu
+  const area: Crumb[] = pathname.startsWith('/meu-perfil') ? [] : [sec, subgrupoDe(sec, pathname)].filter(Boolean).map((label) => ({ label }))
+  // Sem repetir rótulos seguidos (ex.: organizador "Financeiro" e tela "Financeiro")
+  const crumbs: Crumb[] = [...area, ...(breadcrumb ?? (typeof title === 'string' ? [{ label: title }] : []))]
+    .filter((c, i, xs) => i === 0 || c.label !== xs[i - 1].label || !!c.to)
   return (
     <div className="space-y-2">
-      {breadcrumb && slot && createPortal(
+      {crumbs.length > 0 && slot && createPortal(
         <Breadcrumb>
           <BreadcrumbList>
-            {breadcrumb.map((c, i) => (
+            {crumbs.map((c, i) => (
               <Fragment key={i}>
                 {i > 0 && <BreadcrumbSeparator />}
                 <BreadcrumbItem>

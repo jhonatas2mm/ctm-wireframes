@@ -56,7 +56,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **E-mail e telefone** em tabelas: sempre com ícone de copiar (`CopiaTexto` de `@/components/wf`); **todo ícone de copiar em cor neutra** (cinza).
 - **Toda badge tem cor**: status pelo tom do texto (`tones` em `ui/badge.tsx`); o que não tem tom cai no cinza — nunca badge branca/só com borda (parece botão). Só define cor própria quem passa `bg-*` ou `style`.
 - Números/identificadores em `Badge` com botão de copiar dentro.
-- Telas internas usam `PageHeader` com `breadcrumb` (`[{ label, to }, { label }]`).
+- **Toda tela tem breadcrumb** (automático no `PageHeader`: área do menu › organizador › tela, a partir de `src/lib/menu.ts`). Telas internas passam `breadcrumb` (`[{ label, to }, { label }]`) com a lista de origem e o registro; a área entra antes.
 - Buscas de estado/DR: campo com resultados logo abaixo e escolhidos como etiquetas (`EstadosInput`).
 
 ## Domínio
