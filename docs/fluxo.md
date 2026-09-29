@@ -320,3 +320,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Hierarquia de botões: 3º nível = só outline e cor neutra. Botões com texto dentro das tabelas (ex.: Anexar assinado, Detalhes) deixam o laranja e ficam neutros; ícones de ação continuam como estão.
 - 2026-09-29 — Busca rápida (⌘K): ao abrir mostra **Ações** (criar, conforme o perfil), **Recentes** (últimos registros abertos, por navegador), **Precisa de atenção** (TAAs encaminhados/em análise/retornados, propostas em negociação/análise) e as telas com o ícone do menu. TAAs também aparecem para a CTM.
 - 2026-09-29 — Abas (padrão, todas as telas): trilho branco com borda; aba ativa em laranja suave (como o item ativo do menu).
+- 2026-09-29 — Busca rápida: Ações em grade de 3 colunas (menos altura); TAAs no escopo do perfil (CTM: onde é contratada; DR: onde é contratante).

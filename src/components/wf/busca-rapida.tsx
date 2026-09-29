@@ -53,7 +53,9 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
   const editais = useEditais().all
   const propostas = useProdutos().all
   const drs = useDrs().all
-  const taas = useContratos().all
+  // TAAs no escopo do perfil: CTM vê os em que é contratada; DR, os em que é contratante; demais, todos.
+  const ufPerfil = profileOf(perfil).dr?.sigla.replace('SENAI-', '')
+  const taas = useContratos().all.filter((t) => perfil.startsWith('CTM:') ? t.dr === ufPerfil : uf ? t.contratante === uf || t.contratante === `SESI-${uf}` : true)
   const usuarios = useUsuarios().all
 
   // Atalho global ⌘K / Ctrl+K
@@ -177,7 +179,26 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
                   {g === 'Precisa de atenção' && <AlertCircle className="size-3.5 text-amber-600" />}
                   {g}
                 </div>
-                {resultados.filter((r) => r.grupo === g).map((r) => {
+                {/* Ações em grade compacta (ocupa menos altura) */}
+                {g === 'Ações' ? (
+                  <div className="grid grid-cols-3 gap-1.5 px-1 pb-1">
+                    {resultados.filter((r) => r.grupo === g).map((r) => {
+                      const idx = resultados.indexOf(r)
+                      return (
+                        <button
+                          key={r.to}
+                          type="button"
+                          onMouseMove={() => setSel(idx)}
+                          onClick={() => ir(r)}
+                          className={cn('flex items-center gap-2 rounded-xl border bg-card px-2.5 py-2 text-left text-sm font-medium', idx === sel && 'border-transparent bg-accent')}
+                        >
+                          <Plus className={cn('size-4 shrink-0 text-muted-foreground', idx === sel && 'text-primary')} />
+                          <span className="truncate">{r.titulo}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : resultados.filter((r) => r.grupo === g).map((r) => {
                   const idx = resultados.indexOf(r)
                   return (
                     <button
