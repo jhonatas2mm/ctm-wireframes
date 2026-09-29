@@ -67,13 +67,13 @@ export function PainelDn() {
                 <div key={e.id} className="grid grid-cols-[1fr_auto] items-center gap-3 py-3 sm:grid-cols-[1.4fr_1fr_8rem]">
                   <div className="min-w-0">
                     <div className="font-mono text-sm font-semibold">{e.numero}</div>
-                    <div className="truncate text-xs text-muted-foreground">{e.cursos.length} cursos · {e.drs.length} DRs · CTM {e.ctm.join(', ')}</div>
+                    <div className="truncate text-xs text-muted-foreground">{e.areas.length} áreas · DRs {e.drs.map((uf) => `SENAI-${uf}`).join(', ')}</div>
                   </div>
                   <div className="hidden sm:block">
                     <div className="mb-1.5 flex justify-between text-xs"><span className="text-muted-foreground">{e.vigenciaInicio} a {e.vigenciaFim}</span><span className="font-semibold tabular-nums">{pct}%</span></div>
                     <div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-[#E84910]" style={{ width: `${pct}%` }} /></div>
                   </div>
-                  <div className="text-right text-sm font-bold tabular-nums">{brl(e.valor)}</div>
+                  <div className="text-right text-xs text-muted-foreground tabular-nums">até {e.vigenciaFim}</div>
                 </div>
               )
             })}

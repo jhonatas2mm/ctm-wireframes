@@ -89,7 +89,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
     if (pode('/contratos'))
       contratosCtm.forEach((c) => r.push({ grupo: 'Contratos', titulo: c.empresa, sub: `${c.numero} · ${c.status}`, to: `/contratos/${c.id}`, icon: FileSignature, chaves: `${c.cnpj} ${c.cursos.join(' ')}` }))
     if (pode('/editais'))
-      editais.forEach((e) => r.push({ grupo: 'Editais', titulo: e.numero, sub: `${e.cursos.length} cursos · ${e.vigenciaInicio} a ${e.vigenciaFim}`, to: '/editais', icon: FileSpreadsheet, chaves: `${e.cursos.map((c) => c.nome).join(' ')} ${e.drs.join(' ')}` }))
+      editais.forEach((e) => r.push({ grupo: 'Editais', titulo: e.numero, sub: `${e.areas.length} áreas · ${e.vigenciaInicio} a ${e.vigenciaFim}`, to: '/editais', icon: FileSpreadsheet, chaves: `${e.cursos.map((c) => c.nome).join(' ')} ${e.drs.join(' ')}` }))
     if (pode('/produtos'))
       propostas.forEach((p) => r.push({ grupo: 'Propostas', titulo: p.numero, sub: `SENAI-${p.drContratante} · ${p.status ?? 'Rascunho'}`, to: `/produtos/${p.id}`, icon: Package, chaves: p.cursos.map((c) => c.nome).join(' '), atencao: p.status === 'Aguardando' }))
     if (pode('/dashboard') || pode('/taas-ctm'))

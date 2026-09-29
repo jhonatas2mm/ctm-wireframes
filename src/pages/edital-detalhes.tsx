@@ -2,11 +2,11 @@ import { FileSpreadsheet } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { StatCard } from '@/components/wf'
-import { aprovadaDe, type Edital } from '@/lib/mock'
+import type { Edital } from '@/lib/mock'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
-// Detalhes do edital em side nav: um edital pode ter vários cursos, logo várias áreas e modalidades.
+// Detalhes do edital em side nav: vigência e áreas tecnológicas (valor por hora e DR vinculado; cursos do catálogo da área).
 export function EditalDetalhes({ edital, onClose }: { edital: Edital | null; onClose: () => void }) {
   const e = edital
   return (
@@ -24,39 +24,31 @@ export function EditalDetalhes({ edital, onClose }: { edital: Edital | null; onC
             <div className="flex-1 space-y-6 overflow-y-auto p-6">
               <div className="grid gap-3 sm:grid-cols-3">
                 <StatCard label="Vigência" value={e.vigenciaInicio} hint={`até ${e.vigenciaFim}`} compacto />
-                <StatCard label="Carga horária total" value={`${e.cargaHoraria} h`} compacto />
-                <StatCard label="Valor total" value={brl(e.valor)} compacto />
+                <StatCard label="Áreas tecnológicas" value={String(e.areas.length)} compacto />
+                <StatCard label="DRs vinculados" value={String(e.drs.length)} compacto />
               </div>
-
-              <dl className="grid gap-4 text-sm sm:grid-cols-2">
-                <Grupo rotulo="CTM" itens={e.ctm.map((uf) => `SENAI-${uf}`)} />
-                <Grupo rotulo="DRs credenciados" itens={e.drs.map((uf) => `SENAI-${uf}`)} />
-                <Grupo rotulo="Áreas tecnológicas" itens={[...new Set(e.cursos.map((c) => c.area))]} />
-                <Grupo rotulo="Modalidades" itens={[...new Set(e.cursos.map((c) => c.modalidade))]} />
-              </dl>
-
               <div className="space-y-3">
-                <h3 className="font-semibold">Cursos <span className="text-muted-foreground font-normal">({e.cursos.length})</span></h3>
+                <h3 className="font-semibold">Áreas tecnológicas</h3>
                 <div className="divide-y rounded-[1.25rem] border bg-card">
-                  {e.cursos.map((c) => (
-                    <div key={c.nome} className="space-y-2 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="font-semibold">{c.nome}</div>
-                          <div className="text-muted-foreground text-xs">{c.area} · {c.modalidade} · {c.cargaHoraria} h</div>
+                  {e.areas.map((a) => {
+                    const cs = e.cursos.filter((c) => c.area === a.area)
+                    return (
+                      <div key={a.area} className="space-y-2 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="font-semibold">{a.area}</div>
+                            <div className="text-xs text-muted-foreground">{cs.length} curso(s) do catálogo nesta área</div>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <div className="font-bold tabular-nums">{brl(a.valorHora)}</div>
+                            <div className="text-xs text-muted-foreground">por hora</div>
+                          </div>
                         </div>
-                        <div className="shrink-0 text-right">
-                          <div className="font-bold tabular-nums">{brl(c.valor)}</div>
-                          <div className="text-muted-foreground text-xs">valor do curso</div>
-                        </div>
+                        <Badge>SENAI-{a.dr} · DR vinculado</Badge>
+                        {cs.length > 0 && <div className="flex flex-wrap gap-1">{cs.map((c) => <Badge key={c.nome} variant="outline" className="font-normal">{c.nome} · {c.cargaHoraria} h</Badge>)}</div>}
                       </div>
-                      <div className="flex flex-wrap gap-1">
-                        {c.drs.map((uf) => uf === aprovadaDe(c)
-                          ? <Badge key={uf}>SENAI-{uf} · aprovada (menor custo)</Badge>
-                          : <Badge key={uf} variant="outline">SENAI-{uf}</Badge>)}
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             </div>
@@ -67,11 +59,3 @@ export function EditalDetalhes({ edital, onClose }: { edital: Edital | null; onC
   )
 }
 
-function Grupo({ rotulo, itens }: { rotulo: string; itens: string[] }) {
-  return (
-    <div className="space-y-1.5">
-      <dt className="text-muted-foreground text-xs">{rotulo}</dt>
-      <dd className="flex flex-wrap gap-1">{itens.map((i) => <Badge key={i} variant="outline">{i}</Badge>)}</dd>
-    </div>
-  )
-}

@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import type { Edital } from '@/lib/mock'
 
-const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 // Tela de sucesso após salvar um edital (rota /editais/:id/sucesso, etapa da jornada Criação de edital).
 export function EditalSucesso({ edital, onClose, onVer }: { edital: Edital | null; onClose: () => void; onVer: (e: Edital) => void }) {
@@ -16,15 +15,14 @@ export function EditalSucesso({ edital, onClose, onVer }: { edital: Edital | nul
             <CheckCircle2 className="size-14 text-emerald-600" />
             <div className="grid gap-1">
               <DialogTitle className="text-xl">Edital criado com sucesso</DialogTitle>
-              <DialogDescription>O edital já está disponível para os DRs credenciados.</DialogDescription>
+              <DialogDescription>O edital já está disponível para os DRs vinculados às áreas.</DialogDescription>
             </div>
             <Badge variant="secondary" className="font-mono text-sm">{edital.numero}</Badge>
             <dl className="grid w-full grid-cols-2 gap-3 rounded-[1.25rem] border p-4 text-left bg-card">
               {([
                 ['Vigência', `${edital.vigenciaInicio} a ${edital.vigenciaFim}`],
-                ['Cursos', edital.cursos.length],
-                ['DRs credenciados', edital.drs.map((d) => `SENAI-${d}`).join(', ')],
-                ['Valor total', brl(edital.valor)],
+                ['Áreas tecnológicas', edital.areas.length],
+                ['DRs vinculados', edital.drs.map((d) => `SENAI-${d}`).join(', ')],
               ] as [string, React.ReactNode][]).map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-xs text-muted-foreground">{k}</dt>

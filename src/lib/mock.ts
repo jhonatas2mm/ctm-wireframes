@@ -1,4 +1,5 @@
 // Dados falsos para os wireframes (seed). Cada coleção vira persistente com useCollection (src/lib/db.ts).
+import { useMemo } from 'react'
 import { useCollection } from './db'
 
 // Datas: HOJE fixo para o protótipo; datas ISO (aaaa-mm-dd).
@@ -42,41 +43,49 @@ const cursos: Curso[] = [
 
 export const useCursos = () => useCollection<Curso>('cursos-v2', cursos)
 
-// Editais: oferta de cursos em CTMs (estados), com os DRs credenciados a executá-los. Dados FICTÍCIOS.
-// Área, modalidade e CH vêm do catálogo (fixas); só o valor é definido por curso no edital.
-// Por produto: DRs credenciados que concorreram e a CTM aprovada (quem ofereceu o menor custo); o TAA do produto é com ela.
-export type CursoEdital = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number; drs: string[]; aprovada?: string } // drs = DRs credenciados no curso
+// Editais (DN): vigência + ÁREAS TECNOLÓGICAS. O edital não tem cursos, valor nem CH: cada área tem o VALOR POR HORA e
+// UM único DR vinculado (a CTM daquela área, a de menor custo). Os cursos do edital vêm do catálogo pela área:
+// valor por estudante = valor/hora da área × CH do curso. Dados FICTÍCIOS.
+export type AreaEdital = { area: string; valorHora: number; dr: string } // dr = UF do DR (CTM) vinculado à área
+// Curso do edital (derivado): curso do catálogo numa área do edital; drs/aprovada = o DR vinculado à área.
+export type CursoEdital = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number; valorHora: number; drs: string[]; aprovada?: string }
 export const aprovadaDe = (c: Pick<CursoEdital, 'drs' | 'aprovada'>) => c.aprovada ?? c.drs[0]
 
 export type Edital = {
   id: string
   numero: string
-  ctm: string[] // UFs dos CTMs
-  cursos: CursoEdital[]
-  cargaHoraria: number // soma das CH dos cursos
-  valor: number // soma dos valores dos cursos (R$)
-  drs: string[] // DRs credenciados (união dos DRs dos cursos)
+  areas: AreaEdital[]
+  cursos: CursoEdital[] // derivado das áreas (catálogo)
+  drs: string[] // derivado: DRs vinculados às áreas
   vigenciaInicio: string // dd/mm/aaaa
   vigenciaFim: string
 }
-
-const ce = (nome: string, area: string, modalidade: string, cargaHoraria: number, valor: number, drs: string[], aprovada = drs[0]): CursoEdital => ({ nome, area, modalidade, cargaHoraria, valor, drs, aprovada })
-const edital = (id: string, numero: string, ctm: string[], cursos: CursoEdital[], vigencia: [string, string]): Edital => ({
-  id, numero, ctm, cursos, drs: [...new Set(cursos.flatMap((c) => c.drs))], vigenciaInicio: vigencia[0], vigenciaFim: vigencia[1],
-  cargaHoraria: cursos.reduce((t, c) => t + c.cargaHoraria, 0),
-  valor: cursos.reduce((t, c) => t + c.valor, 0),
-})
+export const areasTecnologicas = ['Automação', 'Automotiva', 'Construção Civil', 'Eletroeletrônica', 'Gestão', 'Logística', 'Metalmecânica', 'Química', 'Segurança do Trabalho', 'Tecnologia da Informação', 'Tecnologia Gráfica']
+export const cursosDasAreas = (areas: AreaEdital[]): CursoEdital[] =>
+  cursos.flatMap((c) => {
+    const a = areas.find((x) => x.area === c.area)
+    return a ? [{ nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: c.cargaHoraria, valorHora: a.valorHora, valor: Math.round(a.valorHora * c.cargaHoraria * 100) / 100, drs: [a.dr], aprovada: a.dr }] : []
+  })
+const completar = <T extends { areas: AreaEdital[] }>(e: T) => ({ ...e, cursos: cursosDasAreas(e.areas), drs: [...new Set(e.areas.map((a) => a.dr))] })
+const edital = (id: string, numero: string, areas: AreaEdital[], vigencia: [string, string]): Edital =>
+  completar({ id, numero, areas, vigenciaInicio: vigencia[0], vigenciaFim: vigencia[1] })
+const ar = (area: string, valorHora: number, dr: string): AreaEdital => ({ area, valorHora, dr })
 
 const editais: Edital[] = [
-  edital('1', 'ED-001/2026', ['SP', 'RJ'], [ce('Técnico em Mecatrônica', 'Automação', 'Técnico', 1200, 4800, ['SP', 'MG'], 'MG'), ce('Técnico em Automação Industrial', 'Automação', 'Técnico', 1200, 4800, ['SP', 'MG'], 'MG'), ce('Técnico em Eletrotécnica', 'Eletroeletrônica', 'Técnico', 1200, 4500, ['MG', 'RJ'], 'RJ'), ce('Técnico em Manutenção Automotiva', 'Automotiva', 'Técnico', 1200, 4600, ['MG']), ce('Técnico em Logística', 'Logística', 'Técnico', 800, 3200, ['SP', 'MG'], 'SP'), ce('Técnico em Segurança do Trabalho', 'Segurança do Trabalho', 'Técnico', 1200, 4200, ['MG'])], ['01/02/2026', '31/01/2027']),
-  edital('2', 'ED-002/2026', ['MG'], [ce('Soldador', 'Metalmecânica', 'Qualificação Profissional', 160, 1280, ['MG']), ce('Eletricista Instalador Predial', 'Eletroeletrônica', 'Qualificação Profissional', 200, 1500, ['MG']), ce('Mecânico de Manutenção de Máquinas', 'Metalmecânica', 'Qualificação Profissional', 240, 1800, ['MG']), ce('Operador de Processos Químicos', 'Química', 'Qualificação Profissional', 160, 1200, ['MG']), ce('Pedreiro de Alvenaria', 'Construção Civil', 'Qualificação Profissional', 160, 960, ['MG']), ce('Assistente Administrativo', 'Gestão', 'Qualificação Profissional', 160, 900, ['MG']), ce('Desenhista de Produtos Gráficos', 'Tecnologia Gráfica', 'Qualificação Profissional', 200, 1400, ['MG'])], ['01/03/2026', '28/02/2027']),
-  edital('3', 'ED-003/2026', ['RS'], [ce('Mecânico de Usinagem', 'Metalmecânica', 'Aprendizagem Industrial', 800, 5600, ['RS', 'SC', 'PR'], 'SC')], ['01/06/2026', '31/05/2027']),
-  edital('4', 'ED-004/2026', ['PR'], [ce('Controladores Lógicos Programáveis', 'Automação', 'Aperfeiçoamento', 60, 540, ['PR'])], ['01/08/2026', '31/12/2026']),
-  edital('5', 'ED-005/2026', ['SP'], [ce('Técnico em Desenvolvimento de Sistemas', 'Tecnologia da Informação', 'Técnico', 1200, 10200, ['SP', 'MG'], 'MG'), ce('Programador Front-End', 'Tecnologia da Informação', 'Qualificação Profissional', 240, 2400, ['SP', 'MG']), ce('Ciência de Dados', 'Tecnologia da Informação', 'Aperfeiçoamento', 80, 960, ['MG'])], ['01/01/2026', '31/12/2026']),
-  edital('6', 'ED-006/2026', ['BA'], [ce('Operador de Empilhadeira', 'Logística', 'Qualificação Profissional', 40, 320, ['BA', 'PE'])], ['15/09/2026', '14/09/2027']),
+  edital('1', 'ED-001/2026', [ar('Automação', 4, 'MG'), ar('Eletroeletrônica', 3.75, 'RJ'), ar('Automotiva', 3.85, 'MG'), ar('Logística', 4, 'SP'), ar('Segurança do Trabalho', 3.5, 'MG')], ['01/02/2026', '31/01/2027']),
+  edital('2', 'ED-002/2026', [ar('Metalmecânica', 8, 'MG'), ar('Eletroeletrônica', 7.5, 'MG'), ar('Química', 7.5, 'MG'), ar('Construção Civil', 6, 'MG'), ar('Gestão', 5.6, 'MG'), ar('Tecnologia Gráfica', 7, 'MG')], ['01/03/2026', '28/02/2027']),
+  edital('3', 'ED-003/2026', [ar('Metalmecânica', 7, 'SC')], ['01/06/2026', '31/05/2027']),
+  edital('4', 'ED-004/2026', [ar('Automação', 9, 'PR')], ['01/08/2026', '31/12/2026']),
+  edital('5', 'ED-005/2026', [ar('Tecnologia da Informação', 8.5, 'MG')], ['01/01/2026', '31/12/2026']),
+  edital('6', 'ED-006/2026', [ar('Logística', 8, 'BA')], ['15/09/2026', '14/09/2027']),
 ]
 
-export const useEditais = () => useCollection<Edital>('editais-v9', editais)
+// Os cursos e DRs do edital são sempre derivados das áreas (também nos editais criados na tela).
+export const useEditais = () => {
+  const db = useCollection<Edital>('editais-v10', editais)
+  const all = useMemo(() => db.all.map(completar), [db.all])
+  return { ...db, all, get: (id?: string) => all.find((e) => e.id === id) }
+}
 
 // Contratação da CTM (DR credenciada): um TAA para cada DR específica, com vigência, valor global e os PRODUTOS contratados.
 // Normalmente a CTM que ganhou o edital envia o TAA para cada DR; o Gestor da DR avalia. A DR também pode criar o seu.
@@ -152,7 +161,7 @@ const contratos: Contrato[] = [
   { ...taa('18', '014/2026', 'DF', 'MG', ['01/10/2026', '30/09/2027'], 250000, 'Cancelado', 'ED-001/2026', ['Técnico em Mecatrônica']), origem: 'CTM', enviadoEm: '2026-09-01T10:00:00Z', motivo: 'Recusado pelo Gestor: o DR não prevê turmas desse curso em 2027.', historico: [{ quando: '2026-09-01T10:00:00Z', texto: 'Encaminhado ao DR', autor: 'Juliana Pereira' }, { quando: '2026-09-08T10:00:00Z', texto: 'Recusado pelo Gestor: o DR não prevê turmas desse curso em 2027.', autor: 'Gestor SENAI-DF' }].reverse() },
 ]
 
-export const useContratos = () => useCollection<Contrato>('contratos-v12', contratos)
+export const useContratos = () => useCollection<Contrato>('contratos-v13', contratos)
 // Saldo do TAA: valor global menos o executado — propostas ASSINADAS vinculadas ao TAA (ou, sem vínculo, entre o
 // contratante e a CTM nos produtos do TAA).
 export const saldoTaa = (c: Contrato, propostas: Produto[]) => {
@@ -246,7 +255,7 @@ const propostas: Produto[] = [
   { id: '7', numero: 'PC-MG-007/2026', taaId: '7', edital: 'ED-001/2026', status: 'Rascunho', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'SP', cnpj: '03.774.819/0001-02', faturamento: 'DR', cursos: [cp('2', 20, '2027-03-01', 'ED-001/2026')], vigenciaInicio: '01/03/2027', vigenciaFim: '28/02/2028', cadastradoEm: '2026-09-27T10:00:00Z',
     historico: [reg('2026-09-27T10:00:00Z', 'Proposta criada (Rascunho)')] },
 ]
-export const useProdutos = () => useCollection<Produto>('produtos-v22', propostas)
+export const useProdutos = () => useCollection<Produto>('produtos-v23', propostas)
 // Alerta de prazo: proposta ainda não assinada com turma prevista para começar em até 15 dias.
 export const PRAZO_ALERTA_DIAS = 15
 export const inicioPrevisto = (p: Pick<Produto, 'cursos'>) => p.cursos.map((c) => c.inicioPrevisto).filter((x): x is string => !!x).sort()[0]

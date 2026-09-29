@@ -391,7 +391,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
                           <div className="min-w-[13rem] flex-1 self-center">
                             <p className="text-sm font-semibold">{c.nome}</p>
                             <div className="mt-1 flex flex-wrap gap-1.5">
-                              {[c.modalidade, `${c.cargaHoraria} h`, `${brl(c.valorAluno)}/aluno (edital)`].map((t) => (
+                              {[c.modalidade, `${c.cargaHoraria} h`, `${brl(c.valorAluno)}/estudante (valor/hora da área × CH)`].map((t) => (
                                 <span key={t} className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"><Lock className="size-3" /> {t}</span>
                               ))}
                             </div>

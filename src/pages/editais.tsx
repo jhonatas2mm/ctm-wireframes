@@ -11,19 +11,17 @@ import { EditalSucesso } from './edital-sucesso'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
+// O edital não tem valor nem CH: tem áreas tecnológicas, cada uma com valor por hora e um DR vinculado.
 const colunas: Column<Edital>[] = [
   { header: 'Nº', value: (e) => e.numero, search: true, className: 'font-mono text-xs' },
-  { header: 'CTM', value: (e) => e.ctm.join(', '), search: true },
   { header: 'Vigência', value: (e) => `${e.vigenciaInicio} a ${e.vigenciaFim}`, className: 'tabular-nums' },
-  { header: 'CH', value: (e) => `${e.cargaHoraria} h`, className: 'text-right tabular-nums' },
-  { header: 'Valor', value: (e) => brl(e.valor), className: 'text-right tabular-nums' },
+  { header: 'Áreas tecnológicas', value: (e) => e.areas.map((a) => a.area).join(', '), search: true, cell: (e) => <span className="block max-w-96 text-sm">{e.areas.map((a) => `${a.area} (${brl(a.valorHora)}/h · SENAI-${a.dr})`).join(' · ')}</span> },
+  { header: 'DRs vinculados', value: (e) => e.drs.map((uf) => `SENAI-${uf}`).join(', '), search: true },
 ]
 
 const filtros: FilterDef<Edital>[] = [
-  { label: 'CTM', values: (e) => e.ctm },
-  { label: 'Área tecnológica', values: (e) => e.cursos.map((c) => c.area) },
-  { label: 'Modalidade', values: (e) => e.cursos.map((c) => c.modalidade) },
-  { label: 'DR credenciado', values: (e) => e.drs.map((uf) => `SENAI-${uf}`) },
+  { label: 'Área tecnológica', values: (e) => e.areas.map((a) => a.area) },
+  { label: 'DR vinculado', values: (e) => e.drs.map((uf) => `SENAI-${uf}`) },
 ]
 
 export default function Editais() {
@@ -48,7 +46,7 @@ export default function Editais() {
         rows={all}
         columns={colunas}
         filters={filtros}
-        searchPlaceholder="Buscar por número ou CTM…"
+        searchPlaceholder="Buscar por número, área ou DR…"
         actions={(e) => (
           <>
             <RowAction label="Contatos dos DRs" icon={Contact} onClick={() => setContatos(e)} />

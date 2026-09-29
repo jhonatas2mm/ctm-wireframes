@@ -70,10 +70,10 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 
 ## Edital (DN)
 - **Só o DN faz a gestão de editais** (Gestão de Editais: DN e Super admin). As CTMs **apenas participam** (oferecem o custo, fora do sistema); no sistema só consultam o edital (somente leitura) ao cadastrar produtos e montar TAAs.
-- Tem vigência e cursos.
-- Cada curso tem valor e DRs credenciados; entre eles, a **CTM aprovada** é a que ofereceu o **menor custo** para aquele produto (campo "CTM aprovada (menor custo)" no Novo edital; destaque nos detalhes do edital).
-- Todo TAA/contrato de um produto é com a CTM aprovada para ele.
-- Área, modalidade e CH vêm do catálogo e não podem ser editadas.
+- Tem **vigência** e **áreas tecnológicas**; **não tem cursos, valor total nem CH**.
+- Cada área tem o **valor por hora** e **um único DR vinculado** (a CTM daquela área, a de menor custo).
+- Os cursos de uma área vêm do **catálogo** (área, modalidade e CH fixas). O valor por estudante de um curso = **valor/hora da área × CH do curso** (usado na proposta e na cobrança).
+- Todo TAA de um produto é com o DR vinculado à área dele; produtos do TAA = cursos do catálogo nas áreas do edital em que a CTM é o DR vinculado.
 
 ## Portfólio das CTMs
 - Cada CTM registra seus **produtos** (módulos → UCs), com **versões** (v1, v2…; a anterior não muda).
@@ -159,6 +159,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
   - **Fatura** a UC no ciclo: UC em andamento na janela, aluno integrado nela (ativo ou suspenso sem formalização — a CTM cobra até o DR formalizar) e sem saída **confirmada pelo DR** (ou trancamento) antes do início da janela. UC que começa depois da saída = não integrado. Aluno não integrado pelo DR (SGN/SGE) não fatura.
 - **Ciclo de faturamento é por UC**: cada UC tem o seu dia de **fechamento** (padrão 20; ajustável no detalhe da UC, no cronograma da turma, de 1 a 28). A janela da UC vai do dia seguinte ao fechamento no mês anterior até o fechamento no mês; a cobrança do mês junta, de cada UC, a janela que fecha nele. Evasão/desistência **confirmada pelo DR fora do ciclo** da UC (depois do fechamento) só desconta no **próximo ciclo daquela UC**. Relatório de cobrança mostra a coluna **Ciclo da UC**; o acompanhamento mostra a janela no cabeçalho de cada UC. Exemplos: Soldagem MIG/MAG fecha dia 5; Mecânica aplicada, dia 10.
 - **Cobrança é mensal**: cada mês (ciclo) tem a sua quantidade de alunos — pode ter mais (UC nova, aluno integrado) ou menos. **Desistência confirmada pelo DR** (ou trancamento) tira o aluno a partir da **cobrança seguinte** à confirmação (corte no dia 20); enquanto só no Moodle, segue cobrada.
+- Valor aluno/hora na cobrança = valor por hora da área no edital.
 - **Relatório de cobrança** (modelo da planilha da CTM, usado para cobrar o DR solicitante): a CTM escolhe a **proposta aprovada** (com turmas) e abre o relatório (`/financeiro/cobranca/:id`). Cabeçalho com dados do cliente e serviço (instituição, CNPJ, TAA, serviço, e-mails da cobrança) e **ciclo financeiro** (mês).
   - Uma linha por **turma × escola × UC** em andamento no ciclo: curso/modalidade, escola-município, código da turma, UC, CH total, período, **CH cobrada** (CH da UC proporcional aos dias da UC dentro da janela do ciclo — hipótese a validar), **nº de alunos** (os que **faturam** a UC no ciclo, do Acompanhamento dos alunos), **valor aluno/hora** (valor do aluno no edital ÷ CH do curso) e valor total; link de acesso para conferência.
   - **Juntar propostas**: o relatório pode agrupar várias propostas aprovadas **da mesmo DR e do mesmo TAA** (bloco "Propostas neste relatório", `?propostas=`); a CTM pode ter várias propostas no mesmo TAA. **TAA diferente não entra** (nem aparece como opção). Com mais de uma, a tabela ganha a coluna Proposta; os ajustes das propostas escolhidas entram juntos. Na lista, a coluna "Mesmo TAA" mostra as outras propostas aprovadas do TAA.
@@ -322,3 +323,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Nomenclatura: **DR no masculino** (Departamento Regional) em todos os textos: botão **Novo DR credenciado**, "o DR", "do DR", "DRs credenciados".
 - 2026-09-29 — Tela "Gestão de DRs credenciados" passa a se chamar **Gestão de DRs**.
 - 2026-09-29 — **Escolas**: o DR solicitante cadastra as escolas (tela Escolas); o DN valida ou recusa com motivo no detalhe do DR (Gestão de DRs, coluna Escolas com pendentes). Só escolas validadas entram nas turmas. Nova jornada "Cadastro e validação de escolas".
+- 2026-09-29 — **Edital por área tecnológica**: o edital deixa de ter cursos, valor e CH; tem áreas tecnológicas, cada uma com valor por hora e um único DR vinculado. Cursos vêm do catálogo pela área; valor por estudante = valor/hora × CH do curso. Novo edital, lista e detalhes refeitos.
