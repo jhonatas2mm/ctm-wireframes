@@ -84,6 +84,8 @@ export function AppShell() {
             </div>
             <div className="text-lg font-bold tracking-tight">CTM</div>
           </div>
+          {/* Sino de notificações: à direita da logo (só aparece nos perfis da CTM e no Super admin) */}
+          <Notificacoes />
         </SidebarHeader>
         {dr && (
           <div className="mx-2 mb-4 flex items-center gap-3 rounded-2xl border bg-card px-3.5 py-2.5">
@@ -127,7 +129,7 @@ export function AppShell() {
           })}
         </SidebarContent>
         {/* Usuário logado (fictício) */}
-        <SidebarFooter className="flex-row items-center gap-1 border-t">
+        <SidebarFooter className="border-t">
           <DropdownMenu>
           <DropdownMenuTrigger render={<button type="button" className="flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2 py-1.5 text-left hover:bg-white/60" />}>
             <Avatar className="size-8">
@@ -146,7 +148,6 @@ export function AppShell() {
             <DropdownMenuItem render={<Link to={noMenu[0]?.path ?? '/'} />}><LogOut /> Sair</DropdownMenuItem>
           </DropdownMenuContent>
           </DropdownMenu>
-          <Notificacoes />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="min-w-0">

@@ -45,7 +45,7 @@ export function PageHeader({
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-start gap-2">
           {voltar && (
-            <Button variant="ghost" size="icon" className="mt-0.5" aria-label={`Voltar para ${voltar.label}`} render={<Link to={voltar.to!} />}>
+            <Button variant="outline" size="icon" className="mt-0.5" aria-label={`Voltar para ${voltar.label}`} render={<Link to={voltar.to!} />}>
               <ArrowLeft />
             </Button>
           )}

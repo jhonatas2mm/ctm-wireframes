@@ -160,7 +160,7 @@ export default function Produtos() {
             </label>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setMudar(null)}>Voltar</Button>
+            <Button variant="outline" onClick={() => setMudar(null)}>Voltar</Button>
             <Button onClick={() => {
               if (!mudar) return
               const m = motivo.trim()

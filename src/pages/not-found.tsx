@@ -7,7 +7,7 @@ export default function NotFound() {
     <EmptyState
       title="Tela não encontrada"
       description="Essa rota ainda não foi desenhada."
-      action={<Button nativeButton={false} render={<Link to="/dashboard" />}>Voltar ao início</Button>}
+      action={<Button variant="outline" nativeButton={false} render={<Link to="/dashboard" />}>Voltar ao início</Button>}
     />
   )
 }

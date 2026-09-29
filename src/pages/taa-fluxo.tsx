@@ -105,7 +105,7 @@ export function useFluxoTaa(papel: Papel) {
             <Textarea rows={4} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={motivo?.tipo === 'ajuste' ? 'O que precisa mudar? (vigência, valor, produtos…)' : 'Por que não vai aderir?'} />
           </label>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setMotivo(null)}>Voltar</Button>
+            <Button variant="outline" onClick={() => setMotivo(null)}>Voltar</Button>
             <Button onClick={() => {
               if (!motivo) return
               const t = texto.trim()

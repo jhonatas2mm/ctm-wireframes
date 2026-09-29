@@ -126,7 +126,7 @@ function Aprovacoes() {
             <Textarea rows={4} value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="O que precisa ser ajustado?" />
           </label>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setReprovar(null)}>Voltar</Button>
+            <Button variant="outline" onClick={() => setReprovar(null)}>Voltar</Button>
             <Button onClick={() => (reprovar && decidir(reprovar, false, motivo.trim()), setReprovar(null))}>Reprovar</Button>
           </DialogFooter>
         </DialogContent>

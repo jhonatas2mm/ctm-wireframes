@@ -6,7 +6,7 @@ import { useProfile } from '@/journey/profile'
 import { useProdutos, useTurmas } from '@/lib/mock'
 import { excedentesProposta } from '@/lib/cobranca'
 
-// Notificações da CTM (sino ao lado do avatar, no rodapé do menu): hoje, proposta com mais alunos nas salas do Moodle do que o contratado → fazer aditivo.
+// Notificações da CTM (sino à direita da logo, no topo do menu): hoje, proposta com mais alunos nas salas do Moodle do que o contratado → fazer aditivo.
 export function Notificacoes() {
   const perfil = useProfile()
   const navigate = useNavigate()

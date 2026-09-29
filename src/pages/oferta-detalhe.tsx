@@ -376,7 +376,7 @@ export default function OfertaDetalhe() {
               </DialogHeader>
               <div className="grid gap-1.5"><Label>Motivo <Req /></Label><Textarea rows={4} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ex.: a DR não atingiu o mínimo de inscritos" /></div>
               <DialogFooter>
-                <Button variant="ghost" onClick={() => setModal(null)}>Voltar</Button>
+                <Button variant="outline" onClick={() => setModal(null)}>Voltar</Button>
                 <Button onClick={() => (registrar({ fase: 'Cancelada', motivoCancelamento: texto.trim() }, `Turma cancelada${texto.trim() ? `: ${texto.trim()}` : ''}`), setModal(null))}>Cancelar turma</Button>
               </DialogFooter>
             </>

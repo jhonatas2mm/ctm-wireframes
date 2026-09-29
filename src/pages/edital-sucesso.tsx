@@ -34,7 +34,7 @@ export function EditalSucesso({ edital, onClose, onVer }: { edital: Edital | nul
             </dl>
             <div className="flex w-full gap-2">
               <Button variant="outline" className="flex-1" onClick={() => onVer(edital)}><Eye /> Ver edital</Button>
-              <Button className="flex-1" onClick={onClose}>Voltar para Gestão de Editais</Button>
+              <Button variant="outline" className="flex-1" onClick={onClose}>Voltar para Gestão de Editais</Button>
             </div>
           </div>
         )}

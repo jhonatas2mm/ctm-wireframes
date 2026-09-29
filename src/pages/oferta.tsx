@@ -432,7 +432,7 @@ function OfertaSucesso({ turmas, onClose, onVer }: { turmas: Turma[]; onClose: (
                 </li>
               ))}
             </ul>
-            <Button className="w-full" variant={uma ? 'ghost' : 'default'} onClick={onClose}>Voltar para Gestão da oferta</Button>
+            <Button className="w-full" variant="outline" onClick={onClose}>Voltar para Gestão da oferta</Button>
           </div>
         )}
       </DialogContent>
