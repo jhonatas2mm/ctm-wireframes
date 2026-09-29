@@ -27,6 +27,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **Sem versão responsiva**: tudo é desenhado só para desktop; não criar ajustes para telas menores.
 - Botões de excluir sem vermelho (sem `destructive`), por enquanto.
 - **Excluir/inativar sempre pede confirmação em modal** (`useConfirmar()` de `@/components/wf`); nunca `confirm()` nativo.
+- **Skeleton de carregamento** automático ao entrar em cada tela (`src/components/wf/carregando.tsx`, no AppShell); telas novas não precisam fazer nada.
 - **Sem snackbars/toasts** em nenhum lugar (o `<Toaster />` foi removido). Ação concluída = a tela muda (modal fecha, status/linha atualiza, tela de sucesso quando for etapa).
 - **Formulários de criação já abrem preenchidos** com dados de exemplo (para validar os fluxos sem digitar); o usuário pode alterar. Ao criar um formulário novo, incluir esse preenchimento.
 - **Nenhum campo bloqueia o protótipo**: não validar nem desabilitar "Salvar" por campo vazio, sem atributo `required`. Manter o asterisco (`<Req />`) nos rótulos que seriam obrigatórios. Só bloquear o que é estrutural (ex.: salvar sem nenhum item selecionado).

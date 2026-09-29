@@ -314,3 +314,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Nomenclatura: **estudante** no lugar de aluno em todos os textos do sistema (telas, jornadas, dados de exemplo); rotas e nomes de código seguem iguais.
 - 2026-09-29 — **Agente inteligente**: botão no topo (rótulo que recolhe) abre chat de IA simulado na lateral direita, com ações rápidas por perfil e jornada de exemplo percorrida só com Enviar.
 - 2026-09-29 — Notificações da CTM: nova notificação **Desistência no Moodle aguardando a DR**, uma por turma (quantos estudantes e UCs pendentes de confirmação); abre o Acompanhamento dos estudantes da turma. Reaparece quando surgem novas pendências.
+- 2026-09-29 — **Skeleton animado** de carregamento em todas as telas (título, indicadores e tabela), por ~0,45 s ao entrar numa tela; abrir sheet/detalhe da mesma tela não dispara.

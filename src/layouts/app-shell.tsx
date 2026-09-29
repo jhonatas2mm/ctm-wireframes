@@ -20,6 +20,7 @@ import { screens } from '@/screens'
 import { ChevronDown, GraduationCap, LogOut, UserRound } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { BuscaRapida } from '@/components/wf/busca-rapida'
+import { CarregandoTela, useCarregandoTela } from '@/components/wf/carregando'
 import { Notificacoes } from '@/components/wf/notificacoes'
 import { AgenteBotao, AgentePainel } from '@/components/wf/agente'
 import { useProfile } from '@/journey/profile'
@@ -50,6 +51,7 @@ const subgrupoDe = (sec: string, path: string) => subgrupos[sec]?.find(([, ps]) 
 
 export function AppShell() {
   const { pathname } = useLocation()
+  const carregando = useCarregandoTela()
   // Menu e avatar seguem o perfil ativo na casca (fora dela, mostra tudo).
   const perfil = useProfile()
   const noMenu = screens.filter((s) => !s.hidden && (!perfil || !s.profiles || s.profiles.includes(perfil)))
@@ -164,7 +166,9 @@ export function AppShell() {
           </DropdownMenu>
         </header>
         <div className="w-full min-w-0 space-y-6 p-4 md:p-6">
-          <Outlet />
+          {/* Skeleton de carregamento ao entrar numa tela; a página já monta por baixo (estado preservado) */}
+          {carregando && <CarregandoTela />}
+          <div className={carregando ? 'hidden' : 'contents'}><Outlet /></div>
         </div>
       </SidebarInset>
       <AgentePainel aberto={agente} onClose={() => setAgente(false)} />
