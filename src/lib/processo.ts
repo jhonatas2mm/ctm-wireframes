@@ -30,12 +30,12 @@ export const raias: Raia[] = [
   { id: 'dn', nome: 'DN', pool: 'dn', perfil: 'DN' },
   { id: 'comercial', nome: 'Comercial', pool: 'ctm', perfil: 'CTM: Comercial' },
   { id: 'supervisor', nome: 'Supervisão', pool: 'ctm', perfil: 'CTM: Supervisor' },
-  { id: 'pcp', nome: 'PCP', pool: 'ctm' },
+  { id: 'pcp', nome: 'PCP', pool: 'ctm', perfil: 'CTM: PCP' },
   { id: 'analista', nome: 'Analista', pool: 'ctm' },
-  { id: 'tutor', nome: 'Tutor', pool: 'ctm' },
-  { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm' },
+  { id: 'tutor', nome: 'Tutor', pool: 'ctm', perfil: 'CTM: Tutor' },
+  { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm', perfil: 'CTM: Pedagógico' },
   { id: 'financeiro', nome: 'Financeiro', pool: 'ctm' },
-  { id: 'dr', nome: 'DR solicitante (SENAI/SESI) ou DN', pool: 'dr', perfil: 'DR solicitante' },
+  { id: 'dr', nome: 'DR solicitante (SENAI/SESI) ou DN', pool: 'dr', perfil: 'DR solicitante: SENAI' },
   { id: 'ava', nome: 'AVA / SGE', pool: 'sis' },
 ]
 
@@ -54,11 +54,11 @@ export const nos: No[] = [
   // Credenciamento
   { id: 'inicio', tipo: 'inicio', raia: 'dn', col: 0, rotulo: 'Início', fase: 'credenciamento' },
   { id: 'credenciar', tipo: 'tarefa', raia: 'dn', col: 1, rotulo: 'Credenciar DR', fase: 'credenciamento', tela: '/drs/novo', descricao: 'O DN credencia o Departamento Regional que vai operar como CTM.', regras: ['DR nasce Ativa; pode ser inativada com confirmação.'] },
-  { id: 'edital', tipo: 'tarefa', raia: 'dn', col: 2, rotulo: 'Publicar edital', fase: 'credenciamento', tela: '/editais/novo', descricao: 'Vigência, áreas tecnológicas e cursos do portfólio nacional, com valor e DRs credenciados por curso.', regras: ['Área, modalidade e CH vêm do catálogo (fixas).', 'Só se oferta o que está no edital.'] },
+  { id: 'edital', tipo: 'tarefa', raia: 'dn', col: 2, rotulo: 'Publicar edital', fase: 'credenciamento', tela: '/editais/novo', descricao: 'Vigência, áreas tecnológicas e cursos do portfólio nacional, com valor e DRs credenciados por curso.', regras: ['Área, modalidade e CH vêm do catálogo (fixas).', 'Por produto, a CTM aprovada é a que ofereceu o menor custo.', 'Só se oferta o que está no edital.'] },
   { id: 'produto', tipo: 'tarefa', raia: 'supervisor', col: 3, rotulo: 'Cadastrar produto (matriz)', fase: 'credenciamento', tela: '/gestao-produtos/novo', descricao: 'Cada CTM cadastra seus produtos: módulos e UCs conforme o plano de curso.', regras: ['Nova versão não altera o que já foi negociado na anterior.', 'Versões podem rodar ao mesmo tempo.'] },
 
   // Contrato
-  { id: 'taa', tipo: 'tarefa', raia: 'dr', col: 4, rotulo: 'Criar TAA / contrato com a CTM', fase: 'contrato', tela: '/dashboard/novo-ta', descricao: 'Quem contrata cria o instrumento escolhendo a CTM: vigência e valor global (teto). Sem produtos.', regras: ['SENAI ↔ SENAI (DR solicitante SENAI-XX ou o DN): TAA, no modelo do DN.', 'SESI-XX ↔ SENAI: contrato (não é TAA).', 'A CTM não gerencia TAAs, só propostas.', 'Passar do teto exige aditivo.'] },
+  { id: 'taa', tipo: 'tarefa', raia: 'dr', col: 4, rotulo: 'Criar TAA / contrato com a CTM', fase: 'contrato', tela: '/dashboard/novo-ta', descricao: 'Quem contrata escolhe o edital e os produtos; a CTM é a aprovada no edital para eles. Vigência e valor global (teto).', regras: ['SENAI ↔ SENAI (DR solicitante SENAI-XX ou o DN): TAA, no modelo do DN.', 'SESI-XX ↔ SENAI: contrato (não é TAA).', 'Produtos de CTMs diferentes = TAAs diferentes.', 'A CTM não gerencia TAAs, só propostas.', 'Passar do teto exige aditivo.'] },
   { id: 'assinar-taa', tipo: 'tarefa', raia: 'comercial', col: 5, rotulo: 'CTM assina', fase: 'contrato', fora: true, descricao: 'Assinaturas fora do sistema (assinatura digital).' },
   { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Anexar assinado (Vigente)', fase: 'contrato', tela: '/dashboard', descricao: 'Quem contratou anexa o termo assinado; o TAA/contrato fica Vigente e a CTM passa a vê-lo nas propostas.' },
 

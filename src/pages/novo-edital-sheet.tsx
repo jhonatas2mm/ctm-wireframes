@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useCursos, useEditais } from '@/lib/mock'
 
 const UFS = 'AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO'.split(' ')
@@ -77,7 +78,7 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
   )
 }
 
-type Item = { id: string; ch: string; valor: string; drs: string[] } // valor em centavos (só dígitos); drs = DRs credenciados no curso
+type Item = { id: string; ch: string; valor: string; drs: string[]; aprovada?: string } // valor em centavos (só dígitos); drs = DRs credenciados no curso; aprovada = CTM de menor custo
 const centavos = (v: string) => Number(v || 0) / 100
 
 // Novo edital: vigência, DRs credenciados e cursos (área, modalidade e CH fixas do catálogo; só o valor é ajustável por curso).
@@ -105,7 +106,7 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
     setInicio('2026-11-01')
     setFim('2027-10-31')
     const ex = cursos.slice(0, 3)
-    setHist({ past: [], future: [], present: ex.map((c, i) => ({ id: c.id, ch: String(c.cargaHoraria), valor: String((i + 2) * 240000), drs: i === 0 ? ['MG', 'SP'] : ['MG'] })) })
+    setHist({ past: [], future: [], present: ex.map((c, i) => ({ id: c.id, ch: String(c.cargaHoraria), valor: String((i + 2) * 240000), drs: i === 0 ? ['MG', 'SP'] : ['MG'], aprovada: 'MG' })) })
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const ano = new Date().getFullYear()
@@ -144,7 +145,7 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
             e.preventDefault()
             const cs = itens.map((i) => {
               const c = byId(i.id)
-              return { nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: Number(i.ch), valor: centavos(i.valor), drs: i.drs }
+              return { nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: Number(i.ch), valor: centavos(i.valor), drs: i.drs, aprovada: i.drs.includes(i.aprovada ?? '') ? i.aprovada : i.drs[0] }
             })
             const novo = db.add({ numero, ctm: [], cursos: cs, cargaHoraria: chTotal, valor: valorTotal, drs: [...new Set(itens.flatMap((i) => i.drs))], vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim) })
             reset()
@@ -263,6 +264,14 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
                         <div className="col-span-full grid gap-1 pl-7 text-xs">
                           <span className="text-muted-foreground">DRs credenciados <Req /></span>
                           <EstadosInput value={i.drs} onChange={(v) => setItem(i.id, { drs: v })} placeholder="Buscar DR por sigla ou estado…" prefix="SENAI-" />
+                        </div>
+                        {/* Quem ofereceu o menor custo ganha o produto: os TAAs desse produto são com ela */}
+                        <div className="col-span-full grid max-w-sm gap-1 pl-7 text-xs">
+                          <span className="text-muted-foreground">CTM aprovada (menor custo) <Req /></span>
+                          <Select disabled={!i.drs.length} value={i.drs.includes(i.aprovada ?? '') ? i.aprovada! : i.drs[0] ?? null} onValueChange={(v) => setItem(i.id, { aprovada: v as string })}>
+                            <SelectTrigger className="h-8 w-full"><SelectValue>{(v: string | null) => (v ? `SENAI-${v}` : 'Informe os DRs credenciados')}</SelectValue></SelectTrigger>
+                            <SelectContent>{i.drs.map((uf) => <SelectItem key={uf} value={uf}>SENAI-{uf}</SelectItem>)}</SelectContent>
+                          </Select>
                         </div>
                       </li>
                     )

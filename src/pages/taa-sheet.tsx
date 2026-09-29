@@ -44,6 +44,20 @@ export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onC
               </dl>
 
               <section className="space-y-2">
+                <h3 className="text-sm font-semibold">Produtos <span className="font-normal text-muted-foreground">({taa.produtos?.length ?? 0}{taa.edital ? ` · ${taa.edital}` : ''})</span></h3>
+                {taa.produtos?.length ? (
+                  <ul className="divide-y rounded-lg border">
+                    {taa.produtos.map((p) => (
+                      <li key={p.nome} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                        <span className="min-w-0 flex-1"><span className="block font-medium">{p.nome}</span><span className="block text-xs text-muted-foreground">{p.area} · {p.modalidade} · {p.cargaHoraria} h</span></span>
+                        <span className="tabular-nums">{brl(p.valor)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p className="text-sm text-muted-foreground">Nenhum produto.</p>}
+              </section>
+
+              <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Documentos</h3>
                 <ul className="divide-y rounded-lg border">
                   <li className="flex items-center gap-3 px-3 py-2.5 text-sm">

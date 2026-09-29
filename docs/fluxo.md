@@ -20,17 +20,29 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 7a. **Gestão da execução** (Supervisor) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
 7b. **Acompanhamento pedagógico** (Supervisor) — Tratativas pedagógicas → Nova tratativa.
 7c. **Financeiro** (Supervisor) — situação de cobrança por aluno e formalizações.
-8. **Acompanhamento da execução** (DR solicitante) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
+4a. **Contratação da CTM (contrato)** (DR solicitante: SESI) — Contratos com CTMs → Novo contrato → Contrato em elaboração → Contrato vigente.
+7d. **Alocação de tutores** (CTM: PCP) — Calendário → Equipe → Turma em Buscar tutor (aba Execução).
+7e. **Validação e acompanhamento** (CTM: Pedagógico) — Validação pedagógica → Tratativas → Nova tratativa.
+7f. **Minhas UCs** (CTM: Tutor, em avaliação) e **Salas e tratativas** (CTM: Monitor, em avaliação).
+8. **Acompanhamento da execução** (DR solicitante: SENAI; também SESI) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
 ## Perfis
+Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Super admin**. CTM e DR solicitante têm **caixas** (subperfis): na casca, o select Perfil escolhe o principal e as caixas aparecem como abas ao lado do selo do perfil, no protótipo.
 - **Super admin** (provisório) — administra usuários, perfis/permissões, auditoria e logs do sistema; vê todas as telas do menu e **os dados de toda a plataforma** (ex.: no acompanhamento, contratos/turmas/alunos de todas as DRs, com coluna/filtro de DR). Menu setorizado (DN, CTM, DR solicitante, Administração).
-- **DN** — cria e gerencia editais e faz a gestão de DRs. **Não gerencia os TAAs da rede**: só cria/acompanha os TAAs em que ele mesmo contrata uma CTM (TAAs com CTMs).
-- **Comercial** — mesmas telas do Supervisor. **Não gerencia TAAs**, só propostas.
-- **Supervisor** (ex.: SENAI-MG) — cadastra produtos, cria propostas comerciais e opera a oferta. **Não gerencia TAAs**; nas propostas vê o TAA/contrato de cada contratante.
-- **DR solicitante** (ex.: SENAI-MG) — contrata uma CTM: cria o **TAA** (TAAs com CTMs) e acompanha a execução (Painel, Gestão de Contratos, Turmas e Alunos). Vende o curso a uma empresa (ex.: Panvel) e contrata o CTM para operar o EAD.
+- **DN** — cria e gerencia editais (com a CTM aprovada por produto) e faz a gestão de DRs. **Não gerencia os TAAs da rede**: só cria/acompanha os TAAs em que ele mesmo contrata uma CTM.
+- **CTM** (SENAI-MG) — caixas:
+  - **Comercial** — mesmas telas do Supervisor; propostas e portfólio. Não gerencia TAAs.
+  - **PCP** — Gestão da oferta (aba Execução: tutor e ação por UC, aulas ao vivo), Equipe e Calendário.
+  - **Supervisor** — portfólio, propostas, oferta/cronograma, equipe da turma, tratativas e financeiro. Não gerencia TAAs.
+  - **Pedagógico** — Gestão da oferta (validação pedagógica) e Tratativas pedagógicas.
+  - **Tutor** e **Monitor** — **em avaliação** (caixa tracejada com "?"): Tutor vê a oferta; Monitor vê a oferta e as tratativas.
+- **DR solicitante** (MG) — caixas:
+  - **SENAI** (SENAI-MG) — contrata a CTM por **TAA** e acompanha a execução (Painel, Gestão de Contratos, Turmas, Alunos).
+  - **SESI** (SESI-MG) — contrata a CTM por **contrato** (não é TAA) e acompanha a execução.
 - Uma mesma DR pode ser **CTM** (ofertante) e **DR solicitante** (contratante) — são perfis diferentes.
+- Menu "Contratação de CTM" (`/dashboard`): título da tela conforme o perfil — *TAAs com CTMs* (DN, SENAI), *Contratos com CTMs* (SESI), *TAAs e contratos com CTMs* (Super admin).
 
 ## Acompanhamento (DR solicitante)
 - Contrato = DR solicitante ↔ CTM, com empresa cliente, só cursos EAD, vigência, valor, vagas e status (Vigente / Em elaboração / Encerrado).
@@ -44,19 +56,20 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - **SESI-XX ↔ SENAI é contrato** (não é TAA). No protótipo o contratante SESI aparece como `SESI-UF` e o instrumento como *Contrato* (nº `CT-<seq>/<ano>`).
 - Tela **TAAs com CTMs** (`/dashboard`): DN e DR solicitante veem só os seus (em que são contratantes); Super admin vê todos, com colunas Contratante e Instrumento.
 - A proposta só pode ser feita para quem tem TAA ou contrato (não encerrado) com a CTM; a coluna **TAA / contrato** da Gestão de propostas mostra o instrumento ou "Sem TAA/contrato".
-- Todo TAA criado tem **vigência e valor global** preenchidos (obrigatórios no Novo TAA). TAA não tem produtos vinculados.
+- Todo TAA criado tem **vigência, valor global e produtos**. Os produtos vêm de um edital; a **CTM do TAA é a aprovada no edital** (menor custo) para esses produtos. Produtos aprovados para CTMs diferentes = TAAs diferentes; produto já contratado com a CTM (TAA não encerrado) ou aprovado para a própria DR não pode ser escolhido.
 - **Sem fluxo de assinatura no sistema.** Percurso do TAA:
-  1. Novo TAA em **duas etapas** — Etapa 1 (Dados): contratante (fixo, o do perfil), CTM contratada, vigência e valor → **Salvar e avançar** (TAA salvo, *Em elaboração*). Etapa 2 (Documento): o termo com os dados preenchidos → **Baixar TAA** para enviar → Concluir.
+  1. Novo TAA em **duas etapas** — Etapa 1 (Dados): contratante (fixo, o do perfil), edital, produtos (a CTM contratada vem da aprovação), vigência e valor → **Salvar e avançar** (TAA salvo, *Em elaboração*). Etapa 2 (Documento): o termo com os dados preenchidos → **Baixar TAA** para enviar → Concluir.
   2. Assinaturas acontecem fora do sistema; o status fica *Em elaboração*.
   3. Em TAAs com CTMs, ação **Anexar TAA assinado** (só em *Em elaboração*) → upload → status *Vigente*.
 
 ## Edital (DN)
 - Tem vigência e cursos.
-- Cada curso tem valor e DRs credenciados.
+- Cada curso tem valor e DRs credenciados; entre eles, a **CTM aprovada** é a que ofereceu o **menor custo** para aquele produto (campo "CTM aprovada (menor custo)" no Novo edital; destaque nos detalhes do edital).
+- Todo TAA/contrato de um produto é com a CTM aprovada para ele.
 - Área, modalidade e CH vêm do catálogo e não podem ser editadas.
 
 ## Produto (Supervisor)
-- "Novo produto" abre em 3 colunas na mesma tela, sem etapas: **Edital** (escolhe apenas um) → **Produtos** do edital em que a DR está credenciada (um ou mais) → **Módulos e UCs** do produto ativo.
+- "Novo produto" abre em 3 colunas na mesma tela, sem etapas: **Edital** (escolhe apenas um) → **Produtos** do edital em que a DR é a **CTM aprovada** (um ou mais) → **Módulos e UCs** do produto ativo.
 - Trocar o edital limpa a seleção.
 - Salvar só é liberado quando todos os produtos marcados têm módulos e UCs completos.
 
@@ -120,6 +133,7 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - DR ofertante (a própria, fixa) → DR contratante.
 - Pode ter vários cursos, cada um com **vagas, início previsto e valor previsto**.
 - Cada curso só pode entrar em uma proposta (cursos de propostas recusadas/canceladas voltam a ficar livres).
+- Só entram na proposta os **produtos contratados** pelo contratante com esta CTM (TAAs/contratos não encerrados).
 - Registro mínimo (o documento é feito fora, no modelo): edital, DR contratante, **CNPJ do contratante**, **faturamento** (para a DR ou por escola, com as escolas), **nº no CRM** (opcional), **link do documento** e anexo.
 - Número: `PC-<UF>-<seq>/<ano>`.
 - **O sistema não envia nada para ninguém.** O acordo é fechado fora do sistema.
@@ -144,7 +158,6 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (à DR, prazos, integração). Hoje os avisos aparecem só nas telas.
 - **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesma DR.
 - **Código da turma**: padrão citado = curso/modalidade + nº sequencial por DR + ano/semestre de início (ex.: T02MS, 2026-1).
-- **Quem cria o contrato com o SESI**: o SESI não tem perfil no protótipo; hoje os contratos SESI aparecem como dados (Super admin e coluna nas propostas da CTM).
 - Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, novos perfis (Analista, PCP, Monitor, Pedagógico, Tutor), acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
 ## Percurso (histórico de decisões)
@@ -283,3 +296,5 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-29 — Casca: protótipo com a mesma largura das caixas do topo, mais perto do painel de jornada; painel de jornada **fechado por padrão** (lembrado no navegador).
 - 2026-09-29 — Casca: protótipo renderizado em largura padrão de 1600px e reduzido por inteiro (mantém proporções); em telas maiores não estica além disso.
 - 2026-09-29 — Casca: na barra Design, seletor da **resolução** do protótipo (1280 a 2560 px, padrão 1600; lembrado no navegador).
+- 2026-09-29 — **Edital define a CTM por produto**: a CTM aprovada é a de menor custo (novo campo no Novo edital; destaque nos detalhes). **TAA tem produtos**: no Novo TAA o contratante escolhe edital e produtos e a CTM vem da aprovação (produtos de outra CTM = outro TAA). Portfólio da CTM só com produtos em que ela é a aprovada. Nova proposta só com os produtos do TAA/contrato do contratante. Catálogo ganhou Mecânico de Manutenção de Máquinas e Desenhista de Produtos Gráficos.
+- 2026-09-29 — **Perfis em três grupos com caixas**: DN, CTM (Comercial, PCP, Supervisor, Pedagógico; Tutor e Monitor em avaliação) e DR solicitante (SENAI, SESI), mais o Super admin. Casca: grupos e caixas vêm de profiles.ts (grupo/caixa) e aparecem nas abas de subperfil ao lado do selo (Tutor/Monitor tracejados, em avaliação). "DR solicitante" virou "DR solicitante: SENAI"; novo "DR solicitante: SESI" cria **contrato** (resolve quem registra o contrato do SESI). Menus por caixa; menu "Contratação de CTM" com título conforme o perfil. Jornadas novas: Contratação da CTM (contrato) e acompanhamento do SESI, Alocação de tutores (PCP), Validação e acompanhamento (Pedagógico), Tutor e Monitor (em avaliação).

@@ -2,7 +2,7 @@ import { CalendarRange, Clock, FileSpreadsheet, Wallet } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { StatCard } from '@/components/wf'
-import type { Edital } from '@/lib/mock'
+import { aprovadaDe, type Edital } from '@/lib/mock'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
@@ -51,7 +51,9 @@ export function EditalDetalhes({ edital, onClose }: { edital: Edital | null; onC
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-1">
-                        {c.drs.map((uf) => <Badge key={uf} variant="outline">SENAI-{uf}</Badge>)}
+                        {c.drs.map((uf) => uf === aprovadaDe(c)
+                          ? <Badge key={uf}>SENAI-{uf} · aprovada (menor custo)</Badge>
+                          : <Badge key={uf} variant="outline">SENAI-{uf}</Badge>)}
                       </div>
                     </div>
                   ))}
