@@ -22,7 +22,7 @@ export function PainelDn() {
   const portfolio = useCursosDr().all
   const editais = useEditais().all
   const drs = useDrs().all
-  const pendentes = portfolio.filter((c) => situacaoDe(c) === 'Aguardando aprovação')
+  const pendentes = portfolio.filter((c) => situacaoDe(c) === 'Aguardando')
   const noPortfolio = aprovadosAtuais(portfolio)
   const porCtm = Object.entries(noPortfolio.reduce<Record<string, number>>((r, c) => ({ ...r, [c.ctm ?? '—']: (r[c.ctm ?? '—'] ?? 0) + 1 }), {})).sort((a, b) => b[1] - a[1])
   const editaisVig = editais.filter((e) => isoDeBr(e.vigenciaInicio) <= HOJE && HOJE <= isoDeBr(e.vigenciaFim))
@@ -122,7 +122,7 @@ export function PainelSupervisor() {
     <div className="space-y-5">
       <PageHeader title="Painel" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi icon={Send} tom="amber" rotulo="Propostas em andamento" valor={conta('Em andamento') + conta('Aguardando retorno do cliente')} extra={`${conta('Aguardando retorno do cliente')} aguardando o cliente`} />
+        <Kpi icon={Send} tom="amber" rotulo="Propostas em andamento" valor={conta('Em andamento') + conta('Aguardando')} extra={`${conta('Aguardando')} aguardando o cliente`} />
         <Kpi icon={BadgeCheck} tom="green" rotulo="Propostas aprovadas" valor={conta('Aprovado')} extra={brlCurto(propostas.filter((p) => p.status === 'Aprovado').reduce((n, p) => n + p.cursos.reduce((s, c) => s + c.valorPrevisto, 0), 0))} />
         <Kpi icon={Video} tom="blue" rotulo="Ofertas ativas" valor={ativas.length} extra={`${turmas.filter((t) => statusTurma(t) === 'Buscar tutor').length} buscando tutor · ${turmas.length} no total`} />
         <Kpi icon={CalendarClock} tom="orange" rotulo="Aulas ao vivo (7 dias)" valor={prox7} extra={`${aulas.length} agendadas`} />
@@ -135,7 +135,7 @@ export function PainelSupervisor() {
             itens={[
               { rotulo: 'Rascunho', valor: conta('Rascunho'), tom: 'gray' },
               { rotulo: 'Em andamento', valor: conta('Em andamento'), tom: 'blue' },
-              { rotulo: 'Aguardando retorno do cliente', valor: conta('Aguardando retorno do cliente'), tom: 'amber' },
+              { rotulo: 'Aguardando', valor: conta('Aguardando'), tom: 'amber' },
               { rotulo: 'Aprovado', valor: conta('Aprovado'), tom: 'green' },
               { rotulo: 'Cancelado', valor: conta('Cancelado'), tom: 'red' },
             ]}
@@ -194,12 +194,12 @@ export function PainelComercial() {
   const valor = (p: (typeof propostas)[number]) => p.cursos.reduce((s, c) => s + c.valorPrevisto, 0)
   const soma = (f: (p: (typeof propostas)[number]) => boolean) => propostas.filter(f).reduce((n, p) => n + valor(p), 0)
   const st = (p: (typeof propostas)[number]) => p.status ?? 'Rascunho'
-  const negociacao = soma((p) => st(p) === 'Em andamento' || st(p) === 'Aguardando retorno do cliente')
+  const negociacao = soma((p) => st(p) === 'Em andamento' || st(p) === 'Aguardando')
   const fechado = soma((p) => st(p) === 'Aprovado')
   const aceitas = propostas.filter((p) => st(p) === 'Aprovado').length, recusadas = propostas.filter((p) => st(p) === 'Cancelado').length
   const taxa = aceitas + recusadas ? Math.round((aceitas / (aceitas + recusadas)) * 100) : 0
   const porDr = Object.entries(propostas.reduce<Record<string, number>>((m, p) => ((m[p.drContratante] = (m[p.drContratante] ?? 0) + valor(p)), m), {})).sort((a, b) => b[1] - a[1])
-  const aguardando = propostas.filter((p) => st(p) === 'Em andamento' || st(p) === 'Aguardando retorno do cliente')
+  const aguardando = propostas.filter((p) => st(p) === 'Em andamento' || st(p) === 'Aguardando')
   const cursosMais = Object.entries(propostas.flatMap((p) => p.cursos).reduce<Record<string, number>>((m, c) => ((m[c.nome] = (m[c.nome] ?? 0) + 1), m), {})).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
   return (
@@ -217,7 +217,7 @@ export function PainelComercial() {
           <BlocoTitulo titulo="Pipeline por status" sub="Valor previsto das propostas" acao={ver('/produtos')} />
           <BarList
             formato={brlCurto}
-            itens={([['Rascunho', 'gray'], ['Em andamento', 'blue'], ['Aguardando retorno do cliente', 'amber'], ['Aprovado', 'green'], ['Cancelado', 'red']] as const).map(([s, tom]) => ({ rotulo: s, valor: soma((p) => st(p) === s), tom }))}
+            itens={([['Rascunho', 'gray'], ['Em andamento', 'blue'], ['Aguardando', 'amber'], ['Aprovado', 'green'], ['Cancelado', 'red']] as const).map(([s, tom]) => ({ rotulo: s, valor: soma((p) => st(p) === s), tom }))}
           />
         </Bloco>
         <Bloco>

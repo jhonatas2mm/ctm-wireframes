@@ -15,7 +15,7 @@ const data = (iso: string) => new Date(iso).toLocaleDateString('pt-BR')
 const v = (c: CursoDr) => c.versao ?? 1
 
 const corSituacao: Record<SituacaoPortfolio, string> = {
-  'Aguardando aprovação': 'bg-amber-100 text-amber-800',
+  'Aguardando': 'bg-amber-100 text-amber-800',
   Aprovado: 'bg-emerald-100 text-emerald-800',
   Reprovado: 'bg-red-100 text-red-800',
 }
@@ -46,7 +46,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
   const [codigo, setCodigo] = useState('')
   const [novo, setNovo] = useState<MaterialProduto>({ nome: '', tipo: 'Plano de curso', link: '' })
   const atual = familia[familia.length - 1]
-  const pendente = familia.some((c) => situacaoDe(c) === 'Aguardando aprovação')
+  const pendente = familia.some((c) => situacaoDe(c) === 'Aguardando')
   const materiais = p?.materiais ?? []
   return (
     <Sheet open={!!id} onOpenChange={(o) => !o && onClose()}>
@@ -78,7 +78,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                   ['Modalidade', p.modalidade ?? '—'],
                   ['Solicitada em', data(p.criadoEm)],
                   ['Origem', p.baseadaEm ? `Baseada na v${p.baseadaEm}` : 'Versão original'],
-                  ['Decisão do DN', p.decididoEm ? `${situacaoDe(p)} em ${data(p.decididoEm)}` : situacaoDe(p) === 'Aguardando aprovação' ? 'Pendente' : '—'],
+                  ['Decisão do DN', p.decididoEm ? `${situacaoDe(p)} em ${data(p.decididoEm)}` : situacaoDe(p) === 'Aguardando' ? 'Pendente' : '—'],
                 ] as [string, ReactNode][]).map(([k, val]) => (
                   <div key={k}>
                     <dt className="text-xs text-muted-foreground">{k}</dt>
@@ -219,7 +219,7 @@ export function NovaVersaoSheet({ id, onClose, onSaved }: { id: string | null; o
   const salvar = () => {
     if (!p) return
     const { id: _id, motivo: _m, decididoEm: _d, ...base } = p
-    const nova = db.add({ ...base, modulos: rascunho, versao: proxima, origemId: raiz, baseadaEm: v(p), situacao: 'Aguardando aprovação', criadoEm: new Date().toISOString() })
+    const nova = db.add({ ...base, modulos: rascunho, versao: proxima, origemId: raiz, baseadaEm: v(p), situacao: 'Aguardando', criadoEm: new Date().toISOString() })
     onSaved?.(nova.id)
     onClose()
   }
@@ -235,7 +235,7 @@ export function NovaVersaoSheet({ id, onClose, onSaved }: { id: string | null; o
                 <span className="flex items-center gap-2 rounded-md border-2 border-foreground px-2.5 py-1 text-sm font-semibold tabular-nums">
                   <span className="text-muted-foreground">v{v(p)}</span> → v{proxima}
                 </span>
-                <Badge variant="secondary" className={corSituacao['Aguardando aprovação']}>vai para aprovação do DN</Badge>
+                <Badge variant="secondary" className={corSituacao['Aguardando']}>vai para aprovação do DN</Badge>
               </div>
               <SheetDescription className="sr-only">Ajuste módulos e UCs; a v{v(p)} não é alterada</SheetDescription>
               <div className="flex flex-wrap gap-2 pt-1">

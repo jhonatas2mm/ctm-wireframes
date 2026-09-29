@@ -136,17 +136,17 @@ export default function OfertaDetalhe() {
 
           <TabsContent value="cronograma" className="space-y-6 pt-4">
             {/* Validação pela DR contratante: versões; sem resposta até o prazo, conta como validado */}
-            <section className={cn('flex flex-wrap items-center gap-4 rounded-[1.25rem] border p-4 bg-card', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando validação' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
+            <section className={cn('flex flex-wrap items-center gap-4 rounded-[1.25rem] border p-4 bg-card', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">Cronograma v{cron.versao} · {sitCron}</p>
                 <p className="text-sm text-muted-foreground">
                   {sitCron === 'Rascunho' && 'Revise as datas e envie à DR contratante para validação (o envio é feito fora do sistema).'}
-                  {sitCron === 'Aguardando validação' && `Aguardando o SENAI-${t.drContratante} até ${dataBr(cron.prazo)} (faltam ${diasEntre(HOJE, cron.prazo ?? HOJE)} dias). Sem resposta até lá, o cronograma conta como validado.`}
-                  {sitCron === 'Validado' && (cron.situacao === 'Aguardando validação' ? `Validado por prazo em ${dataBr(cron.prazo)} (a DR não respondeu).` : `Validado pela DR em ${dataBr(cron.validadoEm)}.`)}
+                  {sitCron === 'Aguardando' && `Aguardando o SENAI-${t.drContratante} até ${dataBr(cron.prazo)} (faltam ${diasEntre(HOJE, cron.prazo ?? HOJE)} dias). Sem resposta até lá, o cronograma conta como validado.`}
+                  {sitCron === 'Validado' && (cron.situacao === 'Aguardando' ? `Validado por prazo em ${dataBr(cron.prazo)} (a DR não respondeu).` : `Validado pela DR em ${dataBr(cron.validadoEm)}.`)}
                 </p>
               </div>
               {aberta && sitCron === 'Rascunho' && <Button onClick={() => abrir('enviar', somar(HOJE, 10))}><Send /> Marcar como enviado à DR</Button>}
-              {aberta && sitCron === 'Aguardando validação' && (
+              {aberta && sitCron === 'Aguardando' && (
                 <Button onClick={() => registrar({ cronograma: { ...cron, situacao: 'Validado', validadoEm: HOJE } }, `Cronograma v${cron.versao} validado pelo SENAI-${t.drContratante}`)}><CheckCircle2 /> Registrar validação</Button>
               )}
               {aberta && sitCron !== 'Rascunho' && <Button variant="outline" onClick={() => abrir('versao', inicio)}><Pencil /> DR pediu ajuste</Button>}
@@ -325,7 +325,7 @@ export default function OfertaDetalhe() {
               <div className="grid gap-1.5"><Label>Prazo para validação <Req /></Label><Input type="date" value={data} onChange={(e) => setData(e.target.value)} /></div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setModal(null)}>Cancelar</Button>
-                <Button onClick={() => (registrar({ cronograma: { ...cron, situacao: 'Aguardando validação', prazo: data } }, `Cronograma v${cron.versao} enviado à DR para validação (prazo ${dataBr(data)})`), setModal(null))}>Registrar envio</Button>
+                <Button onClick={() => (registrar({ cronograma: { ...cron, situacao: 'Aguardando', prazo: data } }, `Cronograma v${cron.versao} enviado à DR para validação (prazo ${dataBr(data)})`), setModal(null))}>Registrar envio</Button>
               </DialogFooter>
             </>
           )}

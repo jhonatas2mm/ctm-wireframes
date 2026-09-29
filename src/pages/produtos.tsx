@@ -106,7 +106,7 @@ export default function Produtos() {
   const [motivo, setMotivo] = useState('')
   const historico = (p: Produto, texto: string): Registro[] => [{ quando: new Date().toISOString(), texto, autor }, ...(p.historico ?? [])]
   const abrirStatus = (p: Produto) => {
-    const seguinte: Record<StatusProposta, StatusProposta> = { Rascunho: 'Em andamento', 'Em andamento': 'Aguardando retorno do cliente', 'Aguardando retorno do cliente': 'Aprovado', Aprovado: 'Aprovado', Cancelado: 'Cancelado' }
+    const seguinte: Record<StatusProposta, StatusProposta> = { Rascunho: 'Em andamento', 'Em andamento': 'Aguardando', 'Aguardando': 'Aprovado', Aprovado: 'Aprovado', Cancelado: 'Cancelado' }
     setNovoStatus(seguinte[p.status ?? 'Rascunho'])
     setMotivo('')
     setMudar(p)
@@ -122,7 +122,7 @@ export default function Produtos() {
         searchPlaceholder="Buscar código, contratante ou responsável…"
         actions={(p) => (
           <>
-            {!fechada(p) && <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => abrirStatus(p)}><ArrowRightLeft /> Status</Button>}
+            {!fechada(p) && <RowAction label="Alterar status" icon={ArrowRightLeft} onClick={() => abrirStatus(p)} />}
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVerProposta(p)} />
             <RowAction label="Abrir gestão da proposta" icon={SquareArrowOutUpRight} onClick={() => navigate(`/produtos/${p.id}`)} />
             {excedentesProposta(p, turmas).length > 0 && <RowAction label="Fazer aditivo" icon={FilePlus2} onClick={() => navigate(`/produtos/novo?versao=${p.id}&aditivo=1`)} />}

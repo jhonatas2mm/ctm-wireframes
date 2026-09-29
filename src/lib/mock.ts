@@ -87,8 +87,8 @@ export const useEditais = () => useCollection<Edital>('editais-v9', editais)
 // (quem criou ajusta e reencaminha) ou recusa (Cancelado). Quem criou também pode cancelar antes do aceite.
 // Normalmente a CTM cria e o Gestor da DR analisa; se a DR criar, quem analisa é a CTM.
 // Só o Aceito (com vigência em curso) vale para propostas; o termo assinado é anexado depois do aceite.
-export type StatusContrato = 'Encaminhado' | 'Em análise' | 'Retornado para ajuste' | 'Aceito' | 'Cancelado'
-export const statusContrato: StatusContrato[] = ['Encaminhado', 'Em análise', 'Retornado para ajuste', 'Aceito', 'Cancelado']
+export type StatusContrato = 'Encaminhado' | 'Em análise' | 'Retornado' | 'Aceito' | 'Cancelado'
+export const statusContrato: StatusContrato[] = ['Encaminhado', 'Em análise', 'Retornado', 'Aceito', 'Cancelado']
 const isoDeBr = (br: string) => br.split('/').reverse().join('-')
 export const vigenciaEncerrada = (c: { vigenciaFim: string }) => !!c.vigenciaFim && c.vigenciaFim !== '—' && isoDeBr(c.vigenciaFim) < HOJE
 export const contratoAtivo = (c: { status: StatusContrato; vigenciaFim: string }) => c.status === 'Aceito' && !vigenciaEncerrada(c)
@@ -96,7 +96,7 @@ export const contratoAtivo = (c: { status: StatusContrato; vigenciaFim: string }
 // mesmo com outro TAA em andamento.
 export const taaDoEdital = (todos: Contrato[], edital: string | null | undefined, ctm: string | null | undefined, contratante: string) =>
   todos.find((c) => !!edital && c.edital === edital && c.dr === ctm && c.contratante === contratante && c.status !== 'Cancelado')
-export const emTramitacao = (c: { status: StatusContrato }) => c.status === 'Encaminhado' || c.status === 'Em análise' || c.status === 'Retornado para ajuste'
+export const emTramitacao = (c: { status: StatusContrato }) => c.status === 'Encaminhado' || c.status === 'Em análise' || c.status === 'Retornado'
 // Quem analisa: a outra parte (se a CTM criou, o contratante; senão, a CTM).
 export const analisaDe = (c: { origem?: 'Contratante' | 'CTM' }): 'contratante' | 'ctm' => (c.origem === 'CTM' ? 'contratante' : 'ctm')
 
@@ -135,7 +135,7 @@ const taa = (id: string, numero: string, contratante: string, dr: string, vig: [
 const contratos: Contrato[] = [
   // SENAI-MG como DR solicitante contratando outras CTMs
   taa('4', '004/2026', 'MG', 'SC', ['01/03/2026', '28/02/2027'], 480000, 'Aceito', 'ED-003/2026', ['Mecânico de Usinagem']),
-  { ...taa('5', '005/2026', 'MG', 'SP', ['01/11/2026', '31/10/2027'], 320000, 'Retornado para ajuste', 'ED-001/2026', ['Técnico em Logística']), motivo: 'A CTM pede início em 01/02/2027: não há turma de Logística antes disso.', historico: [{ quando: '2026-09-20T10:00:00Z', texto: 'Retornado para ajuste: a CTM pede início em 01/02/2027: não há turma de Logística antes disso.', autor: 'SENAI-SP (CTM)' }, { quando: '2026-09-12T10:00:00Z', texto: 'Encaminhado à CTM', autor: 'Paulo Mendes' }] },
+  { ...taa('5', '005/2026', 'MG', 'SP', ['01/11/2026', '31/10/2027'], 320000, 'Retornado', 'ED-001/2026', ['Técnico em Logística']), motivo: 'A CTM pede início em 01/02/2027: não há turma de Logística antes disso.', historico: [{ quando: '2026-09-20T10:00:00Z', texto: 'Retornado para ajuste: a CTM pede início em 01/02/2027: não há turma de Logística antes disso.', autor: 'SENAI-SP (CTM)' }, { quando: '2026-09-12T10:00:00Z', texto: 'Encaminhado à CTM', autor: 'Paulo Mendes' }] },
   taa('6', '014/2025', 'MG', 'BA', ['01/03/2025', '28/02/2026'], 270000, 'Aceito', 'ED-006/2026', ['Operador de Empilhadeira']),
   // DRs solicitantes que contrataram a CTM SENAI-MG (base das propostas da CTM)
   taa('7', '006/2026', 'SP', 'MG', ['01/03/2026', '28/02/2027'], 910000, 'Aceito', 'ED-001/2026', ['Técnico em Mecatrônica', 'Técnico em Automação Industrial']),
@@ -152,7 +152,7 @@ const contratos: Contrato[] = [
   { ...taa('18', '014/2026', 'DF', 'MG', ['01/10/2026', '30/09/2027'], 250000, 'Cancelado', 'ED-001/2026', ['Técnico em Mecatrônica']), origem: 'CTM', enviadoEm: '2026-09-01T10:00:00Z', motivo: 'Recusado pelo Gestor: a DR não prevê turmas desse curso em 2027.', historico: [{ quando: '2026-09-01T10:00:00Z', texto: 'Encaminhado à DR', autor: 'Juliana Pereira' }, { quando: '2026-09-08T10:00:00Z', texto: 'Recusado pelo Gestor: a DR não prevê turmas desse curso em 2027.', autor: 'Gestor SENAI-DF' }].reverse() },
 ]
 
-export const useContratos = () => useCollection<Contrato>('contratos-v11', contratos)
+export const useContratos = () => useCollection<Contrato>('contratos-v12', contratos)
 // Saldo do TAA: valor global menos o executado — propostas ASSINADAS vinculadas ao TAA (ou, sem vínculo, entre o
 // contratante e a CTM nos produtos do TAA).
 export const saldoTaa = (c: Contrato, propostas: Produto[]) => {
@@ -192,13 +192,13 @@ export const ucsDoCurso: Record<string, UC[]> = {
 // depois que a negociação (fora do sistema) avança. Cursos = produtos do TAA, com a matriz do portfólio (versão aprovada).
 // Valor parametrizado pelo edital: valor do curso (por aluno) × quantidade de alunos — não se digita.
 // Status (quem muda é o Gestor de contrato, conforme o retorno da DR solicitante): Rascunho, Em andamento,
-// Aguardando retorno do cliente, Aprovado, Cancelado. Versões vão e vêm (v1, v2…), com todo o histórico.
+// Aguardando, Aprovado, Cancelado. Versões vão e vêm (v1, v2…), com todo o histórico.
 // Propostas aprovadas executam o saldo do TAA. Aprovada, vincula-se a equipe técnica (supervisor e analista), que define o
 // cronograma das turmas (com agrupamento de UCs); a proposta aprovada segue para o processo de turmas (oferta).
 // Hierarquia: proposta → cursos → turmas → UCs → alunos (com situação).
 export type CursoProposta = { cursoId: string; codigo: string; nome: string; modalidade: string; area: string; cargaHoraria: number; valorAluno: number; valorPrevisto: number; vagas?: number; inicioPrevisto?: string } // vagas = quantidade de alunos; valorPrevisto = valorAluno × alunos; inicioPrevisto ISO
-export type StatusProposta = 'Rascunho' | 'Em andamento' | 'Aguardando retorno do cliente' | 'Aprovado' | 'Cancelado'
-export const statusProposta: StatusProposta[] = ['Rascunho', 'Em andamento', 'Aguardando retorno do cliente', 'Aprovado', 'Cancelado']
+export type StatusProposta = 'Rascunho' | 'Em andamento' | 'Aguardando' | 'Aprovado' | 'Cancelado'
+export const statusProposta: StatusProposta[] = ['Rascunho', 'Em andamento', 'Aguardando', 'Aprovado', 'Cancelado']
 export type Registro = { quando: string; texto: string; autor?: string } // histórico (quando ISO)
 export type VersaoProposta = { versao: number; cursos: CursoProposta[]; vigenciaInicio?: string; vigenciaFim?: string; salvaEm: string; motivo?: string }
 export type Produto = {
@@ -235,9 +235,9 @@ const propostas: Produto[] = [
   { id: '3', numero: 'PC-MG-003/2026', taaId: '9', edital: 'ED-005/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'ES', cnpj: '03.785.466/0001-78', faturamento: 'DR', cursos: [cp('4', 30, '2027-02-08', 'ED-005/2026')], vigenciaInicio: '01/07/2026', vigenciaFim: '30/06/2027', cadastradoEm: '2026-06-05T10:00:00Z',
     historico: [reg('2026-06-19T14:00:00Z', 'Status: Aprovado (SENAI-ES aprovou)'), reg('2026-06-05T10:00:00Z', 'Proposta criada (Rascunho)')] },
   // Vai e vem: v1 com 20 alunos; a DR pediu 25 → v2, aguardando o retorno do cliente (turma prevista para daqui a 10 dias: alerta)
-  { id: '4', numero: 'PC-MG-004/2026', taaId: '10', edital: 'ED-001/2026', status: 'Aguardando retorno do cliente', versao: 2, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'GO', cnpj: '03.769.437/0001-10', crm: 'CRM-2026-0388', faturamento: 'DR', cursos: [cp('6', 25, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z',
+  { id: '4', numero: 'PC-MG-004/2026', taaId: '10', edital: 'ED-001/2026', status: 'Aguardando', versao: 2, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'GO', cnpj: '03.769.437/0001-10', crm: 'CRM-2026-0388', faturamento: 'DR', cursos: [cp('6', 25, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z',
     versoes: [{ versao: 1, cursos: [cp('6', 20, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', salvaEm: '2026-08-18T10:00:00Z', motivo: 'Versão inicial' }],
-    historico: [reg('2026-09-02T11:30:00Z', 'Status: Aguardando retorno do cliente'), reg('2026-09-02T11:20:00Z', 'Nova versão v2: a DR pediu 25 alunos (antes 20)'), reg('2026-08-20T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-08-18T10:00:00Z', 'Proposta criada (Rascunho)')] },
+    historico: [reg('2026-09-02T11:30:00Z', 'Status: Aguardando'), reg('2026-09-02T11:20:00Z', 'Nova versão v2: a DR pediu 25 alunos (antes 20)'), reg('2026-08-20T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-08-18T10:00:00Z', 'Proposta criada (Rascunho)')] },
   { id: '5', numero: 'PC-MG-005/2026', taaId: '11', edital: 'ED-001/2026', status: 'Cancelado', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'A DR não fechou a turma (mínimo de 25 inscritos).', cursos: [cp('6', 15, '2026-09-14', 'ED-001/2026')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
     historico: [reg('2026-09-04T16:45:00Z', 'Status: Cancelado — a DR não fechou a turma'), reg('2026-07-01T10:00:00Z', 'Proposta criada (Rascunho)')] },
   { id: '6', numero: 'PC-MG-006/2026', taaId: '8', edital: 'ED-002/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, equipeTecnica: { supervisor: 'Carlos Andrade', analista: 'Renata Guimarães' }, drOfertante: 'MG', drContratante: 'RJ', cnpj: '03.439.316/0001-06', faturamento: 'DR', cursos: [cp('7', 30, '2026-10-13', 'ED-002/2026')], vigenciaInicio: '15/04/2026', vigenciaFim: '14/04/2027', cadastradoEm: '2026-09-15T10:00:00Z',
@@ -246,24 +246,24 @@ const propostas: Produto[] = [
   { id: '7', numero: 'PC-MG-007/2026', taaId: '7', edital: 'ED-001/2026', status: 'Rascunho', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'SP', cnpj: '03.774.819/0001-02', faturamento: 'DR', cursos: [cp('2', 20, '2027-03-01', 'ED-001/2026')], vigenciaInicio: '01/03/2027', vigenciaFim: '28/02/2028', cadastradoEm: '2026-09-27T10:00:00Z',
     historico: [reg('2026-09-27T10:00:00Z', 'Proposta criada (Rascunho)')] },
 ]
-export const useProdutos = () => useCollection<Produto>('produtos-v21', propostas)
+export const useProdutos = () => useCollection<Produto>('produtos-v22', propostas)
 // Alerta de prazo: proposta ainda não assinada com turma prevista para começar em até 15 dias.
 export const PRAZO_ALERTA_DIAS = 15
 export const inicioPrevisto = (p: Pick<Produto, 'cursos'>) => p.cursos.map((c) => c.inicioPrevisto).filter((x): x is string => !!x).sort()[0]
 export const alertaPrazo = (p: Produto) => {
   const ini = inicioPrevisto(p)
-  if (!ini || !['Rascunho', 'Em andamento', 'Aguardando retorno do cliente'].includes(p.status ?? 'Rascunho')) return null
+  if (!ini || !['Rascunho', 'Em andamento', 'Aguardando'].includes(p.status ?? 'Rascunho')) return null
   const d = diasEntre(HOJE, ini)
   return d <= PRAZO_ALERTA_DIAS ? d : null
 }
 
 // Portfólio das CTMs: cada CTM registra seus produtos (módulos → UCs com CH), com versões (v1, v2…).
-// Novo produto ou nova versão é uma SOLICITAÇÃO: fica "Aguardando aprovação" até o DN aprovar (ou reprovar, com motivo).
+// Novo produto ou nova versão é uma SOLICITAÇÃO: fica "Aguardando" até o DN aprovar (ou reprovar, com motivo).
 // Só versões aprovadas entram no portfólio, visível para todas as DRs, e são usadas na oferta.
 // Cada versão pode ter vínculo com o itinerário (outro sistema; a DR vincula) e documentos/materiais (links).
 export type UnidadeCurricular = { nome: string; cargaHoraria: number }
 export type Modulo = { nome: string; unidades: UnidadeCurricular[] }
-export type SituacaoPortfolio = 'Aguardando aprovação' | 'Aprovado' | 'Reprovado'
+export type SituacaoPortfolio = 'Aguardando' | 'Aprovado' | 'Reprovado'
 export type TipoMaterial = 'Plano de curso' | 'Plano de ensino' | 'Material didático' | 'Avaliação' | 'Outro'
 export const tiposMaterial: TipoMaterial[] = ['Plano de curso', 'Plano de ensino', 'Material didático', 'Avaliação', 'Outro']
 export type MaterialProduto = { nome: string; tipo: TipoMaterial; link: string }
@@ -293,7 +293,7 @@ const cursosDr: CursoDr[] = [
     materiais: [mat('Plano de curso Soldador', 'Plano de curso', 'soldador'), mat('Livro didático Soldagem', 'Material didático', 'soldador')],
     modulos: [{ nome: 'Fundamentos', unidades: uc('Segurança em soldagem', 'Leitura de desenho técnico') }, { nome: 'Processos', unidades: uc('Soldagem com eletrodo revestido', 'Soldagem MIG/MAG') }] },
   // Nova versão solicitada, aguardando o DN
-  { id: 'soldador-2', ctm: 'MG', situacao: 'Aguardando aprovação', nome: 'Soldador', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 160, versao: 2, origemId: 'soldador-1', baseadaEm: 1, criadoEm: '2026-09-15T10:00:00Z',
+  { id: 'soldador-2', ctm: 'MG', situacao: 'Aguardando', nome: 'Soldador', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 160, versao: 2, origemId: 'soldador-1', baseadaEm: 1, criadoEm: '2026-09-15T10:00:00Z',
     itinerario: { codigo: 'IT-MET-SOL-2019', vinculadoEm: '2026-04-03T10:00:00Z' },
     materiais: [mat('Plano de curso Soldador', 'Plano de curso', 'soldador'), mat('Livro didático Soldagem', 'Material didático', 'soldador'), mat('Roteiro de prática TIG', 'Material didático', 'soldador')],
     modulos: [{ nome: 'Fundamentos', unidades: uc('Segurança em soldagem', 'Leitura de desenho técnico', 'Metrologia') }, { nome: 'Processos', unidades: uc('Soldagem com eletrodo revestido', 'Soldagem MIG/MAG', 'Soldagem TIG') }] },
@@ -304,7 +304,7 @@ const cursosDr: CursoDr[] = [
     itinerario: { codigo: 'IT-AUT-MEC-2026', vinculadoEm: '2026-02-21T10:00:00Z' },
     modulos: [{ nome: 'Básico', unidades: uc('Eletricidade aplicada', 'Mecânica aplicada') }, { nome: 'Específico', unidades: uc('Automação e CLP', 'Robótica industrial') }] },
   // Nova inclusão aguardando o DN
-  { id: 'mmm-1', ctm: 'MG', situacao: 'Aguardando aprovação', nome: 'Mecânico de Manutenção de Máquinas', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 240, versao: 1, criadoEm: '2026-09-22T10:00:00Z',
+  { id: 'mmm-1', ctm: 'MG', situacao: 'Aguardando', nome: 'Mecânico de Manutenção de Máquinas', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 240, versao: 1, criadoEm: '2026-09-22T10:00:00Z',
     modulos: [{ nome: 'Fundamentos', unidades: uc('Elementos de máquinas', 'Lubrificação') }, { nome: 'Manutenção', unidades: uc('Manutenção preventiva', 'Manutenção corretiva') }] },
   // Reprovada pelo DN
   { id: 'desenhista-1', ctm: 'MG', situacao: 'Reprovado', motivo: 'Matriz sem a UC de tratamento de imagens prevista no plano de curso.', decididoEm: '2026-09-10T10:00:00Z', nome: 'Desenhista de Produtos Gráficos', edital: 'ED-002/2026', area: 'Tecnologia Gráfica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 200, versao: 1, criadoEm: '2026-09-01T10:00:00Z',
@@ -316,10 +316,10 @@ const cursosDr: CursoDr[] = [
     modulos: [{ nome: 'Básico', unidades: uc('Desenho técnico', 'Metrologia') }, { nome: 'Específico', unidades: uc('Usinagem convencional', 'Prática profissional') }] },
   { id: 'eletrotecnica-1', ctm: 'RJ', situacao: 'Aprovado', decididoEm: '2026-03-12T10:00:00Z', nome: 'Técnico em Eletrotécnica', edital: 'ED-001/2026', area: 'Eletroeletrônica', modalidade: 'Técnico', cargaHorariaEdital: 1200, versao: 1, criadoEm: '2026-03-05T10:00:00Z',
     modulos: [{ nome: 'Básico', unidades: uc('Fundamentos de eletricidade', 'Instalações elétricas') }, { nome: 'Específico', unidades: uc('Máquinas elétricas', 'Sistemas de potência') }] },
-  { id: 'eletrotecnica-2', ctm: 'RJ', situacao: 'Aguardando aprovação', nome: 'Técnico em Eletrotécnica', edital: 'ED-001/2026', area: 'Eletroeletrônica', modalidade: 'Técnico', cargaHorariaEdital: 1200, versao: 2, origemId: 'eletrotecnica-1', baseadaEm: 1, criadoEm: '2026-09-25T10:00:00Z',
+  { id: 'eletrotecnica-2', ctm: 'RJ', situacao: 'Aguardando', nome: 'Técnico em Eletrotécnica', edital: 'ED-001/2026', area: 'Eletroeletrônica', modalidade: 'Técnico', cargaHorariaEdital: 1200, versao: 2, origemId: 'eletrotecnica-1', baseadaEm: 1, criadoEm: '2026-09-25T10:00:00Z',
     modulos: [{ nome: 'Básico', unidades: uc('Fundamentos de eletricidade', 'Instalações elétricas') }, { nome: 'Específico', unidades: uc('Máquinas elétricas', 'Sistemas de potência', 'Eficiência energética') }] },
 ]
-export const useCursosDr = () => useCollection<CursoDr>('cursos-dr-v4', cursosDr)
+export const useCursosDr = () => useCollection<CursoDr>('cursos-dr-v5', cursosDr)
 
 // DRs (Departamentos Regionais) geridos pelo DN. Dados FICTÍCIOS.
 export type StatusDr = 'Ativo' | 'Inativo'
@@ -395,10 +395,10 @@ export const statusTurma = (t: { modulos: { unidades: UcTurma[] }[]; fase?: Fase
 }
 export const chUc = (u: UcTurma) => (u.chEad || 0) + (u.chPresencial || 0)
 // Cronograma: versão enviada à DR contratante para validação; sem resposta até o prazo, conta como validado.
-export type SituacaoCronograma = 'Rascunho' | 'Aguardando validação' | 'Validado'
+export type SituacaoCronograma = 'Rascunho' | 'Aguardando' | 'Validado'
 export type Cronograma = { versao: number; situacao: SituacaoCronograma; prazo?: string; validadoEm?: string; porPrazo?: boolean }
 export const situacaoCronograma = (c?: Cronograma): SituacaoCronograma =>
-  c?.situacao === 'Aguardando validação' && c.prazo && c.prazo < HOJE ? 'Validado' : c?.situacao ?? 'Rascunho'
+  c?.situacao === 'Aguardando' && c.prazo && c.prazo < HOJE ? 'Validado' : c?.situacao ?? 'Rascunho'
 export type EscolaTurma = { nome: string; cidade: string; alunos: number; integrados?: number } // integrados = alunos que a DR já integrou no AVA
 export type EquipeTurma = { monitorFront?: string; monitorBack?: string; pedagogico?: string; interlocutor?: string }
 export type Turma = {
@@ -457,7 +457,7 @@ const turmas: Turma[] = [
   // Aguardando a DR validar o cronograma.
   {
     id: 't2', codigo: 'TU-MG-002/2026', propostaId: '1', propostaNumero: 'PC-MG-001/2026', drContratante: 'SP', cursos: ['Técnico em Mecatrônica'], criadoEm: '2026-08-20T10:00:00Z',
-    fase: 'A iniciar', cronograma: { versao: 1, situacao: 'Aguardando validação', prazo: '2026-10-08' }, supervisor: 'Carlos Andrade', analista: 'Renata Guimarães',
+    fase: 'A iniciar', cronograma: { versao: 1, situacao: 'Aguardando', prazo: '2026-10-08' }, supervisor: 'Carlos Andrade', analista: 'Renata Guimarães',
     escolas: [{ nome: 'SENAI Anchieta', cidade: 'São Paulo', alunos: 25 }, { nome: 'SENAI Campinas', cidade: 'Campinas', alunos: 18 }], // 43 no Moodle × 40 na proposta: aditivo
     modulos: [
       { curso: 'Técnico em Mecatrônica', nome: 'Básico', unidades: [ucT('Eletricidade aplicada', 60, 60, '2026-11-03', '2026-12-11'), ucT('Mecânica aplicada', 60, 60, '2026-12-14', '2027-02-12', { corteCiclo: 10 })] },
@@ -490,7 +490,7 @@ const turmas: Turma[] = [
     historico: [{ quando: '2026-09-26T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' }],
   },
 ]
-export const useTurmas = () => useCollection<Turma>('turmas-v12', turmas)
+export const useTurmas = () => useCollection<Turma>('turmas-v13', turmas)
 // Agrupamento: outra turma com a mesma UC começando na mesma semana pode rodar junto (até ~300 alunos).
 export const agrupaveis = (todas: Turma[], t: Turma, uc: UcTurma) =>
   todas.filter((o) => o.id !== t.id && o.fase !== 'Cancelada' && o.modulos.some((m) => m.unidades.some((u) => u.nome === uc.nome && u.inicio && uc.inicio && Math.abs(diasEntre(u.inicio, uc.inicio)) <= 7)))

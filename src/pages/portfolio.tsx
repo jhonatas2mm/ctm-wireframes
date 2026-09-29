@@ -48,7 +48,7 @@ function Aprovacoes() {
   const [ver, setVer] = useState<string | null>(null)
   const [reprovar, setReprovar] = useState<CursoDr | null>(null)
   const [motivo, setMotivo] = useState('')
-  const pendentes = db.all.filter((c) => situacaoDe(c) === 'Aguardando aprovação')
+  const pendentes = db.all.filter((c) => situacaoDe(c) === 'Aguardando')
   const decidir = (c: CursoDr, aprovado: boolean, mot?: string) =>
     db.update(c.id, { situacao: aprovado ? 'Aprovado' : 'Reprovado', motivo: aprovado ? undefined : mot, decididoEm: new Date().toISOString() })
   const aprovar = (c: CursoDr) => confirmar({
@@ -83,10 +83,10 @@ function Aprovacoes() {
         actions={(c) => (
           <>
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />
-            {situacaoDe(c) === 'Aguardando aprovação' && (
+            {situacaoDe(c) === 'Aguardando' && (
               <>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => aprovar(c)}><Check /> Aprovar</Button>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => (setMotivo(''), setReprovar(c))}><X /> Reprovar</Button>
+                <RowAction label="Aprovar" icon={Check} onClick={() => aprovar(c)} />
+                <RowAction label="Reprovar" icon={X} onClick={() => (setMotivo(''), setReprovar(c))} />
               </>
             )}
           </>
@@ -96,7 +96,7 @@ function Aprovacoes() {
         id={ver}
         onClose={() => setVer(null)}
         somenteLeitura
-        acoes={(c) => situacaoDe(c) === 'Aguardando aprovação' && (
+        acoes={(c) => situacaoDe(c) === 'Aguardando' && (
           <>
             <Button variant="outline" onClick={() => (setMotivo(''), setReprovar(c))}><X /> Reprovar</Button>
             <Button onClick={() => aprovar(c)}><Check /> Aprovar</Button>

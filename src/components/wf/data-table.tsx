@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { ChevronLeft, ChevronRight, LayoutList, Maximize2, Minimize2, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LayoutList, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
 import { Popover } from '@base-ui/react/popover'
 import { useLocation } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -31,9 +31,18 @@ export type Column<T> = {
   search?: boolean
   filter?: boolean
   className?: string
+  align?: 'left' | 'center' // padrão: centralizado em colunas de versão e numéricas; o resto à esquerda
 }
 
 const ALL = '__all__'
+// Coluna centralizada: versão ou conteúdo numérico (número, valor, %); vazio e "—" não contam.
+const ehNumerico = (v: string | number) => typeof v === 'number' || /^(R\$\s?)?-?\d[\d.,]*\s?%?$/.test(v)
+const centraliza = <T,>(c: Column<T>, rows: T[]) => {
+  if (c.align) return c.align === 'center'
+  if (/vers[ãa]o/i.test(c.header)) return true
+  const vs = rows.map((r) => c.value(r)).filter((v) => v !== '' && v !== '—')
+  return vs.length > 0 && vs.every(ehNumerico)
+}
 // Colunas de nome de curso/produto (texto longo): largura limitada e texto quebrando linha.
 const colunaLonga = (header: string) => /^(Cursos?|Produtos?)$/i.test(header) ? 'max-w-64 min-w-48 whitespace-normal' : ''
 // Filtro com vários valores (campo de busca): valores juntados por SEP no mesmo texto do filtro.
@@ -123,6 +132,7 @@ export function DataTable<T extends { id: string }>({
   filters?: FilterDef<T>[]
   cards?: boolean // habilita a 2ª visualização em cards (uma linha por registro, sem rolagem horizontal); abre em cards
 }) {
+  const centro = useMemo(() => columns.map((c) => centraliza(c, rows)), [columns, rows])
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
 
@@ -180,18 +190,9 @@ export function DataTable<T extends { id: string }>({
   const nAtivos = Object.values(filters).filter(Boolean).length
   const active = q !== '' || nAtivos > 0
   const hasSearch = columns.some((c) => c.search)
-  // Tela cheia: a tabela ocupa a tela toda (botão ao lado de Filtros; Esc sai)
-  const [cheia, setCheia] = useState(false)
-  useEffect(() => {
-    if (!cheia) return
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setCheia(false)
-    addEventListener('keydown', esc)
-    return () => removeEventListener('keydown', esc)
-  }, [cheia])
-
   return (
-    <div data-slot="data-table" className={cn('overflow-hidden rounded-lg border bg-card', cheia && 'fixed inset-0 z-40 overflow-auto rounded-none border-0')}>
-      <div className={cn('flex flex-wrap items-center gap-2 border-b p-3', cheia && 'sticky top-0 z-20 bg-card')}>
+    <div data-slot="data-table" className="overflow-hidden rounded-lg border bg-card">
+      <div className="flex flex-wrap items-center gap-2 border-b p-3">
         {hasSearch && (
           <div className="relative w-96">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -297,9 +298,6 @@ export function DataTable<T extends { id: string }>({
             </Popover.Portal>
           </Popover.Root>
         )}
-        <Button variant="outline" aria-pressed={cheia} title={cheia ? 'Sair da tela cheia (Esc)' : 'Ver a tabela em tela cheia'} onClick={() => setCheia(!cheia)}>
-          {cheia ? <><Minimize2 /> Sair da tela cheia</> : <><Maximize2 /> Tela cheia</>}
-        </Button>
         {/* Contador só sem o seletor Cards/Tabela (com ele, ficava solto no meio da barra) */}
         {!cards && (
           <span className="ml-auto text-xs text-muted-foreground tabular-nums">
@@ -356,8 +354,8 @@ export function DataTable<T extends { id: string }>({
           <Table>
             <TableHeader>
               <TableRow>
-                {columns.map((c) => (
-                  <TableHead key={c.header} className={c.className}>
+                {columns.map((c, i) => (
+                  <TableHead key={c.header} className={cn(c.className, centro[i] && 'text-center')}>
                     {c.header}
                   </TableHead>
                 ))}
@@ -371,8 +369,8 @@ export function DataTable<T extends { id: string }>({
                   className={cn(onRowClick && 'cursor-pointer')}
                   onClick={onRowClick && (() => onRowClick(r))}
                 >
-                  {columns.map((c) => (
-                    <TableCell key={c.header} className={cn(colunaLonga(c.header), c.className)}>
+                  {columns.map((c, i) => (
+                    <TableCell key={c.header} className={cn(colunaLonga(c.header), c.className, centro[i] && 'text-center')}>
                       {c.cell ? c.cell(r) : c.value(r)}
                     </TableCell>
                   ))}
@@ -455,6 +453,7 @@ export function RowAction({
     <Button
       size="icon-sm"
       variant="outline"
+      className="text-primary"
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
@@ -470,7 +469,7 @@ export function RowAction({
         <TooltipTrigger render={<span tabIndex={0} className="inline-flex cursor-not-allowed" />}>{botao}</TooltipTrigger>
       ) : (
         <TooltipTrigger
-          render={<Button size="icon-sm" variant="outline" aria-label={label} onClick={onClick} />}
+          render={<Button size="icon-sm" variant="outline" className="text-primary" aria-label={label} onClick={onClick} />}
         >
           <Icon />
         </TooltipTrigger>
