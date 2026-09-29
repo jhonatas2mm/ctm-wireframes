@@ -304,7 +304,10 @@ export function DataTable<T extends { id: string }>({
                       </div>
                     )}
                     {/* Filtros em 4 colunas separadas por linhas verticais */}
-                    <div className="grid grid-cols-4 [&>*]:border-l [&>*]:px-5 [&>*]:py-2.5 [&>*:nth-child(4n+1)]:border-l-0 [&>*:nth-child(4n+1)]:pl-0 [&>*:nth-child(4n)]:pr-0">
+                    <div className="relative">
+                    {/* Linhas das colunas de ponta a ponta (continuam mesmo quando a coluna não tem filtro embaixo) */}
+                    {['left-1/4', 'left-1/2', 'left-3/4'].map((l) => <span key={l} aria-hidden className={cn('pointer-events-none absolute inset-y-0 border-l', l)} />)}
+                    <div className="grid grid-cols-4 [&>*]:px-5 [&>*]:py-2.5 [&>*:nth-child(4n+1)]:pl-0 [&>*:nth-child(4n)]:pr-0">
                     {all.map((d) => {
                       const opts = options[d.label]
                       const atual = filters[d.label] || ''
@@ -344,6 +347,7 @@ export function DataTable<T extends { id: string }>({
                         </div>
                       )
                     })}
+                    </div>
                     </div>
                   </div>
                   {nAtivos > 0 && (

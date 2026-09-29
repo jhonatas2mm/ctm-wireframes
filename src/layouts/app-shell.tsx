@@ -110,11 +110,11 @@ export function AppShell() {
             return (
               <SidebarGroup key={key} className="py-1">
                 {rotulo && (colapsavel ? (
-                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="ml-2 h-auto min-h-8 w-[calc(100%-0.5rem)] cursor-pointer justify-between gap-2 py-1.5 pl-3 text-left hover:text-sidebar-foreground" />}>
+                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="ml-2 h-auto min-h-8 w-[calc(100%-0.5rem)] cursor-pointer justify-between gap-2 py-1.5 pl-3 text-left text-sm font-semibold hover:text-sidebar-foreground" />}>
                     <span className="min-w-0 flex-1 text-left">{rotulo}</span>
                     <ChevronDown className={cn('size-4 shrink-0 transition-transform', !aberto && '-rotate-90')} />
                   </SidebarGroupLabel>
-                ) : <SidebarGroupLabel className="ml-2 pl-3 text-left">{rotulo}</SidebarGroupLabel>)}
+                ) : <SidebarGroupLabel className="ml-2 pl-3 text-left text-sm font-semibold">{rotulo}</SidebarGroupLabel>)}
                 {aberto && (
                   <SidebarGroupContent>
                     {/* Itens de uma área ligados ao rótulo (pai) por linhas em árvore */}
