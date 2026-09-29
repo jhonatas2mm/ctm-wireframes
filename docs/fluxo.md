@@ -9,7 +9,7 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 0c1. **Feriados nacionais** (Super admin) — Feriados nacionais → Novo feriado.
 0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): ações dos usuários na plataforma (login, visualizou, criou, editou com antes/depois, excluiu, aceitou/recusou, exportou, anexou).
 0d. **Supervisão das áreas** (Super admin) — Gestão de DRs → Editais → Propostas → Oferta.
-1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciados → Novo DR credenciado. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
+1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs → Novo DR credenciado. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
 2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Coordenador EAD).
 3. **Envio de TAA aos DRs** (CTM: Gestor EAD) — TAAs com os DRs → Novo TAA (um por DR) → Gestor do DR analisa → retorno para a CTM.
 4. **TAAs com CTMs** (DR solicitante: Gestor EAD) — lista → TAA recebido (analisar) → Novo TAA (o DR também cria) → Retornado → TAA aceito (saldo).
@@ -312,3 +312,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Agente inteligente: respostas fixas (mockadas por perfil), sem depender dos dados salvos no navegador.
 - 2026-09-29 — **Agente inteligente removido** (botão no topo, chat e jornada de exemplo).
 - 2026-09-29 — Nomenclatura: **DR no masculino** (Departamento Regional) em todos os textos: botão **Novo DR credenciado**, "o DR", "do DR", "DRs credenciados".
+- 2026-09-29 — Tela "Gestão de DRs credenciados" passa a se chamar **Gestão de DRs**.

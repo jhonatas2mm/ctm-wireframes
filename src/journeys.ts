@@ -73,7 +73,7 @@ export const journeys: Journey[] = [
     title: 'Cadastro de DRs',
     profile: 'DN',
     steps: [
-      { title: 'Gestão de DRs credenciados', path: '/drs', focus: 'text=Novo DR credenciado', profile: 'DN', note: 'Início do sistema: o DN clica em “Novo DR credenciado”.' },
+      { title: 'Gestão de DRs', path: '/drs', focus: 'text=Novo DR credenciado', profile: 'DN', note: 'Início do sistema: o DN clica em “Novo DR credenciado”.' },
       { title: 'Novo DR credenciado', path: '/drs/novo', profile: 'DN', note: 'Escolhe o DR (UF ainda não credenciada) e preenche o contato. Nasce Ativa; pode ser inativada depois.' },
       { title: 'DR credenciado', path: '/drs', focus: 'row=SENAI-PE', profile: 'DN', note: 'Ao salvar, o DR aparece na lista como Ativa, com responsável e contato (ex.: SENAI-PE). Dali pode ser editada ou inativada.' },
     ],

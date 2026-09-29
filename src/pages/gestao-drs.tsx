@@ -30,7 +30,7 @@ export default function GestaoDrs() {
   ]
   return (
     <>
-      <PageHeader title="Gestão de DRs credenciados" actions={<Button onClick={() => navigate('/drs/novo')}><Plus /> Novo DR credenciado</Button>} />
+      <PageHeader title="Gestão de DRs" actions={<Button onClick={() => navigate('/drs/novo')}><Plus /> Novo DR credenciado</Button>} />
       <DataTable
         rows={all}
         columns={colunas}
