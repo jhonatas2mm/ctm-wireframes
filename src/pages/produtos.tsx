@@ -76,7 +76,7 @@ const colunas = (taas: Contrato[]): Column<Produto>[] => [
       const ini = inicioPrevisto(p)
       const d = alertaPrazo(p)
       return (
-        <span className="flex items-center gap-1.5">
+        <span className="flex flex-col items-start gap-1">
           {ini ? dataBr(ini) : '—'}
           {d !== null && <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900" title="Proposta ainda não assinada e a turma começa em breve"><AlertTriangle className="size-3" /> {d < 0 ? 'Prazo vencido' : `Faltam ${d} dias`}</Badge>}
         </span>
