@@ -134,7 +134,7 @@ export function JourneyShell() {
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
   const [mapa, setMapa] = useState(false)
   // Painel de perfil/jornada minimizável (lembrado no navegador).
-  const [painelMin, setPainelMinState] = useState(() => { try { return localStorage.getItem('painel-jornada-min') === '1' } catch { return false } })
+  const [painelMin, setPainelMinState] = useState(() => { try { return localStorage.getItem('painel-jornada-min') !== '0' } catch { return true } })
   const setPainelMin = (v: boolean) => { setPainelMinState(v); try { localStorage.setItem('painel-jornada-min', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
   // Desligado por padrão; só liga quando a pessoa clica (lembrado no navegador).
@@ -435,7 +435,7 @@ export function JourneyShell() {
         </>)}
 
         <div className="flex min-h-0 flex-1">
-          <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'p-6')}>
+          <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'px-4 pb-4')}>
             <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width }}>
             {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
             <div className="flex items-end gap-2">
