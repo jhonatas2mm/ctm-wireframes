@@ -90,8 +90,8 @@ export function TaaSheet({ taa, onClose, rodape }: { taa: Contrato | null; onClo
               )}
               <dl className="grid grid-cols-2 gap-4">
                 {([
-                  ['Contratante', <button type="button" className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-foreground/70" onClick={() => setDadosDr(taa.contratante)}><Building2 className="size-3.5" /> {nomeParte(taa.contratante)}</button>],
-                  ['CTM contratada', `SENAI-${taa.dr}`],
+                  ['DR solicitante', <button type="button" className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-foreground/70" onClick={() => setDadosDr(taa.contratante)}><Building2 className="size-3.5" /> {nomeParte(taa.contratante)}</button>],
+                  ['CTM', `SENAI-${taa.dr}`],
                   ['Responsável', responsavelTaa(taa)],
                   ['Gestor solicitante', taa.gestor ? `${taa.gestor.nome} (${taa.gestor.cargo})` : '—'],
                   ['Vigência', `${taa.vigenciaInicio} a ${taa.vigenciaFim}`],

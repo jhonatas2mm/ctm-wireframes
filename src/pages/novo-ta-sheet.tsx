@@ -166,7 +166,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
                 })}
               </ul>
               <div className={field}>
-                <Label>CTM contratada</Label>
+                <Label>CTM</Label>
                 <div className="flex h-9 items-center gap-1.5 rounded-md border bg-muted px-3 text-sm">
                   <Lock className="size-3.5 text-muted-foreground" /> {dr ? `SENAI-${dr} · aprovada no ${editalNum} para ${nomes.length} produto(s)` : 'Definida pelos produtos escolhidos'}
                 </div>
