@@ -42,13 +42,6 @@ function VisaoGeralDn() {
 
       <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
         <Bloco>
-          <BlocoTitulo titulo="Portfólio por CTM" sub="Cursos cadastrados" acao={ver('/portfolio/aprovacoes')} />
-          <BarList itens={porCtm.map(([uf, n]) => ({ rotulo: `SENAI-${uf}`, valor: n, tom: 'orange' }))} />
-        </Bloco>
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
-        <Bloco>
           <BlocoTitulo titulo="Editais" sub="Cursos, DRs credenciados e período" acao={ver('/editais')} />
           <div className="divide-y">
             {editais.map((e) => {
@@ -70,6 +63,11 @@ function VisaoGeralDn() {
             })}
           </div>
         </Bloco>
+        <div className="grid content-start gap-5">
+        <Bloco>
+          <BlocoTitulo titulo="Portfólio por CTM" sub="Cursos cadastrados" acao={ver('/portfolio/aprovacoes')} />
+          <BarList itens={porCtm.map(([uf, n]) => ({ rotulo: `SENAI-${uf}`, valor: n, tom: 'orange' }))} />
+        </Bloco>
         <Bloco>
           <BlocoTitulo titulo="Cobertura dos DRs" sub="DRs ativos credenciadas em algum edital" acao={ver('/drs')} />
           <div className="mb-4 flex items-end gap-2">
@@ -85,6 +83,7 @@ function VisaoGeralDn() {
             {!semEdital.length && <span className="text-sm text-muted-foreground">Todas cobertas.</span>}
           </div>
         </Bloco>
+        </div>
       </div>
     </div>
   )
@@ -98,7 +97,7 @@ export function PainelDn() {
   const [filtro, setFiltro] = useState<FiltroPeriodo>(filtroInicial)
   return (
     <div className="space-y-5">
-      <PageHeader title="Painel" />
+      <PageHeader title="Painel" tituloOculto />
       <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
         <TabsList>
           <TabsTrigger value="geral">Visão geral</TabsTrigger>

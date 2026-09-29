@@ -18,11 +18,13 @@ export function PageHeader({
   description,
   actions,
   breadcrumb,
+  tituloOculto,
 }: {
   title: React.ReactNode
   description?: string
   actions?: ReactNode
   breadcrumb?: Crumb[]
+  tituloOculto?: boolean // só o breadcrumb (sem o título na tela)
 }) {
   // O breadcrumb vai para a barra superior do AppShell (#topbar-slot).
   const [slot, setSlot] = useState<HTMLElement | null>(null)
@@ -54,7 +56,7 @@ export function PageHeader({
         </Breadcrumb>,
         slot,
       )}
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      {!tituloOculto && <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-start gap-2">
           {voltar && (
             <Button variant="outline" size="icon" className="mt-0.5" aria-label={`Voltar para ${voltar.label}`} render={<Link to={voltar.to!} />}>
@@ -67,7 +69,7 @@ export function PageHeader({
           </div>
         </div>
         {actions && <div className="flex gap-2">{actions}</div>}
-      </div>
+      </div>}
     </div>
   )
 }
