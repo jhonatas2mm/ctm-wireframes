@@ -304,14 +304,14 @@ export function DataTable<T extends { id: string }>({
                       </div>
                     )}
                     {/* Filtros em 4 colunas separadas por linhas verticais */}
-                    <div className="grid grid-cols-4 gap-y-5 [&>*]:border-l [&>*]:px-5 [&>*:nth-child(4n+1)]:border-l-0 [&>*:nth-child(4n+1)]:pl-0 [&>*:nth-child(4n)]:pr-0">
+                    <div className="grid grid-cols-4 [&>*]:border-l [&>*]:px-5 [&>*]:py-2.5 [&>*:nth-child(4n+1)]:border-l-0 [&>*:nth-child(4n+1)]:pl-0 [&>*:nth-child(4n)]:pr-0">
                     {all.map((d) => {
                       const opts = options[d.label]
                       const atual = filters[d.label] || ''
                       const set = (v: string) => setFilters({ ...filters, [d.label]: v })
                       return (
                         <div key={d.label} className="space-y-2">
-                          <span className="text-xs font-semibold text-muted-foreground">{d.label}</span>
+                          <span className="text-xs font-semibold text-foreground">{d.label}</span>
                           {ehData(opts) ? (
                             <FiltroData valor={atual} set={set} />
                           ) : ehValor(opts) ? (
