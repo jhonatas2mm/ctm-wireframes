@@ -101,6 +101,7 @@ export function JourneyShell() {
   const stepsRef = useRef(journey.steps)
   stepsRef.current = journey.steps
   const doFrame = useRef(false)
+  const navegouAte = useRef(0)
   const profile = current.profile ?? pid
   const profileDef = profileOf(profile)
   const frameRef = useRef<HTMLDivElement>(null)
@@ -147,6 +148,9 @@ export function JourneyShell() {
     // Se a etapa mudou porque o usuário navegou dentro do protótipo, não reposiciona a tela.
     if (doFrame.current) doFrame.current = false
     else if (win) {
+      // A casca mandou o protótipo para esta rota: ignora os ecos de rota por um instante (evita pular de etapa
+      // quando a mesma rota aparece em mais de uma etapa ou quando uma modal fecha sozinha).
+      navegouAte.current = Date.now() + 1500
       win.location.hash = current.path
       // Guia: ao navegar pelo fluxograma, destaca o foco da etapa e explica o passo (overlay no protótipo).
       if (guia && journey.id) {
@@ -162,7 +166,7 @@ export function JourneyShell() {
   useEffect(() => {
     const on = (e: MessageEvent) => {
       if (e.origin !== location.origin || e.data?.src !== 'ctm-tour' || e.data.type !== 'next') return
-      setState((st) => ({ ...st, step: st.step + 1 }))
+      setState((st) => ({ ...st, step: Math.min(st.step + 1, stepsRef.current.length - 1) }))
     }
     addEventListener('message', on)
     return () => removeEventListener('message', on)
@@ -187,12 +191,21 @@ export function JourneyShell() {
       if (m.type === 'route') {
         setFramePath(m.path)
         setScreen(m.screen)
+        if (Date.now() < navegouAte.current) return
         // Destaque do fluxograma acompanha a tela vista: rota exata da etapa; senão, a mesma tela (padrão da rota).
         const steps = stepsRef.current
         const padrao = new RegExp(`^${m.screen.replace(/:[^/]+/g, '[^/]+')}$`)
-        let i = steps.findIndex((x) => x.path === m.path)
-        if (i < 0) i = steps.findIndex((x) => padrao.test(x.path))
-        if (i >= 0) setState((st) => (st.step === i ? st : ((doFrame.current = true), { ...st, step: i })))
+        // A mesma rota pode aparecer em mais de uma etapa (ex.: a lista no início e, no fim, com o item criado):
+        // escolhe a ocorrência mais próxima da etapa atual, preferindo as seguintes.
+        const exatas = steps.map((x, k) => (x.path === m.path ? k : -1)).filter((k) => k >= 0)
+        const candidatas = exatas.length ? exatas : steps.map((x, k) => (padrao.test(x.path) ? k : -1)).filter((k) => k >= 0)
+        if (candidatas.length)
+          setState((st) => {
+            if (candidatas.includes(st.step)) return st
+            const i = candidatas.find((k) => k > st.step) ?? candidatas[candidatas.length - 1]
+            doFrame.current = true
+            return { ...st, step: i }
+          })
         setDraft(null)
         setActive(null)
       } else if (m.type === 'pick') {
@@ -305,7 +318,7 @@ export function JourneyShell() {
                   )}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="dark min-w-52" alignItemWithTrigger={false}>
+              <SelectContent className="dark min-w-52" alignItemWithTrigger={false} searchable={false}>
                 {profiles.map((pf) => {
                   const n = visibleJourneys.filter((j) => inicio(j) === pf.name).length
                   return (
@@ -332,7 +345,7 @@ export function JourneyShell() {
                   <SelectTrigger size="sm" className="w-52 shrink-0">
                     <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="dark min-w-72" alignItemWithTrigger={false}>
+                  <SelectContent className="dark min-w-72" alignItemWithTrigger={false} searchable={false}>
                     {doPerfil.map((j) => (
                       <SelectItem key={j.id} value={j.id}>
                         <span className="flex w-full items-center justify-between gap-3">

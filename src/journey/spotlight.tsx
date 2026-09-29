@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { ArrowRight, Sparkles, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 // Guia da jornada (dentro do protótipo): quando a casca troca de etapa pelo fluxograma, escurece a tela,
 // deixa "vazado" o elemento em foco e mostra um cartão explicando o passo.
@@ -8,7 +9,13 @@ import { ArrowRight, Sparkles, X } from 'lucide-react'
 export type TourMsg = { focus?: string; title: string; note?: string; index: number; total: number; profile?: string; color?: string; last: boolean }
 
 function acharAlvo(focus?: string): HTMLElement | null {
-  if (!focus) return null
+  // Sem foco definido: destaca a side nav/modal aberta, se houver (ex.: formulário de criação).
+  if (!focus) return document.querySelector<HTMLElement>('[data-slot="sheet-content"], [data-slot="dialog-content"]')
+  // row=Texto: a linha de tabela que contém o texto (ex.: o item recém-criado na lista).
+  if (focus.startsWith('row=')) {
+    const alvo = focus.slice(4).trim().toLowerCase()
+    return [...document.querySelectorAll<HTMLElement>('tr, [role="row"]')].find((el) => el.offsetParent !== null && el.innerText.toLowerCase().includes(alvo)) ?? null
+  }
   if (focus.startsWith('text=')) {
     const alvo = focus.slice(5).trim().toLowerCase()
     const cands = [...document.querySelectorAll<HTMLElement>('button, a, [role="button"], [role="tab"], th, h1, h2, h3, label, [data-slot="card"], section, [data-slot="data-table"]')]
@@ -41,7 +48,7 @@ export function Spotlight() {
 
   // Procura o alvo (a tela pode ainda estar renderizando) e acompanha rolagem/redimensionamento.
   useLayoutEffect(() => {
-    if (!tour?.focus) return
+    if (!tour) return
     let tentativas = 0, el: HTMLElement | null = null
     const medir = () => el && setRect(el.getBoundingClientRect())
     const achar = setInterval(() => {
@@ -62,16 +69,20 @@ export function Spotlight() {
   if (!tour) return null
   const cor = tour.color ?? '#E84910'
   const pad = 8
-  const hole = rect && { top: rect.top - pad, left: rect.left - pad, width: rect.width + pad * 2, height: rect.height + pad * 2 }
+  // Alvo que ocupa quase a tela (ex.: formulário de criação em tela cheia): não escurece; o cartão flutua no canto.
+  const grande = !!rect && rect.width * rect.height > innerWidth * innerHeight * 0.55
+  const hole = rect && !grande ? { top: rect.top - pad, left: rect.left - pad, width: rect.width + pad * 2, height: rect.height + pad * 2 } : null
   // Cartão abaixo do alvo; se não couber, acima; sem alvo, no centro.
   const cardW = 360
   const abaixo = hole && hole.top + hole.height + 220 < innerHeight
   const cardPos: React.CSSProperties = hole
     ? {
         left: Math.min(Math.max(16, hole.left), innerWidth - cardW - 16),
-        ...(abaixo ? { top: hole.top + hole.height + 14 } : { bottom: innerHeight - hole.top + 14 }),
+        ...(abaixo ? { top: hole.top + hole.height + 14 } : hole.top > 220 ? { bottom: innerHeight - hole.top + 14 } : { top: Math.max(16, hole.top + 16) }),
       }
-    : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
+    : grande
+      ? { right: 24, bottom: 88 }
+      : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
 
   const proxima = () => {
     setTour(null)
@@ -79,7 +90,13 @@ export function Spotlight() {
   }
 
   return (
-    <div className="fixed inset-0 z-[9998]" onClick={() => setTour(null)}>
+    // Pointer events não "vazam": senão a side nav aberta entende como clique fora e fecha.
+    <div
+      className={cn('fixed inset-0 z-[9998]', grande && 'pointer-events-none [&>*]:pointer-events-auto')}
+      onClick={() => setTour(null)}
+      onPointerDownCapture={(e) => e.stopPropagation()}
+      onMouseDownCapture={(e) => e.stopPropagation()}
+    >
       {hole ? (
         <div
           className="pointer-events-none absolute rounded-2xl transition-all duration-300"
@@ -87,7 +104,7 @@ export function Spotlight() {
         >
           <span className="absolute inset-0 animate-ping rounded-2xl" style={{ boxShadow: `0 0 0 3px ${cor}`, opacity: 0.35 }} />
         </div>
-      ) : (
+      ) : grande ? null : (
         <div className="absolute inset-0 bg-[rgb(15_17_20/0.58)]" />
       )}
       <div

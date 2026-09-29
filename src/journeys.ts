@@ -18,6 +18,7 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de usuários', path: '/admin/usuarios', focus: 'text=Novo usuário', profile: 'Super admin', note: 'Super admin vê todos os usuários (perfil, DR, status, último acesso) e clica em “Novo usuário”.' },
       { title: 'Novo usuário', path: '/admin/usuarios/novo', profile: 'Super admin', note: 'Informa nome, e-mail, perfil e DR. O usuário nasce Ativo e recebe o link para definir a senha.' },
+      { title: 'Usuário criado', path: '/admin/usuarios', focus: 'row=Paulo Mendes', profile: 'Super admin', note: 'Ao salvar, o usuário aparece na lista como Ativo, com perfil e DR (ex.: Paulo Mendes, DR solicitante), e recebe o e-mail para definir a senha.' },
       { title: 'Editar usuário', path: '/admin/usuarios/u3', profile: 'Super admin', note: 'Pelo lápis na linha: troca perfil ou DR. Inativar pede confirmação.' },
     ],
   },
@@ -65,6 +66,7 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de DRs credenciadas', path: '/drs', focus: 'text=Nova DR credenciada', profile: 'DN', note: 'Início do sistema: o DN clica em “Nova DR credenciada”.' },
       { title: 'Nova DR credenciada', path: '/drs/novo', profile: 'DN', note: 'Escolhe a DR (UF ainda não credenciada) e preenche o contato. Nasce Ativa; pode ser inativada depois.' },
+      { title: 'DR credenciada', path: '/drs', focus: 'row=SENAI-PE', profile: 'DN', note: 'Ao salvar, a DR aparece na lista como Ativa, com responsável e contato (ex.: SENAI-PE). Dali pode ser editada ou inativada.' },
     ],
   },
   {
@@ -85,6 +87,7 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de TAAs', path: '/meus-taas', focus: 'text=Novo TAA', profile: 'CTM: Comercial', note: 'O Comercial clica em “Novo TAA”.' },
       { title: 'Novo TAA', path: '/meus-taas/novo', profile: 'CTM: Comercial', note: 'Preenche DR, vigência e valor global, baixa o modelo e salva. O TAA fica Em elaboração.' },
+      { title: 'TAA criado', path: '/meus-taas', focus: 'row=103/2026', profile: 'CTM: Comercial', note: 'Ao salvar, o TAA aparece na lista Em elaboração (ex.: 103/2026 com SENAI-ES). As assinaturas acontecem fora do sistema.' },
     ],
   },
   {
@@ -94,6 +97,7 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de TAAs', path: '/meus-taas', focus: 'text=Novo TAA', profile: 'CTM: Supervisor', note: 'O Supervisor clica em “Novo TAA”.' },
       { title: 'Novo TAA', path: '/meus-taas/novo', profile: 'CTM: Supervisor', note: 'Preenche DR, vigência e valor global, baixa o modelo e salva. O TAA fica Em elaboração.' },
+      { title: 'TAA criado', path: '/meus-taas', focus: 'row=103/2026', profile: 'CTM: Supervisor', note: 'Ao salvar, o TAA aparece na lista Em elaboração (ex.: 103/2026 com SENAI-ES). As assinaturas acontecem fora do sistema.' },
     ],
   },
   {
@@ -106,6 +110,7 @@ export const journeys: Journey[] = [
       { title: 'Edital criado', path: '/editais/1/sucesso', profile: 'DN', note: 'Tela de sucesso: resumo do edital salvo, com opção de ver o edital ou voltar à gestão.' },
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Novo produto”.' },
       { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital, marca os produtos e cadastra módulos e UCs.' },
+      { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Supervisor', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
   {
@@ -115,6 +120,7 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Novo produto”.' },
       { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital, marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um.' },
+      { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Supervisor', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
   {
@@ -124,7 +130,8 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Nova proposta”.' },
       { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe o edital e a DR contratante, marca os cursos com valor previsto e salva a proposta.' },
-      { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Supervisor', note: 'Depois do acordo (fora do sistema), marca a proposta como Aceita ou Recusada na listagem; recusa pede feedback.' },
+      { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Supervisor', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em elaboração, com os cursos e valores previstos; dali é enviada à DR contratante.' },
+      { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Aceitar', profile: 'CTM: Supervisor', note: 'Depois do acordo (fora do sistema), marca a proposta como Aceita ou Recusada na listagem; recusa pede feedback.' },
     ],
   },
   {
@@ -145,6 +152,7 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Comercial', note: 'Comercial clica em “Novo produto”.' },
       { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Comercial', note: 'Escolhe um edital, marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um.' },
+      { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Comercial', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
   {
@@ -154,7 +162,8 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Comercial', note: 'Comercial clica em “Nova proposta”.' },
       { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Comercial', note: 'Escolhe o edital e a DR contratante, marca os cursos com valor previsto e salva a proposta.' },
-      { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Comercial', note: 'Depois do acordo (fora do sistema), marca a proposta como Aceita ou Recusada na listagem; recusa pede feedback.' },
+      { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Comercial', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em elaboração, com os cursos e valores previstos; dali é enviada à DR contratante.' },
+      { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Aceitar', profile: 'CTM: Comercial', note: 'Depois do acordo (fora do sistema), marca a proposta como Aceita ou Recusada na listagem; recusa pede feedback.' },
     ],
   },
   {
