@@ -144,7 +144,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
       <button
         type="button"
         onClick={() => setAberta(true)}
-        className="flex h-9 w-full items-center gap-2 rounded-xl border bg-card px-3 text-sm text-muted-foreground transition-colors hover:border-foreground/20"
+        className="flex h-9 w-full items-center gap-2 rounded-xl border bg-transparent px-3 text-sm text-muted-foreground transition-colors hover:border-foreground/20"
       >
         <Search className="size-4" />
         <span className="flex-1 text-left">Buscar…</span>
