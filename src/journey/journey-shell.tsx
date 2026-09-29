@@ -307,9 +307,6 @@ export function JourneyShell() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button size="sm" variant="ghost" onClick={alternarTelaCheia}>
-              <Maximize /> Tela cheia <kbd className="ml-1 rounded border border-current px-1 font-mono text-[10px] leading-4 opacity-70">F</kbd>
-            </Button>
           </div>
         </header>
 

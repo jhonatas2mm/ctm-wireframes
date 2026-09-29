@@ -273,3 +273,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-29 — **Mapa do processo** deixa de ser tela do protótipo: vira **painel da casca** (botão no topo), sobre o protótipo; “Abrir no protótipo” leva o iframe à tela e fecha o painel. Rota /processo removida do menu.
 - 2026-09-29 — Mapa do processo (painel): ocupa toda a altura; abre e “Ajustar” encaixam pela altura (atores ocupam a altura toda, texto legível), rolagem/arrasto na horizontal. Zoom: botões −/+, Ctrl/⌘ + roda (ou pinça), teclas + − 0 (0 = ajustar); arrastar com o mouse move o diagrama.
 - 2026-09-29 — **Sem versão responsiva**: o protótipo é sempre desktop. Removidos os botões tablet/celular da casca; o protótipo usa viewport de 1440 e largura mínima de 1280px (em telas menores, rola em vez de se reorganizar); menu lateral nunca vira gaveta.
+- 2026-09-29 — Casca: removido o botão “Tela cheia” do topo; continua o ícone ao lado de Anterior/Próxima e o atalho F.
