@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, useConfirmar } from '@/components/wf'
 import {
-  HOJE, dataBr, diasSemAcesso, escolasDr, nomeParte, useAjustesCobranca, useAlunosEad, useContratos, useContratosCtm, useFormalizacoes, useProdutos, useTurmas, useTurmasEad,
+  HOJE, dataBr, diasSemAcesso, escolasDr, nomeParte, useAjustesCobranca, useAlunosEad, useConfirmacoesDesistencia, useContratos, useContratosCtm, useFormalizacoes, useProdutos, useTurmas, useTurmasEad,
   type AlunoEad, type Formalizacao, type Produto, type SituacaoFormal,
 } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
@@ -58,13 +58,14 @@ function CobrancaPropostas() {
   const turmas = useTurmas().all
   const taas = useContratos().all
   const ajustes = useAjustesCobranca().all
+  const conf = useConfirmacoesDesistencia().all
   const propostas = useProdutos().all.filter((p) => p.status === 'Aprovado')
   const turmasDe = (p: Produto) => turmas.filter((t) => t.propostaId === p.id && t.fase !== 'Cancelada')
   const cicloAtual = (p: Produto) => { const cs = ciclosDe(turmasDe(p)); return cs.find((c) => c >= HOJE.slice(0, 7)) ?? cs[0] }
   const valorCiclo = (p: Produto) => {
     const c = cicloAtual(p)
     if (!c) return 0
-    return linhasCobranca(p, turmasDe(p), c).reduce((s, l) => s + l.valor, 0) + ajustes.filter((a) => a.propostaId === p.id && a.ciclo === c).reduce((s, a) => s + a.ch * a.alunos * a.valorHora, 0)
+    return linhasCobranca(p, turmasDe(p), c, conf).reduce((s, l) => s + l.valor, 0) + ajustes.filter((a) => a.propostaId === p.id && a.ciclo === c).reduce((s, a) => s + a.ch * a.alunos * a.valorHora, 0)
   }
   const colunas: Column<Produto>[] = [
     { header: 'Proposta', value: (p) => p.numero, search: true, cell: (p) => <Badge variant="secondary" className="font-mono">{p.numero}</Badge> },

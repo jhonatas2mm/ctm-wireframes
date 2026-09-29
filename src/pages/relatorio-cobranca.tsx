@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import { Textarea } from '@/components/ui/textarea'
 import { EmptyState, PageHeader, Req, useConfirmar } from '@/components/wf'
 import {
-  HOJE, dataBr, nomeParte, useAjustesCobranca, useContratos, useProdutos, useTurmas,
+  HOJE, dataBr, nomeParte, useAjustesCobranca, useConfirmacoesDesistencia, useContratos, useProdutos, useTurmas,
   type AjusteCobranca,
 } from '@/lib/mock'
 import { cn } from '@/lib/utils'
@@ -32,6 +32,7 @@ export default function RelatorioCobranca() {
   const { all: todas } = useTurmas()
   const { all: taas } = useContratos()
   const aj = useAjustesCobranca()
+  const conf = useConfirmacoesDesistencia().all
   const { confirmar, dialogo } = useConfirmar()
   const [novo, setNovo] = useState<Omit<AjusteCobranca, 'id'> | null>(null)
   const crumbs = [{ label: 'Financeiro', to: '/financeiro?aba=cobranca' }, { label: p ? `Relatório de cobrança · ${p.numero}` : 'Relatório de cobrança' }]
@@ -39,7 +40,7 @@ export default function RelatorioCobranca() {
   const turmas = todas.filter((t) => t.propostaId === p.id && t.fase !== 'Cancelada')
   const ciclos = ciclosDe(turmas)
   const ciclo = ciclos.find((c) => c === params.get('ciclo')) ?? ciclos.find((c) => c >= HOJE.slice(0, 7)) ?? ciclos[0] ?? HOJE.slice(0, 7)
-  const linhas = linhasCobranca(p, turmas, ciclo)
+  const linhas = linhasCobranca(p, turmas, ciclo, conf)
   const ajustes = aj.all.filter((a) => a.propostaId === p.id && a.ciclo === ciclo)
   const total = linhas.reduce((s, l) => s + l.valor, 0) + ajustes.reduce((s, a) => s + a.ch * a.alunos * a.valorHora, 0)
   const taa = taas.find((t) => t.id === p.taaId)
