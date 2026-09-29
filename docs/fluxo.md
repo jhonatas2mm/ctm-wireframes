@@ -179,7 +179,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, perfil Analista, acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
 ## Agente inteligente
-- Botão no topo, à esquerda do avatar; abre um **chat de IA na lateral direita** (empurra a tela). No protótipo as respostas são **simuladas** a partir dos dados fictícios.
+- Botão no topo, à esquerda do avatar; abre um **chat de IA na lateral direita** (empurra a tela). No protótipo as respostas são **fixas (mockadas por perfil)**, sem ler os dados salvos no navegador.
 - **Ações rápidas** do dia a dia, por perfil: CTM (pendências, propostas aguardando retorno, turmas que começam em breve, aditivos), DR solicitante (pendências, TAAs para analisar, turmas que pedem atenção), DN (aprovações de portfólio, TAAs em andamento).
 - **Jornada de exemplo**: o campo já vem com a próxima pergunta; basta apertar Enviar. As respostas trazem itens com atalho para a tela; o agente só **sugere** (ex.: rascunho de lembrete à DR) — quem envia é o usuário.
 
@@ -315,3 +315,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Agente inteligente**: botão no topo (rótulo que recolhe) abre chat de IA simulado na lateral direita, com ações rápidas por perfil e jornada de exemplo percorrida só com Enviar.
 - 2026-09-29 — Notificações da CTM: nova notificação **Desistência no Moodle aguardando a DR**, uma por turma (quantos estudantes e UCs pendentes de confirmação); abre o Acompanhamento dos estudantes da turma. Reaparece quando surgem novas pendências.
 - 2026-09-29 — **Skeleton animado** de carregamento em todas as telas (título, indicadores e tabela), por ~0,45 s ao entrar numa tela; abrir sheet/detalhe da mesma tela não dispara.
+- 2026-09-29 — Agente inteligente: respostas fixas (mockadas por perfil), sem depender dos dados salvos no navegador.

@@ -5,16 +5,12 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
-import { excedentesProposta } from '@/lib/cobranca'
-import {
-  HOJE, dataBr, nomeParte, periodoTurma, situacaoCronograma, situacaoDe, statusTurma, useContratos, useCursosDr, useProdutos, useTurmas,
-} from '@/lib/mock'
 import { cn } from '@/lib/utils'
 import { BarreiraErro } from './erro'
 
 // Agente inteligente: chat de IA (SIMULADO no protótipo) que abre na lateral direita empurrando a tela. Traz ações
 // rápidas do dia a dia do perfil (pendências, prazos) e um roteiro de exemplo que se percorre só apertando "Enviar".
-// As respostas são montadas com os dados fictícios do protótipo; nada é enviado a um modelo de verdade.
+// As respostas são fixas (mockadas por perfil); nada é enviado a um modelo de verdade.
 
 // Ícone animado (SVG): estrela que pulsa e faíscas que piscam (animações em src/index.css).
 export function IconeAgente({ className }: { className?: string }) {
@@ -57,131 +53,93 @@ type Item = { titulo: string; sub?: string; tom?: 'alerta' | 'ok'; to?: string }
 type Msg = { de: 'usuario' | 'agente'; texto: string; itens?: Item[]; rascunho?: string; rodape?: string }
 type Pergunta = { texto: string; resposta: () => Msg }
 
-// Dado salvo no navegador pode estar incompleto (ex.: criado numa versão antiga): nunca deixa o chat quebrar.
-const seguro = <T,>(f: () => T, padrao: T): T => { try { return f() } catch { return padrao } }
-const fil = <T,>(xs: T[], f: (x: T) => boolean) => xs.filter((x) => seguro(() => f(x), false))
-const somarDias = (iso: string, n: number) => { const d = new Date(`${iso}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10) }
 
 // Conteúdo do agente para o perfil ativo: ações rápidas e roteiro de exemplo, a partir dos dados do protótipo.
-function useConteudo() {
-  const perfil = useProfile()
-  const def = profileOf(perfil)
-  const propostas = useProdutos().all
-  const turmas = useTurmas().all
-  const taas = useContratos().all
-  const portfolio = useCursosDr().all
-  // Monta o conteúdo protegido: dado salvo estranho nunca quebra o chat (cai no conteúdo mínimo).
-  try { return montarConteudo(def, propostas, turmas, taas, portfolio) } catch (erro) {
-    console.error('[agente]', erro)
-    return { nome: (def.user?.nome ?? '').split(' ')[0] || 'olá', acoes: [] as Pergunta[], roteiro: [] as Pergunta[] }
-  }
-}
+// Conteúdo do agente por perfil: respostas FIXAS (mockadas), sem ler os dados salvos no navegador.
+const msg = (texto: string, extra: Partial<Msg> = {}): Msg => ({ de: 'agente', texto, ...extra })
 
-function montarConteudo(def: ReturnType<typeof profileOf>, propostas: ReturnType<typeof useProdutos>['all'], turmas: ReturnType<typeof useTurmas>['all'], taas: ReturnType<typeof useContratos>['all'], portfolio: ReturnType<typeof useCursosDr>['all']) {
+function useConteudo() {
+  const def = profileOf(useProfile())
   const nome = (def.user?.nome ?? 'Maria Silva').split(' ')[0]
-  const uf = def.dr?.sigla.replace('SENAI-', '')
   const grupo = def.grupo ?? 'CTM'
 
   if (grupo === 'DR solicitante') {
-    const taasAnalisar = fil(taas, (t) => t.contratante === uf && t.origem === 'CTM' && (t.status === 'Encaminhado' || t.status === 'Em análise'))
-    const cronos = fil(turmas, (t) => t.drContratante === uf && situacaoCronograma(t.cronograma) === 'Aguardando')
-    const props = fil(propostas, (p) => p.drContratante === uf && p.status === 'Aguardando')
-    const pendencias = (): Msg => ({
-      de: 'agente',
-      texto: `${nome}, você tem ${taasAnalisar.length + cronos.length + props.length} pendência(s) com as CTMs:`,
-      itens: [
-        ...taasAnalisar.map((t) => ({ titulo: `TAA ${t.numero} para analisar`, sub: `CTM SENAI-${t.dr} · ${t.status}`, tom: 'alerta' as const, to: `/dashboard/${t.id}` })),
-        ...cronos.map((t) => ({ titulo: `Validar o cronograma da ${t.codigo}`, sub: `Prazo ${t.cronograma?.prazo ? dataBr(t.cronograma.prazo) : '—'}; sem resposta, vale como validado`, tom: 'alerta' as const })),
-        ...props.map((p) => ({ titulo: `Proposta ${p.numero} aguardando seu retorno`, sub: `CTM SENAI-${p.drOfertante}` })),
-      ],
-    })
+    const pendencias = () => msg(`${nome}, você tem 3 pendências com as CTMs:`, { itens: [
+      { titulo: 'TAA 013/2026 para analisar', sub: 'CTM SENAI-MG · Em análise', tom: 'alerta', to: '/dashboard' },
+      { titulo: 'Validar o cronograma da TU-MG-002/2026', sub: 'Prazo 08/10/2026; sem resposta, vale como validado', tom: 'alerta' },
+      { titulo: 'Proposta PC-MG-004/2026 aguardando seu retorno', sub: 'CTM SENAI-MG' },
+    ] })
     return {
       nome,
       acoes: [
         { texto: 'Quais são minhas pendências?', resposta: pendencias },
-        { texto: 'Tenho TAA para analisar?', resposta: (): Msg => ({ de: 'agente', texto: taasAnalisar.length ? `Sim, ${taasAnalisar.length}:` : 'Nenhum TAA aguardando sua análise.', itens: taasAnalisar.map((t) => ({ titulo: `TAA ${t.numero}`, sub: `CTM SENAI-${t.dr} · ${t.edital ?? ''}`, to: `/dashboard/${t.id}` })) }) },
-        { texto: 'Quais turmas precisam de atenção?', resposta: (): Msg => ({ de: 'agente', texto: 'Turmas com alunos que pedem atitude estão no seu Painel. Posso abrir:', itens: [{ titulo: 'Painel da DR', sub: 'Alunos sem acesso, média baixa, atividades não entregues', to: '/acompanhamento' }] }) },
+        { texto: 'Tenho TAA para analisar?', resposta: () => msg('Sim, 1:', { itens: [{ titulo: 'TAA 013/2026', sub: 'CTM SENAI-MG · ED-002/2026', to: '/dashboard' }] }) },
+        { texto: 'Quais turmas precisam de atenção?', resposta: () => msg('2 turmas têm estudantes que pedem atitude:', { itens: [
+          { titulo: 'TU-MG-001/2026 · Soldador', sub: '4 sem acesso há mais de 7 dias', tom: 'alerta', to: '/turmas-ead' },
+          { titulo: 'TU-MG-003/2026 · Logística', sub: '2 com média abaixo de 6', tom: 'alerta', to: '/turmas-ead' },
+        ] }) },
       ] as Pergunta[],
       roteiro: [
         { texto: 'Bom dia! O que eu tenho para resolver hoje?', resposta: pendencias },
-        { texto: 'Me resume o TAA que chegou da CTM.', resposta: (): Msg => { const t = taasAnalisar[0]; return t ? { de: 'agente', texto: `O TAA ${t.numero} veio da CTM SENAI-${t.dr} (edital ${t.edital ?? '—'}), com ${t.produtos?.length ?? 0} produto(s) e valor global de ${t.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}. Você pode aceitar, retornar para ajuste ou recusar.`, itens: [{ titulo: `Abrir o TAA ${t.numero}`, to: `/dashboard/${t.id}` }] } : { de: 'agente', texto: 'Nenhum TAA aguardando sua análise agora.' } } },
-        { texto: 'Obrigado! Me avisa se chegar algo novo.', resposta: (): Msg => ({ de: 'agente', texto: 'Combinado. Eu te aviso pelo sino quando chegar TAA, proposta ou cronograma para validar.', rodape: 'Simulação: no protótipo nenhum aviso é criado de verdade.' }) },
+        { texto: 'Me resume o TAA que chegou da CTM.', resposta: () => msg('O TAA 013/2026 veio da CTM SENAI-MG (edital ED-002/2026), com 2 produtos e valor global de R$ 280.000,00. Você pode aceitar, retornar para ajuste ou recusar.', { itens: [{ titulo: 'Abrir TAAs com CTMs', to: '/dashboard' }] }) },
+        { texto: 'Obrigado! Me avisa se chegar algo novo.', resposta: () => msg('Combinado. Eu te aviso pelo sino quando chegar TAA, proposta ou cronograma para validar.', { rodape: 'Simulação: no protótipo nenhum aviso é criado de verdade.' }) },
       ] as Pergunta[],
     }
   }
 
   if (grupo === 'DN') {
-    const pendentes = fil(portfolio, (c) => situacaoDe(c) === 'Aguardando')
-    const resumo = (): Msg => ({ de: 'agente', texto: `${nome}, há ${pendentes.length} solicitação(ões) de portfólio aguardando a sua aprovação:`, itens: pendentes.map((c) => ({ titulo: `${c.nome} · v${c.versao ?? 1}`, sub: `CTM SENAI-${c.ctm} · ${(c.versao ?? 1) > 1 ? 'nova versão' : 'novo produto'}`, tom: 'alerta' as const, to: '/portfolio/aprovacoes' })) })
+    const resumo = () => msg(`${nome}, há 3 solicitações de portfólio aguardando a sua aprovação:`, { itens: [
+      { titulo: 'Soldador · v2', sub: 'CTM SENAI-MG · nova versão', tom: 'alerta', to: '/portfolio/aprovacoes' },
+      { titulo: 'Mecânico de Manutenção de Máquinas · v1', sub: 'CTM SENAI-MG · novo produto', tom: 'alerta', to: '/portfolio/aprovacoes' },
+      { titulo: 'Técnico em Eletrotécnica · v2', sub: 'CTM SENAI-RJ · nova versão', tom: 'alerta', to: '/portfolio/aprovacoes' },
+    ] })
     return {
       nome,
       acoes: [
         { texto: 'O que está aguardando minha aprovação?', resposta: resumo },
-        { texto: 'Quais TAAs estão em andamento?', resposta: (): Msg => { const em = taas.filter((t) => t.status !== 'Aceito' && t.status !== 'Cancelado'); return { de: 'agente', texto: `${em.length} TAA(s) em tramitação entre CTMs e DRs:`, itens: em.slice(0, 6).map((t) => ({ titulo: `TAA ${t.numero}`, sub: `CTM SENAI-${t.dr} → ${nomeParte(t.contratante)} · ${t.status}` })) } } },
+        { texto: 'Quais TAAs estão em andamento?', resposta: () => msg('4 TAAs em tramitação entre CTMs e DRs:', { itens: [
+          { titulo: 'TAA 005/2026', sub: 'CTM SENAI-MG → SENAI-SP · Retornado' },
+          { titulo: 'TAA 011/2026', sub: 'CTM SENAI-MG → SENAI-BA · Em análise' },
+          { titulo: 'TAA 013/2026', sub: 'CTM SENAI-MG → SENAI-SP · Em análise' },
+          { titulo: 'TAA 016/2026', sub: 'CTM SENAI-MG → SENAI-MG · Encaminhado' },
+        ] }) },
       ] as Pergunta[],
       roteiro: [
         { texto: 'Bom dia! Tenho alguma aprovação pendente?', resposta: resumo },
-        { texto: 'Obrigada, vou aprovar agora.', resposta: (): Msg => ({ de: 'agente', texto: 'Abrindo a Aprovação de portfólio para você.', itens: [{ titulo: 'Aprovação de portfólio', to: '/portfolio/aprovacoes' }] }) },
+        { texto: 'Obrigada, vou aprovar agora.', resposta: () => msg('Abrindo a Aprovação de portfólio para você.', { itens: [{ titulo: 'Aprovação de portfólio', to: '/portfolio/aprovacoes' }] }) },
       ] as Pergunta[],
     }
   }
 
   // CTM (e Super admin): pendências da operação.
-  const aguardando = fil(propostas, (p) => p.status === 'Aguardando' && Array.isArray(p.cursos))
-  const rascunhos = fil(propostas, (p) => (p.status ?? 'Rascunho') === 'Rascunho')
-  const aditivos = propostas.flatMap((p) => seguro(() => excedentesProposta(p, turmas).map((e) => ({ p, e })), []))
-  const cronos = fil(turmas, (t) => situacaoCronograma(t.cronograma) === 'Aguardando')
-  const proximas = fil(turmas, (t) => { const i = periodoTurma(t).inicio; return statusTurma(t) !== 'Cancelada' && i >= HOJE && i <= somarDias(HOJE, 21) })
-  const taasCtm = fil(taas, (t) => t.origem !== 'CTM' && (t.status === 'Encaminhado' || t.status === 'Em análise'))
-  const pendencias = (): Msg => ({
-    de: 'agente',
-    texto: `Bom dia, ${nome}! Separei o que precisa de você hoje (${dataBr(HOJE)}):`,
-    itens: [
-      ...aditivos.map(({ p, e }) => ({ titulo: `Fazer aditivo na ${p.numero}`, sub: `${e.curso}: ${e.moodle} alunos no Moodle, ${e.proposta} na proposta`, tom: 'alerta' as const, to: `/produtos/${p.id}` })),
-      ...taasCtm.map((t) => ({ titulo: `Analisar o TAA ${t.numero}`, sub: `Criado pelo ${nomeParte(t.contratante)}`, tom: 'alerta' as const, to: `/taas-ctm/${t.id}` })),
-      ...cronos.map((t) => ({ titulo: `Cronograma da ${t.codigo} aguardando a DR`, sub: `Prazo ${t.cronograma?.prazo ? dataBr(t.cronograma.prazo) : '—'} · SENAI-${t.drContratante}`, to: `/oferta/${t.id}` })),
-      ...aguardando.map((p) => ({ titulo: `Proposta ${p.numero} aguardando retorno`, sub: `SENAI-${p.drContratante}`, to: `/produtos/${p.id}` })),
-      ...rascunhos.slice(0, 2).map((p) => ({ titulo: `Rascunho ${p.numero} parado`, sub: `SENAI-${p.drContratante}`, to: `/produtos/${p.id}` })),
-    ],
-  })
-  const propostasAguardando = (): Msg => ({
-    de: 'agente',
-    texto: aguardando.length ? `${aguardando.length} proposta(s) aguardando o retorno da DR:` : 'Nenhuma proposta aguardando retorno.',
-    itens: aguardando.map((p) => ({ titulo: p.numero, sub: `SENAI-${p.drContratante} · versão v${p.versao ?? 1} · ${p.cursos.map((c) => c.nome).join(', ')}`, to: `/produtos/${p.id}` })),
-  })
-  const turmasProximas = (): Msg => ({
-    de: 'agente',
-    texto: proximas.length ? `${proximas.length} turma(s) começam nas próximas 3 semanas:` : 'Nenhuma turma começa nas próximas 3 semanas.',
-    itens: proximas.map((t) => {
-      const sit = situacaoCronograma(t.cronograma)
-      return { titulo: `${t.codigo} · ${t.cursos.join(', ')}`, sub: `Início ${dataBr(periodoTurma(t).inicio)} · cronograma ${sit.toLowerCase()}${!t.equipe ? ' · sem equipe' : ''}`, tom: sit === 'Validado' ? 'ok' as const : 'alerta' as const, to: `/oferta/${t.id}` }
-    }),
-  })
-  const alvo = aguardando[0]
+  const pendencias = () => msg(`Bom dia, ${nome}! Separei o que precisa de você hoje:`, { itens: [
+    { titulo: 'Fazer aditivo na PC-MG-001/2026', sub: 'Técnico em Mecatrônica: 43 alunos no Moodle, 40 na proposta', tom: 'alerta', to: '/produtos/1' },
+    { titulo: 'Analisar o TAA 011/2026', sub: 'Criado pelo SENAI-BA', tom: 'alerta', to: '/taas-ctm' },
+    { titulo: 'Cronograma da TU-MG-002/2026 aguardando a DR', sub: 'Prazo 08/10/2026 · SENAI-SP', to: '/oferta' },
+    { titulo: 'Proposta PC-MG-004/2026 aguardando retorno', sub: 'SENAI-GO', to: '/produtos/4' },
+  ] })
+  const aguardando = () => msg('1 proposta aguardando o retorno da DR:', { itens: [{ titulo: 'PC-MG-004/2026', sub: 'SENAI-GO · versão v2 · Técnico em Logística', to: '/produtos/4' }] })
+  const turmas = () => msg('2 turmas começam nas próximas 3 semanas:', { itens: [
+    { titulo: 'TU-MG-001/2026 · Soldador', sub: 'Início 05/10/2026 · cronograma validado', tom: 'ok', to: '/oferta' },
+    { titulo: 'TU-MG-004/2026 · Mecatrônica', sub: 'Início 19/10/2026 · cronograma em rascunho · sem equipe', tom: 'alerta', to: '/oferta' },
+  ] })
   return {
     nome,
     acoes: [
       { texto: 'Quais são minhas pendências de hoje?', resposta: pendencias },
-      { texto: 'Propostas aguardando retorno da DR', resposta: propostasAguardando },
-      { texto: 'Turmas que começam em breve', resposta: turmasProximas },
-      { texto: 'Tem aditivo para fazer?', resposta: (): Msg => ({ de: 'agente', texto: aditivos.length ? `Sim, ${aditivos.length}. As salas do Moodle têm mais alunos do que a proposta:` : 'Nenhum aditivo pendente.', itens: aditivos.map(({ p, e }) => ({ titulo: p.numero, sub: `${e.curso}: +${e.moodle - e.proposta} aluno(s)`, tom: 'alerta' as const, to: `/produtos/${p.id}` })) }) },
+      { texto: 'Propostas aguardando retorno da DR', resposta: aguardando },
+      { texto: 'Turmas que começam em breve', resposta: turmas },
+      { texto: 'Tem aditivo para fazer?', resposta: () => msg('Sim, 1. As salas do Moodle têm mais alunos do que a proposta:', { itens: [{ titulo: 'PC-MG-001/2026', sub: 'Técnico em Mecatrônica: +3 alunos', tom: 'alerta', to: '/produtos/1' }] }) },
     ] as Pergunta[],
     roteiro: [
       { texto: 'Bom dia! O que eu tenho de pendência hoje?', resposta: pendencias },
-      { texto: 'Quais propostas estão aguardando retorno da DR?', resposta: propostasAguardando },
-      {
-        texto: alvo ? `Escreve um lembrete para o SENAI-${alvo.drContratante} sobre a ${alvo.numero}.` : 'Escreve um lembrete para a DR sobre a proposta.',
-        resposta: (): Msg => ({
-          de: 'agente',
-          texto: 'Aqui está um rascunho. Revise antes de enviar:',
-          rascunho: alvo
-            ? `Olá, equipe do SENAI-${alvo.drContratante}!\n\nPassando para lembrar da proposta ${alvo.numero} (versão v${alvo.versao ?? 1}), de ${alvo.cursos.map((c) => c.nome).join(', ')}. Ficamos no aguardo do retorno de vocês para seguirmos com o cronograma das turmas.\n\nQualquer dúvida, estou à disposição.\n${def.user?.nome ?? ''}`
-            : 'Olá! Passando para lembrar da proposta enviada. Ficamos no aguardo do retorno.',
-          rodape: 'O agente só sugere o texto; o envio é feito por você.',
-        }),
-      },
-      { texto: 'E as turmas que começam nas próximas semanas, falta alguma coisa?', resposta: turmasProximas },
-      { texto: 'Obrigada! Me lembra amanhã às 9h de conferir de novo.', resposta: (): Msg => ({ de: 'agente', texto: 'Combinado: amanhã às 9h eu trago as pendências atualizadas.', rodape: 'Simulação: no protótipo o lembrete não é criado de verdade.' }) },
+      { texto: 'Quais propostas estão aguardando retorno da DR?', resposta: aguardando },
+      { texto: 'Escreve um lembrete para o SENAI-GO sobre a PC-MG-004/2026.', resposta: () => msg('Aqui está um rascunho. Revise antes de enviar:', {
+        rascunho: `Olá, equipe do SENAI-GO!\n\nPassando para lembrar da proposta PC-MG-004/2026 (versão v2), de Técnico em Logística. Ficamos no aguardo do retorno de vocês para seguirmos com o cronograma das turmas.\n\nQualquer dúvida, estou à disposição.\n${def.user?.nome ?? ''}`,
+        rodape: 'O agente só sugere o texto; o envio é feito por você.',
+      }) },
+      { texto: 'E as turmas que começam nas próximas semanas, falta alguma coisa?', resposta: turmas },
+      { texto: 'Obrigada! Me lembra amanhã às 9h de conferir de novo.', resposta: () => msg('Combinado: amanhã às 9h eu trago as pendências atualizadas.', { rodape: 'Simulação: no protótipo o lembrete não é criado de verdade.' }) },
     ] as Pergunta[],
   }
 }
@@ -216,7 +174,7 @@ function Chat({ onClose }: { onClose: () => void }) {
     setMsgs((m) => [...m, { de: 'usuario', texto: pergunta }])
     setDigitando(true)
     setTimeout(() => {
-      setMsgs((m) => [...m, seguro(resposta, { de: 'agente', texto: 'Não consegui montar essa resposta com os dados salvos neste navegador. Use “Restaurar dados” na casca e tente de novo.' } as Msg)])
+      setMsgs((m) => [...m, resposta()])
       setDigitando(false)
       if (proximo !== undefined) { setPasso(proximo); setTexto(roteiro[proximo]?.texto ?? '') }
     }, 900)
@@ -236,7 +194,7 @@ function Chat({ onClose }: { onClose: () => void }) {
             <span className="flex size-8 items-center justify-center rounded-full bg-accent text-primary"><IconeAgente className="size-4.5" /></span>
             <div className="min-w-0 flex-1 leading-tight">
               <p className="text-sm font-semibold">Agente inteligente</p>
-              <p className="text-xs text-muted-foreground">Respostas simuladas com os dados do protótipo</p>
+              <p className="text-xs text-muted-foreground">Respostas simuladas (exemplo)</p>
             </div>
             <Button size="icon-sm" variant="ghost" aria-label="Recomeçar conversa" onClick={reiniciar}><RotateCcw /></Button>
             <Button size="icon-sm" variant="ghost" aria-label="Fechar agente" onClick={onClose}><X /></Button>
