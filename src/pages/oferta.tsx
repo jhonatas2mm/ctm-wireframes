@@ -272,7 +272,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
                           type="button"
                           aria-pressed={escolhido}
                           onClick={() => alternarCurso(c.nome)}
-                          className={cn('flex w-full items-start gap-2.5 rounded-lg border px-3 py-2.5 text-left transition-colors', escolhido ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'text-muted-foreground hover:border-foreground/40 hover:text-foreground')}
+                          className={cn('flex w-full items-start gap-2.5 rounded-lg border px-3 py-2.5 text-left transition-colors bg-card', escolhido ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'text-muted-foreground hover:border-foreground/40 hover:text-foreground')}
                         >
                           {escolhido ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" /> : <Circle className="mt-0.5 size-4 shrink-0" />}
                           <span className="min-w-0 flex-1">

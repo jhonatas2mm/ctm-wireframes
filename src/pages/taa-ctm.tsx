@@ -159,7 +159,7 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
                     disabled={!!ja}
                     title={ja ? `Já tem o TAA ${ja.numero} com esta CTM para esses produtos` : undefined}
                     onClick={() => setDestinos(on ? destinos.filter((x) => x !== d.uf) : [...destinos, d.uf])}
-                    className={cn('rounded-md border px-2.5 py-1 text-sm transition-colors', on ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted', ja && 'cursor-not-allowed opacity-40')}
+                    className={cn('rounded-md border px-2.5 py-1 text-sm transition-colors bg-card', on ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted', ja && 'cursor-not-allowed opacity-40')}
                   >
                     SENAI-{d.uf}
                   </button>

@@ -268,7 +268,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
             const sit = !t.salasCriadas ? 'Sem salas' : integ >= e.alunos ? 'Integrada' : integ > 0 ? 'Parcial' : 'Não integrada'
             const atraso = t.salasCriadas && integ < e.alunos && faltam <= 5
             return (
-              <li key={e.nome} className={cn('flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3', atraso && 'border-amber-300 bg-amber-50')}>
+              <li key={e.nome} className={cn('flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3 bg-card', atraso && 'border-amber-300 bg-amber-50')}>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{e.nome} <span className="font-normal text-muted-foreground">· {e.cidade}</span></p>
                   <p className="text-xs text-muted-foreground tabular-nums">{integ} de {e.alunos} alunos integrados no AVA · código {codigoCtm(e.nome)}</p>

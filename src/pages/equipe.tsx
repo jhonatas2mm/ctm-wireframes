@@ -125,7 +125,7 @@ function NovaPessoaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: 
               {diasSemana.map((d) => {
                 const on = dias.includes(d)
                 return (
-                  <button key={d} type="button" aria-pressed={on} onClick={() => setDias(on ? dias.filter((x) => x !== d) : [...dias, d])} className={cn('rounded-md border px-2.5 py-1 text-sm', on ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted')}>
+                  <button key={d} type="button" aria-pressed={on} onClick={() => setDias(on ? dias.filter((x) => x !== d) : [...dias, d])} className={cn('rounded-md border px-2.5 py-1 text-sm bg-card', on ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted')}>
                     {d.replace('-feira', '')}
                   </button>
                 )

@@ -101,7 +101,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
                     key={e.id}
                     type="button"
                     onClick={() => escolherEdital(e.id)}
-                    className={cn('grid gap-1 rounded-lg border p-3 text-left transition-colors hover:border-foreground/40', on && 'border-foreground ring-1 ring-foreground')}
+                    className={cn('grid gap-1 rounded-lg border p-3 text-left transition-colors hover:border-foreground/40 bg-card', on && 'border-foreground ring-1 ring-foreground')}
                   >
                     <span className="flex items-center justify-between">
                       <span className="flex items-center gap-1.5 font-mono text-sm font-semibold"><FileSpreadsheet className="size-3.5" /> {e.numero}</span>
@@ -135,7 +135,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
                   const on = marcados.includes(c.nome)
                   const ativoAqui = on && atual?.nome === c.nome
                   return (
-                    <li key={c.nome} className={cn('flex items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors', on && 'bg-muted/40', ativoAqui && 'border-foreground', criado && 'opacity-50')}>
+                    <li key={c.nome} className={cn('flex items-center gap-2 rounded-lg border px-3 py-2.5 transition-colors bg-card', on && 'bg-muted/40', ativoAqui && 'border-foreground', criado && 'opacity-50')}>
                       <input type="checkbox" className="size-4" disabled={criado} checked={on} onChange={() => toggle(c.nome)} aria-label={c.nome} />
                       <button type="button" disabled={!on} onClick={() => setAtivo(c.nome)} className="min-w-0 flex-1 text-left disabled:cursor-default">
                         <span className="block truncate text-sm font-medium">{c.nome}</span>

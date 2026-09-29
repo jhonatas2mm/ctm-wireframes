@@ -134,7 +134,7 @@ export default function OfertaDetalhe() {
 
           <TabsContent value="cronograma" className="space-y-6 pt-4">
             {/* Validação pela DR contratante: versões; sem resposta até o prazo, conta como validado */}
-            <section className={cn('flex flex-wrap items-center gap-4 rounded-lg border p-4', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando validação' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
+            <section className={cn('flex flex-wrap items-center gap-4 rounded-lg border p-4 bg-card', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando validação' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">Cronograma v{cron.versao} · {sitCron}</p>
                 <p className="text-sm text-muted-foreground">
