@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { useSheetLateralAberta } from '@/components/ui/sheet'
 import { useSidebarOpcional } from '@/components/ui/sidebar'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import { EmptyState } from './empty-state'
@@ -36,7 +35,6 @@ export type Column<T> = {
   align?: 'left' | 'center' // padrão: centralizado em colunas de versão e numéricas; o resto à esquerda
 }
 
-const ALL = '__all__'
 // Coluna centralizada: versão ou conteúdo numérico (número, valor, %); vazio e "—" não contam.
 const ehNumerico = (v: string | number) => typeof v === 'number' || /^(R\$\s?)?-?\d[\d.,]*\s?%?$/.test(v)
 const centraliza = <T,>(c: Column<T>, rows: T[]) => {
@@ -141,6 +139,7 @@ export function DataTable<T extends { id: string }>({
   // Expandir tabela: só aparece quando a tabela tem rolagem horizontal (muitas colunas); fecha o menu lateral para dar espaço.
   const menu = useSidebarOpcional()
   const areaRef = useRef<HTMLDivElement>(null)
+  const barraRef = useRef<HTMLDivElement>(null) // âncora do popover de filtros: ele ocupa a largura da tabela
   const [transborda, setTransborda] = useState(false)
   const [expandindo, setExpandindo] = useState(false)
   const expandida = expandindo && !!menu && !menu.open // se o menu for reaberto por outro caminho, volta ao normal
@@ -220,7 +219,7 @@ export function DataTable<T extends { id: string }>({
   }
   return (
     <div data-slot="data-table" className="overflow-hidden rounded-lg border bg-card">
-      <div className="flex flex-wrap items-center gap-2 border-b p-3">
+      <div ref={barraRef} className="flex flex-wrap items-center gap-2 border-b p-3">
         {hasSearch && (
           <div className="relative w-96">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -243,8 +242,8 @@ export function DataTable<T extends { id: string }>({
               <SlidersHorizontal /> Filtros{nAtivos > 0 && <span className="text-muted-foreground tabular-nums">({nAtivos})</span>}
             </Popover.Trigger>
             <Popover.Portal>
-              <Popover.Positioner align="start" sideOffset={6} className="z-50">
-                <Popover.Popup className="w-[22rem] overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-lg outline-none">
+              <Popover.Positioner anchor={barraRef} align="start" side="bottom" sideOffset={0} className="z-50">
+                <Popover.Popup className="w-[var(--anchor-width)] overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-lg outline-none">
                   <div className="flex items-center justify-between border-b px-4 py-3">
                     <span className="flex items-center gap-2 text-sm font-semibold">
                       <SlidersHorizontal className="size-4 text-muted-foreground" /> Filtros
@@ -254,9 +253,9 @@ export function DataTable<T extends { id: string }>({
                       Limpar
                     </button>
                   </div>
-                  <div className="max-h-[60vh] space-y-4 overflow-y-auto p-4">
+                  <div className="grid max-h-[60vh] grid-cols-4 gap-x-6 gap-y-5 overflow-y-auto p-4">
                     {salvos.length > 0 && (
-                      <div className="space-y-2 border-b pb-4">
+                      <div className="col-span-full space-y-2 border-b pb-4">
                         <span className="text-xs font-semibold text-muted-foreground">Filtros salvos</span>
                         <div className="flex flex-wrap gap-1.5">
                           {salvos.map((f) => (
@@ -281,35 +280,28 @@ export function DataTable<T extends { id: string }>({
                             <FiltroData valor={atual} set={set} />
                           ) : ehBusca(d.label, opts.length) ? (
                             <FiltroBusca opts={opts} valor={atual} set={set} />
-                          ) : opts.length <= 6 ? (
-                            // Poucos valores: pílulas clicáveis (clicar de novo desmarca).
-                            <div className="flex flex-wrap gap-1.5">
-                              {opts.map((o) => (
-                                <button
-                                  key={o}
-                                  type="button"
-                                  onClick={() => set(atual === o ? '' : o)}
-                                  className={cn(
-                                    'rounded-full border px-3 py-1 text-xs transition-colors',
-                                    atual === o ? 'border-primary bg-accent font-semibold text-accent-foreground' : 'hover:bg-muted',
-                                  )}
-                                >
-                                  {o}
-                                </button>
-                              ))}
-                            </div>
                           ) : (
-                            <Select value={atual || ALL} onValueChange={(v) => set(v === ALL ? '' : String(v))}>
-                              <SelectTrigger className={cn('w-full', atual && 'border-primary')}>
-                                <SelectValue>{(v: string) => (v === ALL ? 'Todos' : v)}</SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value={ALL}>Todos</SelectItem>
-                                {opts.map((o) => (
-                                  <SelectItem key={o} value={o}>{o}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            // Pílulas com seleção múltipla (clicar de novo desmarca).
+                            <div className="flex flex-wrap gap-1.5">
+                              {opts.map((o) => {
+                                const marcado = partes(atual).includes(o)
+                                const alternar = () => set((marcado ? partes(atual).filter((x) => x !== o) : [...partes(atual), o]).join(SEP))
+                                return (
+                                  <button
+                                    key={o}
+                                    type="button"
+                                    aria-pressed={marcado}
+                                    onClick={alternar}
+                                    className={cn(
+                                      'rounded-full border px-3 py-1 text-xs transition-colors',
+                                      marcado ? 'border-primary bg-accent font-semibold text-accent-foreground' : 'hover:bg-muted',
+                                    )}
+                                  >
+                                    {o}
+                                  </button>
+                                )
+                              })}
+                            </div>
                           )}
                         </div>
                       )
