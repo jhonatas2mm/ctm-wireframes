@@ -20,10 +20,10 @@ export function StatCard({ label, value, hint, icon: Icon, tom = 'orange', compa
         </div>
       )}
       <div className="min-w-0">
-        <div className="truncate text-xs text-muted-foreground">{label}</div>
+        <div className={cn('text-xs text-muted-foreground', !compacto && 'truncate')}>{label}</div>
         {/* compacto: para espaços estreitos (ex.: sheets), sem cortar valores longos */}
-        <div className={cn('font-bold tabular-nums', compacto ? 'text-lg leading-tight' : 'truncate text-2xl')}>{value}</div>
-        {hint && <div className="truncate text-xs text-muted-foreground">{hint}</div>}
+        <div className={cn('font-bold tabular-nums', compacto ? 'text-lg leading-tight break-words' : 'truncate text-2xl')}>{value}</div>
+        {hint && <div className={cn('text-xs text-muted-foreground', !compacto && 'truncate')}>{hint}</div>}
       </div>
     </div>
   )
