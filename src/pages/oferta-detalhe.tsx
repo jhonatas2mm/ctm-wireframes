@@ -150,7 +150,7 @@ export default function OfertaDetalhe() {
               {aberta && sitCron !== 'Rascunho' && <Button variant="outline" onClick={() => abrir('versao', inicio)}><Pencil /> DR pediu ajuste</Button>}
             </section>
 
-            <div className="grid gap-4 md:grid-cols-[16rem_1fr]">
+            <div className="grid gap-4 rounded-lg border bg-card p-4 md:grid-cols-[16rem_1fr]">
               <div className="grid content-start gap-1.5">
                 <Label>Dia do encontro presencial</Label>
                 <Select value={t.diaPresencial ?? null} onValueChange={(v) => registrar({ diaPresencial: v as string }, `Dia do presencial: ${v}`)}>

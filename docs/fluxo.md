@@ -316,3 +316,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Busca rápida: Ações em grade de 3 colunas (menos altura); TAAs no escopo do perfil (CTM: onde é contratada; DR: onde é contratante).
 - 2026-09-29 — Casca: select de Perfil lista só os perfis (DN, CTM, DR solicitante, Super admin), sem os subperfis entre parênteses (cortavam a caixa); subperfis continuam nas abas ao lado do selo.
 - 2026-09-29 — Perfil **CTM: Supervisor** renomeado para **CTM: Gestor de oferta** (a função Supervisor da equipe/turma continua).
+- 2026-09-29 — Padrão: nada de campos ou texto direto sobre o fundo da página. Campos sempre com fundo branco (global); Detalhes da turma: bloco Dia do encontro presencial + Escolas dentro de uma caixa.

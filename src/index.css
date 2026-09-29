@@ -328,3 +328,6 @@ html.ds-senai [data-slot="tabs-list"][data-variant="default"] { height: 2.5rem; 
 html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"] { padding-inline: 0.875rem; border-radius: 0.625rem; color: #5B6A70; }
 html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"]:hover { background: #F5F5F7; color: #22272A; }
 html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-active] { background: #FFF6ED; color: #C23C0D; font-weight: 600; box-shadow: none; }
+
+/* Campos nunca transparentes sobre o fundo da página: sempre fundo branco */
+html.ds-senai [data-slot="input"], html.ds-senai [data-slot="textarea"], html.ds-senai [data-slot="select-trigger"] { background-color: #FFFFFF; }
