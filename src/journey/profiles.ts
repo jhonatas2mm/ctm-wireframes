@@ -6,10 +6,9 @@ export type ProfileDef = { name: string; color: string; user?: { nome: string; e
 
 export const profiles: ProfileDef[] = [
   { name: 'DN', color: '#0284c7', user: { nome: 'Maria Silva', email: 'maria.silva@senai.br' } },
-  { name: 'Supervisor', color: '#ea580c', user: { nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br' }, dr: { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' } },
-  { name: 'Comercial', color: '#059669', user: { nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br' }, dr: { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' } },
+  { name: 'CTM: Supervisor', color: '#ea580c', user: { nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br' }, dr: { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' } },
+  { name: 'CTM: Comercial', color: '#059669', user: { nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br' }, dr: { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' } },
   { name: 'Super admin', color: '#dc2626', user: { nome: 'Fernanda Costa', email: 'fernanda.costa@senai.br' } },
-  { name: 'CTN', color: '#7c3aed', user: { nome: 'Ana Ribeiro', email: 'ana.ribeiro@senai.br' } },
 ]
 
 export const profileOf = (name: string): ProfileDef =>

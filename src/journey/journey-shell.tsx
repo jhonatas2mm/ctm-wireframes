@@ -262,7 +262,7 @@ export function JourneyShell() {
 
         {/* Mapa da jornada escolhida no select: etapas ligadas por setas */}
         <div className="mx-4 mb-3 flex shrink-0 items-center gap-3 rounded-lg border bg-card p-2">
-          <div className="grid shrink-0 gap-1">
+          <div className="flex shrink-0 items-center gap-2">
             <span className="pl-1 text-xs font-bold">Jornada</span>
             <Select value={jid} onValueChange={(v) => go(v as string, 0)}>
               <SelectTrigger size="sm" className="w-44 shrink-0">

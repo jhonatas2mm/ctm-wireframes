@@ -17,7 +17,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 ## Estrutura
 - `src/screens.ts` — registro de telas (rota + menu). `hidden` tira do menu; `profiles` limita a quais perfis a tela aparece no menu.
 - `src/journeys.ts` — jornadas/fluxos (etapas `path`/`note`, perfil por etapa). **A ordem do array é a ordem dos fluxos** (ordem em que acontecem no sistema; a casca numera dentro de cada perfil inicial); manter igual à lista em `docs/fluxo.md`.
-- `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR). Hoje: **DN**, **Supervisor** (antiga DR credenciada) e **Comercial** (mesmas telas do Supervisor) (SENAI-MG). Só o Claude edita, a pedido.
+- `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR). Hoje: **DN**, **CTM: Supervisor** (antiga DR credenciada, SENAI-MG), **CTM: Comercial** (mesmas telas do Supervisor, SENAI-MG) e **Super admin**. Só o Claude edita, a pedido.
 - `src/lib/mock.ts` — seeds + `useCollection` (`src/lib/db.ts`, localStorage). Ao mudar o formato de uma coleção, trocar a chave (ex.: `'editais-v7'`) para descartar dados antigos.
 - `src/components/wf/` — DataTable, PageHeader, RowAction, EmptyState etc.
 - `src/annotations/` — pinos de anotação, salvos no Supabase (projeto `ctm-wireframes`, tabela `pins`: leitura e criação públicas; editar/excluir só pelo painel).

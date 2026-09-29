@@ -154,3 +154,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-28 — Novo perfil **Super admin** (provisório): vê todas as telas do menu + Gestão de usuários (novo/editar/inativar), Perfis e permissões (telas por perfil) e Auditoria (somente leitura). Jornadas: Gestão de usuários, Perfis e permissões, Auditoria, Supervisão das áreas.
 - 2026-09-28 — Anotações passam a ser compartilhadas via Supabase: qualquer visitante do site publicado cria pinos (com nome); editar/excluir só pelo painel do Supabase.
 - 2026-09-28 — Casca: selo do perfil (canto superior esquerdo) ganhou seta para trocar de perfil; ao trocar, abre a 1ª jornada iniciada por ele, na 1ª etapa.
+- 2026-09-28 — Perfis Supervisor e Comercial renomeados para **CTM: Supervisor** e **CTM: Comercial**; perfil **CTN** removido. Casca: rótulo "Jornada" à esquerda do select; painel de anotações com fundo.

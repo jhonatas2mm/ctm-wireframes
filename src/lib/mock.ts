@@ -246,33 +246,31 @@ export type StatusUsuario = 'Ativo' | 'Inativo'
 export type Usuario = { id: string; nome: string; email: string; perfil: string; dr: string; status: StatusUsuario; ultimoAcesso: string }
 const usuarios: Usuario[] = [
   { id: 'u1', nome: 'Maria Silva', email: 'maria.silva@senai.br', perfil: 'DN', dr: 'DN', status: 'Ativo', ultimoAcesso: '27/09/2026 17:42' },
-  { id: 'u2', nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'Supervisor', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 09:10' },
-  { id: 'u3', nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'Comercial', dr: 'MG', status: 'Ativo', ultimoAcesso: '26/09/2026 14:05' },
-  { id: 'u4', nome: 'Ana Ribeiro', email: 'ana.ribeiro@senai.br', perfil: 'CTN', dr: 'DN', status: 'Ativo', ultimoAcesso: '25/09/2026 11:30' },
-  { id: 'u5', nome: 'Roberto Lima', email: 'roberto.lima@senaisp.org.br', perfil: 'Supervisor', dr: 'SP', status: 'Inativo', ultimoAcesso: '02/08/2026 08:15' },
+  { id: 'u2', nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Supervisor', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 09:10' },
+  { id: 'u3', nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Comercial', dr: 'MG', status: 'Ativo', ultimoAcesso: '26/09/2026 14:05' },
+  { id: 'u5', nome: 'Roberto Lima', email: 'roberto.lima@senaisp.org.br', perfil: 'CTM: Supervisor', dr: 'SP', status: 'Inativo', ultimoAcesso: '02/08/2026 08:15' },
   { id: 'u6', nome: 'Fernanda Costa', email: 'fernanda.costa@senai.br', perfil: 'Super admin', dr: 'DN', status: 'Ativo', ultimoAcesso: '28/09/2026 10:02' },
 ]
-export const useUsuarios = () => useCollection<Usuario>('usuarios', usuarios)
+export const useUsuarios = () => useCollection<Usuario>('usuarios-v2', usuarios)
 
 // Permissões: por perfil, as telas (path do menu) que ele acessa.
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
   { id: 'DN', perfil: 'DN', telas: ['/drs', '/dashboard', '/editais'] },
-  { id: 'Supervisor', perfil: 'Supervisor', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
-  { id: 'Comercial', perfil: 'Comercial', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
-  { id: 'CTN', perfil: 'CTN', telas: [] },
+  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
+  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
   { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/admin/usuarios', '/admin/perfis', '/admin/auditoria'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v2', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [
   { id: 'e1', quando: '28/09/2026 10:02', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Login', alvo: '—' },
-  { id: 'e2', quando: '28/09/2026 09:15', usuario: 'Carlos Andrade', perfil: 'Supervisor', acao: 'Criação', alvo: 'Oferta TU-MG-002/2026' },
+  { id: 'e2', quando: '28/09/2026 09:15', usuario: 'Carlos Andrade', perfil: 'CTM: Supervisor', acao: 'Criação', alvo: 'Oferta TU-MG-002/2026' },
   { id: 'e3', quando: '27/09/2026 17:40', usuario: 'Maria Silva', perfil: 'DN', acao: 'Alteração', alvo: 'Edital ED-002/2026' },
-  { id: 'e4', quando: '27/09/2026 16:22', usuario: 'Juliana Pereira', perfil: 'Comercial', acao: 'Aceite', alvo: 'Proposta PC-MG-002/2026' },
+  { id: 'e4', quando: '27/09/2026 16:22', usuario: 'Juliana Pereira', perfil: 'CTM: Comercial', acao: 'Aceite', alvo: 'Proposta PC-MG-002/2026' },
   { id: 'e5', quando: '26/09/2026 11:08', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Inativação', alvo: 'Usuário Roberto Lima' },
   { id: 'e6', quando: '25/09/2026 15:47', usuario: 'Maria Silva', perfil: 'DN', acao: 'Criação', alvo: 'TAA TAA-004/2026' },
   { id: 'e7', quando: '24/09/2026 09:30', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Alteração', alvo: 'Permissões do perfil Comercial' },
 ]
-export const useAuditoria = () => useCollection<Evento>('auditoria', auditoria)
+export const useAuditoria = () => useCollection<Evento>('auditoria-v2', auditoria)
