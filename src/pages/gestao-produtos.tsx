@@ -21,7 +21,7 @@ function CursoDetalhes({ p }: { p: ProdutoDr }) {
   const itens: [string, string][] = [['Modalidade', p.modalidade], ['Área tecnológica', p.area], ['Carga horária', `${p.cargaHoraria} h`]]
   return (
     <Popover.Root>
-      <Popover.Trigger render={<Button size="xs" variant="outline" className="text-muted-foreground font-normal" />}>
+      <Popover.Trigger render={<Button size="xs" variant="outline" className="border-neutral-300 bg-white font-normal text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800" />}>
         Detalhes
       </Popover.Trigger>
       <Popover.Portal>
