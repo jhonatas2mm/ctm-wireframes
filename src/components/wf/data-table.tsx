@@ -32,6 +32,7 @@ export type Column<T> = {
   search?: boolean
   filter?: boolean
   className?: string
+  quebra?: boolean // texto longo: largura limitada e quebra de linha (célula e cabeçalho)
   align?: 'left' | 'center' // padrão: centralizado em colunas de versão e numéricas; o resto à esquerda
 }
 
@@ -43,6 +44,7 @@ const centraliza = <T,>(c: Column<T>, rows: T[]) => {
   const vs = rows.map((r) => c.value(r)).filter((v) => v !== '' && v !== '—')
   return vs.length > 0 && vs.every(ehNumerico)
 }
+const QUEBRA = 'min-w-40 max-w-64 whitespace-normal'
 // Colunas de nome de curso/produto (texto longo): largura limitada e texto quebrando linha.
 const colunaLonga = (header: string) => /^(Cursos?|Produtos?)$/i.test(header) ? 'max-w-64 min-w-48 whitespace-normal' : ''
 // Filtro com vários valores (campo de busca): valores juntados por SEP no mesmo texto do filtro.
@@ -375,7 +377,7 @@ export function DataTable<T extends { id: string }>({
             <TableHeader>
               <TableRow>
                 {columns.map((c, i) => (
-                  <TableHead key={c.header} className={cn(c.className, centro[i] && 'text-center')}>
+                  <TableHead key={c.header} className={cn(c.className, centro[i] && 'text-center', c.quebra && QUEBRA)}>
                     {c.header}
                   </TableHead>
                 ))}
@@ -392,7 +394,7 @@ export function DataTable<T extends { id: string }>({
                   onClick={onRowClick && (() => onRowClick(r))}
                 >
                   {columns.map((c, i) => (
-                    <TableCell key={c.header} className={cn(colunaLonga(c.header), c.className, centro[i] && 'text-center')}>
+                    <TableCell key={c.header} className={cn(colunaLonga(c.header), c.className, centro[i] && 'text-center', c.quebra && QUEBRA)}>
                       {c.cell ? c.cell(r) : c.value(r)}
                     </TableCell>
                   ))}

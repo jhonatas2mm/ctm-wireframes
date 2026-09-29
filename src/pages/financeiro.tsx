@@ -74,7 +74,7 @@ function CobrancaPropostas() {
     { header: 'Cursos', value: (p) => p.cursos.map((c) => c.nome).join(', '), search: true },
     { header: 'Turmas', value: (p) => turmasDe(p).length, className: 'text-right tabular-nums' },
     // Outras propostas aprovadas no mesmo TAA (podem ir juntas no relatório)
-    { header: 'Mesmo TAA', value: (p) => propostas.filter((x) => x.id !== p.id && x.taaId === p.taaId && x.drContratante === p.drContratante).map((x) => x.numero).join(', ') || '—', className: 'font-mono text-xs' },
+    { header: 'Mesmo TAA', quebra: true, value: (p) => propostas.filter((x) => x.id !== p.id && x.taaId === p.taaId && x.drContratante === p.drContratante).map((x) => x.numero).join(', ') || '—', className: 'font-mono text-xs' },
     { header: 'Ciclo', value: (p) => { const c = cicloAtual(p); return c ? `${Number(c.slice(5))}/${c.slice(0, 4)}` : '—' }, className: 'tabular-nums' },
     { header: 'Valor do ciclo', value: (p) => valorCiclo(p), cell: (p) => <span className="font-medium tabular-nums">{brl(valorCiclo(p))}</span>, className: 'text-right' },
   ]
@@ -123,10 +123,10 @@ function SituacaoAlunos() {
   const colunas: Column<AlunoEad>[] = [
     { header: 'Aluno', value: (a) => a.nome, search: true, className: 'font-medium' },
     { header: 'Turma', value: (a) => turmaDe(a)?.codigo ?? '—', filter: true, className: 'font-mono text-xs' },
-    { header: 'Escola', value: (a) => escolaDe(a), filter: true },
+    { header: 'Escola', quebra: true, value: (a) => escolaDe(a), filter: true },
     { header: 'Situação no AVA', value: (a) => avaDe(a), filter: true, cell: (a) => <Badge variant="outline" className={cn(avaDe(a) === 'Suspenso' && 'border-amber-300 bg-amber-50 text-amber-900')}>{avaDe(a)}</Badge> },
     {
-      header: 'Situação formal',
+      header: 'Situação formal', quebra: true,
       value: (a) => formDe(a)?.situacao ?? 'Matriculado',
       filter: true,
       cell: (a) => {
@@ -135,7 +135,7 @@ function SituacaoAlunos() {
       },
     },
     {
-      header: 'Cobrança',
+      header: 'Cobrança', quebra: true,
       value: (a) => (cobrado(a) ? 'Cobrado' : 'Não cobrado'),
       filter: true,
       cell: (a) => {

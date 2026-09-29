@@ -40,11 +40,11 @@ export function AcompanhamentoAlunos() {
       cell: (a) => <span className="block min-w-48"><span className="block font-medium">{a.nome}</span><span className="flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground"><CopiaTexto texto={a.email} rotulo="Copiar e-mail" /><CopiaTexto texto={a.telefone} rotulo="Copiar telefone" /></span></span>,
     },
     { header: 'CPF', value: (a) => a.cpf, search: true, className: 'font-mono text-xs' },
-    { header: 'Escola', value: (a) => a.escola, filter: true, cell: (a) => <span><span className="block">{a.escola}</span><span className="text-xs text-muted-foreground">{a.cidade}</span></span> },
-    { header: 'Situação nas UCs', value: (a) => resumoAluno(a, todasUcs), filter: true, cell: (a) => <span className="block min-w-40 text-sm">{resumoAluno(a, todasUcs)}</span> },
+    { header: 'Escola', quebra: true, value: (a) => a.escola, filter: true, cell: (a) => <span><span className="block">{a.escola}</span><span className="text-xs text-muted-foreground">{a.cidade}</span></span> },
+    { header: 'Situação nas UCs', quebra: true, value: (a) => resumoAluno(a, todasUcs), filter: true, cell: (a) => <span className="block min-w-40 text-sm">{resumoAluno(a, todasUcs)}</span> },
     { header: 'Monitor', value: (a) => a.monitor ?? '', filter: true, cell: (a) => a.monitor ?? '—' },
     ...ucs.map((u): Column<AlunoTurma> => ({
-      header: `${u.nome} · ciclo ${curto(janelaUc(u, ciclo).ini)} a ${curto(janelaUc(u, ciclo).fim)}`,
+      header: `${u.nome} · ciclo ${curto(janelaUc(u, ciclo).ini)} a ${curto(janelaUc(u, ciclo).fim)}`, quebra: true,
       value: (a) => `${situacaoNaUc(a, u).situacao} · ${fatura(a, u, ciclo) ? 'fatura' : 'não fatura'}`,
       filter: true,
       cell: (a) => {
