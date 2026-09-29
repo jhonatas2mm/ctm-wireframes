@@ -358,7 +358,24 @@ export type UcTurma = {
   tutor?: string; acao?: AcaoTutor; tutorConfirmado?: boolean; validacaoPedagogica?: boolean // gestão da execução
   links?: LinksUc // links do material (o sistema não guarda arquivos)
   salaAva?: string // ID da sala criada no AVA
+  // Fluxo da UC (equipe técnica da UC: pedagógico, tutor e monitor)
+  pedagogico?: string
+  monitor?: string
+  sala?: SalaUc // sala no Moodle, criada pelo monitor via integração
+  etapa?: EtapaUc
+  atividades?: AtividadePresencial[] // planejadas pelo pedagógico (as aulas ao vivo online ficam em aoVivo)
+  devolucao?: string // motivo quando o tutor devolve o planejamento
+  emailMonitorEm?: string // e-mail disparado ao monitor para parametrizar as avaliações no Moodle
 }
+// Fluxo da UC: o monitor cria a sala no Moodle (Em criação → Criada) → o pedagógico planeja (Em planejamento: dias das aulas
+// ao vivo online e atividades presenciais) → o tutor avalia (aprova ou devolve) → e-mail ao monitor para parametrizar as
+// avaliações no Moodle → Pronta. Com todas as UCs prontas, e-mail à DR solicitante para ajustar o SGN/SGE e integrar os alunos.
+export type SalaUc = 'Não criada' | 'Em criação' | 'Criada'
+export type EtapaUc = 'Aguardando sala' | 'Em planejamento' | 'Em avaliação do tutor' | 'Parametrizar avaliações' | 'Pronta'
+export const etapasUc: EtapaUc[] = ['Aguardando sala', 'Em planejamento', 'Em avaliação do tutor', 'Parametrizar avaliações', 'Pronta']
+export type AtividadePresencial = { data: string; descricao: string }
+export const etapaDe = (u: UcTurma): EtapaUc => u.etapa ?? (u.sala === 'Criada' ? 'Em planejamento' : 'Aguardando sala')
+export const estruturaPronta = (t: { modulos: { unidades: UcTurma[] }[] }) => t.modulos.every((m) => m.unidades.every((u) => etapaDe(u) === 'Pronta'))
 export type AulaAoVivo = { data: string; inicio: string; fim: string } // horários hh:mm
 export const aoVivoTurma = (t: { modulos: { unidades: UcTurma[] }[] }) => t.modulos.reduce((n, m) => n + m.unidades.reduce((k, u) => k + u.aoVivo.length, 0), 0)
 // Fase registrada pela CTM; o status exibido junta a fase com o calendário.
@@ -402,6 +419,7 @@ export type Turma = {
   equipe?: EquipeTurma
   escolas?: EscolaTurma[]
   salasCriadas?: boolean
+  emailDrEm?: string // e-mail à DR solicitante para ajustar o SGN/SGE e integrar os alunos (estrutura pronta)
   motivoCancelamento?: string
   historico?: Registro[]
 }
@@ -420,12 +438,12 @@ const turmas: Turma[] = [
     escolas: [{ nome: 'SENAI Maracanã', cidade: 'Rio de Janeiro', alunos: 18, integrados: 18 }, { nome: 'SENAI Benfica', cidade: 'Rio de Janeiro', alunos: 12, integrados: 0 }],
     modulos: [
       { curso: 'Soldador', nome: 'Fundamentos', unidades: [
-        ucT('Segurança em soldagem', 10, 10, '2026-10-05', '2026-10-09', { aoVivo: [{ data: '2026-10-07', inicio: '19:00', fim: '21:00' }], tutor: 'Fabiana Rocha', acao: 'Apropriação', tutorConfirmado: true, links: links('soldador'), salaAva: 'AVA-88213' }),
-        ucT('Leitura de desenho técnico', 10, 10, '2026-10-12', '2026-10-16', { aoVivo: [{ data: '2026-10-14', inicio: '19:00', fim: '21:00' }], tutor: 'Diego Carvalho', acao: 'Replanejamento', links: links('soldador'), salaAva: 'AVA-88214' }),
+        ucT('Segurança em soldagem', 10, 10, '2026-10-05', '2026-10-09', { aoVivo: [{ data: '2026-10-07', inicio: '19:00', fim: '21:00' }], tutor: 'Fabiana Rocha', pedagogico: 'Sônia Prado', monitor: 'Otávio Reis', sala: 'Criada', salaAva: 'AVA-88213', etapa: 'Pronta', atividades: [{ data: '2026-10-08', descricao: 'Prática de EPI na oficina' }], emailMonitorEm: '2026-09-22T10:00:00Z', links: links('soldador') }),
+        ucT('Leitura de desenho técnico', 10, 10, '2026-10-12', '2026-10-16', { aoVivo: [{ data: '2026-10-14', inicio: '19:00', fim: '21:00' }], tutor: 'Diego Carvalho', pedagogico: 'Sônia Prado', monitor: 'Otávio Reis', sala: 'Criada', salaAva: 'AVA-88214', etapa: 'Em avaliação do tutor', atividades: [{ data: '2026-10-15', descricao: 'Leitura de desenho em bancada' }], links: links('soldador') }),
       ] },
       { curso: 'Soldador', nome: 'Processos', unidades: [
-        ucT('Soldagem com eletrodo revestido', 30, 30, '2026-10-19', '2026-11-06', { aoVivo: [{ data: '2026-10-21', inicio: '19:00', fim: '21:00' }], salaAva: 'AVA-88215' }),
-        ucT('Soldagem MIG/MAG', 30, 30, '2026-11-09', '2026-11-27', { aoVivo: [{ data: '2026-11-11', inicio: '19:00', fim: '21:00' }], salaAva: 'AVA-88216' }),
+        ucT('Soldagem com eletrodo revestido', 30, 30, '2026-10-19', '2026-11-06', { aoVivo: [], tutor: 'Fabiana Rocha', pedagogico: 'Sônia Prado', monitor: 'Otávio Reis', sala: 'Criada', salaAva: 'AVA-88215', etapa: 'Em planejamento', devolucao: 'Incluir uma atividade presencial de soldagem em chapa por semana.' }),
+        ucT('Soldagem MIG/MAG', 30, 30, '2026-11-09', '2026-11-27', { aoVivo: [], tutor: 'Diego Carvalho', pedagogico: 'Sônia Prado', monitor: 'Otávio Reis', sala: 'Em criação', etapa: 'Aguardando sala' }),
       ] },
     ],
     historico: [
@@ -434,7 +452,7 @@ const turmas: Turma[] = [
       { quando: '2026-08-28T10:00:00Z', texto: 'DR pediu ajuste: presencial às quintas. Cronograma v2 gerado e reenviado', autor: 'Carlos Andrade' },
       { quando: '2026-09-10T10:00:00Z', texto: 'Cronograma v2 validado pelo SENAI-RJ', autor: 'Carlos Andrade' },
       { quando: '2026-09-15T10:00:00Z', texto: 'Turma confirmada pela DR: status Buscar tutor', autor: 'Carlos Andrade' },
-      { quando: '2026-09-15T10:05:00Z', texto: 'Salas criadas no AVA (4 UCs)', autor: 'Sistema' },
+      { quando: '2026-09-22T10:00:00Z', texto: 'Segurança em soldagem: planejamento aprovado pelo tutor; e-mail ao monitor para parametrizar as avaliações', autor: 'Fabiana Rocha' },
     ],
   },
   // Aguardando a DR validar o cronograma.
@@ -462,7 +480,7 @@ const turmas: Turma[] = [
     historico: [{ quando: '2026-09-22T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' }],
   },
 ]
-export const useTurmas = () => useCollection<Turma>('turmas-v8', turmas)
+export const useTurmas = () => useCollection<Turma>('turmas-v9', turmas)
 // Agrupamento: outra turma com a mesma UC começando na mesma semana pode rodar junto (até ~300 alunos).
 export const agrupaveis = (todas: Turma[], t: Turma, uc: UcTurma) =>
   todas.filter((o) => o.id !== t.id && o.fase !== 'Cancelada' && o.modulos.some((m) => m.unidades.some((u) => u.nome === uc.nome && u.inicio && uc.inicio && Math.abs(diasEntre(u.inicio, uc.inicio)) <= 7)))

@@ -17,14 +17,14 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 4. **TAAs com CTMs** (DR solicitante: SENAI) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado para ajuste → TAA aceito (saldo).
 4a. **Contratos com CTMs** (DR solicitante: SESI) — Contratos com CTMs → Novo contrato → encaminhado → aceito.
 5. **Criação de portfólio** (Gestor de oferta) — Gestão de Portfólio → Novo produto (produtos de um edital).
-6. **Criação de proposta** (CTM: Supervisor e Gestor de contrato) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
+6. **Criação de proposta** (CTM: Gestor de oferta e Gestor de contrato) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
 7. **Criação de oferta** (Gestor de oferta) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
-7a. **Gestão da execução** (Gestor de oferta) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
+7a. **UCs da turma** (CTM: Gestor de oferta) — Equipe → equipe de cada UC → Integração com o Moodle → Histórico.
 7b. **Acompanhamento pedagógico** (Gestor de oferta) — Tratativas pedagógicas → Nova tratativa.
 7c. **Financeiro** (Gestor de oferta) — situação de cobrança por aluno e formalizações.
-7d. **Alocação de tutores** (CTM: PCP) — Equipe → Turma em Buscar tutor (aba Execução).
-7e. **Validação e acompanhamento** (CTM: Pedagógico) — Validação pedagógica → Tratativas → Nova tratativa.
-7f. **Minhas UCs** (CTM: Tutor, em avaliação) e **Salas e tratativas** (CTM: Monitor, em avaliação).
+7d. **Equipe das UCs** (CTM: PCP) — Equipe → equipe de cada UC.
+7e. **Planejamento das UCs** (CTM: Pedagógico) — UC em planejamento (aulas ao vivo + presenciais) → Tratativas.
+7f. **Avaliação do planejamento** (CTM: Tutor) e **Salas e avaliações no Moodle** (CTM: Monitor).
 8. **Acompanhamento da execução** (DR solicitante: SENAI; também SESI) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
@@ -38,7 +38,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
   - **PCP** — Gestão da oferta (aba Execução: tutor e ação por UC, aulas ao vivo), e Equipe.
   - **Supervisor** — portfólio, propostas, oferta/cronograma, equipe da turma, tratativas e financeiro. Não gerencia TAAs.
   - **Pedagógico** — Gestão da oferta (validação pedagógica) e Tratativas pedagógicas.
-  - **Tutor** e **Monitor** — **em avaliação** (caixa tracejada com "?"): Tutor vê a oferta; Monitor vê a oferta e as tratativas.
+  - **Tutor** — avalia o planejamento das UCs. **Monitor** — cria as salas no Moodle e parametriza as avaliações.
 - **DR solicitante** (MG) — caixas:
   - Quem pede a contratação é o **Gestor** (pode ser o coordenador, o interlocutor etc.). O TAA/contrato registra o **Gestor solicitante** (nome e cargo).
   - **Gestor SENAI** (SENAI-MG) — contrata a CTM por **TAA** e acompanha a execução (Painel, Gestão de Contratos, Turmas, Alunos).
@@ -107,17 +107,19 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **Dia do encontro presencial** (informado pela DR) e **escolas da turma** (nome, cidade, alunos) ficam na aba Cronograma.
 - **Aulas ao vivo são por UC** (um dia com horário), definidas pelo PCP na matriz da aba Cronograma.
 
-### Gestão da execução (aba Execução)
-- Só a partir de **Buscar tutor**. Supervisão aloca a equipe da turma: **monitor front, monitor back, pedagógico, interlocutor** (funções configuráveis por CTM).
-- PCP aloca o **tutor por UC**: quem tem a UC nas competências aparece primeiro (estrela), com os dias disponíveis e quantas vezes já deu a UC.
-- **Ação do tutor** por UC: *Planejamento* (UC nunca executada), *Apropriação* (já executada; usa a sala modelo) ou *Replanejamento* (quando a supervisão/pedagógico pede). O sistema sugere pelo histórico.
-- **E-mail ao tutor**: o sistema monta assunto e mensagem (turma, UC, período, encontros, aulas ao vivo, equipe e links: plano de curso, plano de ensino, pasta, sala). Os documentos continuam no drive: o sistema guarda **só os links**. O envio é fora (copiar); depois, **Marcar tutor confirmado**.
-- Planejamento/replanejamento: situação *Em planejamento* até o pedagógico marcar **Validado pelo pedagógico** (aí o monitor back sobe o material). Apropriação vai direto a *Tutor confirmado*.
+### UCs da turma (aba UCs)
+- Hierarquia: **proposta → cursos → turmas → UCs → alunos** (cada um com situação).
+- Liberado a partir de **Buscar tutor** (turma confirmada). Para **cada UC** vincula-se a **equipe técnica da UC**: **pedagógico, tutor e monitor**.
+- Fluxo da UC (a coluna Etapa mostra de quem é a vez):
+  1. **Monitor** cria a **sala no Moodle** via integração (*Em criação* → *Criada*; "Criar salas no Moodle (todas)" ou por UC). Sala criada, a UC entra **Em planejamento**.
+  2. **Pedagógico** planeja: **dias das aulas ao vivo (online)** e **atividades presenciais** → envia ao tutor (**Em avaliação do tutor**).
+  3. **Tutor** avalia: **aprova** ou **devolve** ao pedagógico com motivo (volta a Em planejamento, com o motivo visível).
+  4. Aprovado: **e-mail ao monitor** para **parametrizar as avaliações no Moodle** (**Parametrizar avaliações**); feito isso, a UC fica **Pronta**.
+- Com **todas as UCs prontas** (estrutura pronta), sai o **e-mail à DR solicitante** para ajustar o **SGN/SGE** e integrar os alunos no Moodle.
+- Tutor e Monitor deixaram de ser caixas "em avaliação": fazem parte do fluxo.
 
-### Integração com o AVA (aba Integração)
-- **Criar salas no AVA**: botão (MVP), liberado a partir de Buscar tutor; cada UC recebe o ID da sala.
-- **Dados de integração para a DR**: código CTM por escola (`<turma>-<ESCOLA>`) + ID da sala de cada UC + início + semestre, com "Copiar tabela" para a DR parametrizar no SGE.
-- **Situação da integração** por escola (integrados × alunos): Integrada / Parcial / Não integrada; alerta quando faltam 5 dias ou menos para o início e a DR ainda não integrou. "Consultar AVA" simula o serviço do AVA.
+### Integração com o Moodle (aba Integração)
+- As salas são criadas por UC (aba UCs). Aqui: aviso de estrutura pronta/e-mail à DR, **dados de integração** (código CTM por escola + ID da sala de cada UC + início + semestre, "Copiar tabela") e **situação da integração** por escola, com alerta quando faltam 5 dias ou menos para o início.
 
 ## Feriados nacionais (Super admin)
 - Tela **Feriados nacionais** (`/admin/feriados`, só Super admin): novo, editar e excluir (com confirmação).
@@ -330,6 +332,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Menu lateral: perfis da área CTM não mostram o cartão "Departamento Regional".
 - 2026-09-29 — Casca: select de Jornada mais largo e lista ajustada ao texto (até 36rem, quebra linha se preciso), sem cortar nomes.
 - 2026-09-29 — Casca: etapa selecionada no fluxograma da jornada sem o contorno branco (só o preenchimento na cor do perfil).
+- 2026-09-29 — **UCs da turma**: aba "Execução" vira **UCs**. Cada UC tem equipe técnica (pedagógico, tutor, monitor) e o fluxo sala no Moodle (monitor, Em criação/Criada) → planejamento (pedagógico: aulas ao vivo online + atividades presenciais) → avaliação do tutor (aprova/devolve) → e-mail ao monitor para parametrizar avaliações → Pronta. Todas prontas: e-mail à DR solicitante (SGN/SGE). Sai o modelo antigo (PCP aloca tutor, planejamento/apropriação, e-mail copiado). Tutor e Monitor deixam de ser "em avaliação". Mapa do processo e jornadas refeitos.
 - 2026-09-29 — Padrão: containers com o mesmo arredondamento (20px, como cards e tabelas do DS). Blocos dos painéis (antes ~26px), cards de indicadores e caixas de informação das telas (antes 12px) igualados.
 - 2026-09-29 — Padrão: cores dos status unificadas num mapa único (verde concluído, azul em curso, laranja aguardando/atenção, vermelho negativo, cinza inicial/encerrado), valendo para propostas, TAAs, turmas, portfólio, cronograma, alunos, DRs e usuários. Badge padrão sem status conhecido fica cinza — nenhuma badge na cor principal (ex.: "Aguardando…" no painel).
 - 2026-09-29 — Tabelas: na coluna Ações todos os botões (com texto ou só ícone) iguais — contorno neutro, ícone e texto na cor principal.

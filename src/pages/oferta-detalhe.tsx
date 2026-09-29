@@ -127,7 +127,7 @@ export default function OfertaDetalhe() {
         <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
           <TabsList>
             <TabsTrigger value="cronograma">Cronograma</TabsTrigger>
-            <TabsTrigger value="execucao">Execução</TabsTrigger>
+            <TabsTrigger value="execucao">UCs</TabsTrigger>
             <TabsTrigger value="integracao">Integração com o AVA</TabsTrigger>
             <TabsTrigger value="historico">Histórico</TabsTrigger>
           </TabsList>
@@ -196,7 +196,7 @@ export default function OfertaDetalhe() {
                         <TableHead>Início</TableHead>
                         <TableHead>Término</TableHead>
                         <TableHead className="text-right" title="Semanas de estudo · encontros presenciais · aulas ao vivo previstas">Sem. · enc. · ao vivo</TableHead>
-                        <TableHead>Aula ao vivo (PCP)</TableHead>
+                        <TableHead>Aula ao vivo</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
