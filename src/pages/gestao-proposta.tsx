@@ -106,7 +106,7 @@ export default function GestaoProposta() {
         <div className="min-w-0 flex-1 space-y-8">
           <section id="sec-resumo" className="scroll-mt-4 space-y-3">
             <h2 className="text-lg font-semibold">Resumo</h2>
-            <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3">
+            <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3 bg-card">
               {info.map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-muted-foreground text-xs">{k}</dt>
@@ -128,7 +128,7 @@ export default function GestaoProposta() {
           <section id="sec-documentos" className="scroll-mt-4 space-y-3">
             <h2 className="text-lg font-semibold">Documentos</h2>
             {p.documentos?.length ? (
-              <ul className="divide-y rounded-lg border">
+              <ul className="divide-y rounded-lg border bg-card">
                 {p.documentos.map((d, i) => (
                   <li key={i} className="flex items-center gap-2 px-4 py-2.5 text-sm">
                     <FileText className="text-muted-foreground size-4" /> {d}

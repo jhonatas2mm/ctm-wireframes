@@ -27,7 +27,7 @@ export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void })
             <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4">
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Contato</h3>
-                <ul className="grid gap-2 rounded-lg border p-3 text-sm">
+                <ul className="grid gap-2 rounded-lg border p-3 text-sm bg-card">
                   <li className="flex items-center gap-2"><UserRound className="size-4 text-muted-foreground" /> {dr.responsavel}</li>
                   <li className="flex items-center gap-2"><Mail className="size-4 text-muted-foreground" /> {dr.email}</li>
                   <li className="flex items-center gap-2 tabular-nums"><Phone className="size-4 text-muted-foreground" /> {dr.telefone}</li>
@@ -37,7 +37,7 @@ export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void })
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Editais credenciados <span className="font-normal text-muted-foreground">({meusEditais.length})</span></h3>
                 {meusEditais.length ? (
-                  <ul className="divide-y rounded-lg border">
+                  <ul className="divide-y rounded-lg border bg-card">
                     {meusEditais.map((e) => {
                       const cursos = e.cursos.filter((c) => c.drs.includes(dr.uf))
                       return (
@@ -61,7 +61,7 @@ export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void })
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">TAAs <span className="font-normal text-muted-foreground">({taas.length})</span></h3>
                 {taas.length ? (
-                  <ul className="divide-y rounded-lg border">
+                  <ul className="divide-y rounded-lg border bg-card">
                     {taas.map((t) => (
                       <li key={t.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                         <span className="font-mono font-medium">{t.numero}</span>

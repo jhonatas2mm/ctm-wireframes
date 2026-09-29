@@ -25,7 +25,7 @@ function EstadosInput({ value, onChange, placeholder = 'Buscar estado por sigla 
   const matches = UFS.filter((uf) => !value.includes(uf) && norm(`${uf} ${ESTADOS[uf]}`).includes(norm(q.trim())))
   return (
     <div className="grid gap-2">
-      <div className="rounded-lg border">
+      <div className="rounded-lg border bg-card">
         <div className="relative">
           <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <input className="h-9 w-full bg-transparent pr-3 pl-9 text-sm outline-none" placeholder={placeholder} value={q} onChange={(e) => setQ(e.target.value)} />
@@ -168,7 +168,7 @@ export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean
               </div>
             </Secao>
             <h3 className="-mb-3 text-sm font-semibold">Cursos</h3>
-              <div className="flex min-h-0 flex-1 flex-col rounded-lg border">
+              <div className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card">
                 <div className="relative">
                   <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                   <input

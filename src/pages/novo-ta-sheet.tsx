@@ -100,7 +100,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
         <div className="min-h-0 flex-1">
           {salvo ? (
             <div className="h-full space-y-4 overflow-y-auto px-6 py-6">
-              <div className="flex items-center gap-3 rounded-lg border p-3">
+              <div className="flex items-center gap-3 rounded-lg border p-3 bg-card">
                 <div className="flex h-12 w-10 shrink-0 items-center justify-center rounded border bg-white text-neutral-400 shadow-sm">
                   <FileText className="size-5" />
                 </div>
@@ -142,7 +142,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
                 </div>
               </div>
               {/* Cada produto mostra a CTM aprovada (menor custo); só entram no mesmo TAA produtos da mesma CTM */}
-              <ul className="divide-y rounded-lg border">
+              <ul className="divide-y rounded-lg border bg-card">
                 {produtos.map((c) => {
                   const ctm = aprovadaDe(c)
                   const on = nomes.includes(c.nome)

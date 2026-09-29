@@ -385,7 +385,7 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
           {/* 2ª coluna: cursos do Itinerário Nacional */}
           <div className="flex min-h-0 flex-col gap-3 border-r px-6 py-6">
             <h3 className="text-sm font-semibold">Produtos do {contratante ? instrumentoDe(contratante) : 'TAA'} {ids.length > 0 && <span className="text-muted-foreground font-normal">({ids.length} selecionados)</span>}</h3>
-            <div className="flex min-h-0 flex-1 flex-col rounded-lg border">
+            <div className="flex min-h-0 flex-1 flex-col rounded-lg border bg-card">
               <div className="relative">
                 <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                 <input

@@ -150,7 +150,7 @@ export function MapaProcesso({ abrirTela, preencher }: { abrirTela: (path: strin
                 {raias.map((r) => <SelectItem key={r.id} value={r.id}>{poolDe(r.id).nome} · {r.nome}</SelectItem>)}
               </SelectContent>
             </Select>
-            <div className="flex items-center rounded-md border">
+            <div className="flex items-center rounded-md border bg-card">
               <Button size="icon-sm" variant="ghost" aria-label="Diminuir zoom" onClick={() => zoomPor(1 / 1.15)}><Minus /></Button>
               <span className="w-12 text-center text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
               <Button size="icon-sm" variant="ghost" aria-label="Aumentar zoom" onClick={() => zoomPor(1.15)}><Plus /></Button>

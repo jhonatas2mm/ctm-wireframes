@@ -57,7 +57,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
 
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Cursos <span className="font-normal text-muted-foreground">({p.cursos.length})</span></h3>
-                <ul className="divide-y rounded-lg border">
+                <ul className="divide-y rounded-lg border bg-card">
                   {p.cursos.map((c) => {
                     const n = ofertas.filter((t) => t.cursos.includes(c.nome)).length
                     return (
@@ -76,7 +76,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Ofertas vinculadas <span className="font-normal text-muted-foreground">({ofertas.length})</span></h3>
                 {ofertas.length ? (
-                  <ul className="divide-y rounded-lg border">
+                  <ul className="divide-y rounded-lg border bg-card">
                     {ofertas.map((t) => {
                       const ucs = t.modulos.flatMap((m) => m.unidades)
                       const ini = ucs.map((u) => u.inicio).filter(Boolean).sort()[0] ?? ''
@@ -107,7 +107,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
               {!!p.documentos?.length && (
                 <section className="space-y-2">
                   <h3 className="text-sm font-semibold">Documentos</h3>
-                  <ul className="divide-y rounded-lg border">
+                  <ul className="divide-y rounded-lg border bg-card">
                     {p.documentos.map((d, i) => (
                       <li key={i} className="flex items-center gap-2 px-3 py-2.5 text-sm"><FileText className="size-4 text-muted-foreground" /> {d}</li>
                     ))}

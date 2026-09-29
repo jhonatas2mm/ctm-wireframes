@@ -160,7 +160,7 @@ function PermissoesPerfil({ p }: { p: PermissaoPerfil }) {
         breadcrumb={[{ label: 'Perfis e permissões', to: '/admin/perfis' }, { label: p.perfil }]}
         actions={<Button onClick={() => (db.update(p.id, { telas }), navigate('/admin/perfis'))}>Salvar permissões</Button>}
       />
-      <div className="overflow-hidden rounded-lg border">
+      <div className="overflow-hidden rounded-lg border bg-card">
         <label className="flex items-center gap-3 border-b bg-muted/60 px-4 py-2.5 text-sm font-bold">
           <Checkbox checked={todas} onCheckedChange={(v) => setTelas(v ? menu.map((s) => s.path) : [])} />
           Selecionar todas <span className="ml-auto font-normal text-muted-foreground">{telas.length} de {menu.length}</span>

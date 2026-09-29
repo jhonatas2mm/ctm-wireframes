@@ -90,7 +90,7 @@ function LogDetalhe({ l, doUsuario, abrir }: { l: LogSistema; doUsuario: LogSist
         </SheetTitle>
       </SheetHeader>
       <div className="flex-1 space-y-6 overflow-y-auto p-6">
-        <div className="flex items-center gap-3 rounded-2xl border p-4">
+        <div className="flex items-center gap-3 rounded-2xl border p-4 bg-card">
           <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#EEF7FF] text-sm font-bold text-[#164194]">{iniciais(l.usuario)}</span>
           <div className="min-w-0">
             <div className="font-semibold">{l.usuario}</div>
@@ -108,7 +108,7 @@ function LogDetalhe({ l, doUsuario, abrir }: { l: LogSistema; doUsuario: LogSist
         {l.alteracoes.length > 0 && (
           <div className="space-y-2">
             <h3 className="text-sm font-semibold">O que mudou</h3>
-            <div className="overflow-hidden rounded-2xl border">
+            <div className="overflow-hidden rounded-2xl border bg-card">
               <div className="grid grid-cols-3 border-b bg-muted/40 px-4 py-2 text-xs font-semibold text-muted-foreground">
                 <span>Campo</span><span>Antes</span><span>Depois</span>
               </div>
@@ -126,7 +126,7 @@ function LogDetalhe({ l, doUsuario, abrir }: { l: LogSistema; doUsuario: LogSist
         {doUsuario.length > 0 && (
           <div className="space-y-2">
             <h3 className="flex items-center gap-2 text-sm font-semibold"><LogIn className="size-4 text-muted-foreground" /> Outras ações de {l.usuario.split(' ')[0]}</h3>
-            <div className="divide-y rounded-2xl border">
+            <div className="divide-y rounded-2xl border bg-card">
               {doUsuario.map((x) => (
                 <button key={x.id} type="button" onClick={() => abrir(x.id)} className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-muted/50">
                   <Badge>{x.acao}</Badge>

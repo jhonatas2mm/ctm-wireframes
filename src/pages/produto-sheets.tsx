@@ -90,7 +90,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
               {/* Vínculo com o itinerário (outro sistema): a DR vincula; detalhes da integração ficam para depois */}
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Itinerário</h3>
-                <div className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm">
+                <div className="flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm bg-card">
                   <Route className="size-4 text-muted-foreground" />
                   {p.itinerario ? (
                     <span className="min-w-0 flex-1">Vinculado a <span className="font-mono">{p.itinerario.codigo}</span> <span className="text-xs text-muted-foreground">em {data(p.itinerario.vinculadoEm)}</span></span>
@@ -109,7 +109,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Documentos e materiais <span className="font-normal text-muted-foreground">({materiais.length})</span></h3>
                 {materiais.length > 0 && (
-                  <ul className="divide-y rounded-lg border">
+                  <ul className="divide-y rounded-lg border bg-card">
                     {materiais.map((m, i) => (
                       <li key={i} className="flex items-center gap-3 px-3 py-2 text-sm">
                         <FileText className="size-4 shrink-0 text-muted-foreground" />
@@ -148,7 +148,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
 
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Versões</h3>
-                <ol className="divide-y rounded-lg border">
+                <ol className="divide-y rounded-lg border bg-card">
                   {[...familia].reverse().map((c) => (
                     <li key={c.id}>
                       <button
@@ -169,7 +169,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                 <h3 className="text-sm font-semibold">Módulos e UCs · v{v(p)}</h3>
                 <ol className="grid gap-2">
                   {p.modulos.map((m, i) => (
-                    <li key={i} className="rounded-lg border p-3">
+                    <li key={i} className="rounded-lg border p-3 bg-card">
                       <p className="text-sm font-medium">{i + 1}. {m.nome}</p>
                       <ul className="mt-1 grid gap-0.5 pl-5 text-sm text-muted-foreground">
                         {m.unidades.map((u, k) => <li key={k}>{i + 1}.{k + 1} {u.nome}</li>)}

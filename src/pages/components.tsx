@@ -28,7 +28,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="space-y-3">
       <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">{title}</h2>
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border p-4">{children}</div>
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border p-4 bg-card">{children}</div>
     </section>
   )
 }
@@ -109,11 +109,11 @@ export default function Components() {
       <Annotation>Annotation — nota de intenção/regra. Liga/desliga pelo botão “Notas” no topo.</Annotation>
       <div className="grid gap-4 md:grid-cols-3">
         <Placeholder label="Placeholder (imagem, gráfico…)" className="h-40" />
-        <div className="space-y-3 rounded-lg border p-4">
+        <div className="space-y-3 rounded-lg border p-4 bg-card">
           <p className="text-xs text-muted-foreground">TextLines</p>
           <TextLines lines={4} />
         </div>
-        <div className="space-y-3 rounded-lg border p-4">
+        <div className="space-y-3 rounded-lg border p-4 bg-card">
           <p className="text-xs text-muted-foreground">Skeleton (loading)</p>
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
