@@ -118,7 +118,9 @@ export function JourneyShell() {
   const areaName = screens.find((s) => s.path === screen)?.title ?? current.title
   const telaData = screens.find((s) => s.path === screen)?.data
   // src fixo: trocar de etapa muda só o hash do iframe, sem recarregar.
-  const [src] = useState(() => `./?frame=1#${current.path}`)
+  // Ao recarregar a página, volta para a tela em que o usuário estava no protótipo (se a etapa da casca é a mesma).
+  const restaurada = useRef<string | null>((() => { try { const t = JSON.parse(sessionStorage.getItem('casca-tela') ?? 'null'); return t?.h === location.hash ? t.path as string : null } catch { return null } })())
+  const [src] = useState(() => `./?frame=1#${restaurada.current ?? current.path}`)
 
   // Tela cheia: esconde topo e mapa da jornada (fica só perfil, Anterior/Próxima e o protótipo) e pede tela cheia ao navegador.
   const [cheia, setCheia] = useState(false)
@@ -185,6 +187,7 @@ export function JourneyShell() {
     const win = frame.current?.contentWindow
     // Se a etapa mudou porque o usuário navegou dentro do protótipo, não reposiciona a tela.
     if (doFrame.current) doFrame.current = false
+    else if (restaurada.current) restaurada.current = null // recarregou: o protótipo já abre na tela salva
     else if (win) {
       // A casca mandou o protótipo para esta rota: ignora os ecos de rota por um instante (evita pular de etapa
       // quando a mesma rota aparece em mais de uma etapa ou quando uma modal fecha sozinha).
@@ -228,6 +231,7 @@ export function JourneyShell() {
       const m = e.data
       if (m.type === 'route') {
         setFramePath(m.path)
+        try { sessionStorage.setItem('casca-tela', JSON.stringify({ h: location.hash, path: m.path })) } catch { /* sem armazenamento */ }
         setScreen(m.screen)
         if (Date.now() < navegouAte.current) return
         // Destaque do fluxograma acompanha a tela vista: rota exata da etapa; senão, a mesma tela (padrão da rota).

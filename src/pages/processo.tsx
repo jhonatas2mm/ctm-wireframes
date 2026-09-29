@@ -99,7 +99,7 @@ export function MapaProcesso({ abrirTela, preencher }: { abrirTela: (path: strin
 
   // Zoom: Ctrl/⌘ + roda do mouse (ou pinça no trackpad) e teclas + / − / 0; arrastar com o mouse move o diagrama.
   const Z_MIN = 0.3, Z_MAX = 2.5
-  const zoomPor = (f: number) => setZoom((z) => Math.min(Z_MAX, Math.max(Z_MIN, +(z * f).toFixed(2))))
+  const zoomPor = (f: number) => setZoom((z) => Math.min(Z_MAX, Math.max(Z_MIN, z * f)))
   const caixa = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const el = caixa.current
@@ -107,7 +107,8 @@ export function MapaProcesso({ abrirTela, preencher }: { abrirTela: (path: strin
     const onWheel = (e: WheelEvent) => {
       if (!e.ctrlKey && !e.metaKey) return
       e.preventDefault()
-      zoomPor(e.deltaY < 0 ? 1.1 : 1 / 1.1)
+      // Passo proporcional ao giro e bem menor (trackpad manda muitos eventos pequenos)
+      zoomPor(Math.exp(-Math.max(-50, Math.min(50, e.deltaY)) * 0.002))
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     const onKey = (e: KeyboardEvent) => {

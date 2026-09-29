@@ -318,3 +318,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Perfil **CTM: Supervisor** renomeado para **CTM: Gestor de oferta** (a função Supervisor da equipe/turma continua).
 - 2026-09-29 — Padrão: nada de campos ou texto direto sobre o fundo da página. Campos sempre com fundo branco (global); Detalhes da turma: bloco Dia do encontro presencial + Escolas dentro de uma caixa.
 - 2026-09-29 — Padrão: todo botão desabilitado mostra um tooltip com o que está pendente (ex.: Confirmar turma → "O cronograma precisa estar validado pela DR"). Implementado no Button (prop motivo), com texto genérico quando não houver motivo; motivos escritos para todos os botões desabilitados atuais.
+- 2026-09-29 — Mapa do processo: zoom com Ctrl/⌘ + roda bem mais lento e proporcional ao giro (trackpad). Casca: ao recarregar a página, o protótipo volta para a tela em que o usuário estava (guardado na sessão do navegador), não para a tela da etapa.
