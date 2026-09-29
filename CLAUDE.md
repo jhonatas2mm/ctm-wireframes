@@ -11,7 +11,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 ## Como trabalhar
 - Verificar só com `npx tsc -b`. **Não rodar o projeto nem testar no navegador** — nem em lógica arriscada — a menos que eu peça explicitamente. Avisar "não testei no navegador".
 - **Toda mudança pedida vai para o `main`** (commit + push, para o GitHub Pages atualizar), sem precisar pedir. Ao levar para o `main`: antes, `git fetch` + merge do `origin/main` (outras pessoas mexem no projeto), resolver conflitos, `npx tsc -b`, e só então push.
-- **Regras de fluxo e decisões** vão para `docs/fluxo.md` (regra + linha datada em "Percurso") a cada mudança de comportamento.
+- **Regras de fluxo e decisões do sistema prototipado** vão para `docs/fluxo.md` (regra + linha datada em "Percurso") a cada mudança de comportamento. **Não registrar** detalhes visuais nem nada da casca de jornadas.
 - A **casca de jornadas** (`src/journey/journey-shell.tsx`) nunca pode ser removida. Se testar no browser, fazer pela casca (`/`), não por `?frame=1`.
 
 ## Estrutura
