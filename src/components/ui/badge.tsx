@@ -27,14 +27,17 @@ const badgeVariants = cva(
   }
 )
 
-// Tom semântico do status (Tags do DS SENAI). Só tem efeito visual no protótipo (html.ds-senai, src/index.css).
+// Tom semântico do status (Tags do DS SENAI), igual em todo o protótipo. Só tem efeito visual com html.ds-senai (src/index.css).
+// verde = concluído/positivo · azul = em curso · laranja = aguardando/atenção · vermelho = negativo · cinza = inicial/encerrado.
+// Badge padrão com texto fora desta lista fica cinza (nunca na cor principal).
 const tones: Record<string, "green" | "blue" | "orange" | "red" | "gray"> = {
-  Vigente: "green", Ativo: "green", Ativa: "green", Aceita: "green", "Em dia": "green", "Em andamento": "green",
-  "Aceita pelo contratante": "blue", "A iniciar": "blue",
-  "Em análise": "orange", "Em risco": "orange", "Aguardando CTM": "orange",
-  Recusada: "red", Evadido: "red", Excluiu: "red", Recusou: "red", Criou: "green", Aceitou: "green", Editou: "orange", Anexou: "blue", Exportou: "blue", Login: "gray", Logout: "gray", Visualizou: "gray",
-  "Em elaboração": "gray", Encerrado: "gray", Finalizada: "gray", Inativo: "gray", Inativa: "gray",
+  Vigente: "green", Ativo: "green", Ativa: "green", Aceito: "green", Aceita: "green", Aprovado: "green", Aprovada: "green", Validado: "green", Integrada: "green", "Em dia": "green", Criou: "green", Aceitou: "green",
+  "Em andamento": "blue", Encaminhado: "blue", "Em negociação": "blue", "A iniciar": "blue", "Aceita pelo contratante": "blue", Anexou: "blue", Exportou: "blue", Transferido: "blue",
+  "Em análise": "orange", "Em risco": "orange", "Buscar tutor": "orange", "Retornado para ajuste": "orange", "Aguardando retorno do cliente": "orange", Editou: "orange", Trancado: "orange",
+  Recusada: "red", Recusado: "red", Reprovado: "red", Reprovada: "red", Evadido: "red", Desistente: "red", Excluiu: "red", Recusou: "red",
+  Rascunho: "gray", "Em elaboração": "gray", Encerrado: "gray", Finalizada: "gray", Inativo: "gray", Inativa: "gray", Cancelado: "gray", Cancelada: "gray", "Não integrada": "gray", Login: "gray", Logout: "gray", Visualizou: "gray",
 }
+const tomDe = (texto: string) => tones[texto] ?? (/^aguardando/i.test(texto) ? "orange" : undefined)
 
 function Badge({
   className,
@@ -42,7 +45,10 @@ function Badge({
   render,
   ...props
 }: useRender.ComponentProps<"span"> & VariantProps<typeof badgeVariants>) {
-  const tone = typeof props.children === "string" ? tones[props.children] : undefined
+  // Texto do status: o filho string (ou o 1º filho string, ex.: "Aceito · vigência encerrada")
+  const kids = Array.isArray(props.children) ? props.children : [props.children]
+  const texto = kids.find((k): k is string => typeof k === "string")
+  const tone = (texto && tomDe(texto)) || (variant === "default" ? "gray" : undefined)
   return useRender({
     defaultTagName: "span",
     props: mergeProps<"span">(

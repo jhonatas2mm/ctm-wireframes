@@ -37,6 +37,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - Sem textos de ajuda sob títulos; sem numeração de seções.
 - **Hierarquia de botões**: 1) principal preenchido; 2) outline com ícone na cor principal; 3) **só outline, cor neutra** (ex.: ações com texto nas linhas das tabelas, "Detalhes").
 - **Botão desabilitado sempre tem tooltip** com o que está pendente: `<Button disabled={…} motivo="…">` (sem `motivo` mostra "Indisponível no momento"); em `RowAction`, prop `motivo`.
+- **Cores de status (badges) centralizadas** em `src/components/ui/badge.tsx` (`tones`): verde = concluído, azul = em curso, laranja = aguardando/atenção (todo "Aguardando…"), vermelho = negativo, cinza = inicial/encerrado. Status novo → incluir lá; badge nunca na cor principal.
 - **Arredondamento único de containers: 20px** (`rounded-[1.25rem]`) — blocos dos painéis, cards, tabelas, caixas de informação; itens internos (linhas, campos, botões) usam raios menores.
 - **Nada direto sobre o fundo cinza da página**: caixas com borda têm fundo (`bg-card`); campos (input, select, textarea) têm fundo branco; blocos de campos/texto ficam dentro de uma caixa (`rounded-lg border bg-card p-4`).
 - Dados vindos do catálogo/itinerário são **somente leitura** (etiqueta com cadeado); só o que é do usuário é editável (ex.: valor).

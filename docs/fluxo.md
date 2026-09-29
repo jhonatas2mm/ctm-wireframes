@@ -331,3 +331,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Casca: select de Jornada mais largo e lista ajustada ao texto (até 36rem, quebra linha se preciso), sem cortar nomes.
 - 2026-09-29 — Casca: etapa selecionada no fluxograma da jornada sem o contorno branco (só o preenchimento na cor do perfil).
 - 2026-09-29 — Padrão: containers com o mesmo arredondamento (20px, como cards e tabelas do DS). Blocos dos painéis (antes ~26px), cards de indicadores e caixas de informação das telas (antes 12px) igualados.
+- 2026-09-29 — Padrão: cores dos status unificadas num mapa único (verde concluído, azul em curso, laranja aguardando/atenção, vermelho negativo, cinza inicial/encerrado), valendo para propostas, TAAs, turmas, portfólio, cronograma, alunos, DRs e usuários. Badge padrão sem status conhecido fica cinza — nenhuma badge na cor principal (ex.: "Aguardando…" no painel).
