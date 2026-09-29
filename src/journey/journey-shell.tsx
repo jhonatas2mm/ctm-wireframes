@@ -449,9 +449,9 @@ export function JourneyShell() {
                   )
                 })}
               </div>
-              <div className="flex gap-1">
-              <Button size="sm" variant="outline" className="flex-1" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronLeft /> Anterior</Button>
-              <Button size="sm" className="flex-1 text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}>Próxima <ChevronRight /></Button>
+              <div className="grid grid-cols-2 gap-1 [&>*]:w-full">
+              <Button size="sm" variant="outline" className="w-full" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronLeft /> Anterior</Button>
+              <Button size="sm" className="w-full text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}>Próxima <ChevronRight /></Button>
             </div>
             </div>
           </aside>

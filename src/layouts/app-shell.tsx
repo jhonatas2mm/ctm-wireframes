@@ -118,11 +118,8 @@ export function AppShell() {
               <AvatarFallback className="bg-[#1670FA] font-semibold text-white">{iniciais}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1 text-xs leading-tight">
-              <div className="flex min-w-0 items-center gap-1.5">
-                <p className="truncate font-medium">{user.nome}</p>
-                {perfil && <Badge variant="outline" className="h-4 shrink-0 px-1.5 text-[10px]">{profileOf(perfil).caixa ?? perfil}</Badge>}
-              </div>
-              <p className="text-muted-foreground truncate">{user.email}</p>
+              <p className="truncate font-medium">{user.nome}</p>
+              {perfil && <Badge variant="outline" className="mt-1 h-4 max-w-full px-1.5 text-[10px]"><span className="truncate">{profileOf(perfil).caixa ?? perfil}</span></Badge>}
             </div>
           </DropdownMenuTrigger>
           {/* Protótipo: "Sair" volta para a primeira tela do menu. */}

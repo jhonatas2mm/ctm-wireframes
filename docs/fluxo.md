@@ -356,3 +356,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Visualização em cards: botões de ação com o mesmo padrão da coluna Ações (contorno neutro, ícone na cor principal).
 - 2026-09-29 — Menu lateral: badge com a identificação do perfil (caixa) ao lado do nome do usuário. Casca: lista de etapas e selects da jornada não saem mais da caixa.
 - 2026-09-29 — Casca: botão **Abrir protótipo** (antes "Abrir protótipo livre") abre em nova aba no perfil e na tela atuais (`?frame=1&perfil=…#/tela`): mesmo menu, avatar/badge, DR e navegação da casca.
+- 2026-09-29 — Menu lateral: e-mail do usuário removido; badge do perfil fica abaixo do nome. Casca: Anterior e Próxima dividem a largura igualmente (também quando um deles está desabilitado).
