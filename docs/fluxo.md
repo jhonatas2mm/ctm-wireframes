@@ -320,3 +320,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Padrão: todo botão desabilitado mostra um tooltip com o que está pendente (ex.: Confirmar turma → "O cronograma precisa estar validado pela DR"). Implementado no Button (prop motivo), com texto genérico quando não houver motivo; motivos escritos para todos os botões desabilitados atuais.
 - 2026-09-29 — Mapa do processo: zoom com Ctrl/⌘ + roda bem mais lento e proporcional ao giro (trackpad). Casca: ao recarregar a página, o protótipo volta para a tela em que o usuário estava (guardado na sessão do navegador), não para a tela da etapa.
 - 2026-09-29 — Padrão reforçado: elementos com borda sobre o fundo (linhas de listas, opções selecionáveis) também com fundo branco, incluindo os que mudam de estado (ex.: escolas na Integração com o AVA).
+- 2026-09-29 — Menu lateral: cartão da DR sem o ícone ao lado.

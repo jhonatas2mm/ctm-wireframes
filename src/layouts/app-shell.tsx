@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/sidebar'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { screens } from '@/screens'
-import { Building2, GraduationCap, LogOut } from 'lucide-react'
+import { GraduationCap, LogOut } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { BuscaRapida } from '@/components/wf/busca-rapida'
 import { useProfile } from '@/journey/profile'
@@ -66,10 +66,7 @@ export function AppShell() {
           </div>
         </SidebarHeader>
         {dr && (
-          <div className="mx-2 mb-4 flex items-center gap-3 rounded-2xl border bg-card p-2.5">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF6ED] text-[#E84910]">
-              <Building2 className="size-5" />
-            </div>
+          <div className="mx-2 mb-4 flex items-center gap-3 rounded-2xl border bg-card px-3.5 py-2.5">
             <div className="min-w-0 leading-tight">
               <p className="text-muted-foreground truncate text-xs">Departamento Regional</p>
               <p className="truncate text-sm font-semibold">{dr.sigla}</p>
