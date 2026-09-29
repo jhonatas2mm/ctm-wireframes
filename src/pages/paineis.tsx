@@ -1,3 +1,7 @@
+import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { VisaoOperacional, VisaoRelatorio, filtroInicial, type FiltroPeriodo } from './painel-dn-visoes'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   BadgeCheck, Boxes, Building2, CalendarClock, CircleDollarSign, Clock, FileSignature, FileSpreadsheet, Handshake, Percent, Send, Video,
@@ -17,7 +21,7 @@ const ver = (to: string, texto = 'Ver todos') => <Button variant="outline" size=
 const dataBr = (iso: string) => iso.split('-').reverse().join('/')
 
 // ── DN: DRs credenciadas, portfólio das CTMs (aprovações) e editais ─────────
-export function PainelDn() {
+function VisaoGeralDn() {
   const portfolio = useCursosDr().all
   const editais = useEditais().all
   const drs = useDrs().all
@@ -30,7 +34,6 @@ export function PainelDn() {
 
   return (
     <div className="space-y-5">
-      <PageHeader title="Painel" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Kpi icon={Building2} tom="blue" rotulo="DRs credenciados ativas" valor={ativas.length} extra={`${drs.length - ativas.length} inativas`} />
         <Kpi icon={FileSignature} tom="green" rotulo="Cursos no portfólio" valor={noPortfolio.length} extra={`${porCtm.length} CTMs`} />
@@ -88,6 +91,28 @@ export function PainelDn() {
 }
 
 // ── CTM: Coordenador EAD — operação: propostas, ofertas/turmas, aulas ao vivo, TAAs com DRs ──
+// Painel do DN em três visões (aba pela URL: ?aba=operacional | relatorio): geral, operacional e relatório de matrículas.
+export function PainelDn() {
+  const [params, setParams] = useSearchParams()
+  const aba = (['operacional', 'relatorio'] as const).find((a) => a === params.get('aba')) ?? 'geral'
+  const [filtro, setFiltro] = useState<FiltroPeriodo>(filtroInicial)
+  return (
+    <div className="space-y-5">
+      <PageHeader title="Painel" />
+      <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
+        <TabsList>
+          <TabsTrigger value="geral">Visão geral</TabsTrigger>
+          <TabsTrigger value="operacional">Visão operacional</TabsTrigger>
+          <TabsTrigger value="relatorio">Relatório</TabsTrigger>
+        </TabsList>
+        <TabsContent value="geral" className="pt-4"><VisaoGeralDn /></TabsContent>
+        <TabsContent value="operacional" className="pt-4"><VisaoOperacional f={filtro} onChange={setFiltro} /></TabsContent>
+        <TabsContent value="relatorio" className="pt-4"><VisaoRelatorio f={filtro} onChange={setFiltro} /></TabsContent>
+      </Tabs>
+    </div>
+  )
+}
+
 export function PainelSupervisor() {
   const navigate = useNavigate()
   const propostas = useProdutos().all

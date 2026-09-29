@@ -30,6 +30,12 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
+## Painel do DN
+- Três visões (abas): **Visão geral** (DRs, portfólio, editais), **Visão operacional** e **Relatório**.
+- **Filtros** (operacional e relatório): período = todo, **ano**, **semestre** (AAAA/1, AAAA/2) ou **período personalizado** (início e fim: turmas que se sobrepõem ao intervalo); e **CTM**.
+- **Visão operacional**: indicadores (estudantes, turmas, DRs atendidos, escolas); cards **por CTM** com os **DRs que ela atende** (e estudantes de cada); tabela **Estudantes por** DR · Turma · Escola · Área tecnológica.
+- **Relatório** (formato da planilha de matrículas): linhas por **DR** (Total + uma por **modalidade**) × colunas por **CTM** + Total; total geral; exporta planilha. Dados fictícios.
+
 ## Perfis
 Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Super admin**. CTM e DR solicitante têm **caixas** (subperfis). Nome do perfil = `Grupo: Caixa` (ex.: `CTM: Coordenador EAD`).
 - **Super admin** (provisório) — administra usuários, perfis/permissões, auditoria, logs e feriados; vê todas as telas e **os dados de toda a plataforma**.
@@ -332,3 +338,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Portfólio: sai toda a parte de **documentos e materiais**; **DN só aprova curso novo** e não vê versões (Aprovação de portfólio sem coluna Tipo; Portfólio das CTMs e detalhes do DN sem versões). Nova versão da CTM não passa pelo DN.
 - 2026-09-29 — Aprovação de portfólio: coluna **Modalidade** à esquerda do curso.
 - 2026-09-29 — **Portfólio sem aprovação nem reprovação**: curso da CTM entra direto; a tela do DN "Aprovação de portfólio" vira **Portfólio** (só consulta, sem Situação/Aprovar/Reprovar); painel do DN sem solicitações; Gestão de Portfólio sem as colunas Situação e No portfólio; mapa do processo sem a decisão do DN.
+- 2026-09-29 — **Painel do DN** em três visões: geral, **operacional** (CTMs e DRs atendidos; estudantes por DR, turma, escola e área; filtro ano/semestre/período e CTM) e **relatório** (DR × modalidade × CTM, como a planilha de matrículas). Nova jornada Painel do DN.

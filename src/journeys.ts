@@ -136,6 +136,16 @@ export const journeys: Journey[] = [
     ],
   },
   {
+    id: 'painel-dn',
+    title: 'Painel do DN',
+    profile: 'DN',
+    steps: [
+      { title: 'Visão geral', path: '/painel-dn', profile: 'DN', note: 'DRs credenciados, portfólio por CTM e editais vigentes.' },
+      { title: 'Visão operacional', path: '/painel-dn?aba=operacional', profile: 'DN', note: 'Quais DRs cada CTM atende e quantos estudantes por DR, turma, escola e área tecnológica. Filtro por ano, semestre ou período (início e fim) e por CTM.' },
+      { title: 'Relatório', path: '/painel-dn?aba=relatorio', profile: 'DN', note: 'Matrículas por DR e modalidade em cada CTM, com totais; exporta planilha.' },
+    ],
+  },
+  {
     id: 'aprovacao-portfolio',
     title: 'Portfólio',
     profile: 'DN',
