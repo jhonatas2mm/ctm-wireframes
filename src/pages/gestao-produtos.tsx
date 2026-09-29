@@ -45,7 +45,7 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
   {
     header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium',
     cell: (l) => (
-      <span className="flex items-center gap-1.5">
+      <span className="flex flex-col items-start gap-1 py-1">
         <span className="max-w-64">{l.atual.nome}</span>
         <CursoDetalhes c={l.atual} />
       </span>

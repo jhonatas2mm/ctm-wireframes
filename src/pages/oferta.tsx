@@ -45,7 +45,7 @@ const colunasOfertas = (verProposta: (id: string) => void): Column<LinhaOferta>[
     value: (l) => l.proposta.numero,
     search: true,
     cell: (l) => (
-      <span className="flex items-center gap-2">
+      <span className="flex flex-col items-start gap-1 py-1">
         <Badge variant="secondary" className="font-mono">{l.proposta.numero}</Badge>
         <CellButton onClick={() => verProposta(l.proposta.id)}>Detalhes</CellButton>
       </span>
