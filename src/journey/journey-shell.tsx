@@ -460,7 +460,7 @@ export function JourneyShell() {
 
         <div className="flex min-h-0 flex-1">
           <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'p-4')}>
-            <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width, maxWidth: largura + 8 }}>
+            <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width, maxWidth: largura + 28 }}>
             {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
             <div className="flex items-end gap-2">
               {/* Troca de perfil: abre a 1ª jornada iniciada por ele, na 1ª etapa */}
@@ -517,13 +517,14 @@ export function JourneyShell() {
                 </Button>
               </div>}
             </div>
+            {/* Monitor: moldura escura (separa o protótipo da casca), com a tela dentro e o pé embaixo.
+                A faixa na cor do perfil no topo da tela liga a moldura às abas de perfil acima. */}
             <div
               ref={frameRef}
-              className="flex min-h-0 flex-1 flex-col rounded-lg rounded-tl-none p-1 shadow-sm"
-              style={{ background: profileDef.color }}
+              className="flex min-h-0 flex-1 flex-col rounded-[1.25rem] rounded-tl-none bg-[#141518] p-2.5 shadow-[0_20px_40px_-12px_rgb(0_0_0/0.6),inset_0_0_0_1px_rgb(255_255_255/0.08)]"
             >
-              {/* Moldura na cor do perfil (canto sup. esq. reto, onde encosta o seletor); a tela dentro tem os 4 cantos arredondados. */}
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md bg-background">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md bg-background ring-1 ring-black">
+              <div className="h-1 shrink-0" style={{ background: profileDef.color }} />
               {/* Barra de navegador simulada */}
               <div className="flex shrink-0 items-center gap-3 border-b border-neutral-200 bg-neutral-100 px-3 py-1.5">
                 <div className="flex gap-1.5">
@@ -546,6 +547,13 @@ export function JourneyShell() {
               <ScaledFrame ref={frame} src={src} scaled={device === 'desktop'} largura={largura} />
               </div>
             </div>
+            {/* Pé do monitor (fora da tela cheia) */}
+            {!cheia && (
+              <div className="flex shrink-0 flex-col items-center" aria-hidden>
+                <div className="h-3 w-24 bg-gradient-to-b from-[#0b0c0e] to-[#26282d]" />
+                <div className="h-1.5 w-56 rounded-t-md rounded-b-sm bg-[#26282d] shadow-[0_4px_10px_rgb(0_0_0/0.5)]" />
+              </div>
+            )}
             </div>
           </div>
           {panel && (
