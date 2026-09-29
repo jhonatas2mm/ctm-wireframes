@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, RotateCcw, Lock, Workflow, X, ChevronUp, Monitor } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, RotateCcw, Lock, Workflow, X, ChevronUp, Monitor } from 'lucide-react'
 import { MapaProcesso } from '@/pages/processo'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -286,13 +286,22 @@ export function JourneyShell() {
   // `dark` escurece os tokens só na casca; o protótipo no iframe não é afetado.
   return (
     <div className="shell-canvas dark flex h-svh text-foreground">
-      <main className="flex min-w-0 flex-1 flex-col">
-        {!cheia && (<>
-        <header className="flex flex-wrap items-center gap-3 px-4 py-2">
-          {/* Ferramentas em dois grupos: Análise (processo e requisitos) e Design (a interface do protótipo) */}
-          <div className="flex w-full items-center gap-2">
-            <div className="flex flex-1 items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
-              <span className="mr-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Análise</span>
+        {/* Coluna lateral da casca: ferramentas (Análise, Design) e a jornada (perfil, jornada, etapas em lista vertical). */}
+        {!cheia && (painelMin ? (
+          <aside className="flex w-12 shrink-0 flex-col items-center gap-1.5 border-r border-white/10 py-3">
+            <Button size="icon-sm" variant="outline" aria-label="Expandir painel" title="Expandir painel" onClick={() => setPainelMin(false)}><ChevronRight /></Button>
+            <span className="my-1 size-2 rounded-full" style={{ background: profileOf(pid).color }} title={pid} />
+            <Button size="icon-sm" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronUp /></Button>
+            <Button size="icon-sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}><ChevronDown /></Button>
+          </aside>
+        ) : (
+          <aside className="flex w-72 shrink-0 flex-col gap-3 overflow-y-auto border-r border-white/10 p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-muted-foreground">Protótipo CTM</span>
+              <Button size="icon-xs" variant="outline" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}><ChevronLeft /></Button>
+            </div>
+            <div className="grid gap-0.5 rounded-lg border bg-card/60 p-1.5 [&_[data-slot=button]]:w-full [&_[data-slot=button]]:justify-start [&>span.inline-flex]:w-full">
+              <span className="px-1.5 pt-0.5 pb-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Análise</span>
               {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
               <Button size="sm" variant="ghost" className={cn(mapa && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} onClick={() => setMapa(!mapa)}>
                 <Workflow /> Mapa do processo
@@ -313,8 +322,8 @@ export function JourneyShell() {
                 <MessageSquareText /> Anotações <span className="tabular-nums text-muted-foreground">{screenPins.length}</span>
               </Button>
             </div>
-            <div className="flex flex-1 items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
-              <span className="mr-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Design</span>
+            <div className="grid gap-0.5 rounded-lg border bg-card/60 p-1.5 [&_[data-slot=button]]:w-full [&_[data-slot=button]]:justify-start [&>span.inline-flex]:w-full">
+              <span className="px-1.5 pt-0.5 pb-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Design</span>
               <Button size="sm" variant="ghost" className={cn(guia && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
                 <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
               </Button>
@@ -347,38 +356,14 @@ export function JourneyShell() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
-        </header>
-
-        {/* Painel minimizado: só um resumo (perfil · jornada · etapa) com o botão de expandir */}
-        {painelMin ? (
-          <div className="mx-4 mb-3 flex shrink-0 items-center gap-2 rounded-lg border bg-card px-3 py-1.5 text-xs">
-            <Button size="icon-xs" variant="outline" aria-label="Expandir painel" title="Expandir painel" onClick={() => setPainelMin(false)}>
-              <ChevronDown />
-            </Button>
-            <span className="size-2 rounded-full" style={{ background: profileOf(pid).color }} />
-            <span className="font-semibold">{pid}</span>
-            <span className="text-muted-foreground">·</span>
-            <span className="truncate">{journey.id ? `${numero(journey.id)}. ${journey.title}` : 'Sem jornada'}</span>
-            {journey.id && <span className="text-muted-foreground">· Etapa {step + 1} de {journey.steps.length}: {current.title}</span>}
-            {/* Anterior/Próxima (atalhos ← e →), só ícones */}
-            <div className={cn('ml-auto flex shrink-0 gap-1', 'flex-row')}>
-              <Button size="icon-xs" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronLeft /></Button>
-              <Button size="icon-xs" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}><ChevronRight /></Button>
-            </div>
-          </div>
-        ) : (
-        /* Mapa da jornada escolhida no select: etapas ligadas por setas */
-        <div className="mx-4 mb-3 flex shrink-0 items-center gap-3 rounded-lg border bg-card p-2">
-          <Button size="icon-xs" variant="outline" className="self-start" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}>
-            <ChevronUp />
-          </Button>
+            <div className="grid gap-2 rounded-lg border bg-card/60 p-2">
+              <span className="px-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Jornada</span>
           {/* Dois selects: primeiro o perfil, depois as jornadas que esse perfil inicia */}
-          <div className="flex shrink-0 items-end gap-2">
+          <div className="grid gap-2">
             <label className="grid gap-1">
             <span className="pl-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Perfil</span>
             <Select value={grupo} onValueChange={(v) => v && trocarPerfil(membros(v as string)[0].name)}>
-              <SelectTrigger size="sm" className="w-40 shrink-0">
+              <SelectTrigger size="sm" className="w-full">
                 <SelectValue>
                   {(v: string) => (
                     <span className="flex items-center gap-1.5">
@@ -412,7 +397,7 @@ export function JourneyShell() {
               const doPerfil = visibleJourneys.filter((j) => grupoDe(inicio(j)) === grupo)
               return (
                 <Select value={doPerfil.some((j) => j.id === jid) ? jid : ''} onValueChange={(v) => v && go(v as string, 0)} disabled={!doPerfil.length}>
-                  <SelectTrigger size="sm" className="w-72 shrink-0">
+                  <SelectTrigger size="sm" className="w-full">
                     <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}${subDe(inicio(j)) ? ` (${subDe(inicio(j))})` : ''}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
                   </SelectTrigger>
                   <SelectContent className="dark w-max max-w-[36rem] min-w-72" alignItemWithTrigger={false} searchable={false}>
@@ -430,41 +415,37 @@ export function JourneyShell() {
             })()}
             </label>
           </div>
-          {/* Só as etapas rolam na horizontal */}
-          <div className="min-w-0 flex-1 overflow-x-auto rounded-md bg-background px-2 py-1.5">
-            <div className="flex w-max items-center gap-2 py-0.5">
-              {journey.steps.map((st, i) => {
-                const atual = i === step
-                const cor = profileOf(st.profile ?? journey.profile).color
-                return (
-                  <div key={i} className="flex shrink-0 items-center gap-2">
-                    {i > 0 && <ArrowRight className="size-4 text-muted-foreground" />}
+              {/* Etapas em lista vertical */}
+              <div className="grid gap-1 rounded-md bg-background p-1.5">
+                {journey.steps.map((st, i) => {
+                  const atual = i === step
+                  const cor = profileOf(st.profile ?? journey.profile).color
+                  return (
                     <button
+                      key={i}
                       onClick={() => go(jid, i)}
                       title={st.note}
-                      className={cn('flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors hover:brightness-125', atual ? 'font-medium text-white' : 'text-foreground/85')}
+                      className={cn('flex items-center gap-2 rounded-md border px-2 py-1.5 text-left text-xs transition-colors hover:brightness-125', atual ? 'font-medium text-white' : 'text-foreground/85')}
                       // Preenchimento na cor do perfil: sólido na etapa atual, translúcido nas demais.
                       style={{ borderColor: cor, background: atual ? cor : `${cor}33` }}
                     >
-                      <span className="whitespace-nowrap">{st.title}</span>
-                      <span className="text-[10px] whitespace-nowrap opacity-70">{st.profile ?? journey.profile}</span>
+                      <span className="w-4 shrink-0 text-[10px] tabular-nums opacity-70">{i + 1}</span>
+                      <span className="min-w-0 flex-1">{st.title}<span className="block text-[10px] opacity-70">{st.profile ?? journey.profile}</span></span>
                     </button>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
+              <div className="flex gap-1">
+              <Button size="sm" variant="outline" className="flex-1" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronLeft /> Anterior</Button>
+              <Button size="sm" className="flex-1 text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}>Próxima <ChevronRight /></Button>
             </div>
-          </div>
-          {/* Anterior/Próxima (atalhos ← e →), só ícones */}
-            <div className={cn('ml-auto flex shrink-0 gap-1', 'flex-col')}>
-              <Button size="icon-xs" variant="outline" aria-label="Etapa anterior (←)" title="Etapa anterior (←)" disabled={step === 0} motivo="Esta é a primeira etapa" onClick={() => go(jid, step - 1)}><ChevronLeft /></Button>
-              <Button size="icon-xs" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}><ChevronRight /></Button>
             </div>
-        </div>
-        )}
-        </>)}
+          </aside>
+        ))}
+      <main className="flex min-w-0 flex-1 flex-col">
 
         <div className="flex min-h-0 flex-1">
-          <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'px-4 pb-4')}>
+          <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'p-4')}>
             <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width, maxWidth: largura + 8 }}>
             {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
             <div className="flex items-end gap-2">
