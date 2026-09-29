@@ -169,7 +169,7 @@ export function AppShell() {
         <div className="w-full min-w-0 space-y-6 p-4 md:p-6">
           {/* Skeleton de carregamento ao entrar numa tela; a página já monta por baixo (estado preservado) */}
           {carregando && <CarregandoTela />}
-          <div className={carregando ? 'hidden' : 'contents'}><BarreiraErro chave={pathname}><Outlet /></BarreiraErro></div>
+          <div className={carregando ? 'hidden' : 'space-y-6'}><BarreiraErro chave={pathname}><Outlet /></BarreiraErro></div>
         </div>
       </SidebarInset>
       <BarreiraErro fallback={null}><AgentePainel aberto={agente} onClose={() => setAgente(false)} /></BarreiraErro>
