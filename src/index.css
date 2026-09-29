@@ -359,3 +359,15 @@ html.ds-senai span.bg-secondary:not([data-tone]) { background-color: #F0F1F2; co
 .casca-painel * { min-width: 0; }
 .casca-painel [data-slot="select-trigger"] { width: 100%; }
 .casca-painel [data-slot="select-trigger"] > :first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Menu lateral: itens de uma área ligados ao rótulo (pai) por uma linha em árvore, com cotovelo arredondado */
+.menu-arvore { margin-left: 1.25rem; padding-left: 0.75rem; width: auto; }
+.menu-arvore > li { position: relative; }
+.menu-arvore > li::before {
+  content: ""; position: absolute; left: -0.75rem; top: 0; height: 50%; width: 0.625rem;
+  border-left: 1.5px solid #D9DEE0; border-bottom: 1.5px solid #D9DEE0; border-bottom-left-radius: 0.5rem; pointer-events: none;
+}
+.menu-arvore > li:first-child::before { top: -0.5rem; height: calc(50% + 0.5rem); }
+.menu-arvore > li:not(:last-child)::after {
+  content: ""; position: absolute; left: -0.75rem; top: 0; bottom: 0; border-left: 1.5px solid #D9DEE0; pointer-events: none;
+}
