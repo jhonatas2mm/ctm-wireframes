@@ -370,11 +370,11 @@ export function JourneyShell() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="grid gap-2 rounded-lg border bg-card/60 p-2">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2 rounded-lg border bg-card/60 p-2">
               <span className="px-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Jornada</span>
           {/* Dois selects: primeiro o perfil, depois as jornadas que esse perfil inicia */}
-          <div className="grid gap-2">
-            <label className="grid gap-1">
+          <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-2">
+            <label className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1">
             <span className="pl-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Perfil</span>
             <Select value={grupo} onValueChange={(v) => v && trocarPerfil(membros(v as string)[0].name)}>
               <SelectTrigger size="sm" className="w-full">
@@ -405,14 +405,14 @@ export function JourneyShell() {
               </SelectContent>
             </Select>
             </label>
-            <label className="grid gap-1">
+            <label className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1">
             <span className="pl-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Jornada</span>
             {(() => {
               const doPerfil = visibleJourneys.filter((j) => grupoDe(inicio(j)) === grupo)
               return (
                 <Select value={doPerfil.some((j) => j.id === jid) ? jid : ''} onValueChange={(v) => v && go(v as string, 0)} disabled={!doPerfil.length}>
-                  <SelectTrigger size="sm" className="w-full">
-                    <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}${subDe(inicio(j)) ? ` (${subDe(inicio(j))})` : ''}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
+                  <SelectTrigger size="sm" className="w-full min-w-0">
+                    <SelectValue className="truncate">{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}${subDe(inicio(j)) ? ` (${subDe(inicio(j))})` : ''}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
                   </SelectTrigger>
                   <SelectContent className="dark w-max max-w-[36rem] min-w-72" alignItemWithTrigger={false} searchable={false}>
                     {doPerfil.map((j) => (
@@ -430,7 +430,7 @@ export function JourneyShell() {
             </label>
           </div>
               {/* Etapas em lista vertical */}
-              <div className="grid gap-1 rounded-md bg-background p-1.5">
+              <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-1 rounded-md bg-background p-1.5">
                 {journey.steps.map((st, i) => {
                   const atual = i === step
                   const cor = profileOf(st.profile ?? journey.profile).color

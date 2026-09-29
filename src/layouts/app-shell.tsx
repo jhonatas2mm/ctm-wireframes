@@ -14,6 +14,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from '@/components/ui/sidebar'
+import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { screens } from '@/screens'
 import { GraduationCap, LogOut } from 'lucide-react'
@@ -116,8 +117,11 @@ export function AppShell() {
               <AvatarImage src={`${import.meta.env.BASE_URL}avatars/${user.email}.jpg`} alt="" />
               <AvatarFallback className="bg-[#1670FA] font-semibold text-white">{iniciais}</AvatarFallback>
             </Avatar>
-            <div className="min-w-0 text-xs leading-tight">
-              <p className="truncate font-medium">{user.nome}</p>
+            <div className="min-w-0 flex-1 text-xs leading-tight">
+              <div className="flex min-w-0 items-center gap-1.5">
+                <p className="truncate font-medium">{user.nome}</p>
+                {perfil && <Badge variant="outline" className="h-4 shrink-0 px-1.5 text-[10px]">{profileOf(perfil).caixa ?? perfil}</Badge>}
+              </div>
               <p className="text-muted-foreground truncate">{user.email}</p>
             </div>
           </DropdownMenuTrigger>
