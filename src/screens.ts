@@ -56,6 +56,7 @@ export const screens: Screen[] = [
   { path: '/portfolio/aprovacoes', title: 'Aprovação de portfólio', group: 'Telas', icon: ClipboardCheck, component: Portfolio, profiles: ['DN', 'Super admin'], data: ['cursos-dr'] },
   { path: '/portfolio', title: 'Portfólio das CTMs', group: 'Telas', icon: BookOpenCheck, component: Portfolio, data: ['cursos-dr'] },
   { path: '/taas-ctm', title: 'TAAs com as DRs', group: 'Telas', icon: Send, component: TaaCtm, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['contratos'] },
+  { path: '/taas-ctm/:id', title: 'Detalhes do TAA', group: 'Telas', icon: Send, component: TaaCtm, hidden: true, data: ['contratos'] },
   { path: '/taas-ctm/novo', title: 'Novo TAA', group: 'Telas', icon: Send, component: TaaCtm, hidden: true, data: ['contratos'] },
   { path: '/gestao-produtos', title: 'Gestão de Portfólio', group: 'Telas', icon: Boxes, component: GestaoProdutos, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['cursos-dr'] },
   { path: '/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['produtos'] },

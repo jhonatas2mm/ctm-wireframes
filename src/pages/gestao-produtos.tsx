@@ -19,7 +19,7 @@ function CursoDetalhes({ c }: { c: CursoDr }) {
   const itens: [string, string][] = [['Modalidade', c.modalidade ?? '—'], ['Área tecnológica', c.area ?? '—'], ['Carga horária', c.cargaHorariaEdital ? `${c.cargaHorariaEdital} h` : '—']]
   return (
     <Popover.Root>
-      <Popover.Trigger render={<Button size="xs" variant="outline" className="border-neutral-300 bg-white font-normal text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800" />}>
+      <Popover.Trigger render={<Button size="xs" variant="outline" className="border-neutral-300 bg-white font-normal text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900" />}>
         Detalhes
       </Popover.Trigger>
       <Popover.Portal>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Eye, Lock, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,7 +28,9 @@ export default function TaaCtm() {
   const { all } = useContratos()
   const rows = all.filter((c) => !ctm || c.dr === ctm)
   const fluxo = useFluxoTaa(ctm ? 'ctm' : 'admin')
-  const [ver, setVer] = useState<string | null>(null)
+  // Detalhes com rota própria (/taas-ctm/:id) para poder ser etapa de jornada.
+  const { id: ver } = useParams()
+  const setVer = (id: string | null) => navigate(id ? `/taas-ctm/${id}` : '/taas-ctm')
   const colunas: Column<Contrato>[] = [
     { header: 'Nº', value: (c) => c.numero, search: true, className: 'font-mono' },
     ...(!ctm ? [{ header: 'CTM', value: (c: Contrato) => `SENAI-${c.dr}`, filter: true }] : []),
