@@ -110,15 +110,15 @@ export function AppShell() {
             return (
               <SidebarGroup key={key} className="py-1">
                 {rotulo && (colapsavel ? (
-                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="ml-2 h-auto min-h-8 w-[calc(100%-0.5rem)] cursor-pointer justify-between gap-2 py-1.5 pl-3 text-left text-sm font-semibold hover:text-sidebar-foreground" />}>
+                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="h-auto min-h-8 w-full cursor-pointer justify-between gap-2 py-1.5 pl-1 text-left text-sm font-semibold hover:text-sidebar-foreground" />}>
                     <span className="min-w-0 flex-1 text-left">{rotulo}</span>
                     <ChevronDown className={cn('size-4 shrink-0 transition-transform', !aberto && '-rotate-90')} />
                   </SidebarGroupLabel>
-                ) : <SidebarGroupLabel className="ml-2 pl-3 text-left text-sm font-semibold">{rotulo}</SidebarGroupLabel>)}
+                ) : <SidebarGroupLabel className="pl-1 text-left text-sm font-semibold">{rotulo}</SidebarGroupLabel>)}
                 {aberto && (
                   <SidebarGroupContent>
                     {/* Itens de uma área ligados ao rótulo (pai) por linhas em árvore */}
-                    <SidebarMenu className={cn(rotulo && 'menu-arvore')}>
+                    <SidebarMenu className={cn(rotulo ? 'menu-arvore' : '-ml-2 w-[calc(100%+0.5rem)]')}>
                       {lista.map((s) => (
                         <SidebarMenuItem key={s.path}>
                           <SidebarMenuButton isActive={s.path === ativo} render={<Link to={s.path} />}>

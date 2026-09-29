@@ -10,6 +10,7 @@ import {
   HOJE, dataBr, nomeParte, periodoTurma, situacaoCronograma, situacaoDe, statusTurma, useContratos, useCursosDr, useProdutos, useTurmas,
 } from '@/lib/mock'
 import { cn } from '@/lib/utils'
+import { BarreiraErro } from './erro'
 
 // Agente inteligente: chat de IA (SIMULADO no protótipo) que abre na lateral direita empurrando a tela. Traz ações
 // rápidas do dia a dia do perfil (pendências, prazos) e um roteiro de exemplo que se percorre só apertando "Enviar".
@@ -56,6 +57,9 @@ type Item = { titulo: string; sub?: string; tom?: 'alerta' | 'ok'; to?: string }
 type Msg = { de: 'usuario' | 'agente'; texto: string; itens?: Item[]; rascunho?: string; rodape?: string }
 type Pergunta = { texto: string; resposta: () => Msg }
 
+// Dado salvo no navegador pode estar incompleto (ex.: criado numa versão antiga): nunca deixa o chat quebrar.
+const seguro = <T,>(f: () => T, padrao: T): T => { try { return f() } catch { return padrao } }
+const fil = <T,>(xs: T[], f: (x: T) => boolean) => xs.filter((x) => seguro(() => f(x), false))
 const somarDias = (iso: string, n: number) => { const d = new Date(`${iso}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10) }
 
 // Conteúdo do agente para o perfil ativo: ações rápidas e roteiro de exemplo, a partir dos dados do protótipo.
@@ -71,9 +75,9 @@ function useConteudo() {
   const grupo = def.grupo ?? 'CTM'
 
   if (grupo === 'DR solicitante') {
-    const taasAnalisar = taas.filter((t) => t.contratante === uf && t.origem === 'CTM' && (t.status === 'Encaminhado' || t.status === 'Em análise'))
-    const cronos = turmas.filter((t) => t.drContratante === uf && situacaoCronograma(t.cronograma) === 'Aguardando')
-    const props = propostas.filter((p) => p.drContratante === uf && p.status === 'Aguardando')
+    const taasAnalisar = fil(taas, (t) => t.contratante === uf && t.origem === 'CTM' && (t.status === 'Encaminhado' || t.status === 'Em análise'))
+    const cronos = fil(turmas, (t) => t.drContratante === uf && situacaoCronograma(t.cronograma) === 'Aguardando')
+    const props = fil(propostas, (p) => p.drContratante === uf && p.status === 'Aguardando')
     const pendencias = (): Msg => ({
       de: 'agente',
       texto: `${nome}, você tem ${taasAnalisar.length + cronos.length + props.length} pendência(s) com as CTMs:`,
@@ -99,7 +103,7 @@ function useConteudo() {
   }
 
   if (grupo === 'DN') {
-    const pendentes = portfolio.filter((c) => situacaoDe(c) === 'Aguardando')
+    const pendentes = fil(portfolio, (c) => situacaoDe(c) === 'Aguardando')
     const resumo = (): Msg => ({ de: 'agente', texto: `${nome}, há ${pendentes.length} solicitação(ões) de portfólio aguardando a sua aprovação:`, itens: pendentes.map((c) => ({ titulo: `${c.nome} · v${c.versao ?? 1}`, sub: `CTM SENAI-${c.ctm} · ${(c.versao ?? 1) > 1 ? 'nova versão' : 'novo produto'}`, tom: 'alerta' as const, to: '/portfolio/aprovacoes' })) })
     return {
       nome,
@@ -115,12 +119,12 @@ function useConteudo() {
   }
 
   // CTM (e Super admin): pendências da operação.
-  const aguardando = propostas.filter((p) => p.status === 'Aguardando')
-  const rascunhos = propostas.filter((p) => (p.status ?? 'Rascunho') === 'Rascunho')
-  const aditivos = propostas.flatMap((p) => excedentesProposta(p, turmas).map((e) => ({ p, e })))
-  const cronos = turmas.filter((t) => situacaoCronograma(t.cronograma) === 'Aguardando')
-  const proximas = turmas.filter((t) => { const i = periodoTurma(t).inicio; return statusTurma(t) !== 'Cancelada' && i >= HOJE && i <= somarDias(HOJE, 21) })
-  const taasCtm = taas.filter((t) => t.origem !== 'CTM' && (t.status === 'Encaminhado' || t.status === 'Em análise'))
+  const aguardando = fil(propostas, (p) => p.status === 'Aguardando' && Array.isArray(p.cursos))
+  const rascunhos = fil(propostas, (p) => (p.status ?? 'Rascunho') === 'Rascunho')
+  const aditivos = propostas.flatMap((p) => seguro(() => excedentesProposta(p, turmas).map((e) => ({ p, e })), []))
+  const cronos = fil(turmas, (t) => situacaoCronograma(t.cronograma) === 'Aguardando')
+  const proximas = fil(turmas, (t) => { const i = periodoTurma(t).inicio; return statusTurma(t) !== 'Cancelada' && i >= HOJE && i <= somarDias(HOJE, 21) })
+  const taasCtm = fil(taas, (t) => t.origem !== 'CTM' && (t.status === 'Encaminhado' || t.status === 'Em análise'))
   const pendencias = (): Msg => ({
     de: 'agente',
     texto: `Bom dia, ${nome}! Separei o que precisa de você hoje (${dataBr(HOJE)}):`,
@@ -179,7 +183,7 @@ export function AgentePainel({ aberto, onClose }: { aberto: boolean; onClose: ()
   // Chat só é montado com o painel aberto (fechado, nada roda)
   return (
     <aside className={cn('sticky top-0 h-svh shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out', aberto ? 'w-[26rem]' : 'w-0')} aria-hidden={!aberto}>
-      {aberto && <Chat onClose={onClose} />}
+      {aberto && <div className="h-full w-[26rem] p-3 pl-0"><BarreiraErro><Chat onClose={onClose} /></BarreiraErro></div>}
     </aside>
   )
 }
@@ -204,7 +208,7 @@ function Chat({ onClose }: { onClose: () => void }) {
     setMsgs((m) => [...m, { de: 'usuario', texto: pergunta }])
     setDigitando(true)
     setTimeout(() => {
-      setMsgs((m) => [...m, resposta()])
+      setMsgs((m) => [...m, seguro(resposta, { de: 'agente', texto: 'Não consegui montar essa resposta com os dados salvos neste navegador. Use “Restaurar dados” na casca e tente de novo.' } as Msg)])
       setDigitando(false)
       if (proximo !== undefined) { setPasso(proximo); setTexto(roteiro[proximo]?.texto ?? '') }
     }, 900)
@@ -218,7 +222,7 @@ function Chat({ onClose }: { onClose: () => void }) {
   }
 
   return (
-      <div className="flex h-full w-[26rem] flex-col p-3 pl-0">
+      <div className="flex h-full flex-col">
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.25rem] border bg-card">
           <div className="flex items-center gap-2 border-b px-4 py-3">
             <span className="flex size-8 items-center justify-center rounded-full bg-accent text-primary"><IconeAgente className="size-4.5" /></span>
