@@ -329,18 +329,21 @@ export function JourneyShell() {
         {/* Painel minimizado: só um resumo (perfil · jornada · etapa) com o botão de expandir */}
         {painelMin ? (
           <div className="mx-4 mb-3 flex shrink-0 items-center gap-2 rounded-lg border bg-card px-3 py-1.5 text-xs">
+            <Button size="icon-xs" variant="outline" aria-label="Expandir painel" title="Expandir painel" onClick={() => setPainelMin(false)}>
+              <ChevronDown />
+            </Button>
             <span className="size-2 rounded-full" style={{ background: profileOf(pid).color }} />
             <span className="font-semibold">{pid}</span>
             <span className="text-muted-foreground">·</span>
             <span className="truncate">{journey.id ? `${numero(journey.id)}. ${journey.title}` : 'Sem jornada'}</span>
             {journey.id && <span className="text-muted-foreground">· Etapa {step + 1} de {journey.steps.length}: {current.title}</span>}
-            <Button size="icon-xs" variant="outline" className="ml-auto" aria-label="Expandir painel" title="Expandir painel" onClick={() => setPainelMin(false)}>
-              <ChevronDown />
-            </Button>
           </div>
         ) : (
         /* Mapa da jornada escolhida no select: etapas ligadas por setas */
         <div className="mx-4 mb-3 flex shrink-0 items-center gap-3 rounded-lg border bg-card p-2">
+          <Button size="icon-xs" variant="outline" className="self-start" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}>
+            <Minus />
+          </Button>
           {/* Dois selects: primeiro o perfil, depois as jornadas que esse perfil inicia */}
           <div className="flex shrink-0 items-end gap-2">
             <label className="grid gap-1">
@@ -424,9 +427,6 @@ export function JourneyShell() {
               })}
             </div>
           </div>
-          <Button size="icon-xs" variant="outline" className="self-start" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}>
-            <Minus />
-          </Button>
         </div>
         )}
         </>)}
