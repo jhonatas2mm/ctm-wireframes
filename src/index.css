@@ -342,7 +342,7 @@ html.ds-senai [data-slot="table-cell"].sticky [data-slot="button"]:hover { backg
 html.ds-senai span.bg-secondary:not([data-tone]) { background-color: #F0F1F2; color: #3D4448; border-color: transparent; }
 
 /* Casca: botões dos grupos Análise/Design ocupam a largura e com rótulo alinhado à esquerda */
-.casca-grupo [data-slot="button"], .casca-grupo > span.inline-flex { width: 100%; justify-content: flex-start; }
+.casca-grupo [data-slot="button"], .casca-grupo [data-slot="dropdown-menu-trigger"], .casca-grupo > span.inline-flex { width: 100%; justify-content: flex-start; text-align: left; }
 /* Casca: nada extrapola a coluna lateral (grids e campos encolhem; textos longos com reticências) */
 .casca-painel * { min-width: 0; }
 .casca-painel [data-slot="select-trigger"] { width: 100%; }
