@@ -14,7 +14,7 @@ export function SaldoTaa({ c, compacto }: { c: Contrato; compacto?: boolean }) {
   const { executado, saldo, pct } = saldoTaa(c, all)
   if (compacto) return <span className="tabular-nums">{brl(saldo)} <span className="text-xs text-muted-foreground">({100 - pct}%)</span></span>
   return (
-    <div className="grid gap-1.5 rounded-lg border p-3">
+    <div className="grid gap-1.5 rounded-lg border p-3 bg-card">
       <div className="flex justify-between text-sm"><span className="text-muted-foreground">Executado</span><span className="tabular-nums">{brl(executado)} de {brl(c.valor)}</span></div>
       <div className="h-2 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-emerald-600" style={{ width: `${Math.min(100, pct)}%` }} /></div>
       <div className="flex justify-between text-sm"><span className="font-medium">Saldo</span><span className="font-semibold tabular-nums">{brl(saldo)}</span></div>
@@ -66,7 +66,7 @@ export function TaaSheet({ taa, onClose, rodape }: { taa: Contrato | null; onClo
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Produtos <span className="font-normal text-muted-foreground">({taa.produtos?.length ?? 0}{taa.edital ? ` · ${taa.edital}` : ''})</span></h3>
                 {taa.produtos?.length ? (
-                  <ul className="divide-y rounded-lg border">
+                  <ul className="divide-y rounded-lg border bg-card">
                     {taa.produtos.map((p) => (
                       <li key={p.nome} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                         <span className="min-w-0 flex-1"><span className="block font-medium">{p.nome}</span><span className="block text-xs text-muted-foreground">{p.area} · {p.modalidade} · {p.cargaHoraria} h</span></span>
@@ -79,7 +79,7 @@ export function TaaSheet({ taa, onClose, rodape }: { taa: Contrato | null; onClo
 
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Documentos</h3>
-                <ul className="divide-y rounded-lg border">
+                <ul className="divide-y rounded-lg border bg-card">
                   <li className="flex items-center gap-3 px-3 py-2.5 text-sm">
                     <FileText className="size-4 text-muted-foreground" />
                     <span className="min-w-0 flex-1 truncate">Termo preenchido · {taa.numero.replace('/', '-')}.docx</span>

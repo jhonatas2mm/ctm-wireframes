@@ -129,7 +129,7 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
 
           <section className="grid gap-1.5">
             <Label>Produtos (em que a SENAI-{ctm} é a aprovada) <Req /></Label>
-            <ul className="divide-y rounded-lg border">
+            <ul className="divide-y rounded-lg border bg-card">
               {produtos.map((c) => {
                 const on = nomes.includes(c.nome)
                 return (

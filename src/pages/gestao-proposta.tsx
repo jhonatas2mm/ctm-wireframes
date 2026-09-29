@@ -26,7 +26,7 @@ type Secao = (typeof secoes)[number]['id']
 
 function CursosTabela({ cursos }: { cursos: CursoProposta[] }) {
   return (
-    <div className="overflow-hidden rounded-lg border">
+    <div className="overflow-hidden rounded-lg border bg-card">
       <table className="w-full text-sm">
         <thead className="bg-muted/50 text-left text-xs">
           <tr><th className="px-3 py-2 font-bold">Curso</th><th className="px-3 py-2 font-bold">Início previsto</th><th className="px-3 py-2 text-right font-bold">Alunos</th><th className="px-3 py-2 text-right font-bold">Valor/aluno (edital)</th><th className="px-3 py-2 text-right font-bold">Valor</th></tr>
@@ -121,7 +121,7 @@ export default function GestaoProposta() {
         <div className="min-w-0 flex-1 space-y-8">
           <section id="sec-resumo" className="scroll-mt-4 space-y-3">
             <h2 className="text-lg font-semibold">Resumo</h2>
-            <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3">
+            <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3 bg-card">
               {info.map(([k, v]) => <div key={k}><dt className="text-xs text-muted-foreground">{k}</dt><dd className="text-sm">{v}</dd></div>)}
             </dl>
             {p.status === 'Cancelado' && p.motivoCancelamento && (
@@ -135,7 +135,7 @@ export default function GestaoProposta() {
             {p.cursos.map((c) => {
               const m = portfolio.find((x) => x.nome === c.nome && (x.ctm ?? 'MG') === p.drOfertante)
               return (
-                <div key={c.nome} className="rounded-lg border p-3">
+                <div key={c.nome} className="rounded-lg border p-3 bg-card">
                   <p className="mb-1 flex items-center gap-2 text-sm font-medium"><Layers className="size-4 text-muted-foreground" /> {c.nome} <span className="text-xs font-normal text-muted-foreground">{m ? `matriz do portfólio v${m.versao ?? 1}` : 'sem versão aprovada no portfólio'}</span></p>
                   {m && <ol className="grid gap-0.5 pl-6 text-sm text-muted-foreground">{m.modulos.map((mod, i) => <li key={i}>{i + 1}. {mod.nome} — {mod.unidades.map((u) => u.nome).join(', ')}</li>)}</ol>}
                 </div>
@@ -149,7 +149,7 @@ export default function GestaoProposta() {
             {!aprovada ? (
               <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">A equipe técnica é vinculada depois que a proposta é aprovada.</p>
             ) : (
-              <div className="grid gap-3 rounded-lg border p-4">
+              <div className="grid gap-3 rounded-lg border p-4 bg-card">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="grid gap-1.5">
                     <Label>Supervisor <Req /></Label>
@@ -180,7 +180,7 @@ export default function GestaoProposta() {
           {/* Versões: a proposta vai e vem; a atual e as anteriores ficam registradas */}
           <section id="sec-versoes" className="scroll-mt-4 space-y-3">
             <h2 className="text-lg font-semibold">Versões</h2>
-            <ol className="divide-y rounded-lg border">
+            <ol className="divide-y rounded-lg border bg-card">
               <li className="flex items-center gap-3 px-3 py-2.5 text-sm">
                 <Badge className="tabular-nums">v{p.versao ?? 1}</Badge> <span className="font-medium">Atual</span>
                 <span className="ml-auto text-xs text-muted-foreground tabular-nums">{alunosProposta(p)} alunos · {brl(totalProposta(p))}</span>
@@ -201,7 +201,7 @@ export default function GestaoProposta() {
           <section id="sec-documentos" className="scroll-mt-4 space-y-3">
             <h2 className="text-lg font-semibold">Documentos</h2>
             {p.documentos?.length || p.link ? (
-              <ul className="divide-y rounded-lg border">
+              <ul className="divide-y rounded-lg border bg-card">
                 {p.link && <li className="flex items-center gap-2 px-4 py-2.5 text-sm"><FileText className="text-muted-foreground size-4" /> <a href={p.link} target="_blank" rel="noreferrer" className="underline underline-offset-2">Documento da proposta (link)</a></li>}
                 {(p.documentos ?? []).map((d, i) => <li key={i} className="flex items-center gap-2 px-4 py-2.5 text-sm"><FileText className="text-muted-foreground size-4" /> {d}</li>)}
               </ul>

@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Ban, CalendarClock, CalendarPlus, CheckCircle2, ChevronDown, Layers, Merge, Pencil, Plus, Send, Trash2, X } from 'lucide-react'
+import { Ban, CalendarClock, CalendarPlus, CheckCircle2, Layers, Merge, Pencil, Plus, Send, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
@@ -102,20 +101,15 @@ export default function OfertaDetalhe() {
                 <CheckCircle2 /> Confirmar turma
               </Button>
             )}
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="outline" />}>Mais ações <ChevronDown /></DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuItem disabled={status === 'Em andamento' || status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('prorrogar', inicio)}><CalendarClock /> Prorrogar início</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/oferta/proposta/${t.propostaId}/nova`)}><Plus /> Adicionar oferta</DropdownMenuItem>
-                <DropdownMenuItem disabled={status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('cancelar')}><Ban /> Cancelar turma</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button variant="outline" disabled={status === 'Em andamento' || status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('prorrogar', inicio)}><CalendarClock /> Prorrogar início</Button>
+            <Button variant="outline" onClick={() => navigate(`/oferta/proposta/${t.propostaId}/nova`)}><Plus /> Adicionar oferta</Button>
+            <Button variant="outline" disabled={status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('cancelar')}><Ban /> Cancelar turma</Button>
           </>
         }
       />
       <PropostaSheet proposta={verProposta ? propostas.find((p) => p.id === t.propostaId) ?? null : null} onClose={() => setVerProposta(false)} />
       <div className="space-y-6">
-        <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3">
+        <dl className="grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-3 bg-card">
           {info.map(([k, v]) => (
             <div key={k}>
               <dt className="text-xs text-muted-foreground">{k}</dt>
@@ -140,7 +134,7 @@ export default function OfertaDetalhe() {
 
           <TabsContent value="cronograma" className="space-y-6 pt-4">
             {/* Validação pela DR contratante: versões; sem resposta até o prazo, conta como validado */}
-            <section className={cn('flex flex-wrap items-center gap-4 rounded-lg border p-4', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando validação' ? 'border-amber-200 bg-amber-50' : '')}>
+            <section className={cn('flex flex-wrap items-center gap-4 rounded-lg border p-4', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando validação' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">Cronograma v{cron.versao} · {sitCron}</p>
                 <p className="text-sm text-muted-foreground">
@@ -171,7 +165,7 @@ export default function OfertaDetalhe() {
                   <Button size="sm" variant="outline" onClick={() => (setEscola({ nome: 'SENAI Tijuca', cidade: 'Rio de Janeiro', alunos: 15 }), setModal('escola'))}><Plus /> Adicionar escola</Button>
                 </div>
                 {(t.escolas ?? []).length ? (
-                  <ul className="divide-y rounded-lg border">
+                  <ul className="divide-y rounded-lg border bg-card">
                     {(t.escolas ?? []).map((e, n) => (
                       <li key={e.nome} className="flex items-center gap-3 px-3 py-2 text-sm">
                         <span className="min-w-0 flex-1"><span className="font-medium">{e.nome}</span> <span className="text-muted-foreground">· {e.cidade}</span></span>
@@ -189,7 +183,7 @@ export default function OfertaDetalhe() {
             <section className="space-y-3">
               <h2 className="text-lg font-semibold">Matriz curricular</h2>
               {t.modulos.map((m, i) => (
-                <div key={i} className="overflow-hidden rounded-lg border">
+                <div key={i} className="overflow-hidden rounded-lg border bg-card">
                   <div className="flex items-center gap-2 border-b bg-muted/40 px-3 py-2 text-sm font-medium">
                     <Layers className="size-4 text-muted-foreground" /> {t.cursos.length > 1 && <span className="text-muted-foreground">{m.curso} ·</span>} Módulo {i + 1} · {m.nome}
                   </div>

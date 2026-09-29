@@ -56,7 +56,7 @@ export function EditarDrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => v
               </section>
               <section className="space-y-3">
                 <h3 className="text-sm font-semibold">Status</h3>
-                <label className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm">
+                <label className="flex items-center justify-between gap-3 rounded-lg border p-3 text-sm bg-card">
                   <span>DR ativo</span>
                   <Switch checked={form.status === 'Ativo'} onCheckedChange={(v) => set({ status: v ? 'Ativo' : 'Inativo' })} />
                 </label>

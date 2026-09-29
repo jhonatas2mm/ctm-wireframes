@@ -392,12 +392,12 @@ function ContratoDetalhe({ c, d }: { c: ContratoCtm; d: ReturnType<typeof useDad
         </dl>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2 rounded-lg border p-4">
+          <div className="space-y-2 rounded-lg border p-4 bg-card">
             <div className="flex justify-between text-sm"><span className="text-muted-foreground">Vigência</span><span className="tabular-nums">{periodo(c.inicio, c.fim)}</span></div>
             <Progress value={tempo} />
             <div className="text-xs text-muted-foreground tabular-nums">{tempo}% do período decorrido</div>
           </div>
-          <div className="space-y-2 rounded-lg border p-4">
+          <div className="space-y-2 rounded-lg border p-4 bg-card">
             <div className="flex justify-between text-sm"><span className="text-muted-foreground">Vagas ocupadas</span><span className="tabular-nums">{alunos.length} / {c.vagas}</span></div>
             <Progress value={c.vagas ? Math.round((alunos.length / c.vagas) * 100) : 0} />
             <div className="text-xs text-muted-foreground tabular-nums">{c.vagas - alunos.length} vagas disponíveis</div>

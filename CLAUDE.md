@@ -34,6 +34,8 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **Nomenclatura**: botões de criação "Novo X / Nova X"; botão final "Salvar X". Nunca "Cadastrar/Gerar".
 - **Formulários de criação**: Sheet **de baixo** (`side="bottom"`, `data-[side=bottom]:h-[95vh]`, `rounded-t-xl`), cabeçalho e rodapé fixos, colunas que rolam por dentro; rota própria (`/x/novo`) para virar etapa de jornada.
 - Sem textos de ajuda sob títulos; sem numeração de seções.
+- **Hierarquia de botões**: 1) principal preenchido; 2) outline com ícone na cor principal; 3) **só outline, cor neutra** (ex.: ações com texto nas linhas das tabelas, "Detalhes").
+- **Caixas com borda sempre têm fundo** (`bg-card`): blocos de informação, grupos de campos, listas — nunca transparentes sobre o fundo da página.
 - Dados vindos do catálogo/itinerário são **somente leitura** (etiqueta com cadeado); só o que é do usuário é editável (ex.: valor).
 - Seleção múltipla com "Selecionar todos" + botão **"Replicar valores (N)"** que abre modal; desfazer/avançar quando houver edição em lote.
 - Totais em destaque (`text-2xl`) no rodapé da sheet.

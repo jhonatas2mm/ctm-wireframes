@@ -110,7 +110,7 @@ export default function Oferta() {
             breadcrumb={[{ label: 'Gestão da oferta', to: '/oferta' }, { label: proposta.numero }]}
             actions={<Button onClick={() => navigate(`/oferta/proposta/${proposta.id}/nova`)}><Plus /> Nova oferta</Button>}
           />
-          <dl className="mb-6 grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-4">
+          <dl className="mb-6 grid grid-cols-2 gap-4 rounded-lg border p-4 sm:grid-cols-4 bg-card">
             {([
               ['DR contratante', `SENAI-${proposta.drContratante}`],
               ['Vigência', vigencia(proposta)],
@@ -361,7 +361,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
                         <span className={cn('text-sm tabular-nums text-muted-foreground', passou && 'font-medium text-red-600')}>{chc} de {lim} h{passou && ` · passou ${chc - lim} h`}</span>
                       </div>
                       {modulos.map((m, i) => m.curso !== c ? null : (
-                        <section key={i} className="overflow-hidden rounded-lg border">
+                        <section key={i} className="overflow-hidden rounded-lg border bg-card">
                           <div className="flex items-center gap-2 border-b bg-muted/40 px-3 py-2 text-sm font-medium">
                             <Layers className="size-4 text-muted-foreground" /> {m.nome}
                           </div>
@@ -420,7 +420,7 @@ function OfertaSucesso({ turmas, onClose, onVer }: { turmas: Turma[]; onClose: (
               <DialogTitle className="text-xl">{uma ? 'Oferta criada com sucesso' : `${turmas.length} ofertas criadas com sucesso`}</DialogTitle>
               <DialogDescription>Proposta {turmas[0].propostaNumero} · SENAI-{turmas[0].drContratante}. Cronograma v1 em rascunho: revise e envie à DR para validação em Ver oferta.</DialogDescription>
             </div>
-            <ul className="w-full divide-y rounded-lg border text-left">
+            <ul className="w-full divide-y rounded-lg border text-left bg-card">
               {turmas.map((t) => (
                 <li key={t.id} className="flex items-center gap-3 px-3 py-2.5">
                   <div className="min-w-0 flex-1 space-y-0.5">

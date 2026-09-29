@@ -46,7 +46,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
     <div className="space-y-6">
       <section className="space-y-3">
         <h3 className="font-semibold">Equipe da turma</h3>
-        <div className="grid grid-cols-2 gap-3 rounded-lg border p-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 rounded-lg border p-4 lg:grid-cols-4 bg-card">
           {(Object.keys(rotulos) as (keyof EquipeTurma)[]).map((k) => (
             <div key={k} className="grid gap-1.5">
               <Label>{rotulos[k]}</Label>
@@ -64,7 +64,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
           <h3 className="font-semibold">Tutoria por UC</h3>
           <span className="text-sm text-muted-foreground tabular-nums">{confirmados} de {ucs.length} tutores confirmados</span>
         </div>
-        <div className="overflow-hidden rounded-lg border">
+        <div className="overflow-hidden rounded-lg border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
@@ -223,7 +223,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
         {t.salasCriadas ? (
           <ul className="grid gap-1.5 sm:grid-cols-2">
             {ucs.map((u) => (
-              <li key={u.nome} className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm">
+              <li key={u.nome} className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm bg-card">
                 <CheckCircle2 className="size-4 text-emerald-600" /> <span className="min-w-0 flex-1 truncate">{u.nome}</span>
                 <Badge variant="secondary" className="font-mono">{u.salaAva}</Badge>
               </li>
@@ -245,7 +245,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
         {!escolas.length ? (
           <EmptyState title="Nenhuma escola na turma" description="Cadastre as escolas na aba Cronograma." />
         ) : (
-          <div className="overflow-hidden rounded-lg border">
+          <div className="overflow-hidden rounded-lg border bg-card">
             <Table>
               <TableHeader>
                 <TableRow><TableHead>Código CTM</TableHead><TableHead>UC</TableHead><TableHead>ID da sala</TableHead><TableHead>Início</TableHead><TableHead>Semestre</TableHead></TableRow>

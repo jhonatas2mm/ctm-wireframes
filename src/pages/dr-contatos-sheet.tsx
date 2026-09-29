@@ -39,7 +39,7 @@ function BlocoDr({ uf }: { uf: string }) {
       <h3 className="font-semibold">SENAI-{uf}</h3>
       <ul className="grid gap-3">
         {contatosDr(uf).map((c) => (
-          <li key={c.cargo} className="rounded-lg border p-3">
+          <li key={c.cargo} className="rounded-lg border p-3 bg-card">
             <p className="font-medium">{c.nome}</p>
             <p className="text-muted-foreground text-xs">{c.cargo}</p>
             <div className="mt-2 grid">

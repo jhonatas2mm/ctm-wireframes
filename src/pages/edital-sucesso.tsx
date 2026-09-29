@@ -19,7 +19,7 @@ export function EditalSucesso({ edital, onClose, onVer }: { edital: Edital | nul
               <DialogDescription>O edital já está disponível para os DRs credenciados.</DialogDescription>
             </div>
             <Badge variant="secondary" className="font-mono text-sm">{edital.numero}</Badge>
-            <dl className="grid w-full grid-cols-2 gap-3 rounded-lg border p-4 text-left">
+            <dl className="grid w-full grid-cols-2 gap-3 rounded-lg border p-4 text-left bg-card">
               {([
                 ['Vigência', `${edital.vigenciaInicio} a ${edital.vigenciaFim}`],
                 ['Cursos', edital.cursos.length],

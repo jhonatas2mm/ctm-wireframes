@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { useNavigate } from 'react-router-dom'
-import { Building2, CornerDownLeft, FileSignature, FileSpreadsheet, GraduationCap, LayoutGrid, Package, Search, UserRound, Users, Video, type LucideIcon } from 'lucide-react'
+import { AlertCircle, Building2, Clock, CornerDownLeft, FileSignature, FileSpreadsheet, GraduationCap, Package, Plus, Search, UserRound, Users, Video, type LucideIcon } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { screens } from '@/screens'
@@ -14,7 +14,26 @@ import {
 // Busca rápida (⌘K / Ctrl+K): telas do menu + registros que o perfil enxerga.
 // "Inteligente": ignora acentos e maiúsculas, aceita várias palavras em qualquer ordem
 // e procura também por situação/motivo (ex.: "risco", "sem acesso", "evadido panvel").
-type Item = { grupo: string; titulo: string; sub?: string; to: string; icon: LucideIcon; chaves?: string }
+type Item = { grupo: string; titulo: string; sub?: string; to: string; icon: LucideIcon; chaves?: string; atencao?: boolean }
+
+// Atalhos de criação: rota do formulário → tela onde ele vive (só aparece se o perfil vê a tela).
+const ACOES: [string, string, string][] = [
+  ['/produtos/novo', 'Nova proposta', '/produtos'],
+  ['/taas-ctm/novo', 'Novo TAA', '/taas-ctm'],
+  ['/dashboard/novo-ta', 'Novo TAA', '/dashboard'],
+  ['/oferta/nova', 'Nova oferta', '/oferta'],
+  ['/gestao-produtos/novo', 'Novo produto', '/gestao-produtos'],
+  ['/editais/novo', 'Novo edital', '/editais'],
+  ['/drs/novo', 'Nova DR credenciada', '/drs'],
+  ['/equipe/nova', 'Nova pessoa', '/equipe'],
+  ['/tratativas/nova', 'Nova tratativa', '/tratativas'],
+  ['/admin/usuarios/novo', 'Novo usuário', '/admin/usuarios'],
+  ['/admin/feriados/novo', 'Novo feriado', '/admin/feriados'],
+]
+
+// Recentes: últimos itens abertos pela busca (por navegador).
+const RECENTES = 'busca-recentes'
+const lerRecentes = (): Item[] => { try { return JSON.parse(localStorage.getItem(RECENTES) ?? '[]') } catch { return [] } }
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
@@ -50,7 +69,8 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
   }, [])
 
   const itens = useMemo<Item[]>(() => {
-    const r: Item[] = screens.filter((s) => !s.hidden && pode(s.path)).map((s) => ({ grupo: 'Telas', titulo: s.title, to: s.path, icon: LayoutGrid }))
+    const r: Item[] = screens.filter((s) => !s.hidden && pode(s.path)).map((s) => ({ grupo: 'Telas', titulo: s.title, to: s.path, icon: s.icon }))
+    ACOES.filter(([, , tela]) => pode(tela)).forEach(([to, titulo]) => r.push({ grupo: 'Ações', titulo, to, icon: Plus, chaves: 'criar novo nova' }))
     const turmaDe = (id: string) => turmas.find((t) => t.id === id)
     if (pode('/alunos'))
       alunos.forEach((a) => {
@@ -69,9 +89,9 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
     if (pode('/editais'))
       editais.forEach((e) => r.push({ grupo: 'Editais', titulo: e.numero, sub: `${e.cursos.length} cursos · ${e.vigenciaInicio} a ${e.vigenciaFim}`, to: '/editais', icon: FileSpreadsheet, chaves: `${e.cursos.map((c) => c.nome).join(' ')} ${e.drs.join(' ')}` }))
     if (pode('/produtos'))
-      propostas.forEach((p) => r.push({ grupo: 'Propostas', titulo: p.numero, sub: `SENAI-${p.drContratante} · ${p.status ?? 'Rascunho'}`, to: `/produtos/${p.id}`, icon: Package, chaves: p.cursos.map((c) => c.nome).join(' ') }))
-    if (pode('/dashboard'))
-      taas.forEach((t) => r.push({ grupo: 'TAAs e contratos', titulo: `${instrumentoDe(t.contratante)} ${t.numero}`, sub: `${nomeParte(t.contratante)} → CTM SENAI-${t.dr} · ${t.status}`, to: `/dashboard/${t.id}`, icon: FileSignature }))
+      propostas.forEach((p) => r.push({ grupo: 'Propostas', titulo: p.numero, sub: `SENAI-${p.drContratante} · ${p.status ?? 'Rascunho'}`, to: `/produtos/${p.id}`, icon: Package, chaves: p.cursos.map((c) => c.nome).join(' '), atencao: p.status === 'Aguardando retorno do cliente' }))
+    if (pode('/dashboard') || pode('/taas-ctm'))
+      taas.forEach((t) => r.push({ grupo: 'TAAs e contratos', titulo: `${instrumentoDe(t.contratante)} ${t.numero}`, sub: `${nomeParte(t.contratante)} → CTM SENAI-${t.dr} · ${t.status}`, to: pode('/dashboard') ? `/dashboard/${t.id}` : '/taas-ctm', icon: FileSignature, atencao: t.status === 'Encaminhado' || t.status === 'Em análise' || t.status === 'Retornado para ajuste' }))
     if (pode('/drs'))
       drs.forEach((d) => r.push({ grupo: 'DRs', titulo: d.nome, sub: `SENAI-${d.uf} · ${d.status}`, to: '/drs', icon: Building2, chaves: `${d.responsavel} ${d.regiao}` }))
     if (pode('/admin/usuarios'))
@@ -82,7 +102,12 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
 
   const resultados = useMemo(() => {
     const termos = norm(q).split(/\s+/).filter(Boolean)
-    if (!termos.length) return itens.filter((i) => i.grupo === 'Telas')
+    // Sem busca: ações, recentes, o que precisa de atenção e as telas
+    if (!termos.length) {
+      const recentes = lerRecentes().filter((x) => itens.some((i) => i.to === x.to && i.titulo === x.titulo)).map((x) => ({ ...itens.find((i) => i.to === x.to && i.titulo === x.titulo)!, grupo: 'Recentes' }))
+      const atencao = itens.filter((i) => i.atencao).slice(0, 5).map((i) => ({ ...i, grupo: 'Precisa de atenção' }))
+      return [...itens.filter((i) => i.grupo === 'Ações'), ...recentes, ...atencao, ...itens.filter((i) => i.grupo === 'Telas')]
+    }
     return itens
       .map((i) => {
         const titulo = norm(i.titulo), texto = norm(`${i.titulo} ${i.sub ?? ''} ${i.chaves ?? ''} ${i.grupo}`)
@@ -101,6 +126,10 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
 
   const ir = (i?: Item) => {
     if (!i) return
+    if (i.grupo !== 'Telas' && i.grupo !== 'Ações') {
+      const novo = [{ ...i, grupo: '' }, ...lerRecentes().filter((x) => !(x.to === i.to && x.titulo === i.titulo))].slice(0, 5)
+      try { localStorage.setItem(RECENTES, JSON.stringify(novo.map(({ titulo, to }) => ({ titulo, to })))) } catch { /* sem armazenamento */ }
+    }
     setAberta(false)
     setQ('')
     navigate(i.to)
@@ -134,7 +163,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
                 if (e.key === 'ArrowUp') (e.preventDefault(), setSel((s) => Math.max(s - 1, 0)))
                 if (e.key === 'Enter') ir(resultados[sel])
               }}
-              placeholder="Busque por nome, código, empresa ou situação (ex.: “risco panvel”)"
+              placeholder="Busque telas, ações ou registros (ex.: “nova proposta”, “em análise MG”)"
               className="h-14 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground"
             />
             <kbd className="rounded-md border bg-muted px-1.5 text-[0.7rem] text-muted-foreground">Esc</kbd>
@@ -143,7 +172,11 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
             {resultados.length === 0 && <p className="px-3 py-8 text-center text-sm text-muted-foreground">Nada encontrado para “{q}”.</p>}
             {grupos.map((g) => (
               <div key={g} className="mb-1">
-                <div className="px-3 pt-2 pb-1 text-xs font-semibold text-muted-foreground">{g}</div>
+                <div className="flex items-center gap-1.5 px-3 pt-2 pb-1 text-xs font-semibold text-muted-foreground">
+                  {g === 'Recentes' && <Clock className="size-3.5" />}
+                  {g === 'Precisa de atenção' && <AlertCircle className="size-3.5 text-amber-600" />}
+                  {g}
+                </div>
                 {resultados.filter((r) => r.grupo === g).map((r) => {
                   const idx = resultados.indexOf(r)
                   return (

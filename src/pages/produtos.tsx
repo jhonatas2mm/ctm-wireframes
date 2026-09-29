@@ -345,7 +345,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
             {!taa ? (
               <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">Escolha o TAA/contrato aceito.</p>
             ) : (
-              <ul className="divide-y rounded-lg border">
+              <ul className="divide-y rounded-lg border bg-card">
                 {produtos.map((p) => {
                   const on = nomes.includes(p.nome)
                   const m = portfolio.find((c) => c.nome === p.nome)

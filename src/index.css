@@ -277,6 +277,9 @@ html.ds-senai [data-slot="table-cell"].sticky, html.ds-senai [data-slot="table-h
 /* Ações da linha: ícones soltos, com fundo só no hover */
 html.ds-senai [data-slot="table-cell"] [data-slot="button"] { border-color: transparent; background: transparent; color: #E84910; border-radius: 9999px; }
 html.ds-senai [data-slot="table-cell"] [data-slot="button"]:hover { background: #FFF6ED; color: #C23C0D; }
+/* Botão com texto na linha (3º nível: depois do principal e do outline com ícone na cor principal): só contorno, cor neutra */
+html.ds-senai [data-slot="table-cell"] [data-slot="button"]:not([aria-label]) { border-color: #D9DEE0; background: #FFFFFF; color: #3D4448; border-radius: 0.625rem; }
+html.ds-senai [data-slot="table-cell"] [data-slot="button"]:not([aria-label]):hover { background: #F5F5F7; color: #22272A; }
 
 /* Menu lateral: ícones em neutro mais claro que o texto; no item ativo, laranja */
 html.ds-senai [data-slot="sidebar-menu-button"] { color: #3D4448; }
