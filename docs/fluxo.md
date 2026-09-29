@@ -142,6 +142,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - A formalização é registrada no sistema (antes era por e-mail), com data e a partir de quando deixa de cobrar (UC em andamento ou próxima UC).
 - **Corte no dia 20**: formalizações até o dia 20 saem da cobrança do dia 5 do mês seguinte; depois do dia 20, da cobrança do mês subsequente.
 - Resumo de alunos cobrados por escola.
+- **Situação dos alunos** abre com as **DRs solicitantes em cards** (sem select): cada card traz alunos, cobrados, saídas formalizadas e suspensos sem formalização, com as ações **Ver alunos**, **Acompanhamento** (abre a aba já na DR) e **Relatório de cobrança** (proposta aprovada da DR). "Todas as DRs" volta aos cards.
 - Três visões (abas): **Situação dos alunos**, **Acompanhamento dos alunos** e **Relatório de cobrança**.
 - **Ciclo financeiro** (mês de cobrança) = janela do **dia 21 do mês anterior ao dia 20** do mês (corte no dia 20).
 - **Acompanhamento dos alunos** (relatório geral, no lugar da planilha da CTM): escolhe **turma** e **ciclo**; cada aluno com e-mail, telefone, CPF, escola, **status geral** (Matriculado, Desistente, Trancado), **data de saída** e **monitor**; uma coluna por **UC do ciclo** com a situação (**Ativo**, **Suspenso** desde a data, **Não integrado nesta UC**) e se **fatura**. Indicadores: alunos (integrados), faturamentos aluno × UC, desistentes/trancados e suspensos sem formalização. Exporta planilha; atalho para o relatório de cobrança da proposta.
@@ -301,3 +302,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — TAAs com CTMs: coluna "CTM contratada" virou **Contratada**. Tabelas com rolagem horizontal ganham o botão **Expandir tabela** (canto direito da barra), que fecha o menu lateral esquerdo; clicar de novo reabre.
 - 2026-09-29 — Tabelas: botão Expandir tabela com rótulo ("Expandir tabela"/"Recolher tabela") e na cor principal quando ativo; removido o contador "N de M" da barra (o paginador já mostra o total).
 - 2026-09-29 — Saldo do TAA (tabelas e detalhes): percentual do saldo com cor de indicativo — verde perto de 100% (≥ 70%), laranja de 30% a 69%, vermelho abaixo de 30%.
+- 2026-09-29 — Financeiro (Situação dos alunos): no lugar do select de DR, listagem das DRs em cards com indicadores e ações (Ver alunos, Acompanhamento, Relatório de cobrança). Acompanhamento dos alunos: filtros (DR, turma, mês) ocupando a largura toda.

@@ -75,11 +75,11 @@ export function AcompanhamentoAlunos() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
+      <div className="grid grid-cols-3 items-end gap-4 rounded-[1.25rem] border bg-card p-4">
         <div className="grid gap-1.5">
           <Label>DR solicitante</Label>
           <Select value={dr || 'todas'} onValueChange={(v) => set('dr', v === 'todas' ? '' : (v as string))}>
-            <SelectTrigger className="w-48"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Todas as DRs')}</SelectValue></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Todas as DRs')}</SelectValue></SelectTrigger>
             <SelectContent>
               <SelectItem value="todas">Todas as DRs</SelectItem>
               {drs.map((d) => <SelectItem key={d} value={d}>SENAI-{d}</SelectItem>)}
@@ -89,18 +89,18 @@ export function AcompanhamentoAlunos() {
         <div className="grid gap-1.5">
           <Label>Turma</Label>
           <Select value={t.id} onValueChange={(v) => set('turma', v as string)}>
-            <SelectTrigger className="w-80"><SelectValue>{() => `${t.codigo} · ${t.cursos.join(', ')}`}</SelectValue></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue>{() => `${t.codigo} · ${t.cursos.join(', ')}`}</SelectValue></SelectTrigger>
             <SelectContent>{turmas.map((x) => <SelectItem key={x.id} value={x.id}>{x.codigo} · {x.cursos.join(', ')} · SENAI-{x.drContratante}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div className="grid gap-1.5">
           <Label>Cobrança do mês <span className="font-normal text-muted-foreground">(cada UC no seu ciclo)</span></Label>
           <Select value={ciclo} onValueChange={(v) => set('ciclo', v as string)}>
-            <SelectTrigger className="w-44"><SelectValue>{(v: string | null) => (v ? cicloBr(v) : '—')}</SelectValue></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue>{(v: string | null) => (v ? cicloBr(v) : '—')}</SelectValue></SelectTrigger>
             <SelectContent>{ciclos.map((c) => <SelectItem key={c} value={c}>{cicloBr(c)}</SelectItem>)}</SelectContent>
           </Select>
         </div>
-        <div className="flex w-full gap-2">
+        <div className="col-span-full flex gap-2">
           <Button variant="outline" onClick={exportar}><FileDown /> Exportar planilha</Button>
           <Button variant="outline" nativeButton={false} render={<a href={`#/financeiro/cobranca/${t.propostaId}?ciclo=${ciclo}`} />}><ReceiptText /> Relatório de cobrança</Button>
         </div>

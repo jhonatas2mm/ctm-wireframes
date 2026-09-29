@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { AlertTriangle, CalendarClock, ClipboardList, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, CalendarClock, ClipboardList, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ciclosDe } from '@/lib/alunos-turma'
 import { brl, linhasCobranca } from '@/lib/cobranca'
@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DataTable, EmptyState, PageHeader, Req, RowAction, StatCard, type Column, useConfirmar } from '@/components/wf'
+import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, useConfirmar } from '@/components/wf'
 import {
   HOJE, dataBr, diasSemAcesso, escolasDr, nomeParte, useAjustesCobranca, useAlunosEad, useConfirmacoesDesistencia, useContratos, useContratosCtm, useFormalizacoes, useProdutos, useTurmas, useTurmasEad,
   type AlunoEad, type Formalizacao, type Produto, type SituacaoFormal,
@@ -94,7 +94,10 @@ function SituacaoAlunos() {
   const todos = useAlunosEad().all
   const turmas = useTurmasEad().all
   const contratos = useContratosCtm().all
-  // A DR solicitante é escolhida primeiro; só então os alunos aparecem
+  const propostasAprovadas = useProdutos().all.filter((p) => p.status === 'Aprovado')
+  const turmasCtm = useTurmas().all
+  const navigate = useNavigate()
+  // As DRs aparecem em cards; escolher uma abre os alunos dela (?dr=)
   const [params, setParams] = useSearchParams()
   const formal = useFormalizacoes()
   const [aberto, setAberto] = useState<AlunoEad | null>(null)
@@ -110,15 +113,11 @@ function SituacaoAlunos() {
   const drs = [...new Set(todos.map(drDe))].sort()
   const dr = drs.find((d) => d === params.get('dr')) ?? ''
   const alunos = dr ? todos.filter((a) => drDe(a) === dr) : []
+  const ir = (aba: string, d?: string) => setParams((p) => { const n = new URLSearchParams(p); n.set('aba', aba); if (d) n.set('dr', d); else n.delete('dr'); return n }, { replace: true })
   const filtroDr = (
-    <div className="mb-6 flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
-      <div className="grid gap-1.5">
-        <Label>DR solicitante <Req /></Label>
-        <Select value={dr || null} onValueChange={(v) => setParams((p) => { const n = new URLSearchParams(p); n.set('aba', 'alunos'); n.set('dr', v as string); return n }, { replace: true })}>
-          <SelectTrigger className="w-56"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Selecione a DR')}</SelectValue></SelectTrigger>
-          <SelectContent>{drs.map((d) => <SelectItem key={d} value={d}>SENAI-{d}</SelectItem>)}</SelectContent>
-        </Select>
-      </div>
+    <div className="mb-6 flex items-center gap-3 rounded-[1.25rem] border bg-card p-4">
+      <Button variant="outline" onClick={() => ir('alunos')}><ArrowLeft className="text-primary" /> Todas as DRs</Button>
+      <span className="text-lg font-semibold">SENAI-{dr}</span>
     </div>
   )
   const colunas: Column<AlunoEad>[] = [
@@ -151,10 +150,37 @@ function SituacaoAlunos() {
   const porEscola = Object.entries(cobrados.reduce<Record<string, number>>((r, a) => ({ ...r, [escolaDe(a)]: (r[escolaDe(a)] ?? 0) + 1 }), {})).sort((a, b) => b[1] - a[1])
   const abrir = (a: AlunoEad) => (setF({ situacao: 'Desistente', data: HOJE, aPartirDe: 'Módulo atual' }), setAberto(a))
   if (!dr) return (
-    <>
-      {filtroDr}
-      <EmptyState title="Selecione a DR solicitante para ver os alunos" />
-    </>
+    <div className="space-y-3">
+      {drs.map((d) => {
+        const as = todos.filter((a) => drDe(a) === d)
+        const cob = as.filter(cobrado)
+        const suspensos = as.filter(divergente).length
+        const relatorio = propostasAprovadas.find((p) => p.drContratante === d && turmasCtm.some((t) => t.propostaId === p.id && t.fase !== 'Cancelada'))
+        const numeros: [string, number, boolean?][] = [['Alunos', as.length], ['Cobrados', cob.length], ['Saídas formalizadas', as.length - cob.length], ['Suspensos sem formalização', suspensos, suspensos > 0]]
+        return (
+          <div key={d} className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-[1.25rem] border bg-card p-4">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#EEF7FF] text-sm font-bold text-[#164194]">{d}</div>
+            <div className="w-48 shrink-0">
+              <div className="font-semibold">SENAI-{d}</div>
+              <div className="text-xs text-muted-foreground">{new Set(as.map((a) => a.turmaId)).size} turma(s) · {new Set(as.map(escolaDe)).size} escola(s)</div>
+            </div>
+            <dl className="grid min-w-96 flex-1 grid-cols-4 gap-4">
+              {numeros.map(([rotulo, n, alerta]) => (
+                <div key={rotulo} className="min-w-0">
+                  <dt className="truncate text-xs text-muted-foreground">{rotulo}</dt>
+                  <dd className={cn('text-xl font-bold tabular-nums', alerta && 'text-amber-700')}>{n}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="flex shrink-0 gap-2">
+              <Button onClick={() => ir('alunos', d)}><Users /> Ver alunos</Button>
+              <Button variant="outline" onClick={() => ir('acompanhamento', d)}><ClipboardList className="text-primary" /> Acompanhamento</Button>
+              <Button variant="outline" disabled={!relatorio} motivo="Nenhuma proposta aprovada com turmas para esta DR" onClick={() => relatorio && navigate(`/financeiro/cobranca/${relatorio.id}`)}><ReceiptText className="text-primary" /> Relatório de cobrança</Button>
+            </div>
+          </div>
+        )
+      })}
+    </div>
   )
   return (
     <>

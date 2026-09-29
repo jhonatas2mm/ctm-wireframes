@@ -235,7 +235,7 @@ export const journeys: Journey[] = [
     title: 'Financeiro',
     profile: 'CTM: Coordenador EAD',
     steps: [
-      { title: 'Financeiro', path: '/financeiro', profile: 'CTM: Coordenador EAD', note: 'Situação de cobrança por aluno: cobra até a DR formalizar a saída (corte dia 20, cobrança dia 5). Suspenso no AVA sem formalização vira alerta. Formalização registrada aqui, não por e-mail.' },
+      { title: 'Financeiro', path: '/financeiro', profile: 'CTM: Coordenador EAD', note: 'As DRs solicitantes aparecem em cards, com os números de cobrança e as ações; “Ver alunos” abre a situação de cobrança por aluno: cobra até a DR formalizar a saída (corte dia 20, cobrança dia 5). Suspenso no AVA sem formalização vira alerta. Formalização registrada aqui, não por e-mail.' },
       { title: 'Acompanhamento dos alunos', path: '/financeiro?aba=acompanhamento', profile: 'CTM: Coordenador EAD', note: 'Turma e ciclo: cada aluno com contato, status geral, saída e monitor; por UC do ciclo, a situação (ativo, suspenso, não integrado) e se fatura. Base do nº de alunos da cobrança.' },
       { title: 'Confirmação de desistências', path: '/desistencias', focus: 'text=Confirmar', profile: 'DR solicitante: Gestor EAD', note: 'Dupla checagem: a desistência vem do Moodle e a DR confirma (a saída vale e o aluno deixa de faturar) ou contesta (falha de integração: segue matriculado).' },
       { title: 'Relatório de cobrança', path: '/financeiro?aba=cobranca', focus: 'text=Abrir relatório', profile: 'CTM: Gestor EAD', note: 'A CTM escolhe a proposta aprovada para cobrar da DR solicitante.' },
