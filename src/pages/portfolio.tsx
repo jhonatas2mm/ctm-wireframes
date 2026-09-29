@@ -1,8 +1,12 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Building, Eye, PackageCheck, Route } from 'lucide-react'
 import { DataTable, PageHeader, RowAction, StatCard, type Column, type FilterDef } from '@/components/wf'
-import { aprovadosAtuais, useCursosDr, type CursoDr } from '@/lib/mock'
+import { aprovadosAtuais, ofertaDe, ofertasEad, useCursosDr, type CursoDr } from '@/lib/mock'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Input } from '@/components/ui/input'
+import { useProfile } from '@/journey/profile'
+import { profileOf } from '@/journey/profiles'
 import { ProdutoSheet } from '@/pages/produto-sheets'
 
 const data = (iso: string) => new Date(iso).toLocaleDateString('pt-BR')
@@ -24,7 +28,10 @@ const filtrosPortfolio: FilterDef<CursoDr>[] = [
 function PortfolioPublico() {
   const { all } = useCursosDr()
   const [ver, setVer] = useState<string | null>(null)
-  const rows = aprovadosAtuais(all)
+  // CTM vê só os cursos da própria CTM, na listagem agrupada por modalidade
+  const perfil = profileOf(useProfile())
+  const minhaCtm = perfil.grupo === 'CTM' ? perfil.dr?.sigla.replace('SENAI-', '') : undefined
+  const rows = aprovadosAtuais(all).filter((c) => !minhaCtm || (c.ctm ?? 'MG') === minhaCtm)
   const colunas: Column<CursoDr>[] = [
     {
       header: 'Curso', value: (c) => c.nome, search: true, className: 'font-medium',
@@ -39,6 +46,13 @@ function PortfolioPublico() {
     { header: 'CH', value: (c) => `${c.cargaHorariaEdital ?? 0} h`, className: 'text-right tabular-nums' },
     { header: 'Itinerário', value: (c) => c.itinerario?.codigo ?? '—', cell: (c) => (c.itinerario ? <span className="flex items-center gap-1 font-mono text-xs"><Route className="size-3.5 text-muted-foreground" />{c.itinerario.codigo}</span> : '—') },
   ]
+  if (minhaCtm) return (
+    <>
+      <PageHeader title="Portfólio das CTMs" description={`Cursos da CTM SENAI-${minhaCtm}.`} />
+      <PortfolioAgrupado rows={rows} onVer={setVer} />
+      <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
+    </>
+  )
   return (
     <>
       <PageHeader title="Portfólio das CTMs" description="Cursos cadastrados pelas CTMs." />
@@ -70,5 +84,60 @@ function Aprovacoes() {
       <DataTable rows={cursos} columns={colunas} searchPlaceholder="Buscar curso ou CTM…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
       <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
     </>
+  )
+}
+
+// Listagem agrupada (formato do relatório): por modalidade, uma linha de Total e uma por curso; colunas por oferta EaD.
+function PortfolioAgrupado({ rows, onVer }: { rows: CursoDr[]; onVer: (id: string) => void }) {
+  const [q, setQ] = useState('')
+  const norm = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  const vis = rows.filter((c) => norm(`${c.nome} ${c.modalidade ?? ''} ${c.area ?? ''}`).includes(norm(q.trim())))
+  const grupos = Object.entries(vis.reduce<Record<string, CursoDr[]>>((r, c) => ((r[c.modalidade ?? '—'] ??= []).push(c), r), {})).sort((a, b) => b[1].length - a[1].length)
+  const conta = (cs: CursoDr[], o?: string) => cs.filter((c) => !o || ofertaDe(c) === o).length
+  const num = (x: number) => (x ? String(x) : '')
+  return (
+    <div className="space-y-3">
+      <Input className="w-96 bg-card" placeholder="Buscar curso, modalidade ou área…" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="overflow-x-auto rounded-[1.25rem] border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Modalidade</TableHead>
+              <TableHead>Curso</TableHead>
+              {ofertasEad.map((o) => <TableHead key={o} className="text-right">{o}</TableHead>)}
+              <TableHead className="text-right">Total</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {grupos.map(([m, cs]) => (
+              <Fragment key={m}>
+                <TableRow className="bg-muted/40">
+                  <TableCell className="font-semibold">{m}</TableCell>
+                  <TableCell className="font-semibold">Total</TableCell>
+                  {ofertasEad.map((o) => <TableCell key={o} className="text-right font-semibold tabular-nums">{num(conta(cs, o))}</TableCell>)}
+                  <TableCell className="text-right font-bold tabular-nums">{cs.length}</TableCell>
+                </TableRow>
+                {cs.map((c) => (
+                  <TableRow key={c.id}>
+                    <TableCell />
+                    <TableCell>
+                      <button type="button" className="text-left hover:underline" onClick={() => onVer(c.id)}>{c.nome}</button>
+                      <span className="block text-xs text-muted-foreground">{[c.area, c.cargaHorariaEdital ? `${c.cargaHorariaEdital} h` : ''].filter(Boolean).join(' · ')}</span>
+                    </TableCell>
+                    {ofertasEad.map((o) => <TableCell key={o} className="text-right tabular-nums">{ofertaDe(c) === o ? '1' : ''}</TableCell>)}
+                    <TableCell className="text-right font-semibold tabular-nums">1</TableCell>
+                  </TableRow>
+                ))}
+              </Fragment>
+            ))}
+            <TableRow className="border-t-2">
+              <TableCell className="font-bold" colSpan={2}>Total</TableCell>
+              {ofertasEad.map((o) => <TableCell key={o} className="text-right font-bold tabular-nums">{conta(vis, o)}</TableCell>)}
+              <TableCell className="text-right text-base font-bold tabular-nums">{vis.length}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   )
 }

@@ -22,7 +22,7 @@ const colunas = (todos: boolean, verProdutos: (c: Contrato) => void): Column<Con
   // Botão que abre a lista de produtos numa side sheet (a coluna guarda os nomes para a busca)
   { header: 'Produtos', value: (c) => (c.produtos ?? []).map((p) => p.nome).join(', ') || '—', search: true, cell: (c) => (c.produtos?.length ? <CellButton onClick={() => verProdutos(c)}><Eye className="size-3" /> Visualizar</CellButton> : '—') },
   { header: 'Valor global', value: (c) => brl(c.valor), className: 'text-right tabular-nums' },
-  { header: 'Saldo', value: (c) => (c.status === 'Aceito' ? 'sim' : '—'), className: 'text-right', cell: (c) => (c.status === 'Aceito' ? <SaldoTaa c={c} compacto /> : '—') },
+  { header: 'Executado', value: (c) => (c.status === 'Aceito' ? 'sim' : '—'), className: 'text-right', cell: (c) => (c.status === 'Aceito' ? <SaldoTaa c={c} compacto /> : '—') },
   { header: 'Vigência', value: (c) => `${c.vigenciaInicio} a ${c.vigenciaFim}`, className: 'text-muted-foreground tabular-nums' },
   { header: 'Status', value: (c) => c.status, filter: true, cell: (c) => <StatusTaaBadge c={c} /> },
 ]

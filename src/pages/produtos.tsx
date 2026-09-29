@@ -151,7 +151,7 @@ export default function Produtos() {
             {novoStatus === 'Aprovado' && mudar && (() => {
               const t = taas.find((x) => x.id === mudar.taaId)
               const saldo = t ? saldoTaa(t, todas).saldo : 0
-              return t && totalProposta(mudar) > saldo
+              return t && t.valor > 0 && totalProposta(mudar) > saldo
                 ? <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">O valor da proposta ({brl(totalProposta(mudar))}) passa o saldo do TAA {t.numero} ({brl(saldo)}).</p>
                 : <p className="text-xs text-muted-foreground">Aprovada, a proposta passa a executar o saldo do TAA; em seguida vincula-se a equipe técnica e segue para as turmas.</p>
             })()}
@@ -316,7 +316,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
               <dl className="grid grid-cols-2 gap-2 rounded-lg border bg-background p-3 text-xs">
                 <div><dt className="text-muted-foreground">Contratante</dt><dd className="font-medium">{nomeParte(taa.contratante)}</dd></div>
                 <div><dt className="text-muted-foreground">Edital</dt><dd className="font-mono">{taa.edital ?? '—'}</dd></div>
-                <div className="col-span-2"><dt className="text-muted-foreground">Saldo do TAA</dt><dd className="font-semibold tabular-nums">{brl(saldo)} <span className="font-normal text-muted-foreground">de {brl(taa.valor)}</span></dd></div>
+                {taa.valor > 0 && <div className="col-span-2"><dt className="text-muted-foreground">Saldo do TAA</dt><dd className="font-semibold tabular-nums">{brl(saldo)} <span className="font-normal text-muted-foreground">de {brl(taa.valor)}</span></dd></div>}
               </dl>
             )}
             <label className="grid gap-1 text-xs">
@@ -421,7 +421,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
             <div className="flex items-baseline justify-between gap-3 border-t bg-card px-6 py-4">
               <span className="text-sm text-muted-foreground">
                 {cursos.length} curso(s) · {cursos.reduce((t, c) => t + (c.vagas ?? 0), 0)} estudantes
-                {taa && <span className={cn('block text-xs', total > saldo && 'font-medium text-red-600')}>Saldo do TAA depois desta proposta: {brl(saldo - total)}</span>}
+                {taa && taa.valor > 0 && <span className={cn('block text-xs', total > saldo && 'font-medium text-red-600')}>Saldo do TAA depois desta proposta: {brl(saldo - total)}</span>}
               </span>
               <span className="text-2xl font-bold tabular-nums">{brl(total)}</span>
             </div>

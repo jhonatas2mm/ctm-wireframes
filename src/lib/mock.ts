@@ -138,6 +138,8 @@ export type Contrato = {
   produtos?: ProdutoTaa[]
   signatarios?: { parte: string; nome: string; cargo: string }[]
   anexoAssinado?: string // TAA assinado fora do sistema (anexado)
+  documentos?: string[] // documentos do TAA (vários anexos)
+  responsavel?: string // quem criou/enviou o TAA (nome)
   status: StatusContrato
 }
 export type ProdutoTaa = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number } // do edital (fixo)
@@ -350,7 +352,7 @@ export const useCursosDr = () => useCollection<CursoDr>('cursos-dr-v5', cursosDr
 
 // DRs (Departamentos Regionais) geridos pelo DN. Dados FICTÍCIOS.
 export type StatusDr = 'Ativo' | 'Inativo'
-export type Dr = { id: string; uf: string; nome: string; regiao: string; responsavel: string; email: string; telefone: string; status: StatusDr }
+export type Dr = { id: string; uf: string; nome: string; regiao: string; responsavel: string; email: string; telefone: string; status: StatusDr; cnpj?: string; endereco?: string }
 export const regioes: Record<string, string> = {
   AC: 'Norte', AM: 'Norte', AP: 'Norte', PA: 'Norte', RO: 'Norte', RR: 'Norte', TO: 'Norte',
   AL: 'Nordeste', BA: 'Nordeste', CE: 'Nordeste', MA: 'Nordeste', PB: 'Nordeste', PE: 'Nordeste', PI: 'Nordeste', RN: 'Nordeste', SE: 'Nordeste',
@@ -358,6 +360,7 @@ export const regioes: Record<string, string> = {
   ES: 'Sudeste', MG: 'Sudeste', RJ: 'Sudeste', SP: 'Sudeste',
   PR: 'Sul', RS: 'Sul', SC: 'Sul',
 }
+const capitais: Record<string, string> = { AP: 'Macapá', BA: 'Salvador', DF: 'Brasília', GO: 'Goiânia', MG: 'Belo Horizonte', PE: 'Recife', PR: 'Curitiba', RJ: 'Rio de Janeiro', RR: 'Boa Vista', RS: 'Porto Alegre', SC: 'Florianópolis', SP: 'São Paulo' }
 const responsaveis = ['Ana Costa', 'Bruno Lima', 'Carla Souza', 'Diego Rocha', 'Elaine Martins', 'Fábio Nunes', 'Gabriela Alves', 'Henrique Dias', 'Isabela Freitas']
 // Só parte dos DRs já credenciada; os demais UFs ficam disponíveis em "Nova DR credenciada".
 const credenciadas = ['BA', 'DF', 'GO', 'MG', 'PE', 'PR', 'RJ', 'RS', 'SC', 'SP', 'AP', 'RR']
@@ -368,9 +371,11 @@ const drs: Dr[] = credenciadas.sort().map((uf, i) => {
     email: `${r.split(' ')[0].toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')}@senai${uf.toLowerCase()}.org.br`,
     telefone: `(${String(11 + i * 3).padStart(2, '0')}) 3${String(1000 + i * 137).slice(-4)}-${String(2000 + i * 211).slice(-4)}`,
     status: ['AP', 'RR'].includes(uf) ? 'Inativo' : 'Ativo',
+    cnpj: `03.${String(700 + i * 37).padStart(3, '0')}.${String(100 + i * 53).slice(-3)}/0001-${String(10 + i * 7).slice(-2)}`,
+    endereco: `Av. da Indústria, ${100 + i * 45} · Centro · ${capitais[uf] ?? 'Capital'}/${uf}`,
   }
 })
-export const useDrs = () => useCollection<Dr>('drs-v2', drs)
+export const useDrs = () => useCollection<Dr>('drs-v3', drs)
 
 // Turmas (Gestão da oferta, Supervisor): criadas a partir de um curso de uma proposta.
 // A matriz curricular (módulos → UCs) vem do produto; o cronograma (datas por UC) é gerado pelo sistema e ajustável.
