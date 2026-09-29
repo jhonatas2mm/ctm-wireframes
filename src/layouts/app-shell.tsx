@@ -111,7 +111,8 @@ export function AppShell() {
                 ) : <SidebarGroupLabel className="text-left">{rotulo}</SidebarGroupLabel>)}
                 {aberto && (
                   <SidebarGroupContent>
-                    <SidebarMenu>
+                    {/* Itens de cada área recuados em relação ao rótulo da seção */}
+                    <SidebarMenu className={cn(rotulo && 'ml-3 w-auto')}>
                       {lista.map((s) => (
                         <SidebarMenuItem key={s.path}>
                           <SidebarMenuButton isActive={s.path === ativo} render={<Link to={s.path} />}>
