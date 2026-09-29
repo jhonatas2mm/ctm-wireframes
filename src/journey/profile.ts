@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 
 // Perfil ativo dentro do protótipo, enviado pela casca. Use nas telas:
-//   const perfil = useProfile(); if (perfil === 'CTM: Supervisor') …
+//   const perfil = useProfile(); if (perfil === 'CTM: Gestor de oferta') …
 let current = ''
 const subs = new Set<() => void>()
 

@@ -14,7 +14,7 @@ export const profiles: ProfileDef[] = [
   // CTM (SENAI-MG), na ordem das caixas
   { name: 'CTM: Gestor de contrato', grupo: 'CTM', caixa: 'Gestor de contrato', color: '#059669', user: { nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br' }, dr: MG },
   { name: 'CTM: PCP', grupo: 'CTM', caixa: 'PCP', color: '#7c3aed', user: { nome: 'Eduardo Lima', email: 'eduardo.lima@senaimg.org.br' }, dr: MG },
-  { name: 'CTM: Supervisor', grupo: 'CTM', caixa: 'Supervisor', color: '#ea580c', user: { nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br' }, dr: MG },
+  { name: 'CTM: Gestor de oferta', grupo: 'CTM', caixa: 'Gestor de oferta', color: '#ea580c', user: { nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Pedagógico', grupo: 'CTM', caixa: 'Pedagógico', color: '#db2777', user: { nome: 'Sônia Prado', email: 'sonia.prado@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Tutor', grupo: 'CTM', caixa: 'Tutor', avaliacao: true, color: '#0d9488', user: { nome: 'Fabiana Rocha', email: 'fabiana.rocha@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Monitor', grupo: 'CTM', caixa: 'Monitor', avaliacao: true, color: '#4f46e5', user: { nome: 'Lívia Campos', email: 'livia.campos@senaimg.org.br' }, dr: MG },

@@ -12,16 +12,16 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): ações dos usuários na plataforma (login, visualizou, criou, editou com antes/depois, excluiu, aceitou/recusou, exportou, anexou).
 0d. **Supervisão das áreas** (Super admin) — Gestão de DRs → Editais → Propostas → Oferta.
 1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciadas → Nova DR credenciada. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
-2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Supervisor).
+2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Gestor de oferta).
 3. **Envio de TAA às DRs** (CTM: Gestor de contrato) — TAAs com as DRs → Novo TAA (um por DR) → Gestor da DR analisa → retorno para a CTM.
 4. **TAAs com CTMs** (DR solicitante: SENAI) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado para ajuste → TAA aceito (saldo).
 4a. **Contratos com CTMs** (DR solicitante: SESI) — Contratos com CTMs → Novo contrato → encaminhado → aceito.
-5. **Criação de portfólio** (Supervisor) — Gestão de Portfólio → Novo produto (produtos de um edital).
+5. **Criação de portfólio** (Gestor de oferta) — Gestão de Portfólio → Novo produto (produtos de um edital).
 6. **Criação de proposta** (CTM: Supervisor e Gestor de contrato) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
-7. **Criação de oferta** (Supervisor) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
-7a. **Gestão da execução** (Supervisor) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
-7b. **Acompanhamento pedagógico** (Supervisor) — Tratativas pedagógicas → Nova tratativa.
-7c. **Financeiro** (Supervisor) — situação de cobrança por aluno e formalizações.
+7. **Criação de oferta** (Gestor de oferta) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
+7a. **Gestão da execução** (Gestor de oferta) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
+7b. **Acompanhamento pedagógico** (Gestor de oferta) — Tratativas pedagógicas → Nova tratativa.
+7c. **Financeiro** (Gestor de oferta) — situação de cobrança por aluno e formalizações.
 7d. **Alocação de tutores** (CTM: PCP) — Equipe → Turma em Buscar tutor (aba Execução).
 7e. **Validação e acompanhamento** (CTM: Pedagógico) — Validação pedagógica → Tratativas → Nova tratativa.
 7f. **Minhas UCs** (CTM: Tutor, em avaliação) e **Salas e tratativas** (CTM: Monitor, em avaliação).
@@ -315,3 +315,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Abas (padrão, todas as telas): trilho branco com borda; aba ativa em laranja suave (como o item ativo do menu).
 - 2026-09-29 — Busca rápida: Ações em grade de 3 colunas (menos altura); TAAs no escopo do perfil (CTM: onde é contratada; DR: onde é contratante).
 - 2026-09-29 — Casca: select de Perfil lista só os perfis (DN, CTM, DR solicitante, Super admin), sem os subperfis entre parênteses (cortavam a caixa); subperfis continuam nas abas ao lado do selo.
+- 2026-09-29 — Perfil **CTM: Supervisor** renomeado para **CTM: Gestor de oferta** (a função Supervisor da equipe/turma continua).

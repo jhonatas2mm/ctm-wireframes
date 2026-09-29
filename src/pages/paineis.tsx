@@ -99,7 +99,7 @@ export function PainelDn() {
   )
 }
 
-// ── CTM: Supervisor — operação: propostas, ofertas/turmas, aulas ao vivo, TAAs com DRs ──
+// ── CTM: Gestor de oferta — operação: propostas, ofertas/turmas, aulas ao vivo, TAAs com DRs ──
 export function PainelSupervisor() {
   const navigate = useNavigate()
   const propostas = useProdutos().all

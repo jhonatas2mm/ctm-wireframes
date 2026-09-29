@@ -62,7 +62,7 @@ export function Usuarios() {
 
 function UsuarioSheet({ open, usuario, onClose }: { open: boolean; usuario: Usuario | null; onClose: () => void }) {
   const db = useUsuarios()
-  const [f, setF] = useState({ nome: '', email: '', perfil: 'CTM: Supervisor', dr: 'MG' })
+  const [f, setF] = useState({ nome: '', email: '', perfil: 'CTM: Gestor de oferta', dr: 'MG' })
   // Protótipo: novo já abre preenchido; edição abre com os dados do usuário.
   useEffect(() => {
     if (!open) return
