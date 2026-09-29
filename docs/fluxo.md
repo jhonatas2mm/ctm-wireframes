@@ -331,3 +331,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Novo resultado do edital: campo **Nome do edital** (ex.: Edital de Credenciamento CTM 2026-2028), mostrado na lista (coluna Edital), no resultado, na confirmação e na busca rápida.
 - 2026-09-29 — Gestão de Portfólio: coluna **Modalidade** antes do curso e coluna **Oferta** (EaD Assíncrono, EaD Síncrono (Aprendizagem) ou EaD Personalizado; padrão Assíncrono). O Novo curso escolhe a oferta.
 - 2026-09-29 — Portfólio: sai toda a parte de **documentos e materiais**; **DN só aprova curso novo** e não vê versões (Aprovação de portfólio sem coluna Tipo; Portfólio das CTMs e detalhes do DN sem versões). Nova versão da CTM não passa pelo DN.
+- 2026-09-29 — Aprovação de portfólio: coluna **Modalidade** à esquerda do curso.

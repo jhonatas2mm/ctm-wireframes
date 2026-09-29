@@ -71,6 +71,7 @@ function Aprovacoes() {
   const colunas: Column<CursoDr>[] = [
     { header: 'Solicitado em', value: (c) => data(c.criadoEm), className: 'tabular-nums' },
     { header: 'CTM', value: ctmDe, filter: true },
+    { header: 'Modalidade', value: (c) => c.modalidade ?? '—', filter: true },
     { header: 'Curso', value: (c) => c.nome, search: true, className: 'font-medium' },
     { header: 'Itinerário', value: (c) => (c.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
     { header: 'Situação', value: (c) => situacaoDe(c), filter: true, cell: (c) => <SituacaoBadge c={c} /> },
