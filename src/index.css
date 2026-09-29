@@ -372,13 +372,5 @@ html.ds-senai span.bg-secondary:not([data-tone]) { background-color: #F0F1F2; co
   content: ""; position: absolute; left: -0.75rem; top: 0; bottom: 0; border-left: 1.5px solid #D9DEE0; pointer-events: none;
 }
 
-/* Agente inteligente: ícone animado (estrela pulsando, faíscas piscando) e "digitando…" */
-.agente-estrela { transform-box: fill-box; transform-origin: center; animation: agente-pulsa 2.4s ease-in-out infinite; }
-.agente-faisca { transform-box: fill-box; transform-origin: center; animation: agente-pisca 2.4s ease-in-out infinite; }
-.agente-faisca-2 { animation-delay: 1.2s; }
-.agente-digitando { animation: agente-pula 0.9s ease-in-out infinite; }
-@keyframes agente-pulsa { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(0.82) rotate(20deg); } }
-@keyframes agente-pisca { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.2; transform: scale(0.5); } }
-@keyframes agente-pula { 0%, 100% { transform: translateY(0); opacity: 0.4; } 50% { transform: translateY(-3px); opacity: 1; } }
 /* Itens da árvore: ícone logo depois do cotovelo da linha (sem o respiro à esquerda do botão) */
 html.ds-senai .menu-arvore [data-slot="sidebar-menu-button"] { padding-left: 0.25rem; }

@@ -26,7 +26,6 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 7f. **Financeiro** (CTM: Coordenador EAD) — situação de cobrança por aluno e formalizações → Relatório de cobrança (Gestor EAD): proposta → relatório do ciclo.
 7g. **Criação de portfólio, de proposta e de oferta** (CTM: Gestor EAD) — as mesmas jornadas 5, 6 e 7, pelo Gestor EAD.
 8. **Acompanhamento da execução** (DR solicitante: Gestor EAD) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
-9. **Agente inteligente** (todos os perfis; exemplo com CTM: Gestor EAD) — botão no topo → chat na lateral direita com ações rápidas e jornada de exemplo (só apertar Enviar).
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
@@ -178,11 +177,6 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **CH na Nova oferta**: hoje a soma das CHs acima da CH do produto **bloqueia** o "Salvar oferta", o que conflita com o padrão "nenhum campo bloqueia o protótipo". A definir: manter como regra estrutural ou só avisar (total em vermelho) sem bloquear.
 - Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, perfil Analista, acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
-## Agente inteligente
-- Botão no topo, à esquerda do avatar; abre um **chat de IA na lateral direita** (empurra a tela). No protótipo as respostas são **fixas (mockadas por perfil)**, sem ler os dados salvos no navegador.
-- **Ações rápidas** do dia a dia, por perfil: CTM (pendências, propostas aguardando retorno, turmas que começam em breve, aditivos), DR solicitante (pendências, TAAs para analisar, turmas que pedem atenção), DN (aprovações de portfólio, TAAs em andamento).
-- **Jornada de exemplo**: o campo já vem com a próxima pergunta; basta apertar Enviar. As respostas trazem itens com atalho para a tela; o agente só **sugere** (ex.: rascunho de lembrete à DR) — quem envia é o usuário.
-
 ## Percurso (histórico de decisões)
 - 2026-09-28 — Removidos "Salvar e enviar" e o fluxo de envio/aceite duplo. A proposta só é criada e depois marcada como aceita.
 - 2026-09-28 — Gestão da proposta: botões Aprovada/Recusada; recusa exige feedback.
@@ -316,3 +310,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Notificações da CTM: nova notificação **Desistência no Moodle aguardando a DR**, uma por turma (quantos estudantes e UCs pendentes de confirmação); abre o Acompanhamento dos estudantes da turma. Reaparece quando surgem novas pendências.
 - 2026-09-29 — **Skeleton animado** de carregamento em todas as telas (título, indicadores e tabela), por ~0,45 s ao entrar numa tela; abrir sheet/detalhe da mesma tela não dispara.
 - 2026-09-29 — Agente inteligente: respostas fixas (mockadas por perfil), sem depender dos dados salvos no navegador.
+- 2026-09-29 — **Agente inteligente removido** (botão no topo, chat e jornada de exemplo).
