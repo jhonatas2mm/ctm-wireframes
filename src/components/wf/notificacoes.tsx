@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 // Estado de cada notificação (lida / dispensada), guardado como as demais coleções do protótipo.
 type EstadoNotificacao = { id: string; lida?: boolean; dispensada?: boolean }
 
-// Notificações da CTM (sino à direita da logo, no topo do menu): hoje, proposta com mais alunos nas salas do Moodle do
+// Notificações da CTM (sino no canto superior direito, depois do avatar): hoje, proposta com mais alunos nas salas do Moodle do
 // que o contratado → fazer aditivo. Funções: filtrar não lidas, marcar como lida (uma ou todas), dispensar (uma ou
 // todas = "Limpar todas") e restaurar as dispensadas. Abrir uma notificação a marca como lida.
 export function Notificacoes() {
@@ -40,7 +40,7 @@ export function Notificacoes() {
         {naoLidas.length > 0 && <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] leading-none font-semibold text-white tabular-nums ring-2 ring-white">{naoLidas.length}</span>}
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Positioner side="right" align="start" sideOffset={8} className="z-50">
+        <Popover.Positioner side="bottom" align="end" sideOffset={8} className="z-50">
         <Popover.Popup className="w-[26rem] overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-lg outline-none">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <span className="text-sm font-semibold">Notificações</span>
