@@ -174,7 +174,7 @@ function SituacaoAlunos() {
               ))}
             </dl>
             <div className="flex shrink-0 gap-2">
-              <Button onClick={() => ir('alunos', d)}><Users /> Ver alunos</Button>
+              <Button variant="outline" className="text-primary hover:text-primary" onClick={() => ir('alunos', d)}><Users /> Ver alunos</Button>
               <Button variant="outline" onClick={() => ir('acompanhamento', d)}><ClipboardList className="text-primary" /> Acompanhamento</Button>
               <Button variant="outline" disabled={!relatorio} motivo="Nenhuma proposta aprovada com turmas para esta DR" onClick={() => relatorio && navigate(`/financeiro/cobranca/${relatorio.id}`)}><ReceiptText className="text-primary" /> Relatório de cobrança</Button>
             </div>

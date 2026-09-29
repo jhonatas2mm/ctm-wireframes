@@ -461,7 +461,7 @@ function TurmaDetalhe({ t, d }: { t: TurmaEad; d: ReturnType<typeof useDados> })
       </div>
       <Card>
         <CardContent className="grid gap-2 pt-6 text-sm sm:grid-cols-3">
-          <div><span className="text-muted-foreground">Contrato: </span>{c ? <Link className="underline" to={`/contratos/${c.id}`}>{c.numero} · {c.empresa}</Link> : '—'}</div>
+          <div><span className="text-muted-foreground">Contrato: </span>{c ? <Button size="xs" variant="outline" nativeButton={false} className={cellButton} render={<Link to={`/contratos/${c.id}`} />}>{c.numero} · {c.empresa}</Button> : '—'}</div>
           <div><span className="text-muted-foreground">Tutor (CTM): </span>{t.tutor}</div>
           <div><span className="text-muted-foreground">Alunos: </span>{alunos.length}</div>
         </CardContent>
