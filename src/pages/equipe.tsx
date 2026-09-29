@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Plus, Power, PowerOff } from 'lucide-react'
+import { Copy, Plus, Power, PowerOff } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,8 +25,22 @@ export default function Equipe() {
       n + t.modulos.reduce((k, m) => k + m.unidades.filter((u) => u.tutor === p.nome).length, 0)
         + Number([t.supervisor, t.analista, ...Object.values(t.equipe ?? {})].includes(p.nome)), 0)
   const colunas: Column<Pessoa>[] = [
-    { header: 'Nome', value: (p) => p.nome, search: true, className: 'font-medium' },
-    { header: 'E-mail', value: (p) => p.email, search: true, className: 'text-muted-foreground' },
+    {
+      header: 'Nome', value: (p) => `${p.nome} ${p.email}`, search: true, className: 'font-medium',
+      cell: (p) => (
+        <div className="flex flex-col">
+          <span>{p.nome}</span>
+          <button
+            type="button"
+            title="Copiar e-mail"
+            className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1 text-xs font-normal"
+            onClick={(e) => { e.stopPropagation(); void navigator.clipboard.writeText(p.email).catch(() => {}) }}
+          >
+            {p.email} <Copy className="size-3" />
+          </button>
+        </div>
+      ),
+    },
     { header: 'Função', value: (p) => p.funcao, filter: true },
     { header: 'Competências (UCs)', value: (p) => p.competencias.join(', ') || '—', search: true, cell: (p) => <span className="line-clamp-2 max-w-72 text-sm">{p.competencias.join(', ') || '—'}</span> },
     { header: 'Disponibilidade', value: (p) => p.disponibilidade.map((d) => d.slice(0, 3)).join(', '), className: 'text-muted-foreground' },
