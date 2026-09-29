@@ -340,3 +340,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Painel da DR solicitante (Gestor SENAI/SESI): sem os ícones ao lado dos números em Alunos ativos, Requer atenção e Acessos ao portal.
 - 2026-09-29 — Painel da DR solicitante: listas de Turmas e Requer atenção sem as bolinhas de iniciais.
 - 2026-09-29 — Selects (todos): a lista abre abaixo do campo com altura de até 24rem (ou o espaço da tela), só o necessário quando há poucas opções — antes abria sobre o campo e ficava curta.
+- 2026-09-29 — Badges de identificador (proposta, turma, TAA, versão etc.) em cor neutra (cinza), não mais azul.
