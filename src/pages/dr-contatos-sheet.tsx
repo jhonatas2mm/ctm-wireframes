@@ -23,6 +23,7 @@ function Linha({ icon: Icon, texto }: { icon: typeof Mail; texto: string }) {
         type="button"
         variant="ghost"
         size="icon-xs"
+        className="text-neutral-500 hover:text-neutral-800"
         aria-label={`Copiar ${texto}`}
         onClick={() => void navigator.clipboard.writeText(texto).catch(() => {})}
       >

@@ -32,7 +32,7 @@ const badgeVariants = cva(
 // Badge padrão com texto fora desta lista fica cinza (nunca na cor principal).
 const tones: Record<string, "green" | "blue" | "orange" | "red" | "gray"> = {
   Pronta: "green", Criada: "green", "Em planejamento": "blue", "Em criação": "blue", "Em avaliação do tutor": "orange", "Parametrizar avaliações": "orange", "Não criada": "gray",
-  Vigente: "green", Considerado: "green", Ativo: "green", Ativa: "green", Aceito: "green", Aceita: "green", Aprovado: "green", Aprovada: "green", Validado: "green", Integrada: "green", "Em dia": "green", Criou: "green", Aceitou: "green",
+  Vigente: "green", Considerado: "green", Confirmada: "green", Contestada: "red", Ativo: "green", Ativa: "green", Aceito: "green", Aceita: "green", Aprovado: "green", Aprovada: "green", Validado: "green", Integrada: "green", "Em dia": "green", Criou: "green", Aceitou: "green",
   "Em andamento": "blue", Encaminhado: "blue", "Em negociação": "blue", "A iniciar": "blue", "Aceita pelo contratante": "blue", Anexou: "blue", Exportou: "blue", Transferido: "blue",
   "Em análise": "orange", "Em risco": "orange", "Buscar tutor": "orange", Retornado: "orange", Aguardando: "orange", Editou: "orange", Trancado: "orange",
   Recusada: "red", Recusado: "red", Reprovado: "red", Reprovada: "red", Evadido: "red", Desistente: "red", Excluiu: "red", Recusou: "red",
@@ -49,7 +49,10 @@ function Badge({
   // Texto do status: o filho string (ou o 1º filho string, ex.: "Aceito · vigência encerrada")
   const kids = Array.isArray(props.children) ? props.children : [props.children]
   const texto = kids.find((k): k is string => typeof k === "string")
-  const tone = (texto && tomDe(texto)) || (variant === "default" ? "gray" : undefined)
+  // Toda badge tem cor: sem tom próprio pelo texto, cai no cinza (o outline sem fundo parecia um botão).
+  // Fica de fora só quem define as próprias cores (bg-* na classe ou style).
+  const propria = /(^|\s)bg-/.test(typeof className === "string" ? className : "") || !!props.style
+  const tone = (texto && tomDe(texto)) || (variant === "default" || (variant === "outline" && !propria) ? "gray" : undefined)
   return useRender({
     defaultTagName: "span",
     props: mergeProps<"span">(

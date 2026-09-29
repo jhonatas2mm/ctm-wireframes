@@ -263,8 +263,8 @@ function DetalheUc({ t, uc: u, pos, turmas, calendario, onClose, onEditarAula, o
                   <div className="space-y-2 rounded-lg border border-violet-200 bg-violet-50 p-3 text-sm">
                     <p className="flex items-center gap-1.5 font-medium text-violet-900"><Merge className="size-4" /> Mesma UC na mesma semana em outras turmas: a aula ao vivo pode ser única no Moodle.</p>
                     <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="outline" className="bg-card font-mono">{t.codigo}</Badge>
-                      {juntas.map((o) => <Badge key={o.id} variant="outline" className="bg-card font-mono">{o.codigo} · SENAI-{o.drContratante}</Badge>)}
+                      <Badge variant="outline" className="font-mono">{t.codigo}</Badge>
+                      {juntas.map((o) => <Badge key={o.id} variant="outline" className="font-mono">{o.codigo} · SENAI-{o.drContratante}</Badge>)}
                     </div>
                   </div>
                 ) : (

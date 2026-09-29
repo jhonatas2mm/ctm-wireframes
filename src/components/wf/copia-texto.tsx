@@ -14,7 +14,7 @@ export function CopiaTexto({ texto, rotulo = 'Copiar', children, className }: { 
         type="button"
         title={`${rotulo}: ${texto}`}
         aria-label={`${rotulo} ${texto}`}
-        className="inline-flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="inline-flex size-5 shrink-0 items-center justify-center rounded text-neutral-500 hover:bg-neutral-100 hover:text-neutral-800"
         onClick={(e) => {
           e.stopPropagation()
           void navigator.clipboard.writeText(texto).catch(() => {})
@@ -22,7 +22,7 @@ export function CopiaTexto({ texto, rotulo = 'Copiar', children, className }: { 
           setTimeout(() => setCopiado(false), 1200)
         }}
       >
-        {copiado ? <Check className="size-3.5 text-emerald-600" /> : <Copy className="size-3.5" />}
+        {copiado ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
       </button>
     </span>
   )
