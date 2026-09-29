@@ -137,7 +137,7 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - Recusar pede **feedback** (motivo), que aparece no Resumo da proposta.
 - Depois de aprovada ou recusada, os botões somem.
 
-## Mapa do processo (/processo)
+## Mapa do processo (painel da casca)
 - Visão BPMN de ponta a ponta, para todos os perfis (menu Sistema): pools (DN, CTM, DR contratante, Sistemas) e raias por ator (DN, Comercial, Supervisão, PCP, Analista, Tutor, Monitoria e pedagógico, Financeiro, DR contratante, AVA/SGE); fases no topo; tarefas, decisões, paralelos, eventos de prazo; sequência (linha cheia) e mensagem entre organizações (tracejada).
 - Tarefa tracejada = acontece fora do sistema. Clique numa etapa: detalhes, regras e **Abrir no protótipo**. Filtro por ator (select ou clique na raia) e zoom.
 - Dados em `src/lib/processo.ts`: manter junto com as regras deste arquivo.
@@ -270,3 +270,5 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-28 — Casca: botão **Mapa do processo** no topo (ao lado de "Abrir protótipo livre") abre /processo dentro do protótipo; fica destacado enquanto o mapa está aberto. Para voltar, basta clicar numa etapa da jornada.
 - 2026-09-28 — Mapa do processo: botão **Tela cheia** (tela cheia do navegador; se bloqueada, cobre a janela) com barra de filtro/zoom e legenda; ao entrar, encaixa largura e altura. Sair: mesmo botão ou Esc. O iframe da casca passou a permitir tela cheia (`allow="fullscreen"`).
 - 2026-09-29 — Jornadas de criação terminam no **item criado** (Usuário criado, DR credenciada, TAA criado, Produto criado, Proposta criada), com o Guia destacando a linha (`focus: 'row=…'`). Guia: com side nav de criação aberta, não escurece e o cartão fica no canto; clique no cartão não fecha a side nav. Casca: ignora ecos de rota logo após trocar de etapa (mesma rota em duas etapas). Selects Perfil/Jornada sem campo de busca.
+- 2026-09-29 — **Mapa do processo** deixa de ser tela do protótipo: vira **painel da casca** (botão no topo), sobre o protótipo; “Abrir no protótipo” leva o iframe à tela e fecha o painel. Rota /processo removida do menu.
+- 2026-09-29 — Mapa do processo (painel): ocupa toda a altura; abre e “Ajustar” encaixam pela altura (atores ocupam a altura toda, texto legível), rolagem/arrasto na horizontal. Zoom: botões −/+, Ctrl/⌘ + roda (ou pinça), teclas + − 0 (0 = ajustar); arrastar com o mouse move o diagrama.

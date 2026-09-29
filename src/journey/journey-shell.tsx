@@ -1,6 +1,7 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet, Workflow } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet, Workflow, X } from 'lucide-react'
+import { MapaProcesso } from '@/pages/processo'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -128,6 +129,7 @@ export function JourneyShell() {
   }, [])
 
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
+  const [mapa, setMapa] = useState(false)
   // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
   const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') !== '0' } catch { return true } })
   const setGuia = (v: boolean) => { setGuiaState(v); try { localStorage.setItem('guia-jornada', v ? '1' : '0') } catch { /* sem armazenamento */ } }
@@ -283,8 +285,8 @@ export function JourneyShell() {
               <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
             </Button>
             <span className="mx-1 h-4 w-px bg-border" />
-            {/* Mapa do processo (BPMN) abre dentro do protótipo, sem sair da jornada */}
-            <Button size="sm" variant={screen === '/processo' ? 'secondary' : 'ghost'} onClick={() => { const w = frame.current?.contentWindow; if (w) w.location.hash = '/processo' }}>
+            {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
+            <Button size="sm" variant={mapa ? 'secondary' : 'ghost'} onClick={() => setMapa(!mapa)}>
               <Workflow /> Mapa do processo
             </Button>
             <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
@@ -506,6 +508,25 @@ export function JourneyShell() {
         </div>
 
       </main>
+      {/* Painel do Mapa do processo (da casca, sobre o protótipo) */}
+      {mapa && (
+        <div className="fixed inset-3 z-40 flex flex-col overflow-hidden rounded-xl border bg-background shadow-2xl">
+          <div className="flex shrink-0 items-center justify-between border-b px-4 py-2.5">
+            <span className="flex items-center gap-2 text-sm font-semibold"><Workflow className="size-4" /> Mapa do processo</span>
+            <Button size="icon-sm" variant="ghost" aria-label="Fechar mapa" onClick={() => setMapa(false)}><X /></Button>
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col p-4">
+            <MapaProcesso
+              preencher
+              abrirTela={(path) => {
+                const w = frame.current?.contentWindow
+                if (w) w.location.hash = path
+                setMapa(false)
+              }}
+            />
+          </div>
+        </div>
+      )}
       <Dialog open={!!restaurar} onOpenChange={(v) => !v && setRestaurar(null)}>
         <DialogContent className="dark sm:max-w-sm">
           <DialogHeader>

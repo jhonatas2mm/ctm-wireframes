@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, Workflow } from 'lucide-react'
+import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
 import Produtos from '@/pages/produtos'
@@ -15,7 +15,6 @@ import Equipe from '@/pages/equipe'
 import Calendario from '@/pages/calendario'
 import Tratativas from '@/pages/tratativas'
 import Financeiro from '@/pages/financeiro'
-import Processo from '@/pages/processo'
 import Components from '@/pages/components'
 import { Auditoria, Perfis, Usuarios } from '@/pages/admin'
 import Logs from '@/pages/logs'
@@ -82,6 +81,5 @@ export const screens: Screen[] = [
   { path: '/meus-taas/novo', title: 'Novo TAA', group: 'Telas', icon: FileSignature, component: MeusTaas, hidden: true, data: ['taas-dr'] },
   { path: '/meus-taas/:taaId/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
   { path: '/meus-taas/:taaId/produtos/novo', title: 'Nova proposta', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
-  { path: '/processo', title: 'Mapa do processo', group: 'Sistema', icon: Workflow, component: Processo },
   { path: '/componentes', title: 'Componentes', group: 'Sistema', icon: Palette, component: Components, hidden: true },
 ]

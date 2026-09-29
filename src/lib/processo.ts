@@ -1,5 +1,5 @@
 // Processo ponta a ponta da CTM em notação BPMN simplificada (pools/raias, tarefas, decisões, eventos).
-// Fonte: reunião de processos de 28/09/2026 + regras em docs/fluxo.md. Usado pela tela Mapa do processo (/processo).
+// Fonte: reunião de processos de 28/09/2026 + regras em docs/fluxo.md. Usado pelo painel Mapa do processo da casca (src/pages/processo.tsx → MapaProcesso).
 
 export type Pool = { id: string; nome: string; cor: string }
 export type Raia = { id: string; nome: string; pool: string; perfil?: string } // perfil = perfil do protótipo que faz a tarefa

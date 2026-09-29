@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ExternalLink, Maximize, Maximize2, Minimize, Minus, Plus, X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { PageHeader } from '@/components/wf'
 import { arestas, fases, nos, pools, raias, type No } from '@/lib/processo'
 import { cn } from '@/lib/utils'
 
@@ -60,8 +58,10 @@ function caminho(a: No, b: No) {
 
 // Mapa do processo: visão BPMN de ponta a ponta (atores em raias, fases no topo). Clique numa etapa para ver os detalhes
 // e abrir a tela correspondente no protótipo.
-export default function Processo() {
-  const navigate = useNavigate()
+// Painel da casca (não é tela do protótipo): abre pelo botão “Mapa do processo” no topo da casca.
+// abrirTela: leva o protótipo (iframe) para a tela da etapa e fecha o painel.
+// preencher: ocupa toda a altura disponível (painel da casca) e encaixa o diagrama na largura e na altura.
+export function MapaProcesso({ abrirTela, preencher }: { abrirTela: (path: string) => void; preencher?: boolean }) {
   const area = useRef<HTMLDivElement>(null)
   const tela = useRef<HTMLDivElement>(null)
   const [zoom, setZoom] = useState(0.8)
@@ -74,13 +74,14 @@ export default function Processo() {
     else if (cheia) setCheia(false)
     else tela.current?.requestFullscreen().then(() => setCheia(true), () => setCheia(true))
   }
-  // Ajustar: na tela cheia encaixa largura e altura; fora dela, só a largura.
+  // Ajustar: tela cheia encaixa largura e altura; painel encaixa a altura; página, só a largura.
   const ajustar = () => {
     const el = area.current
     if (!el) return
     const w = (el.clientWidth - 8) / LARG
     const h = ((el.parentElement?.clientHeight ?? el.clientHeight) - 20) / ALT
-    setZoom(Math.max(0.3, Math.min(1.2, cheia ? Math.min(w, h) : w)))
+    // Painel: encaixa pela altura (texto legível) e rola/arrasta na horizontal; tela cheia: largura e altura.
+    setZoom(Math.max(0.3, Math.min(1.2, preencher && !cheia ? h : cheia ? Math.min(w, h) : w)))
   }
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -95,6 +96,41 @@ export default function Processo() {
   }, [sel, cheia])
   // Ao entrar ou sair da tela cheia, reencaixa o diagrama.
   useEffect(() => { requestAnimationFrame(ajustar) }, [cheia]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Zoom: Ctrl/⌘ + roda do mouse (ou pinça no trackpad) e teclas + / − / 0; arrastar com o mouse move o diagrama.
+  const Z_MIN = 0.3, Z_MAX = 2.5
+  const zoomPor = (f: number) => setZoom((z) => Math.min(Z_MAX, Math.max(Z_MIN, +(z * f).toFixed(2))))
+  const caixa = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = caixa.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return
+      e.preventDefault()
+      zoomPor(e.deltaY < 0 ? 1.1 : 1 / 1.1)
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement)?.closest('input, textarea, select')) return
+      if (e.key === '+' || e.key === '=') zoomPor(1.15)
+      else if (e.key === '-') zoomPor(1 / 1.15)
+      else if (e.key === '0') ajustar()
+    }
+    addEventListener('keydown', onKey)
+    return () => (el.removeEventListener('wheel', onWheel), removeEventListener('keydown', onKey))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const arrasto = useRef<{ x: number; y: number; sl: number; st: number } | null>(null)
+  const iniciarArrasto = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as Element).closest('[data-no]')) return
+    const el = caixa.current!
+    arrasto.current = { x: e.clientX, y: e.clientY, sl: area.current?.scrollLeft ?? 0, st: el.scrollTop }
+  }
+  const moverArrasto = (e: React.PointerEvent<HTMLDivElement>) => {
+    const a = arrasto.current
+    if (!a) return
+    if (area.current) area.current.scrollLeft = a.sl - (e.clientX - a.x)
+    caixa.current!.scrollTop = a.st - (e.clientY - a.y)
+  }
   const apagado = (n: No) => ator !== 'todos' && n.raia !== ator
   const faixas = fases.map((f) => {
     const cs = nos.filter((n) => n.fase === f.id).map((n) => n.col)
@@ -104,8 +140,7 @@ export default function Processo() {
 
   return (
     <>
-      <PageHeader title="Mapa do processo" />
-      <div ref={tela} className={cn(cheia && 'fixed inset-0 z-50 flex flex-col gap-3 bg-background p-3')}>
+      <div ref={tela} className={cn(cheia && 'fixed inset-0 z-50 flex flex-col gap-3 bg-background p-3', preencher && !cheia && 'flex h-full min-h-0 flex-col')}>
         <div className={cn('mb-3 flex flex-wrap items-center justify-end gap-2', cheia && 'mb-0')}>
             {cheia && <h1 className="mr-auto text-lg font-semibold">Mapa do processo</h1>}
             <Select value={ator} onValueChange={(v) => setAtor(v as string)}>
@@ -116,15 +151,22 @@ export default function Processo() {
               </SelectContent>
             </Select>
             <div className="flex items-center rounded-md border">
-              <Button size="icon-sm" variant="ghost" aria-label="Diminuir zoom" onClick={() => setZoom((z) => Math.max(0.35, +(z - 0.1).toFixed(2)))}><Minus /></Button>
+              <Button size="icon-sm" variant="ghost" aria-label="Diminuir zoom" onClick={() => zoomPor(1 / 1.15)}><Minus /></Button>
               <span className="w-12 text-center text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
-              <Button size="icon-sm" variant="ghost" aria-label="Aumentar zoom" onClick={() => setZoom((z) => Math.min(1.6, +(z + 0.1).toFixed(2)))}><Plus /></Button>
+              <Button size="icon-sm" variant="ghost" aria-label="Aumentar zoom" onClick={() => zoomPor(1.15)}><Plus /></Button>
             </div>
             <Button variant="outline" size="sm" onClick={ajustar}><Maximize2 /> Ajustar</Button>
             <Button variant={cheia ? 'default' : 'outline'} size="sm" onClick={alternarCheia}>{cheia ? <><Minimize /> Sair da tela cheia</> : <><Maximize /> Tela cheia</>}</Button>
         </div>
 
-      <div className={cn('relative flex overflow-hidden rounded-lg border bg-card', cheia && 'min-h-0 flex-1 overflow-auto')}>
+      <div
+        ref={caixa}
+        onPointerDown={iniciarArrasto}
+        onPointerMove={moverArrasto}
+        onPointerUp={() => (arrasto.current = null)}
+        onPointerLeave={() => (arrasto.current = null)}
+        className={cn('relative flex cursor-grab overflow-hidden rounded-lg border bg-card active:cursor-grabbing', (cheia || preencher) && 'min-h-0 flex-1 overflow-auto')}
+      >
         {/* Coluna fixa: pools e raias */}
         <svg width={ESQ * zoom} height={ALT * zoom} viewBox={`0 0 ${ESQ} ${ALT}`} className="shrink-0 border-r">
           <rect x={0} y={0} width={ESQ} height={TOPO} className="fill-muted/60" />
@@ -202,7 +244,7 @@ export default function Processo() {
               const ativo = sel?.id === n.id
               const ls = linhas(n.rotulo)
               return (
-                <g key={n.id} className="cursor-pointer" opacity={apagado(n) ? 0.2 : 1} onClick={() => setSel(n)}>
+                <g key={n.id} data-no className="cursor-pointer" opacity={apagado(n) ? 0.2 : 1} onClick={() => setSel(n)}>
                   {n.tipo === 'tarefa' && (
                     <>
                       <rect x={x - TAREFA.w / 2} y={y - TAREFA.h / 2} width={TAREFA.w} height={TAREFA.h} rx={10} className="fill-card" stroke={cor} strokeWidth={ativo ? 3 : 1.5} strokeDasharray={n.fora ? '5 3' : undefined} />
@@ -256,7 +298,7 @@ export default function Processo() {
                 {sel.regras.map((r) => <li key={r}>{r}</li>)}
               </ul>
             )}
-            {sel.tela && <Button className="mt-4 w-full" onClick={() => navigate(sel.tela!)}><ExternalLink /> Abrir no protótipo</Button>}
+            {sel.tela && <Button className="mt-4 w-full" onClick={() => abrirTela(sel.tela!)}><ExternalLink /> Abrir no protótipo</Button>}
           </aside>
         )}
       </div>

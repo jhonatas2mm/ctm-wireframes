@@ -28,7 +28,7 @@ const secaoDe = (path: string): (typeof secoes)[number] =>
   path.startsWith('/admin') ? 'Administração'
   : ['/painel-dn', '/drs', '/dashboard', '/editais'].some((p) => path.startsWith(p)) ? 'DN'
   : ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'].some((p) => path.startsWith(p)) ? 'DR solicitante'
-  : path.startsWith('/componentes') || path.startsWith('/processo') ? 'Sistema'
+  : path.startsWith('/componentes') ? 'Sistema'
   : 'CTM'
 
 export function AppShell() {
