@@ -11,7 +11,7 @@ import { Check, Download, FileText, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
-import { aprovadaDe, contratoAtivo, emTramitacao, instrumentoDe, nomeParte, useContratos, useEditais, type ProdutoTaa } from '@/lib/mock'
+import { aprovadaDe, contratoAtivo, emTramitacao, nomeParte, useContratos, useEditais, type ProdutoTaa } from '@/lib/mock'
 
 const fmtData = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '____/____/______')
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -34,9 +34,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
   const [fim, setFim] = useState('')
   const [valor, setValor] = useState('')
   const ano = new Date().getFullYear()
-  // SENAI ↔ SENAI = TAA; SESI = contrato (nº CT-…)
-  const contrato = instrumentoDe(contratante) === 'Contrato'
-  const numero = `${contrato ? 'CT-' : ''}${String(db.all.filter((c) => c.numero.startsWith('CT-') === contrato && c.numero.endsWith(`/${ano}`)).length + 1).padStart(3, '0')}/${ano}`
+  const numero = `${String(db.all.filter((c) => c.numero.endsWith(`/${ano}`)).length + 1).padStart(3, '0')}/${ano}`
   const valorNum = Number(valor.replace(/\D/g, '')) / 100
   // Protótipo: já abre preenchido com dados de exemplo.
   useEffect(() => {
@@ -75,7 +73,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
       <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-4xl">
         <SheetHeader className="border-b px-6 py-4">
           <div className="flex items-center gap-3">
-            <SheetTitle className="text-lg">{contrato ? 'Novo contrato' : 'Novo Termo de Acordo Administrativo'}</SheetTitle>
+            <SheetTitle className="text-lg">Novo Termo de Acordo Administrativo</SheetTitle>
             <Badge variant="secondary" className="font-mono">
               Nº {salvo?.numero ?? numero}
             </Badge>
@@ -113,7 +111,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
                 </Button>
               </div>
               <div className="rounded-lg bg-muted/50 p-4">
-                <TermoDoc {...salvo} contrato={contrato} contratante={contratante} produtos={escolhidos} className="mx-auto shadow-sm" />
+                <TermoDoc {...salvo} contratante={contratante} produtos={escolhidos} className="mx-auto shadow-sm" />
               </div>
             </div>
           ) : (
@@ -242,7 +240,6 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
 }
 
 function TermoDoc({
-  contrato,
   numero,
   contratante,
   produtos,
@@ -252,7 +249,6 @@ function TermoDoc({
   valor,
   className,
 }: {
-  contrato?: boolean
   numero: string
   contratante: string
   produtos: ProdutoTaa[]
@@ -269,7 +265,7 @@ function TermoDoc({
         className,
       )}
     >
-      <h4 className="text-center text-sm font-bold tracking-wide">{contrato ? 'CONTRATO DE PRESTAÇÃO DE SERVIÇOS' : 'TERMO DE ACORDO ADMINISTRATIVO'} Nº {numero}</h4>
+      <h4 className="text-center text-sm font-bold tracking-wide">TERMO DE ACORDO ADMINISTRATIVO Nº {numero}</h4>
       <p>
         <b>CLÁUSULA PRIMEIRA — DO OBJETO.</b> O presente termo formaliza a contratação, pelo <Var>{nomeParte(contratante)}</Var>, do{' '}
         <Var>{dr ? `SENAI Departamento Regional de ${dr}` : 'Departamento Regional'}</Var> como CTM, para a execução de

@@ -1,8 +1,8 @@
 // Perfis de acesso (nome + cor de destaque). Mantidos pelo Claude a pedido — não edite pela interface.
 // Três perfis principais — DN, CTM e DR solicitante — (mais o Super admin); CTM e DR solicitante têm "caixas" (subperfis).
-// Jornadas referenciam o perfil pelo nome (ex.: 'CTM: PCP', 'DR solicitante: SESI').
+// Jornadas referenciam o perfil pelo nome (ex.: 'CTM: PCP', 'DR solicitante: SENAI').
 // user: pessoa fictícia mostrada no avatar do menu do protótipo quando este perfil está ativo.
-// dr: instituição do usuário, mostrada no topo do menu do protótipo (SENAI-UF ou SESI-UF).
+// dr: instituição do usuário, mostrada no topo do menu do protótipo (SENAI-UF).
 // caixa: rótulo curto do subperfil; avaliacao: subperfil ainda em avaliação (Tutor, Monitor).
 // cargo: função do usuário (ex.: o Gestor da DR solicitante pode ser coordenador ou interlocutor).
 export type Grupo = 'DN' | 'CTM' | 'DR solicitante' | 'Super admin'
@@ -18,9 +18,8 @@ export const profiles: ProfileDef[] = [
   { name: 'CTM: Pedagógico', grupo: 'CTM', caixa: 'Pedagógico', color: '#db2777', user: { nome: 'Sônia Prado', email: 'sonia.prado@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Tutor', grupo: 'CTM', caixa: 'Tutor', color: '#0d9488', user: { nome: 'Fabiana Rocha', email: 'fabiana.rocha@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Monitor', grupo: 'CTM', caixa: 'Monitor', color: '#4f46e5', user: { nome: 'Lívia Campos', email: 'livia.campos@senaimg.org.br' }, dr: MG },
-  // DR solicitante: quem pede a contratação da CTM é o Gestor (coordenador, interlocutor…). SENAI registra TAA; SESI, contrato.
+  // DR solicitante: quem pede a contratação da CTM é o Gestor (coordenador, interlocutor…). SENAI registra TAA (SESI fica fora da v1).
   { name: 'DR solicitante: SENAI', grupo: 'DR solicitante', caixa: 'Gestor SENAI', color: '#ca8a04', user: { nome: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', cargo: 'Coordenador' }, dr: MG },
-  { name: 'DR solicitante: SESI', grupo: 'DR solicitante', caixa: 'Gestor SESI', color: '#16a34a', user: { nome: 'Renata Souza', email: 'renata.souza@sesimg.org.br', cargo: 'Interlocutor' }, dr: { sigla: 'SESI-MG', nome: 'SESI Minas Gerais' } },
   { name: 'Super admin', grupo: 'Super admin', color: '#dc2626', user: { nome: 'Fernanda Costa', email: 'fernanda.costa@senai.br' } },
 ]
 

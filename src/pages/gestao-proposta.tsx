@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
 import { EmptyState, PageHeader, Req } from '@/components/wf'
-import { alunosProposta, aprovadosAtuais, instrumentoDe, nomeParte, totalProposta, useContratos, useCursosDr, useEquipe, useProdutos, type CursoProposta } from '@/lib/mock'
+import { alunosProposta, aprovadosAtuais, nomeParte, totalProposta, useContratos, useCursosDr, useEquipe, useProdutos, type CursoProposta } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -82,7 +82,7 @@ export default function GestaoProposta() {
     ['Código da proposta', <span className="font-mono">{p.numero}</span>],
     ['Versão', `v${p.versao ?? 1}`],
     ['Contratante', nomeParte(p.drContratante)],
-    [taa ? instrumentoDe(taa.contratante) : 'TAA', taa ? <span className="font-mono">{taa.numero}</span> : '—'],
+    ['TAA', taa ? <span className="font-mono">{taa.numero}</span> : '—'],
     ['Edital', <span className="font-mono">{p.edital ?? '—'}</span>],
     ['Responsável', p.responsavel ? `${p.responsavel.nome} (${p.responsavel.cargo})` : '—'],
     ['Início e fim', p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'],

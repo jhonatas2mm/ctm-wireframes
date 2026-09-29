@@ -35,7 +35,7 @@ export const raias: Raia[] = [
   { id: 'tutor', nome: 'Tutor', pool: 'ctm', perfil: 'CTM: Tutor' },
   { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm', perfil: 'CTM: Pedagógico' },
   { id: 'financeiro', nome: 'Financeiro', pool: 'ctm' },
-  { id: 'dr', nome: 'Gestor da DR solicitante (SENAI/SESI)', pool: 'dr', perfil: 'DR solicitante: SENAI' },
+  { id: 'dr', nome: 'Gestor da DR solicitante', pool: 'dr', perfil: 'DR solicitante: SENAI' },
   { id: 'ava', nome: 'AVA / SGE', pool: 'sis' },
 ]
 
@@ -59,7 +59,7 @@ export const nos: No[] = [
 
   { id: 'aprova-portfolio', tipo: 'decisao', raia: 'dn', col: 4, rotulo: 'DN aprova?', fase: 'credenciamento', tela: '/portfolio/aprovacoes', descricao: 'O DN aprova (entra no Portfólio das CTMs, visível para todas as DRs) ou reprova com motivo (a CTM ajusta e envia nova versão).' },
   // Contrato
-  { id: 'taa', tipo: 'tarefa', raia: 'comercial', col: 4, rotulo: 'Enviar TAA à DR', fase: 'contrato', tela: '/taas-ctm/novo', descricao: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica (Encaminhado), com os produtos em que é a aprovada. A DR também pode criar o seu (aí a CTM analisa). SESI: contrato.', regras: ['TAA só SENAI ↔ SENAI; SESI ↔ SENAI é contrato.', 'Status: Encaminhado → Em análise → Retornado para ajuste / Aceito / Cancelado.', 'Saldo = valor global − executado.'] },
+  { id: 'taa', tipo: 'tarefa', raia: 'comercial', col: 4, rotulo: 'Enviar TAA à DR', fase: 'contrato', tela: '/taas-ctm/novo', descricao: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica (Encaminhado), com os produtos em que é a aprovada. A DR também pode criar o seu (aí a CTM analisa).', regras: ['Status: Encaminhado → Em análise → Retornado para ajuste / Aceito / Cancelado.', 'Saldo = valor global − executado.'] },
   { id: 'assinar-taa', tipo: 'decisao', raia: 'dr', col: 5, rotulo: 'Gestor aceita?', fase: 'contrato', tela: '/dashboard/16', descricao: 'O Gestor da DR analisa: aceita, retorna para ajuste (a CTM ajusta e reencaminha) ou recusa (Cancelado).' },
   { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Aceito: assinar e anexar', fase: 'contrato', fora: true, tela: '/dashboard/4', descricao: 'Aceito, o termo é assinado fora do sistema e anexado. É burocrático: só destrava a negociação da oferta, que dá origem às propostas — pode não gerar nenhuma. O saldo cai conforme a execução.' },
 

@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { screens } from '@/screens'
 import {
   alertasAluno, situacaoAluno, statusTurmaEad,
-  instrumentoDe, nomeParte, useAlunosEad, useContratos, useContratosCtm, useDrs, useEditais, useProdutos, useTurmasEad, useUsuarios,
+  nomeParte, useAlunosEad, useContratos, useContratosCtm, useDrs, useEditais, useProdutos, useTurmasEad, useUsuarios,
 } from '@/lib/mock'
 
 // Busca rápida (⌘K / Ctrl+K): telas do menu + registros que o perfil enxerga.
@@ -55,7 +55,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
   const drs = useDrs().all
   // TAAs no escopo do perfil: CTM vê os em que é contratada; DR, os em que é contratante; demais, todos.
   const ufPerfil = profileOf(perfil).dr?.sigla.replace('SENAI-', '')
-  const taas = useContratos().all.filter((t) => perfil.startsWith('CTM:') ? t.dr === ufPerfil : uf ? t.contratante === uf || t.contratante === `SESI-${uf}` : true)
+  const taas = useContratos().all.filter((t) => perfil.startsWith('CTM:') ? t.dr === ufPerfil : uf ? t.contratante === uf : true)
   const usuarios = useUsuarios().all
 
   // Atalho global ⌘K / Ctrl+K
@@ -93,7 +93,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
     if (pode('/produtos'))
       propostas.forEach((p) => r.push({ grupo: 'Propostas', titulo: p.numero, sub: `SENAI-${p.drContratante} · ${p.status ?? 'Rascunho'}`, to: `/produtos/${p.id}`, icon: Package, chaves: p.cursos.map((c) => c.nome).join(' '), atencao: p.status === 'Aguardando retorno do cliente' }))
     if (pode('/dashboard') || pode('/taas-ctm'))
-      taas.forEach((t) => r.push({ grupo: 'TAAs e contratos', titulo: `${instrumentoDe(t.contratante)} ${t.numero}`, sub: `${nomeParte(t.contratante)} → CTM SENAI-${t.dr} · ${t.status}`, to: pode('/dashboard') ? `/dashboard/${t.id}` : '/taas-ctm', icon: FileSignature, atencao: t.status === 'Encaminhado' || t.status === 'Em análise' || t.status === 'Retornado para ajuste' }))
+      taas.forEach((t) => r.push({ grupo: 'TAAs', titulo: `TAA ${t.numero}`, sub: `${nomeParte(t.contratante)} → CTM SENAI-${t.dr} · ${t.status}`, to: pode('/dashboard') ? `/dashboard/${t.id}` : '/taas-ctm', icon: FileSignature, atencao: t.status === 'Encaminhado' || t.status === 'Em análise' || t.status === 'Retornado para ajuste' }))
     if (pode('/drs'))
       drs.forEach((d) => r.push({ grupo: 'DRs', titulo: d.nome, sub: `SENAI-${d.uf} · ${d.status}`, to: '/drs', icon: Building2, chaves: `${d.responsavel} ${d.regiao}` }))
     if (pode('/admin/usuarios'))

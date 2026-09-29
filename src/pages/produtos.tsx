@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { AttachField, DataTable, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
 import {
-  alertaPrazo, alunosProposta, aprovadosAtuais, contratoAtivo, dataBr, inicioPrevisto, instrumentoDe, nomeParte, saldoTaa, statusProposta,
+  alertaPrazo, alunosProposta, aprovadosAtuais, contratoAtivo, dataBr, inicioPrevisto, nomeParte, saldoTaa, statusProposta,
   totalProposta, useContratos, useCursos, useCursosDr, useProdutos, valorNoEdital,
   type Contrato, type CursoProposta, type Produto, type Registro, type StatusProposta,
 } from '@/lib/mock'
@@ -56,12 +56,12 @@ const colunas = (taas: Contrato[]): Column<Produto>[] => [
   { header: 'Contratante', value: (p) => nomeParte(p.drContratante), search: true, filter: true },
   {
     header: 'TAA / contrato',
-    value: (p) => { const t = taas.find((x) => x.id === p.taaId); return t ? `${instrumentoDe(t.contratante)} ${t.numero}` : '—' },
+    value: (p) => { const t = taas.find((x) => x.id === p.taaId); return t ? `TAA ${t.numero}` : '—' },
     filter: true,
     cell: (p) => {
       const t = taas.find((x) => x.id === p.taaId)
       return t
-        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">{instrumentoDe(t.contratante)}</span> <span className="font-mono">{t.numero}</span>{!contratoAtivo(t) && <Badge variant="outline">{t.status}</Badge>}</span>
+        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">TAA</span> <span className="font-mono">{t.numero}</span>{!contratoAtivo(t) && <Badge variant="outline">{t.status}</Badge>}</span>
         : <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900"><AlertTriangle className="size-3" /> Sem vínculo</Badge>
     },
   },
@@ -134,7 +134,7 @@ export default function Produtos() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Status da proposta {mudar?.numero}</DialogTitle>
-            <DialogDescription>Atual: {mudar?.status ?? 'Rascunho'}. Registre o andamento combinado com o SENAI/SESI contratante.</DialogDescription>
+            <DialogDescription>Atual: {mudar?.status ?? 'Rascunho'}. Registre o andamento combinado com a DR contratante.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-3">
             <div className="grid gap-1.5">
@@ -148,7 +148,7 @@ export default function Produtos() {
               const t = taas.find((x) => x.id === mudar.taaId)
               const saldo = t ? saldoTaa(t, todas).saldo : 0
               return t && totalProposta(mudar) > saldo
-                ? <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">O valor da proposta ({brl(totalProposta(mudar))}) passa o saldo do {instrumentoDe(t.contratante)} {t.numero} ({brl(saldo)}).</p>
+                ? <p className="rounded-md border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900">O valor da proposta ({brl(totalProposta(mudar))}) passa o saldo do TAA {t.numero} ({brl(saldo)}).</p>
                 : <p className="text-xs text-muted-foreground">Aprovada, a proposta passa a executar o saldo do TAA; em seguida vincula-se a equipe técnica e segue para as turmas.</p>
             })()}
             <label className="grid gap-1 text-xs">
@@ -301,15 +301,15 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
             <label className="grid gap-1 text-xs">
               <span className="text-muted-foreground">TAA / contrato aceito <Req /></span>
               <Select disabled={!!base} value={taaId} onValueChange={(v) => escolher(v as string)}>
-                <SelectTrigger className="w-full"><SelectValue>{(v: string | null) => { const t = contratos.find((c) => c.id === v); return t ? `${instrumentoDe(t.contratante)} ${t.numero} · ${nomeParte(t.contratante)}` : 'Selecione o TAA' }}</SelectValue></SelectTrigger>
-                <SelectContent>{taas.map((t) => <SelectItem key={t.id} value={t.id}>{instrumentoDe(t.contratante)} {t.numero} · {nomeParte(t.contratante)}</SelectItem>)}</SelectContent>
+                <SelectTrigger className="w-full"><SelectValue>{(v: string | null) => { const t = contratos.find((c) => c.id === v); return t ? `TAA ${t.numero} · ${nomeParte(t.contratante)}` : 'Selecione o TAA' }}</SelectValue></SelectTrigger>
+                <SelectContent>{taas.map((t) => <SelectItem key={t.id} value={t.id}>TAA {t.numero} · {nomeParte(t.contratante)}</SelectItem>)}</SelectContent>
               </Select>
             </label>
             {taa && (
               <dl className="grid grid-cols-2 gap-2 rounded-lg border bg-background p-3 text-xs">
                 <div><dt className="text-muted-foreground">Contratante</dt><dd className="font-medium">{nomeParte(taa.contratante)}</dd></div>
                 <div><dt className="text-muted-foreground">Edital</dt><dd className="font-mono">{taa.edital ?? '—'}</dd></div>
-                <div className="col-span-2"><dt className="text-muted-foreground">Saldo do {instrumentoDe(taa.contratante)}</dt><dd className="font-semibold tabular-nums">{brl(saldo)} <span className="font-normal text-muted-foreground">de {brl(taa.valor)}</span></dd></div>
+                <div className="col-span-2"><dt className="text-muted-foreground">Saldo do TAA</dt><dd className="font-semibold tabular-nums">{brl(saldo)} <span className="font-normal text-muted-foreground">de {brl(taa.valor)}</span></dd></div>
               </dl>
             )}
             <label className="grid gap-1 text-xs">
@@ -342,7 +342,7 @@ function NovaPropostaSheet({ open, onOpenChange, base }: { open: boolean; onOpen
 
           {/* 2ª coluna: produtos do TAA (o curso pode se repetir em outras propostas do mesmo TAA) */}
           <div className="flex min-h-0 flex-col gap-3 overflow-y-auto border-r px-6 py-6">
-            <h3 className="text-sm font-semibold">Produtos do {taa ? `${instrumentoDe(taa.contratante)} ${taa.numero}` : 'TAA'} {nomes.length > 0 && <span className="font-normal text-muted-foreground">({nomes.length} na proposta)</span>}</h3>
+            <h3 className="text-sm font-semibold">Produtos do {taa ? `TAA ${taa.numero}` : 'TAA'} {nomes.length > 0 && <span className="font-normal text-muted-foreground">({nomes.length} na proposta)</span>}</h3>
             {!taa ? (
               <p className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">Escolha o TAA/contrato aceito.</p>
             ) : (

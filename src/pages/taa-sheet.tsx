@@ -3,7 +3,7 @@ import { Download, FileText, Paperclip } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { instrumentoDe, nomeParte, saldoTaa, useProdutos, type Contrato } from '@/lib/mock'
+import { nomeParte, saldoTaa, useProdutos, type Contrato } from '@/lib/mock'
 import { StatusTaaBadge } from './taa-fluxo'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -25,7 +25,7 @@ export function SaldoTaa({ c, compacto }: { c: Contrato; compacto?: boolean }) {
 // Detalhes do TAA/contrato (side sheet): status, partes, saldo, produtos, documentos e histórico do fluxo.
 // rodape: ações do fluxo para quem está vendo (vêm de useFluxoTaa).
 export function TaaSheet({ taa, onClose, rodape }: { taa: Contrato | null; onClose: () => void; rodape?: ReactNode }) {
-  const inst = taa ? instrumentoDe(taa.contratante) : 'TAA'
+  const inst = 'TAA'
   return (
     <Sheet open={!!taa} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">

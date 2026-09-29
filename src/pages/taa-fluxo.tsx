@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { AttachField, Req, useConfirmar } from '@/components/wf'
-import { analisaDe, instrumentoDe, nomeParte, useContratos, vigenciaEncerrada, type Contrato, type Registro, type StatusContrato } from '@/lib/mock'
+import { analisaDe, nomeParte, useContratos, vigenciaEncerrada, type Contrato, type Registro, type StatusContrato } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
@@ -50,7 +50,7 @@ export function useFluxoTaa(papel: Papel) {
     db.update(c.id, { ...patch, historico: [{ quando: new Date().toISOString(), texto: txt, autor } as Registro, ...(c.historico ?? [])] })
   const souAnalista = (c: Contrato) => papel !== 'admin' && analisaDe(c) === papel
   const souCriador = (c: Contrato) => papel !== 'admin' && analisaDe(c) !== papel
-  const nome = (c: Contrato) => `${instrumentoDe(c.contratante)} ${c.numero}`
+  const nome = (c: Contrato) => `TAA ${c.numero}`
 
   const acoes = (c: Contrato): Acao[] => {
     const a: Acao[] = []
