@@ -318,3 +318,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Padrão: toda caixa com borda (blocos de informação, grupos de campos, listas) tem fundo (bg-card), para facilitar a leitura. Aplicado em todas as telas.
 - 2026-09-29 — Detalhes da turma: sai o menu "Mais ações"; Prorrogar início, Adicionar oferta e Cancelar turma viram botões no topo.
 - 2026-09-29 — Hierarquia de botões: 3º nível = só outline e cor neutra. Botões com texto dentro das tabelas (ex.: Anexar assinado, Detalhes) deixam o laranja e ficam neutros; ícones de ação continuam como estão.
+- 2026-09-29 — Busca rápida (⌘K): ao abrir mostra **Ações** (criar, conforme o perfil), **Recentes** (últimos registros abertos, por navegador), **Precisa de atenção** (TAAs encaminhados/em análise/retornados, propostas em negociação/análise) e as telas com o ícone do menu. TAAs também aparecem para a CTM.
