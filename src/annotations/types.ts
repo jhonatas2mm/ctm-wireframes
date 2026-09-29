@@ -10,6 +10,7 @@ export type Pin = {
   py?: number
   kind: PinKind
   text: string
+  author?: string // nome digitado por quem anotou
   createdAt: string
 }
 

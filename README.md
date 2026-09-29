@@ -26,8 +26,9 @@ do sistema: é a ferramenta usada para apresentar e validar as telas.
   Cada jornada tem etapas (telas e notas) com botões de avançar e voltar.
 - **Seletor de perfil**: troca o usuário simulado (Super admin, DN, Supervisor, Comercial). O menu, o avatar e a cor
   da borda mudam conforme o perfil.
-- **Anotações**: pinos presos a elementos da tela com requisitos, regras e dúvidas (`annotations.json`).
-  Só dá para editar rodando localmente; no site publicado ficam apenas para leitura.
+- **Anotações**: pinos presos a elementos da tela com requisitos, regras e dúvidas, compartilhados via **Supabase**
+  (projeto `ctm-wireframes`, tabela `pins`). Qualquer visitante do site publicado cria e vê anotações, informando o nome;
+  editar e excluir só pelo painel do Supabase.
 - **Restaurar dados mockados**: descarta o que foi criado e volta aos dados iniciais.
 
 Dentro da moldura fica o **wireframe**, com menu lateral, cabeçalho e as telas do sistema.
@@ -99,6 +100,3 @@ Tratar como **protótipo**: valem a rapidez e a consistência visual, não a rob
 - Seleção múltipla com "Selecionar todos" e "Replicar valores (N)" em modal, com desfazer/avançar quando houver edição em lote.
 - Totais em `text-2xl` no rodapé. Números e identificadores em `Badge` com botão de copiar.
 - Telas internas usam `PageHeader` com `breadcrumb`.
-
-## Pendências
-- Anotações compartilhadas no site publicado: falta escolher o backend (Supabase ou Firebase).

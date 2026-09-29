@@ -1,5 +1,61 @@
-import { useJsonFile } from '@/lib/json-file'
+import { useEffect, useState } from 'react'
+import { createClient } from '@supabase/supabase-js'
 import type { Pin } from './types'
 
-export { canEdit } from '@/lib/json-file'
-export const usePins = () => useJsonFile<Pin[]>('annotations.json', [])
+// Anotações compartilhadas no Supabase (projeto ctm-wireframes). Chave pública: a tabela
+// `pins` só permite ler e criar; editar/excluir é pelo painel do Supabase.
+const supabase = createClient(
+  'https://wbsrougffckahooleuzl.supabase.co',
+  'sb_publishable_2fAPCwptNrKtWgaMChrbAQ_pg33p_PI',
+)
+
+export const canEdit = true // qualquer visitante cria anotações
+export const canManage = false // editar/excluir bloqueado pela RLS
+
+type Row = { id: string; data: Omit<Pin, 'id'> }
+const toPin = (r: Row): Pin => ({ ...r.data, id: r.id })
+
+export function usePins() {
+  const [pins, setPins] = useState<Pin[]>([])
+  useEffect(() => {
+    const merge = (list: Pin[]) =>
+      setPins((cur) => {
+        const ids = new Set(cur.map((p) => p.id))
+        return [...cur, ...list.filter((p) => !ids.has(p.id))]
+      })
+    supabase
+      .from('pins')
+      .select('id, data')
+      .order('created_at')
+      .then(({ data }) => data && merge((data as Row[]).map(toPin)))
+    const channel = supabase
+      .channel('pins')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pins' }, (e) => merge([toPin(e.new as Row)]))
+      .subscribe()
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
+  const add = (pin: Pin) => {
+    setPins((cur) => [...cur, pin])
+    const { id, ...data } = pin
+    supabase.from('pins').insert({ id, data }).then(({ error }) => error && console.error('Falha ao salvar anotação', error))
+  }
+  return [pins, add] as const
+}
+
+const AUTHOR_KEY = 'ctm-autor'
+export const getAuthor = () => {
+  try {
+    return localStorage.getItem(AUTHOR_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+export const setAuthor = (name: string) => {
+  try {
+    localStorage.setItem(AUTHOR_KEY, name)
+  } catch {
+    /* sem storage */
+  }
+}

@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
-import { canEdit } from './store'
+import { Input } from '@/components/ui/input'
+import { canEdit, canManage, getAuthor, setAuthor } from './store'
 import { kinds, type Pin, type PinKind } from './types'
 
 function PinForm({
@@ -14,17 +15,20 @@ function PinForm({
   onCancel,
 }: {
   initial?: { kind: PinKind; text: string }
-  onSave: (kind: PinKind, text: string) => void
+  onSave: (kind: PinKind, text: string, author?: string) => void
   onCancel: () => void
 }) {
   const [kind, setKind] = useState<PinKind>(initial?.kind ?? 'requisito')
   const [text, setText] = useState(initial?.text ?? '')
+  const [author, setAuthorState] = useState(getAuthor)
   return (
     <form
       className="space-y-2 rounded-md border p-2"
       onSubmit={(e) => {
         e.preventDefault()
-        if (text.trim()) onSave(kind, text.trim())
+        if (!text.trim()) return
+        setAuthor(author.trim())
+        onSave(kind, text.trim(), author.trim() || undefined)
       }}
     >
       <div className="flex gap-1">
@@ -43,6 +47,9 @@ function PinForm({
           </button>
         ))}
       </div>
+      {!initial && (
+        <Input placeholder="Seu nome" value={author} onChange={(e) => setAuthorState(e.target.value)} />
+      )}
       <Textarea
         autoFocus
         rows={4}
@@ -85,10 +92,10 @@ export function AnnotationPanel({
   drafting: boolean
   active: string | null
   onSelect: (id: string | null) => void
-  onCreate: (kind: PinKind, text: string) => void
+  onCreate: (kind: PinKind, text: string, author?: string) => void
   onCancelDraft: () => void
-  onUpdate: (id: string, kind: PinKind, text: string) => void
-  onDelete: (id: string) => void
+  onUpdate?: (id: string, kind: PinKind, text: string) => void
+  onDelete?: (id: string) => void
   onClose: () => void
 }) {
   const [editing, setEditing] = useState<string | null>(null)
@@ -120,7 +127,7 @@ export function AnnotationPanel({
                 key={p.id}
                 initial={p}
                 onSave={(k, t) => {
-                  onUpdate(p.id, k, t)
+                  onUpdate?.(p.id, k, t)
                   setEditing(null)
                 }}
                 onCancel={() => setEditing(null)}
@@ -145,7 +152,7 @@ export function AnnotationPanel({
                   </span>
                   <span className="text-xs text-muted-foreground">{kinds[p.kind].label}</span>
                   {orphans.includes(p.id) && <span className="text-[10px] text-red-500">solto</span>}
-                  {canEdit && (
+                  {canManage && (
                     <div className="ml-auto hidden gap-0.5 group-hover:flex">
                       <Button
                         size="icon-xs"
@@ -164,7 +171,7 @@ export function AnnotationPanel({
                         aria-label="Excluir"
                         onClick={(e) => {
                           e.stopPropagation()
-                          confirmar({ titulo: 'Excluir esta anotação?', onConfirmar: () => onDelete(p.id) })
+                          confirmar({ titulo: 'Excluir esta anotação?', onConfirmar: () => onDelete?.(p.id) })
                         }}
                       >
                         <Trash2 />
@@ -173,6 +180,7 @@ export function AnnotationPanel({
                   )}
                 </div>
                 <p className="text-xs whitespace-pre-wrap">{p.text}</p>
+                {p.author && <p className="mt-1 text-[11px] text-muted-foreground">— {p.author}</p>}
               </div>
             ),
           )}

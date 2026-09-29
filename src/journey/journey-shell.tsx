@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -77,7 +77,7 @@ export function JourneyShell() {
   const frame = useRef<HTMLIFrameElement>(null)
 
   // Anotações (pinos) ancoradas em elementos do protótipo.
-  const [pins, savePins] = usePins()
+  const [pins, addPin] = usePins()
   const [screen, setScreen] = useState('/dashboard')
   const [mode, setMode] = useState<Mode>('view')
   const [panel, setPanel] = useState(false)
@@ -109,6 +109,7 @@ export function JourneyShell() {
   const [src] = useState(() => `./?frame=1#${current.path}`)
 
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
+  const trocarPerfil = (p: Profile) => setState({ pid: p, jid: (journeys.find((j) => inicio(j) === p) ?? FREE).id, step: 0 })
 
   // Restaurar dados: confirma num diálogo próprio (confirm() nativo pode ser bloqueado), apaga o que o usuário
   // criou/alterou e recarrega a tela do protótipo, desfazendo também o estado da tela (modais abertas etc.).
@@ -191,10 +192,10 @@ export function JourneyShell() {
     frame.current?.contentWindow?.postMessage(msg, location.origin)
   })
 
-  const createPin = (kind: PinKind, text: string) => {
+  const createPin = (kind: PinKind, text: string, author?: string) => {
     if (!draft) return
-    const pin: Pin = { id: crypto.randomUUID(), screen, kind, text, createdAt: new Date().toISOString(), ...draft }
-    savePins([...pins, pin])
+    const pin: Pin = { id: crypto.randomUUID(), screen, kind, text, author, createdAt: new Date().toISOString(), ...draft }
+    addPin(pin)
     setDraft(null)
     setActive(pin.id)
   }
@@ -323,9 +324,27 @@ export function JourneyShell() {
             <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width }}>
             {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
             <div className="flex items-end gap-2">
-              <span className="flex items-center gap-1.5 rounded-t-md px-3 py-1 text-sm font-semibold text-white" style={{ background: profileDef.color }}>
-                <UserRound className="size-3.5" /> {profile}
-              </span>
+              {/* Troca de perfil: abre a 1ª jornada iniciada por ele, na 1ª etapa */}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <button
+                      className="flex items-center gap-1.5 rounded-t-md px-3 py-1 text-sm font-semibold text-white"
+                      style={{ background: profileDef.color }}
+                    />
+                  }
+                >
+                  <UserRound className="size-3.5" /> {profile} <ChevronDown className="size-3.5 opacity-80" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="dark w-48">
+                  {profiles.map((p) => (
+                    <DropdownMenuItem key={p.name} onClick={() => trocarPerfil(p.name)}>
+                      <span className="size-2 rounded-full" style={{ background: p.color }} />
+                      {p.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
               {/* Navegação entre etapas, com atalhos ← e → */}
               <div className="ml-auto flex items-center gap-2 pb-1.5">
                 <Button variant="outline" size="sm" style={{ borderColor: profileDef.color, color: profileDef.color }} disabled={step === 0} onClick={() => go(jid, step - 1)}>
@@ -377,9 +396,7 @@ export function JourneyShell() {
               onSelect={setActive}
               onCreate={createPin}
               onCancelDraft={() => setDraft(null)}
-              onUpdate={(id, kind, text) => savePins(pins.map((p) => (p.id === id ? { ...p, kind, text } : p)))}
-              onDelete={(id) => savePins(pins.filter((p) => p.id !== id))}
-              onClose={() => setPanel(false)}
+                            onClose={() => setPanel(false)}
             />
           )}
         </div>

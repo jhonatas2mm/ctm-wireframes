@@ -20,7 +20,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR). Hoje: **DN**, **Supervisor** (antiga DR credenciada) e **Comercial** (mesmas telas do Supervisor) (SENAI-MG). Só o Claude edita, a pedido.
 - `src/lib/mock.ts` — seeds + `useCollection` (`src/lib/db.ts`, localStorage). Ao mudar o formato de uma coleção, trocar a chave (ex.: `'editais-v7'`) para descartar dados antigos.
 - `src/components/wf/` — DataTable, PageHeader, RowAction, EmptyState etc.
-- `src/annotations/` — pinos de anotação (posição livre na página, salvos em `annotations.json`, edição só em dev).
+- `src/annotations/` — pinos de anotação, salvos no Supabase (projeto `ctm-wireframes`, tabela `pins`: leitura e criação públicas; editar/excluir só pelo painel).
 
 ## Padrões de UI
 - Botões de excluir sem vermelho (sem `destructive`), por enquanto.
@@ -44,6 +44,3 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **TAA** = Termo de Acordo Administrativo (DN ↔ DR). Nunca "TA"/"Termo de Adesão".
 - **Edital** (DN): vigência + cursos; cada curso tem valor e DRs credenciados. Área, modalidade e CH são fixas do catálogo.
 - **Proposta comercial** (Supervisor): DR ofertante (própria, fixa) → DR contratante; vários cursos, cada um com valor previsto; Nº `PC-<UF>-<seq>/<ano>`. Cada curso só entra uma vez nas propostas.
-
-## Pendências
-- Anotações compartilhadas no site publicado: decidir backend (Supabase/Firebase).
