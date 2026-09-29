@@ -28,7 +28,7 @@ do sistema: é a ferramenta usada para apresentar e validar as telas.
   da borda mudam conforme o perfil.
 - **Anotações**: pinos presos a elementos da tela com requisitos, regras e dúvidas, compartilhados via **Supabase**
   (projeto `ctm-wireframes`, tabela `pins`). Qualquer visitante do site publicado cria e vê anotações, informando o nome;
-  editar e excluir só pelo painel do Supabase.
+  qualquer um pode excluir (com confirmação); editar só pelo painel do Supabase.
 - **Restaurar dados mockados**: descarta o que foi criado e volta aos dados iniciais.
 
 Dentro da moldura fica o **wireframe**, com menu lateral, cabeçalho e as telas do sistema.

@@ -16,7 +16,7 @@ export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onC
   const assinado = !!taa?.anexoAssinado || taa?.status === 'Vigente' || taa?.status === 'Encerrado'
   return (
     <Sheet open={!!taa} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-lg">
+      <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
         {taa && (
           <>
             <SheetHeader className="border-b px-6 py-4">
@@ -28,7 +28,7 @@ export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onC
               <SheetDescription className="sr-only">Detalhes do Termo de Acordo Administrativo</SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4">
-              <dl className="grid grid-cols-2 gap-4">
+              <dl className="grid gap-4">
                 {([
                   ['Status', <Badge variant={statusVariant[taa.status]}>{taa.status}</Badge>],
                   ['Departamento Regional', `SENAI-${taa.dr}`],

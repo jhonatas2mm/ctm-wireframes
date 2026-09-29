@@ -49,7 +49,6 @@ export default function Dashboard() {
         }
       />
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Termos de Acordo Administrativo</h2>
         <DataTable
           rows={contratos}
           columns={colunas}

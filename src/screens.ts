@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, LayoutDashboard, Package, Palette } from 'lucide-react'
+import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
 import Produtos from '@/pages/produtos'
@@ -9,6 +9,7 @@ import GestaoProposta from '@/pages/gestao-proposta'
 import GestaoProdutos from '@/pages/gestao-produtos'
 import GestaoDrs from '@/pages/gestao-drs'
 import Oferta from '@/pages/oferta'
+import { Alunos, Contratos, Painel, Turmas } from '@/pages/acompanhamento'
 import OfertaDetalhe from '@/pages/oferta-detalhe'
 import Components from '@/pages/components'
 import { Auditoria, Perfis, Usuarios } from '@/pages/admin'
@@ -47,6 +48,13 @@ export const screens: Screen[] = [
   { path: '/produtos/novo', title: 'Nova proposta', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
   { path: '/produtos/:id', title: 'Gestão da proposta', group: 'Telas', icon: Package, component: GestaoProposta, hidden: true, data: ['produtos'] },
   { path: '/oferta', title: 'Gestão da oferta', group: 'Telas', icon: GraduationCap, component: Oferta, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['turmas'] },
+  { path: '/acompanhamento', title: 'Painel', group: 'Telas', icon: Gauge, component: Painel, profiles: ['DR solicitante', 'Super admin'], data: ['contratos-ctm', 'turmas-ead', 'alunos-ead'] },
+  { path: '/contratos', title: 'Gestão de Contratos', group: 'Telas', icon: FileSignature, component: Contratos, profiles: ['DR solicitante', 'Super admin'], data: ['contratos-ctm'] },
+  { path: '/contratos/:id', title: 'Detalhes do contrato', group: 'Telas', icon: FileSignature, component: Contratos, hidden: true, data: ['contratos-ctm'] },
+  { path: '/turmas-ead', title: 'Turmas', group: 'Telas', icon: Video, component: Turmas, profiles: ['DR solicitante', 'Super admin'], data: ['turmas-ead'] },
+  { path: '/turmas-ead/:id', title: 'Detalhes da turma', group: 'Telas', icon: Video, component: Turmas, hidden: true, data: ['turmas-ead'] },
+  { path: '/alunos', title: 'Alunos', group: 'Telas', icon: UserRound, component: Alunos, profiles: ['DR solicitante', 'Super admin'], data: ['alunos-ead'] },
+  { path: '/alunos/:id', title: 'Detalhes do aluno', group: 'Telas', icon: UserRound, component: Alunos, hidden: true, data: ['alunos-ead'] },
   { path: '/oferta/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/proposta/:pid', title: 'Ofertas da proposta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/proposta/:pid/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },

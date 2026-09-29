@@ -27,7 +27,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao }: { id: string | null;
   const atual = familia[familia.length - 1]
   return (
     <Sheet open={!!id} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-lg">
+      <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
         {p && (
           <>
             <SheetHeader className="border-b px-6 py-4">

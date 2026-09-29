@@ -17,10 +17,10 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 ## Estrutura
 - `src/screens.ts` — registro de telas (rota + menu). `hidden` tira do menu; `profiles` limita a quais perfis a tela aparece no menu.
 - `src/journeys.ts` — jornadas/fluxos (etapas `path`/`note`, perfil por etapa). **A ordem do array é a ordem dos fluxos** (ordem em que acontecem no sistema; a casca numera dentro de cada perfil inicial); manter igual à lista em `docs/fluxo.md`.
-- `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR). Hoje: **DN**, **CTM: Supervisor** (antiga DR credenciada, SENAI-MG), **CTM: Comercial** (mesmas telas do Supervisor, SENAI-MG) e **Super admin**. Só o Claude edita, a pedido.
+- `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR). Hoje: **DN**, **CTM: Supervisor** (SENAI-MG), **CTM: Comercial** (mesmas telas do Supervisor), **DR solicitante** (SENAI-MG, acompanhamento: Painel, Contratos com o CTM, Turmas, Alunos) e **Super admin**. CTM = a operação, não é DR; qualquer outro estado é DR. Só o Claude edita, a pedido.
 - `src/lib/mock.ts` — seeds + `useCollection` (`src/lib/db.ts`, localStorage). Ao mudar o formato de uma coleção, trocar a chave (ex.: `'editais-v7'`) para descartar dados antigos.
 - `src/components/wf/` — DataTable, PageHeader, RowAction, EmptyState etc.
-- `src/annotations/` — pinos de anotação, salvos no Supabase (projeto `ctm-wireframes`, tabela `pins`: leitura e criação públicas; editar/excluir só pelo painel).
+- `src/annotations/` — pinos de anotação, salvos no Supabase (projeto `ctm-wireframes`, tabela `pins`: leitura, criação e exclusão públicas; editar só pelo painel).
 
 ## Padrões de UI
 - Botões de excluir sem vermelho (sem `destructive`), por enquanto.
@@ -29,7 +29,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **Formulários de criação já abrem preenchidos** com dados de exemplo (para validar os fluxos sem digitar); o usuário pode alterar. Ao criar um formulário novo, incluir esse preenchimento.
 - **Nenhum campo bloqueia o protótipo**: não validar nem desabilitar "Salvar" por campo vazio, sem atributo `required`. Manter o asterisco (`<Req />`) nos rótulos que seriam obrigatórios. Só bloquear o que é estrutural (ex.: salvar sem nenhum item selecionado).
 - Cabeçalho das tabelas: fundo leve e texto em **bold** (padrão em `ui/table.tsx`).
-- **Toda tabela usa `DataTable`** com busca, filtros (`filter: true` na coluna ou prop `filters` para valores múltiplos) e ações via `RowAction`.
+- **Toda tabela usa `DataTable`** com busca, botão **Filtros** (popover com todos os filtros, um por coluna; `filter: true` = topo da lista; prop `filters` para valores múltiplos; fora do botão só a busca e etiquetas dos filtros aplicados) e ações via `RowAction`.
 - **Nomenclatura**: botões de criação "Novo X / Nova X"; botão final "Salvar X". Nunca "Cadastrar/Gerar".
 - **Formulários de criação**: Sheet **de baixo** (`side="bottom"`, `data-[side=bottom]:h-[95vh]`, `rounded-t-xl`), cabeçalho e rodapé fixos, colunas que rolam por dentro; rota própria (`/x/novo`) para virar etapa de jornada.
 - Sem textos de ajuda sob títulos; sem numeração de seções.

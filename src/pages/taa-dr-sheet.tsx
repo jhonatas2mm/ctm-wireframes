@@ -19,7 +19,7 @@ export function TaaDrSheet({ taa, onClose }: { taa: TaaDr | null; onClose: () =>
   const arquivo = taa ? `TAA-${taa.numero.replace('/', '-')}${taa.status === 'Em elaboração' ? '.docx' : '-assinado.pdf'}` : ''
   return (
     <Sheet open={!!taa} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-lg">
+      <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
         {taa && (
           <>
             <SheetHeader className="border-b px-6 py-4">

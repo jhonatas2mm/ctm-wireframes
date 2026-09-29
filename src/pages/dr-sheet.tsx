@@ -13,7 +13,7 @@ export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void })
   const taas = dr ? contratos.filter((c) => c.dr === dr.uf) : []
   return (
     <Sheet open={!!dr} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-lg">
+      <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
         {dr && (
           <>
             <SheetHeader className="border-b px-6 py-4">

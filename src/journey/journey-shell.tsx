@@ -32,7 +32,7 @@ function readHash() {
 }
 
 // Domínio fictício exibido na barra do navegador simulada.
-const APP_HOST = 'app.ctm.com.br'
+const APP_HOST = 'ctm.com.br'
 
 // Desktop é renderizado numa largura fixa e reduzido para caber (telas pequenas não espremem o layout).
 const DESKTOP_WIDTH = 1440
@@ -77,7 +77,7 @@ export function JourneyShell() {
   const frame = useRef<HTMLIFrameElement>(null)
 
   // Anotações (pinos) ancoradas em elementos do protótipo.
-  const [pins, addPin] = usePins()
+  const [pins, addPin, removePin] = usePins()
   const [screen, setScreen] = useState('/dashboard')
   const [mode, setMode] = useState<Mode>('view')
   const [panel, setPanel] = useState(false)
@@ -92,7 +92,9 @@ export function JourneyShell() {
     const j = journeys.find((x) => x.id === id)
     return j ? journeys.filter((x) => inicio(x) === inicio(j)).indexOf(j) + 1 : 0
   }
-  const journey = visibleJourneys.find((j) => j.id === jid) ?? FREE
+  // Sem jornada: abre a 1ª tela do menu do perfil.
+  const inicial = screens.find((x) => !x.hidden && (!x.profiles || x.profiles.includes(pid)))?.path ?? '/dashboard'
+  const journey = visibleJourneys.find((j) => j.id === jid) ?? { ...FREE, steps: [{ title: 'Início', path: inicial }] }
   const current = journey.steps[step] ?? journey.steps[0]
   // Etapas da jornada atual, lidas no listener de mensagens; e marcação de que a troca de etapa veio da navegação no protótipo.
   const stepsRef = useRef(journey.steps)
@@ -395,6 +397,7 @@ export function JourneyShell() {
               active={active}
               onSelect={setActive}
               onCreate={createPin}
+              onDelete={removePin}
               onCancelDraft={() => setDraft(null)}
                             onClose={() => setPanel(false)}
             />

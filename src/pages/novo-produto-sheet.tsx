@@ -33,7 +33,7 @@ export function NovoProdutoSheet({ open, onOpenChange }: { open: boolean; onOpen
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 sm:max-w-md">
+      <SheetContent className="w-full gap-0 sm:max-w-2xl">
         <SheetHeader className="border-b">
           <SheetTitle>Novo produto</SheetTitle>
           <SheetDescription>Busque o curso pelo código ou nome.</SheetDescription>

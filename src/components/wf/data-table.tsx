@@ -1,5 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { Search, X, type LucideIcon } from 'lucide-react'
+import { Search, SlidersHorizontal, X, type LucideIcon } from 'lucide-react'
+import { Popover } from '@base-ui/react/popover'
+import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,7 +18,9 @@ import { EmptyState } from './empty-state'
 //   ]} />
 //
 // value: texto da coluna (usado na busca, no filtro e como célula padrão).
-// search: entra na busca por texto. filter: vira um select com os valores existentes.
+// search: entra na busca por texto. Todos os filtros ficam dentro do botão Filtros (popover); fora dele, só a busca e
+// as etiquetas dos filtros aplicados (removíveis). filter: true = aparece no topo da lista de filtros.
+// Toda coluna com cabeçalho pode virar filtro pelo botão "Filtros" (gestão de filtros).
 // filters (prop): filtros extras, sem coluna visível, que aceitam vários valores por linha (ex.: estados de um edital).
 export type FilterDef<T> = { label: string; values: (row: T) => string[] }
 
@@ -50,10 +54,12 @@ export function DataTable<T extends { id: string }>({
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
 
-  const defs: FilterDef<T>[] = useMemo(
-    () => [...columns.filter((c) => c.filter).map((c) => ({ label: c.header, values: (r: T) => [String(c.value(r))] })), ...extra],
+  // Todos os filtros possíveis (colunas com cabeçalho + extras); os marcados aparecem na barra.
+  const all: FilterDef<T>[] = useMemo(
+    () => [...[...columns.filter((c) => c.header)].sort((x, y) => Number(!!y.filter) - Number(!!x.filter)).map((c) => ({ label: c.header, values: (r: T) => [String(c.value(r))] })), ...extra],
     [columns, extra],
   )
+  const defs = all
   const options = useMemo(
     () => Object.fromEntries(defs.map((d) => [d.label, [...new Set(rows.flatMap(d.values))].sort()])),
     [rows, defs],
@@ -68,7 +74,8 @@ export function DataTable<T extends { id: string }>({
     )
   }, [rows, columns, defs, q, filters])
 
-  const active = q !== '' || Object.values(filters).some(Boolean)
+  const nAtivos = Object.values(filters).filter(Boolean).length
+  const active = q !== '' || nAtivos > 0
   const hasSearch = columns.some((c) => c.search)
 
   return (
@@ -80,37 +87,53 @@ export function DataTable<T extends { id: string }>({
             <Input className="pl-8" placeholder={searchPlaceholder} value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
         )}
-        {defs
-          .map((d) => ({ header: d.label }))
-          .map((c) => (
-            <Select
-              key={c.header}
-              value={filters[c.header] || ALL}
-              onValueChange={(v) => setFilters({ ...filters, [c.header]: v === ALL ? '' : String(v) })}
-            >
-              <SelectTrigger className={cn('min-w-36', filters[c.header] && 'border-foreground/40')}>
-                <SelectValue>{(v: string) => (v === ALL ? `${c.header}: todos` : `${c.header}: ${v}`)}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ALL}>Todos</SelectItem>
-                {options[c.header].map((o) => (
-                  <SelectItem key={o} value={o}>
-                    {o}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {all.length > 0 && (
+          <Popover.Root>
+            <Popover.Trigger render={<Button variant="outline" />}>
+              <SlidersHorizontal /> Filtros{nAtivos > 0 && <span className="text-muted-foreground tabular-nums">({nAtivos})</span>}
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner align="start" sideOffset={6} className="z-50">
+                <Popover.Popup className="w-80 space-y-3 rounded-lg border bg-popover p-3 text-popover-foreground shadow-md outline-none">
+                  {all.map((d) => (
+                    <div key={d.label} className="grid gap-1">
+                      <span className="text-xs font-medium text-muted-foreground">{d.label}</span>
+                      <Select value={filters[d.label] || ALL} onValueChange={(v) => setFilters({ ...filters, [d.label]: v === ALL ? '' : String(v) })}>
+                        <SelectTrigger className={cn('w-full', filters[d.label] && 'border-foreground/40')}>
+                          <SelectValue>{(v: string) => (v === ALL ? 'Todos' : v)}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={ALL}>Todos</SelectItem>
+                          {options[d.label].map((o) => (
+                            <SelectItem key={o} value={o}>{o}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                  {nAtivos > 0 && (
+                    <Button variant="ghost" size="sm" className="w-full" onClick={() => setFilters({})}>
+                      <X /> Limpar filtros
+                    </Button>
+                  )}
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        )}
+        {Object.entries(filters)
+          .filter(([, v]) => v)
+          .map(([label, v]) => (
+            <Badge key={label} variant="secondary" className="gap-1 pr-1">
+              {label}: {v}
+              <button type="button" aria-label={`Remover filtro ${label}`} className="rounded p-0.5 hover:bg-foreground/10" onClick={() => setFilters(({ [label]: _, ...rest }) => rest)}>
+                <X className="size-3" />
+              </button>
+            </Badge>
           ))}
         {active && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setQ('')
-              setFilters({})
-            }}
-          >
-            <X /> Limpar filtros
+          <Button variant="ghost" size="sm" onClick={() => (setQ(''), setFilters({}))}>
+            Limpar tudo
           </Button>
         )}
         <span className="ml-auto text-xs text-muted-foreground tabular-nums">

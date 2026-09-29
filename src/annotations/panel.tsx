@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
-import { canEdit, canManage, getAuthor, setAuthor } from './store'
+import { canDelete, canEdit, canManage, getAuthor, setAuthor } from './store'
 import { kinds, type Pin, type PinKind } from './types'
 
 function PinForm({
@@ -103,11 +103,10 @@ export function AnnotationPanel({
   const { confirmar, dialogo } = useConfirmar()
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col border-l border-dashed border-white/20 bg-card">
+    <aside className="fixed inset-y-0 right-0 z-40 flex w-72 flex-col border-l border-dashed border-white/20 bg-card shadow-2xl">
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div className="min-w-0">
           <p className="text-sm font-semibold">Anotações</p>
-          <p className="truncate font-mono text-[11px] text-muted-foreground">{screen}</p>
         </div>
         <Button size="icon-sm" variant="ghost" aria-label="Fechar" onClick={onClose}>
           <X />
@@ -152,9 +151,9 @@ export function AnnotationPanel({
                   </span>
                   <span className="text-xs text-muted-foreground">{kinds[p.kind].label}</span>
                   {orphans.includes(p.id) && <span className="text-[10px] text-red-500">solto</span>}
-                  {canManage && (
+                  {(canManage || canDelete) && (
                     <div className="ml-auto hidden gap-0.5 group-hover:flex">
-                      <Button
+                      {canManage && (<Button
                         size="icon-xs"
                         variant="ghost"
                         aria-label="Editar"
@@ -164,7 +163,7 @@ export function AnnotationPanel({
                         }}
                       >
                         <Pencil />
-                      </Button>
+                      </Button>)}
                       <Button
                         size="icon-xs"
                         variant="ghost"

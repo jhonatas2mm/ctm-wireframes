@@ -56,7 +56,7 @@ function BlocoDr({ uf }: { uf: string }) {
 export function DrContatosSheet({ ufs, titulo, onClose }: { ufs: string[] | null; titulo?: string; onClose: () => void }) {
   return (
     <Sheet open={!!ufs} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="data-[side=right]:w-full data-[side=right]:sm:max-w-md">
+      <SheetContent className="data-[side=right]:w-full data-[side=right]:sm:max-w-2xl">
         <SheetHeader>
           <SheetTitle>{titulo ?? 'Contatos dos DRs'}</SheetTitle>
           <SheetDescription>Pessoas de referência de cada DR credenciado.</SheetDescription>

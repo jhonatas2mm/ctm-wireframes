@@ -3,14 +3,15 @@ import { createClient } from '@supabase/supabase-js'
 import type { Pin } from './types'
 
 // Anotações compartilhadas no Supabase (projeto ctm-wireframes). Chave pública: a tabela
-// `pins` só permite ler e criar; editar/excluir é pelo painel do Supabase.
+// `pins` permite ler, criar e excluir; editar só pelo painel do Supabase.
 const supabase = createClient(
   'https://wbsrougffckahooleuzl.supabase.co',
   'sb_publishable_2fAPCwptNrKtWgaMChrbAQ_pg33p_PI',
 )
 
 export const canEdit = true // qualquer visitante cria anotações
-export const canManage = false // editar/excluir bloqueado pela RLS
+export const canManage = false // editar bloqueado pela RLS
+export const canDelete = true // qualquer visitante exclui
 
 type Row = { id: string; data: Omit<Pin, 'id'> }
 const toPin = (r: Row): Pin => ({ ...r.data, id: r.id })
@@ -31,6 +32,9 @@ export function usePins() {
     const channel = supabase
       .channel('pins')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pins' }, (e) => merge([toPin(e.new as Row)]))
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'pins' }, (e) =>
+        setPins((cur) => cur.filter((p) => p.id !== (e.old as { id: string }).id)),
+      )
       .subscribe()
     return () => {
       supabase.removeChannel(channel)
@@ -41,7 +45,11 @@ export function usePins() {
     const { id, ...data } = pin
     supabase.from('pins').insert({ id, data }).then(({ error }) => error && console.error('Falha ao salvar anotação', error))
   }
-  return [pins, add] as const
+  const remove = (id: string) => {
+    setPins((cur) => cur.filter((p) => p.id !== id))
+    supabase.from('pins').delete().eq('id', id).then(({ error }) => error && console.error('Falha ao excluir anotação', error))
+  }
+  return [pins, add, remove] as const
 }
 
 const AUTHOR_KEY = 'ctm-autor'

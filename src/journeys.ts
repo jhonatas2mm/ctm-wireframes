@@ -158,4 +158,16 @@ export const journeys: Journey[] = [
       { title: 'Aulas ao vivo', path: '/oferta/t1', profile: 'CTM: Comercial', note: 'Em Visualizar oferta, na lista de UCs: botão “Adicionar” em cada UC abre o cadastro do dia e horário da aula ao vivo.' },
     ],
   },
+  {
+    id: 'dr-acompanhamento',
+    title: 'Acompanhamento da execução',
+    profile: 'DR solicitante',
+    steps: [
+      { title: 'Painel', path: '/acompanhamento', profile: 'DR solicitante', note: 'Dashboard da DR solicitante (SENAI-MG): indicadores gerais e, por contrato, as turmas com execução e os alunos que requerem atenção (clicar abre o aluno em side nav).' },
+      { title: 'Gestão de Contratos', path: '/contratos', profile: 'DR solicitante', note: 'Contratos da DR com o CTM: empresa cliente, cursos EAD, vigência, valor e status.' },
+      { title: 'Detalhes do contrato', path: '/contratos/c1', profile: 'DR solicitante', note: 'Side nav com os dados do contrato, vagas ocupadas e as turmas que o CTM opera para a empresa.' },
+      { title: 'Detalhes da turma', path: '/turmas-ead/t1', profile: 'DR solicitante', note: 'Execução do calendário, progresso e média dos alunos, tutor do CTM e lista de alunos.' },
+      { title: 'Detalhes do aluno', path: '/alunos/a2', profile: 'DR solicitante', note: 'Motivos que pedem atitude, notas das atividades e histórico de acessos ao AVA e ao Portal do aluno.' },
+    ],
+  },
 ]

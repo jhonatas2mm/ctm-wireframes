@@ -53,7 +53,7 @@ export function NovoTaSheet({ open, onOpenChange, onSalvar, local = 'Gestão de 
   const field = 'grid gap-1.5'
   return (
     <Sheet open={open} onOpenChange={(v) => (v || reset(), onOpenChange(v))}>
-      <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl">
+      <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-4xl">
         <SheetHeader className="border-b px-6 py-4">
           <div className="flex items-center gap-3">
             <SheetTitle className="text-lg">Novo Termo de Acordo Administrativo</SheetTitle>

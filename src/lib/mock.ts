@@ -143,7 +143,7 @@ export type CursoProposta = { cursoId: string; codigo: string; nome: string; mod
 // Fluxo: Salvar → Em elaboração; Salvar e enviar → Em análise (DR contratante);
 // contratante aceita → Aceita pelo contratante; o criador também aceita → Aceita.
 export type StatusProposta = 'Em elaboração' | 'Em análise' | 'Aceita pelo contratante' | 'Aceita' | 'Recusada'
-export type Produto = { id: string; numero: string; drOfertante: string; drContratante: string; cursos: CursoProposta[]; cadastradoEm: string; status?: StatusProposta; documentos?: string[]; feedback?: string; edital?: string; vigenciaInicio?: string; vigenciaFim?: string } // vigência dd/mm/aaaa; edital = nº do edital a que a proposta pertence
+export type Produto = { id: string; numero: string; drOfertante: string; drContratante: string; cursos: CursoProposta[]; cadastradoEm: string; status?: StatusProposta; documentos?: string[]; feedback?: string; edital?: string; vigenciaInicio?: string; vigenciaFim?: string; criadoPor?: string } // vigência dd/mm/aaaa; edital = nº do edital a que a proposta pertence; criadoPor = perfil que abriu
 const cp = (cursoId: string, valorPrevisto: number): CursoProposta => {
   const c = cursos.find((x) => x.id === cursoId)!
   return { cursoId, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorPrevisto }
@@ -154,7 +154,7 @@ const propostas: Produto[] = [
   { id: '3', numero: 'PC-MG-003/2026', edital: 'ED-001/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'ES', cursos: [cp('4', 10200)], vigenciaInicio: '01/07/2026', vigenciaFim: '30/06/2027', cadastradoEm: '2026-06-05T10:00:00Z' },
   { id: '4', numero: 'PC-MG-004/2026', edital: 'ED-005/2026', status: 'Em elaboração', drOfertante: 'MG', drContratante: 'GO', cursos: [cp('11', 5600), cp('14', 400)], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z' },
 ]
-export const useProdutos = () => useCollection<Produto>('produtos-v11', propostas)
+export const useProdutos = () => useCollection<Produto>('produtos-v14', propostas)
 
 // Cursos criados pela Supervisor em Gestão de Portfólio: módulos → unidades curriculares com CH.
 export type UnidadeCurricular = { nome: string; cargaHoraria: number }
@@ -248,20 +248,22 @@ const usuarios: Usuario[] = [
   { id: 'u1', nome: 'Maria Silva', email: 'maria.silva@senai.br', perfil: 'DN', dr: 'DN', status: 'Ativo', ultimoAcesso: '27/09/2026 17:42' },
   { id: 'u2', nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Supervisor', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 09:10' },
   { id: 'u3', nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Comercial', dr: 'MG', status: 'Ativo', ultimoAcesso: '26/09/2026 14:05' },
+  { id: 'u7', nome: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', perfil: 'DR solicitante', dr: 'MG', status: 'Ativo', ultimoAcesso: '28/09/2026 11:00' },
   { id: 'u5', nome: 'Roberto Lima', email: 'roberto.lima@senaisp.org.br', perfil: 'CTM: Supervisor', dr: 'SP', status: 'Inativo', ultimoAcesso: '02/08/2026 08:15' },
   { id: 'u6', nome: 'Fernanda Costa', email: 'fernanda.costa@senai.br', perfil: 'Super admin', dr: 'DN', status: 'Ativo', ultimoAcesso: '28/09/2026 10:02' },
 ]
-export const useUsuarios = () => useCollection<Usuario>('usuarios-v2', usuarios)
+export const useUsuarios = () => useCollection<Usuario>('usuarios-v5', usuarios)
 
 // Permissões: por perfil, as telas (path do menu) que ele acessa.
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
   { id: 'DN', perfil: 'DN', telas: ['/drs', '/dashboard', '/editais'] },
   { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
+  { id: 'DR solicitante', perfil: 'DR solicitante', telas: ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'] },
   { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
-  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/admin/usuarios', '/admin/perfis', '/admin/auditoria'] },
+  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v2', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v5', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [
@@ -274,3 +276,86 @@ const auditoria: Evento[] = [
   { id: 'e7', quando: '24/09/2026 09:30', usuario: 'Fernanda Costa', perfil: 'Super admin', acao: 'Alteração', alvo: 'Permissões do perfil Comercial' },
 ]
 export const useAuditoria = () => useCollection<Evento>('auditoria-v2', auditoria)
+
+// ── Acompanhamento (DR solicitante) ─────────────────────────────────────────
+// A DR solicitante vende o curso a uma empresa e contrata o CTM para operar o EAD (tutoria e monitoria).
+// Datas ISO (aaaa-mm-dd). HOJE fixo para o protótipo.
+export const HOJE = '2026-09-28'
+const dia = 86_400_000
+export const diasEntre = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / dia)
+export const dataBr = (iso: string) => iso.split('-').reverse().join('/')
+
+export type StatusContratoCtm = 'Vigente' | 'Em elaboração' | 'Encerrado'
+export type ContratoCtm = { id: string; numero: string; empresa: string; cnpj: string; cursos: string[]; vagas: number; valor: number; inicio: string; fim: string; status: StatusContratoCtm }
+const contratosCtm: ContratoCtm[] = [
+  { id: 'c1', numero: 'CT-MG-001/2026', empresa: 'Panvel Farmácias', cnpj: '92.665.611/0001-77', cursos: ['Excel Avançado (EAD)', 'Atendimento ao Cliente (EAD)'], vagas: 60, valor: 48000, inicio: '2026-03-01', fim: '2027-02-28', status: 'Vigente' },
+  { id: 'c2', numero: 'CT-MG-002/2026', empresa: 'Usiminas', cnpj: '60.894.730/0001-05', cursos: ['NR-10 Segurança em Eletricidade (EAD)', 'Leitura e Interpretação de Desenho (EAD)'], vagas: 50, valor: 62500, inicio: '2026-05-01', fim: '2027-04-30', status: 'Vigente' },
+  { id: 'c3', numero: 'CT-MG-003/2026', empresa: 'Fiat Chrysler', cnpj: '16.701.716/0001-56', cursos: ['Lean Manufacturing (EAD)'], vagas: 30, valor: 27000, inicio: '2026-01-15', fim: '2026-07-31', status: 'Encerrado' },
+  { id: 'c4', numero: 'CT-MG-004/2026', empresa: 'Cemig', cnpj: '17.155.730/0001-64', cursos: ['Gestão de Projetos (EAD)'], vagas: 40, valor: 36000, inicio: '2026-11-01', fim: '2027-10-31', status: 'Em elaboração' },
+]
+export const useContratosCtm = () => useCollection<ContratoCtm>('contratos-ctm', contratosCtm)
+
+export type StatusTurmaEad = 'A iniciar' | 'Em andamento' | 'Finalizada'
+export type TurmaEad = { id: string; codigo: string; contratoId: string; curso: string; tutor: string; inicio: string; fim: string }
+const turmasEad: TurmaEad[] = [
+  { id: 't1', codigo: 'EAD-MG-0101', contratoId: 'c1', curso: 'Excel Avançado (EAD)', tutor: 'Ana Ribeiro', inicio: '2026-08-03', fim: '2026-11-27' },
+  { id: 't2', codigo: 'EAD-MG-0102', contratoId: 'c1', curso: 'Atendimento ao Cliente (EAD)', tutor: 'Bruno Tavares', inicio: '2026-09-01', fim: '2026-12-18' },
+  { id: 't3', codigo: 'EAD-MG-0201', contratoId: 'c2', curso: 'NR-10 Segurança em Eletricidade (EAD)', tutor: 'Cláudia Moura', inicio: '2026-06-01', fim: '2026-10-30' },
+  { id: 't4', codigo: 'EAD-MG-0202', contratoId: 'c2', curso: 'Leitura e Interpretação de Desenho (EAD)', tutor: 'Diego Santos', inicio: '2026-10-13', fim: '2027-02-26' },
+  { id: 't5', codigo: 'EAD-MG-0301', contratoId: 'c3', curso: 'Lean Manufacturing (EAD)', tutor: 'Elaine Prado', inicio: '2026-02-02', fim: '2026-06-26' },
+]
+export const useTurmasEad = () => useCollection<TurmaEad>('turmas-ead', turmasEad)
+export const statusTurmaEad = (t: TurmaEad): StatusTurmaEad => (HOJE < t.inicio ? 'A iniciar' : HOJE > t.fim ? 'Finalizada' : 'Em andamento')
+// Progresso esperado da turma pelo calendário (0–100).
+export const progressoEsperado = (t: TurmaEad) => Math.max(0, Math.min(100, Math.round((diasEntre(t.inicio, HOJE) / diasEntre(t.inicio, t.fim)) * 100)))
+
+export type Portal = 'AVA' | 'Portal do aluno'
+export type Acesso = { data: string; portal: Portal; minutos: number }
+export type Atividade = { nome: string; nota: number | null } // null = não entregue
+export type AlunoEad = { id: string; nome: string; email: string; turmaId: string; progresso: number; atividades: Atividade[]; acessos: Acesso[] } // acessos do mais recente ao mais antigo
+export type SituacaoAluno = 'Em dia' | 'Em risco' | 'Evadido'
+
+const nomes = ['Aline Costa', 'Bruno Farias', 'Camila Duarte', 'Daniel Rocha', 'Eduarda Lima', 'Felipe Nogueira', 'Gabriela Souza', 'Henrique Alves', 'Isabela Martins', 'João Pedro Reis', 'Karina Lopes', 'Lucas Vieira', 'Mariana Teixeira', 'Nathan Oliveira', 'Olívia Barros', 'Pedro Henrique Cruz', 'Rafaela Pinto', 'Samuel Freitas', 'Tatiane Moreira', 'Vinícius Carvalho']
+// Gerador determinístico: cada aluno tem um "perfil" (em dia, sem acesso, nota baixa, evadido).
+const alunosEad: AlunoEad[] = turmasEad.filter((t) => HOJE >= t.inicio).flatMap((t, ti) =>
+  Array.from({ length: 8 }, (_, i) => {
+    const n = ti * 8 + i
+    const tipo = n % 7 === 3 ? 'evadido' : n % 5 === 1 ? 'sem-acesso' : n % 6 === 2 ? 'nota-baixa' : 'ok'
+    const fim = HOJE > t.fim ? t.fim : HOJE
+    const esperado = progressoEsperado(t)
+    const ultimo = tipo === 'evadido' ? 35 + (n % 10) : tipo === 'sem-acesso' ? 9 + (n % 5) : n % 3
+    const acessos: Acesso[] = Array.from({ length: 6 }, (_, k) => ({
+      data: new Date(Date.parse(fim) - (ultimo + k * (3 + (n % 3))) * dia).toISOString().slice(0, 10),
+      portal: ((k + n) % 3 === 0 ? 'Portal do aluno' : 'AVA') as Portal,
+      minutos: 20 + ((n * 7 + k * 13) % 70),
+    })).filter((a) => a.data >= t.inicio)
+    const base = tipo === 'nota-baixa' ? 4 : tipo === 'evadido' ? 5 : 7
+    const atividades: Atividade[] = ['Atividade 1', 'Atividade 2', 'Atividade 3', 'Avaliação final'].slice(0, Math.max(1, Math.ceil(esperado / 25))).map((nome, k) => ({
+      nome,
+      nota: tipo === 'evadido' && k > 0 ? null : Math.min(10, base + ((n + k) % 4) * 0.8),
+    }))
+    const progresso = Math.max(0, Math.min(100, tipo === 'ok' ? esperado - (n % 4) * 3 : tipo === 'evadido' ? Math.round(esperado / 4) : esperado - 15 - (n % 3) * 5))
+    const nome = nomes[n % nomes.length]
+    return { id: `a${n + 1}`, nome, email: `${nome.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').replace(/ /g, '.')}@email.com`, turmaId: t.id, progresso, atividades, acessos }
+  }),
+)
+export const useAlunosEad = () => useCollection<AlunoEad>('alunos-ead', alunosEad)
+
+export const mediaAluno = (a: AlunoEad) => {
+  const ns = a.atividades.map((x) => x.nota ?? 0)
+  return ns.length ? Math.round((ns.reduce((s, x) => s + x, 0) / ns.length) * 10) / 10 : 0
+}
+export const diasSemAcesso = (a: AlunoEad) => (a.acessos[0] ? diasEntre(a.acessos[0].data, HOJE) : 999)
+// Motivos que pedem atitude da DR (vazio = em dia). Regras em docs/fluxo.md.
+export const alertasAluno = (a: AlunoEad, t: TurmaEad): string[] => {
+  if (statusTurmaEad(t) === 'Finalizada') return []
+  const m: string[] = []
+  const d = diasSemAcesso(a)
+  if (d > 7) m.push(`Sem acesso há ${d} dias`)
+  if (mediaAluno(a) < 6) m.push('Média abaixo de 6')
+  if (a.atividades.some((x) => x.nota === null)) m.push('Atividade não entregue')
+  if (progressoEsperado(t) - a.progresso > 10) m.push('Progresso atrasado')
+  return m
+}
+export const situacaoAluno = (a: AlunoEad, t: TurmaEad): SituacaoAluno =>
+  statusTurmaEad(t) !== 'Finalizada' && diasSemAcesso(a) > 30 ? 'Evadido' : alertasAluno(a, t).length ? 'Em risco' : 'Em dia'

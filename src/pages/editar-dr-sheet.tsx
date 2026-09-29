@@ -17,7 +17,7 @@ export function EditarDrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => v
   const set = (patch: Partial<Dr>) => setForm((f) => (f ? { ...f, ...patch } : f))
   return (
     <Sheet open={!!dr} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-md">
+      <SheetContent className="w-full gap-0 p-0 sm:max-w-2xl">
         {form && (
           <>
             <SheetHeader className="border-b px-6 py-4">

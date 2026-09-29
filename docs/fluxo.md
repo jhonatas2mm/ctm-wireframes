@@ -17,6 +17,7 @@ Na casca, o select agrupa por perfil que inicia a jornada e **numera dentro de c
 6. **Criação de portfólio** (Supervisor) — Gestão de Portfólio → Novo produto (produtos de um edital).
 7. **Criação de proposta** (Supervisor) — Gestão de propostas → Nova proposta → aceitar/recusar na listagem.
 8. **Criação de oferta** (Supervisor) — Gestão da oferta → Nova oferta → Oferta criada → Aulas ao vivo.
+9. **Acompanhamento da execução** (DR solicitante) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
@@ -25,6 +26,13 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - **DN** — cria e gerencia editais e faz a gestão de DRs (contatos, status, editais em que cada DR está credenciado).
 - **Comercial** — por enquanto tem as mesmas telas do Supervisor e também pode criar TAA pela própria Gestão de TAAs.
 - **Supervisor** (ex.: SENAI-MG) — cadastra produtos, cria propostas comerciais e também pode criar TAA (mesmas jornadas do Comercial).
+- **DR solicitante** (ex.: SENAI-MG) — vende o curso a uma empresa (ex.: Panvel) e contrata o CTM para operar o EAD (tutoria e monitoria). Perfil de **acompanhamento**, somente leitura: Painel, Gestão de Contratos, Turmas e Alunos.
+
+## Acompanhamento (DR solicitante)
+- Contrato = DR solicitante ↔ CTM, com empresa cliente, só cursos EAD, vigência, valor, vagas e status (Vigente / Em elaboração / Encerrado).
+- Turma: situação pelo calendário (A iniciar / Em andamento / Finalizada); execução = % do período decorrido.
+- Aluno **requer atenção** (turma não finalizada) se: sem acesso há mais de 7 dias, média < 6, atividade não entregue, ou progresso mais de 10 p.p. abaixo do esperado pelo calendário.
+- Situação do aluno: **Evadido** (sem acesso há mais de 30 dias), **Em risco** (algum alerta), **Em dia**.
 
 ## TAA (Termo de Acordo Administrativo)
 - Acordo DN ↔ DR. Nunca chamar de "TA" ou "Termo de Adesão".
@@ -155,3 +163,18 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-28 — Anotações passam a ser compartilhadas via Supabase: qualquer visitante do site publicado cria pinos (com nome); editar/excluir só pelo painel do Supabase.
 - 2026-09-28 — Casca: selo do perfil (canto superior esquerdo) ganhou seta para trocar de perfil; ao trocar, abre a 1ª jornada iniciada por ele, na 1ª etapa.
 - 2026-09-28 — Perfis Supervisor e Comercial renomeados para **CTM: Supervisor** e **CTM: Comercial**; perfil **CTN** removido. Casca: rótulo "Jornada" à esquerda do select; painel de anotações com fundo.
+- 2026-09-28 — Gestão da oferta: coluna DR contratante logo ao lado de Proposta.
+- 2026-09-28 — Anotações: qualquer visitante pode excluir (confirmação em modal); painel de anotações sobreposto, altura toda, sem empurrar o layout. URL simulada: ctm.com.br.
+- 2026-09-28 — Novo perfil **CTM: Solicitante**: mesmas telas do CTM: Supervisor (SENAI-MG), sem jornadas próprias. Trocar para um perfil sem jornada abre a 1ª tela do menu dele.
+- 2026-09-28 — Tabelas: botão **Filtros** (gestão de filtros) em todo DataTable; qualquer coluna pode virar filtro. Os de `filter: true` já aparecem ao abrir. Painel de anotações sem a rota sob o título.
+- 2026-09-28 — Dados de exemplo: proposta PC-MG-005/2026 aberta pelo **CTM: Solicitante** para SENAI-BA, Em análise (aguardando a DR contratante). Campo `criadoPor` na proposta.
+- 2026-09-28 — Perfil CTM: Solicitante vira **DR solicitante** (SENAI-BA). CTM = a operação (não é DR). Menu próprio **Gestão de Contratos** (`/contratos`): contratos da DR com o CTM; PC-MG-005 é pedido da DR aguardando o CTM, PC-MG-006 aceito.
+- 2026-09-28 — DR solicitante passa a SENAI-MG e vira perfil de acompanhamento: Painel, Gestão de Contratos (com o CTM, empresa cliente, cursos EAD), Turmas e Alunos, com detalhes. Removidas PC-MG-005/006. Jornada “Acompanhamento da execução”.
+- 2026-09-28 — Filtros das tabelas: todos dentro do botão **Filtros** (popover com um select por coluna); fora dele só a busca e as etiquetas dos filtros aplicados (removíveis) + “Limpar tudo”.
+- 2026-09-28 — Detalhe do aluno abre em **side nav** (Sheet à direita) pelo “Visualizar” no Painel, na turma e em Alunos; `/alunos/:id` = lista de Alunos com a side nav aberta.
+- 2026-09-28 — Em listas de alunos, o código da turma é link para o detalhe da turma (`/turmas-ead/:id`).
+- 2026-09-28 — Alunos: último acesso relativo (“Há 44 dias”) na lista e na side nav; indicadores no topo (total, em dia, em risco, evadidos, sem acesso há mais de 7 dias).
+- 2026-09-28 — Turmas: tabela sem a coluna Período (fica no detalhe) para não cortar Situação; ação **Ver alunos** abre o detalhe da turma já nos alunos (`?ver=alunos`).
+- 2026-09-28 — Gestão de Contratos: “Visualizar” abre o detalhe em **side nav** (`/contratos/:id` = lista com a side nav aberta); dentro, as turmas do contrato levam ao detalhe da turma.
+- 2026-09-28 — Painel da DR solicitante vira dashboard **por contrato**: indicadores gerais; um card por contrato (vigentes e encerrados) com turmas, alunos/vagas, requer atenção e progresso médio; em cada turma, execução e os alunos com alerta (abrem em side nav).
+- 2026-09-28 — Side navs (Sheet à direita) dois degraus mais largas em todo o projeto (padrão lg; ex.: lg→3xl). Detalhe do contrato redesenhado: dados em lista, vigência e vagas com barra, contagem por situação e turmas em lista com execução e ações.

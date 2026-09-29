@@ -18,7 +18,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
   const total = p ? p.cursos.reduce((t, c) => t + c.valorPrevisto, 0) : 0
   return (
     <Sheet open={!!p} onOpenChange={(o) => !o && onClose()}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-lg">
+      <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
         {p && (
           <>
             <SheetHeader className="border-b px-6 py-4">

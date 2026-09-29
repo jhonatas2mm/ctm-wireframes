@@ -76,7 +76,7 @@ function UsuarioSheet({ open, usuario, onClose }: { open: boolean; usuario: Usua
   }
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-md">
+      <SheetContent className="w-full gap-0 p-0 sm:max-w-2xl">
         <SheetHeader className="border-b px-6 py-4">
           <SheetTitle className="text-lg">{usuario ? 'Editar usuário' : 'Novo usuário'}</SheetTitle>
           <SheetDescription className="sr-only">Dados de acesso do usuário</SheetDescription>

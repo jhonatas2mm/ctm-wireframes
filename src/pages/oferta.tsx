@@ -43,8 +43,8 @@ const colunasOfertas = (verProposta: (id: string) => void): Column<LinhaOferta>[
       </span>
     ),
   },
-  { header: 'Status', value: (l) => (l.turma ? statusTurma(l.turma) : '—'), filter: true, cell: (l) => l.turma && <StatusTurmaBadge status={statusTurma(l.turma)} /> },
   { header: 'DR contratante', value: (l) => `SENAI-${l.proposta.drContratante}`, search: true, filter: true },
+  { header: 'Status', value: (l) => (l.turma ? statusTurma(l.turma) : '—'), filter: true, cell: (l) => l.turma && <StatusTurmaBadge status={statusTurma(l.turma)} /> },
   { header: 'Início', value: (l) => dataBr(ucsDe(l.turma).map((u) => u.inicio).filter(Boolean).sort()[0] ?? ''), className: 'tabular-nums' },
   { header: 'Término', value: (l) => dataBr(ucsDe(l.turma).map((u) => u.fim).filter(Boolean).sort().at(-1) ?? ''), className: 'tabular-nums' },
 ]

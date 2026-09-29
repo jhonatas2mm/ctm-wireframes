@@ -26,7 +26,7 @@ export function NovaDrSheet({ open, onOpenChange }: { open: boolean; onOpenChang
   const reset = () => (setUf(null), setResponsavel(''), setEmail(''), setTelefone(''))
   return (
     <Sheet open={open} onOpenChange={(v) => (v || reset(), onOpenChange(v))}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-md">
+      <SheetContent className="w-full gap-0 p-0 sm:max-w-2xl">
         <SheetHeader className="border-b px-6 py-4">
           <SheetTitle className="text-lg">Nova DR credenciada</SheetTitle>
           <SheetDescription className="sr-only">Credenciar um Departamento Regional</SheetDescription>
