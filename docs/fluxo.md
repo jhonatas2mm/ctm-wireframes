@@ -349,3 +349,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Filtros: Curso/Produto/UC também viram campo de busca com vários valores (multiselect) em todas as tabelas.
 - 2026-09-29 — Casca: barra Análise/Design e painel de jornada viram uma **coluna à esquerda** do protótipo (ferramentas empilhadas; Perfil e Jornada em selects; etapas em lista vertical; Anterior/Próxima). A coluna **recolhe** para uma faixa estreita (expandir, cor do perfil, etapa anterior/próxima); começa recolhida e o navegador lembra.
 - 2026-09-29 — Tabelas: colunas Curso/Cursos/Produto/Produtos com largura limitada (~16rem) e texto quebrando linha.
+- 2026-09-29 — Casca: coluna lateral mais estreita por padrão (256px) e redimensionável arrastando a borda direita, só para diminuir (até 200px; lembrado no navegador). Botões de Análise e Design com rótulo alinhado à esquerda.

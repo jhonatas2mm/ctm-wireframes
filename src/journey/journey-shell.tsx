@@ -141,6 +141,18 @@ export function JourneyShell() {
   // Painel de perfil/jornada minimizável (lembrado no navegador).
   const [largura, setLarguraState] = useState(() => { try { return Number(localStorage.getItem('resolucao-prototipo')) || RESOLUCAO_PADRAO } catch { return RESOLUCAO_PADRAO } })
   const setLargura = (v: number) => { setLarguraState(v); try { localStorage.setItem('resolucao-prototipo', String(v)) } catch { /* sem armazenamento */ } }
+  // Largura da coluna lateral: dá para arrastar a borda, só para diminuir (mín. 200px, máx. = padrão 256px); lembrada no navegador.
+  const LARG_PAINEL = 256, LARG_PAINEL_MIN = 200
+  const [largPainel, setLargPainel] = useState(() => { try { return Math.min(LARG_PAINEL, Math.max(LARG_PAINEL_MIN, Number(localStorage.getItem('casca-largura-painel')) || LARG_PAINEL)) } catch { return LARG_PAINEL } })
+  const arrastarPainel = (e: React.PointerEvent) => {
+    e.preventDefault()
+    const x0 = e.clientX, w0 = largPainel
+    let w = w0
+    const mover = (ev: PointerEvent) => { w = Math.min(LARG_PAINEL, Math.max(LARG_PAINEL_MIN, w0 + ev.clientX - x0)); setLargPainel(w) }
+    const soltar = () => { removeEventListener('pointermove', mover); removeEventListener('pointerup', soltar); try { localStorage.setItem('casca-largura-painel', String(w)) } catch { /* sem armazenamento */ } }
+    addEventListener('pointermove', mover)
+    addEventListener('pointerup', soltar)
+  }
   const [painelMin, setPainelMinState] = useState(() => { try { return localStorage.getItem('painel-jornada-min') !== '0' } catch { return true } })
   const setPainelMin = (v: boolean) => { setPainelMinState(v); try { localStorage.setItem('painel-jornada-min', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
@@ -295,12 +307,14 @@ export function JourneyShell() {
             <Button size="icon-sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}><ChevronDown /></Button>
           </aside>
         ) : (
-          <aside className="flex w-72 shrink-0 flex-col gap-3 overflow-y-auto border-r border-white/10 p-3">
+          <aside className="relative flex shrink-0 flex-col gap-3 overflow-y-auto border-r border-white/10 p-3" style={{ width: largPainel }}>
+            {/* Alça de redimensionar (só diminui a partir do padrão) */}
+            <div role="separator" aria-label="Redimensionar painel" title="Arraste para diminuir o painel" onPointerDown={arrastarPainel} className="absolute top-0 right-0 z-10 h-full w-1.5 cursor-col-resize hover:bg-white/20" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-muted-foreground">Protótipo CTM</span>
               <Button size="icon-xs" variant="outline" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}><ChevronLeft /></Button>
             </div>
-            <div className="grid gap-0.5 rounded-lg border bg-card/60 p-1.5 [&_[data-slot=button]]:w-full [&_[data-slot=button]]:justify-start [&>span.inline-flex]:w-full">
+            <div className="casca-grupo grid gap-0.5 rounded-lg border bg-card/60 p-1.5">
               <span className="px-1.5 pt-0.5 pb-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Análise</span>
               {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
               <Button size="sm" variant="ghost" className={cn(mapa && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} onClick={() => setMapa(!mapa)}>
@@ -322,7 +336,7 @@ export function JourneyShell() {
                 <MessageSquareText /> Anotações <span className="tabular-nums text-muted-foreground">{screenPins.length}</span>
               </Button>
             </div>
-            <div className="grid gap-0.5 rounded-lg border bg-card/60 p-1.5 [&_[data-slot=button]]:w-full [&_[data-slot=button]]:justify-start [&>span.inline-flex]:w-full">
+            <div className="casca-grupo grid gap-0.5 rounded-lg border bg-card/60 p-1.5">
               <span className="px-1.5 pt-0.5 pb-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Design</span>
               <Button size="sm" variant="ghost" className={cn(guia && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
                 <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}

@@ -338,3 +338,6 @@ html.ds-senai [data-slot="table-cell"].sticky [data-slot="button"]:hover { backg
 
 /* Identificadores em badge (nº de proposta, turma, TAA, versão…): sempre neutros, nunca azul */
 html.ds-senai span.bg-secondary:not([data-tone]) { background-color: #F0F1F2; color: #3D4448; border-color: transparent; }
+
+/* Casca: botões dos grupos Análise/Design ocupam a largura e com rótulo alinhado à esquerda */
+.casca-grupo [data-slot="button"], .casca-grupo > span.inline-flex { width: 100%; justify-content: flex-start; }
