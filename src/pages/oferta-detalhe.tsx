@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Ban, CalendarClock, CalendarPlus, CheckCircle2, Layers, Merge, Pencil, Plus, Send, Trash2, X } from 'lucide-react'
+import { Ban, CalendarClock, CalendarDays, CalendarPlus, CheckCircle2, History, Layers, Link2, Merge, Pencil, Plus, Send, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -128,10 +128,10 @@ export default function OfertaDetalhe() {
 
         <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
           <TabsList>
-            <TabsTrigger value="cronograma">Cronograma</TabsTrigger>
-            <TabsTrigger value="execucao">UCs</TabsTrigger>
-            <TabsTrigger value="integracao">Integração com o AVA</TabsTrigger>
-            <TabsTrigger value="historico">Histórico</TabsTrigger>
+            <TabsTrigger value="cronograma"><CalendarDays /> Cronograma</TabsTrigger>
+            <TabsTrigger value="execucao"><Layers /> UCs</TabsTrigger>
+            <TabsTrigger value="integracao"><Link2 /> Integração com o AVA</TabsTrigger>
+            <TabsTrigger value="historico"><History /> Histórico</TabsTrigger>
           </TabsList>
 
           <TabsContent value="cronograma" className="space-y-6 pt-4">

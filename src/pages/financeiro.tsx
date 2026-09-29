@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { AlertTriangle, CalendarClock, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
+import { AlertTriangle, CalendarClock, ClipboardList, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ciclosDe } from '@/lib/alunos-turma'
 import { brl, linhasCobranca } from '@/lib/cobranca'
@@ -40,9 +40,9 @@ export default function Financeiro() {
       <PageHeader title="Financeiro" />
       <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
         <TabsList>
-          <TabsTrigger value="alunos">Situação dos alunos</TabsTrigger>
-          <TabsTrigger value="acompanhamento">Acompanhamento dos alunos</TabsTrigger>
-          <TabsTrigger value="cobranca">Relatório de cobrança</TabsTrigger>
+          <TabsTrigger value="alunos"><Users /> Situação dos alunos</TabsTrigger>
+          <TabsTrigger value="acompanhamento"><ClipboardList /> Acompanhamento dos alunos</TabsTrigger>
+          <TabsTrigger value="cobranca"><ReceiptText /> Relatório de cobrança</TabsTrigger>
         </TabsList>
         <TabsContent value="alunos" className="pt-4"><SituacaoAlunos /></TabsContent>
         <TabsContent value="acompanhamento" className="pt-4"><AcompanhamentoAlunos /></TabsContent>
