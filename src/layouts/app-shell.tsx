@@ -110,9 +110,9 @@ export function AppShell() {
           ))}
         </SidebarContent>
         {/* Usuário logado (fictício) */}
-        <SidebarFooter className="border-t">
+        <SidebarFooter className="flex-row items-center gap-1 border-t">
           <DropdownMenu>
-          <DropdownMenuTrigger render={<button type="button" className="flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left hover:bg-white/60" />}>
+          <DropdownMenuTrigger render={<button type="button" className="flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2 py-1.5 text-left hover:bg-white/60" />}>
             <Avatar className="size-8">
               {/* Foto opcional: public/avatars/<e-mail>.jpg; sem arquivo, mostra as iniciais (círculo azul do DS). */}
               <AvatarImage src={`${import.meta.env.BASE_URL}avatars/${user.email}.jpg`} alt="" />
@@ -129,6 +129,7 @@ export function AppShell() {
             <DropdownMenuItem render={<Link to={noMenu[0]?.path ?? '/'} />}><LogOut /> Sair</DropdownMenuItem>
           </DropdownMenuContent>
           </DropdownMenu>
+          <Notificacoes />
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="min-w-0">
@@ -136,7 +137,6 @@ export function AppShell() {
         <header className="flex h-12 items-center gap-2 px-4 md:px-6 [&:has(#topbar-slot:empty):not(:has(button))]:hidden">
           {/* PageHeader renderiza o breadcrumb aqui via portal */}
           <div id="topbar-slot" className="min-w-0 flex-1" />
-          <Notificacoes />
         </header>
         <div className="w-full min-w-0 space-y-6 p-4 md:p-6">
           <Outlet />

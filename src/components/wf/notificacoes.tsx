@@ -6,7 +6,7 @@ import { useProfile } from '@/journey/profile'
 import { useProdutos, useTurmas } from '@/lib/mock'
 import { excedentesProposta } from '@/lib/cobranca'
 
-// Notificações da CTM (sino no topo): hoje, proposta com mais alunos nas salas do Moodle do que o contratado → fazer aditivo.
+// Notificações da CTM (sino ao lado do avatar, no rodapé do menu): hoje, proposta com mais alunos nas salas do Moodle do que o contratado → fazer aditivo.
 export function Notificacoes() {
   const perfil = useProfile()
   const navigate = useNavigate()
@@ -16,11 +16,11 @@ export function Notificacoes() {
   const avisos = propostas.flatMap((p) => excedentesProposta(p, turmas).map((e) => ({ p, e })))
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="relative ml-auto" aria-label={`Notificações (${avisos.length})`} />}>
+      <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="relative shrink-0" aria-label={`Notificações (${avisos.length})`} />}>
         <Bell />
         {avisos.length > 0 && <span className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-semibold text-white tabular-nums">{avisos.length}</span>}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-96">
+      <DropdownMenuContent side="right" align="end" className="w-96">
         <p className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Notificações</p>
         {avisos.length ? avisos.map(({ p, e }) => (
           <DropdownMenuItem key={`${p.id}-${e.curso}`} className="items-start gap-2 py-2" onClick={() => navigate(`/produtos/${p.id}`)}>
