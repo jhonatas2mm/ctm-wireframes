@@ -16,7 +16,7 @@ import { profileOf } from '@/journey/profiles'
 // POR UC (a saída vale naquela UC e o aluno para de faturar nela no próximo ciclo da UC) ou contesta (falha de integração:
 // segue matriculado e faturando). O aluno pode estar matriculado numa UC e desistente em outra.
 type Linha = AlunoTurma & { turma: Turma; m: MatriculaUc; key: string }
-const situacao = (a: Linha) => (a.m.confirmacao === 'Aguardando DR' ? 'Aguardando confirmação' : a.m.confirmacao === 'Confirmada' ? 'Confirmada' : 'Contestada')
+const situacao = (a: Linha) => (a.m.confirmacao === 'Aguardando DR' ? 'Aguardando' : a.m.confirmacao === 'Confirmada' ? 'Confirmada' : 'Contestada')
 
 export default function Desistencias() {
   const autor = useAutor()
@@ -54,7 +54,7 @@ export default function Desistencias() {
     <>
       <PageHeader title="Confirmação de desistências" description={escolas ? `Escolas: ${escolas.join(', ')}` : undefined} />
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <StatCard icon={Hourglass} tom="amber" label="Aguardando confirmação" value={String(n('Aguardando confirmação'))} hint="O aluno segue faturando até a DR confirmar" />
+        <StatCard icon={Hourglass} tom="amber" label="Aguardando confirmação" value={String(n('Aguardando'))} hint="O aluno segue faturando até a DR confirmar" />
         <StatCard icon={CheckCircle2} tom="green" label="Confirmadas" value={String(n('Confirmada'))} />
         <StatCard icon={ShieldAlert} tom="gray" label="Contestadas" value={String(n('Contestada'))} hint="Falha de integração com o Moodle" />
       </div>

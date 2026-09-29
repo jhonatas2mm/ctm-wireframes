@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { ChevronLeft, ChevronRight, LayoutList, Maximize2, Minimize2, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LayoutList, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
 import { Popover } from '@base-ui/react/popover'
 import { useLocation } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
+import { useSheetLateralAberta } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -31,9 +32,18 @@ export type Column<T> = {
   search?: boolean
   filter?: boolean
   className?: string
+  align?: 'left' | 'center' // padrão: centralizado em colunas de versão e numéricas; o resto à esquerda
 }
 
 const ALL = '__all__'
+// Coluna centralizada: versão ou conteúdo numérico (número, valor, %); vazio e "—" não contam.
+const ehNumerico = (v: string | number) => typeof v === 'number' || /^(R\$\s?)?-?\d[\d.,]*\s?%?$/.test(v)
+const centraliza = <T,>(c: Column<T>, rows: T[]) => {
+  if (c.align) return c.align === 'center'
+  if (/vers[ãa]o/i.test(c.header)) return true
+  const vs = rows.map((r) => c.value(r)).filter((v) => v !== '' && v !== '—')
+  return vs.length > 0 && vs.every(ehNumerico)
+}
 // Colunas de nome de curso/produto (texto longo): largura limitada e texto quebrando linha.
 const colunaLonga = (header: string) => /^(Cursos?|Produtos?)$/i.test(header) ? 'max-w-64 min-w-48 whitespace-normal' : ''
 // Filtro com vários valores (campo de busca): valores juntados por SEP no mesmo texto do filtro.
@@ -123,6 +133,10 @@ export function DataTable<T extends { id: string }>({
   filters?: FilterDef<T>[]
   cards?: boolean // habilita a 2ª visualização em cards (uma linha por registro, sem rolagem horizontal); abre em cards
 }) {
+  const centro = useMemo(() => columns.map((c) => centraliza(c, rows)), [columns, rows])
+  // Linha clicada (ou com ação clicada): fica em foco, como no hover, enquanto o detalhe (sheet lateral) estiver aberto.
+  const [foco, setFoco] = useState<string | null>(null)
+  const detalheAberto = useSheetLateralAberta()
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
 
@@ -180,18 +194,9 @@ export function DataTable<T extends { id: string }>({
   const nAtivos = Object.values(filters).filter(Boolean).length
   const active = q !== '' || nAtivos > 0
   const hasSearch = columns.some((c) => c.search)
-  // Tela cheia: a tabela ocupa a tela toda (botão ao lado de Filtros; Esc sai)
-  const [cheia, setCheia] = useState(false)
-  useEffect(() => {
-    if (!cheia) return
-    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setCheia(false)
-    addEventListener('keydown', esc)
-    return () => removeEventListener('keydown', esc)
-  }, [cheia])
-
   return (
-    <div data-slot="data-table" className={cn('overflow-hidden rounded-lg border bg-card', cheia && 'fixed inset-0 z-40 overflow-auto rounded-none border-0')}>
-      <div className={cn('flex flex-wrap items-center gap-2 border-b p-3', cheia && 'sticky top-0 z-20 bg-card')}>
+    <div data-slot="data-table" className="overflow-hidden rounded-lg border bg-card">
+      <div className="flex flex-wrap items-center gap-2 border-b p-3">
         {hasSearch && (
           <div className="relative w-96">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -297,9 +302,6 @@ export function DataTable<T extends { id: string }>({
             </Popover.Portal>
           </Popover.Root>
         )}
-        <Button variant="outline" aria-pressed={cheia} title={cheia ? 'Sair da tela cheia (Esc)' : 'Ver a tabela em tela cheia'} onClick={() => setCheia(!cheia)}>
-          {cheia ? <><Minimize2 /> Sair da tela cheia</> : <><Maximize2 /> Tela cheia</>}
-        </Button>
         {/* Contador só sem o seletor Cards/Tabela (com ele, ficava solto no meio da barra) */}
         {!cards && (
           <span className="ml-auto text-xs text-muted-foreground tabular-nums">
@@ -334,7 +336,7 @@ export function DataTable<T extends { id: string }>({
             // Cards: 1ª e 2ª colunas no cabeçalho (título e situação), ações à direita; demais colunas em grade de rótulo/valor.
             <div className="space-y-2 p-3">
               {daPagina.map((r) => (
-                <div key={r.id} className={cn('rounded-[1.25rem] border bg-card p-4', onRowClick && 'cursor-pointer hover:border-foreground/20')} onClick={onRowClick && (() => onRowClick(r))}>
+                <div key={r.id} className={cn('rounded-[1.25rem] border bg-card p-4', onRowClick && 'cursor-pointer hover:border-foreground/20', detalheAberto && foco === r.id && 'border-foreground/20')} onClickCapture={() => setFoco(r.id)} onClick={onRowClick && (() => onRowClick(r))}>
                   <div className="flex items-center gap-3">
                     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 font-semibold">
                       {columns.slice(0, 2).map((c) => <span key={c.header}>{c.cell ? c.cell(r) : c.value(r)}</span>)}
@@ -356,8 +358,8 @@ export function DataTable<T extends { id: string }>({
           <Table>
             <TableHeader>
               <TableRow>
-                {columns.map((c) => (
-                  <TableHead key={c.header} className={c.className}>
+                {columns.map((c, i) => (
+                  <TableHead key={c.header} className={cn(c.className, centro[i] && 'text-center')}>
                     {c.header}
                   </TableHead>
                 ))}
@@ -368,11 +370,13 @@ export function DataTable<T extends { id: string }>({
               {daPagina.map((r) => (
                 <TableRow
                   key={r.id}
-                  className={cn(onRowClick && 'cursor-pointer')}
+                  className={cn(onRowClick && 'cursor-pointer', detalheAberto && foco === r.id && 'bg-muted/50')}
+                  data-foco={detalheAberto && foco === r.id ? '' : undefined}
+                  onClickCapture={() => setFoco(r.id)}
                   onClick={onRowClick && (() => onRowClick(r))}
                 >
-                  {columns.map((c) => (
-                    <TableCell key={c.header} className={cn(colunaLonga(c.header), c.className)}>
+                  {columns.map((c, i) => (
+                    <TableCell key={c.header} className={cn(colunaLonga(c.header), c.className, centro[i] && 'text-center')}>
                       {c.cell ? c.cell(r) : c.value(r)}
                     </TableCell>
                   ))}
@@ -455,6 +459,7 @@ export function RowAction({
     <Button
       size="icon-sm"
       variant="outline"
+      className="text-primary"
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
@@ -470,7 +475,7 @@ export function RowAction({
         <TooltipTrigger render={<span tabIndex={0} className="inline-flex cursor-not-allowed" />}>{botao}</TooltipTrigger>
       ) : (
         <TooltipTrigger
-          render={<Button size="icon-sm" variant="outline" aria-label={label} onClick={onClick} />}
+          render={<Button size="icon-sm" variant="outline" className="text-primary" aria-label={label} onClick={onClick} />}
         >
           <Icon />
         </TooltipTrigger>

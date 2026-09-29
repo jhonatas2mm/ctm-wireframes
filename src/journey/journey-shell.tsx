@@ -297,7 +297,10 @@ export function JourneyShell() {
 
   // `dark` escurece os tokens só na casca; o protótipo no iframe não é afetado.
   return (
-    <div className="shell-canvas dark flex h-svh text-foreground">
+    <div className="shell-canvas dark flex h-svh flex-col text-foreground">
+      {/* Faixa na cor do perfil, na largura toda da casca; as abas de Área/Subperfil ficam penduradas nela */}
+      <div className="h-1 shrink-0" style={{ background: profileDef.color }} />
+      <div className="flex min-h-0 flex-1">
         {/* Coluna lateral da casca: ferramentas (Análise, Design) e a jornada (perfil, jornada, etapas em lista vertical). */}
         {!cheia && (painelMin ? (
           <aside className="flex w-12 shrink-0 flex-col items-center gap-1.5 border-r border-white/10 py-3">
@@ -461,8 +464,6 @@ export function JourneyShell() {
         <div className="flex min-h-0 flex-1">
           <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pb-2' : 'px-4')}>
             <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width, maxWidth: largura + 28 }}>
-            {/* Faixa na cor do perfil, grudada no topo da página; as abas de Área/Subperfil ficam penduradas nela */}
-            <div className="h-1 shrink-0 rounded-b-full" style={{ background: profileDef.color }} />
             {/* Perfil da etapa atual, no canto superior esquerdo (abas invertidas, presas à faixa do topo) */}
             <div className="mb-3 flex items-start gap-2">
               {/* Troca de perfil: abre a 1ª jornada iniciada por ele, na 1ª etapa */}
@@ -573,6 +574,7 @@ export function JourneyShell() {
         </div>
 
       </main>
+      </div>
       {/* Painel do Mapa do processo (da casca, sobre o protótipo) */}
       {mapa && (
         <div className="fixed inset-3 z-40 flex flex-col overflow-hidden rounded-xl border bg-background shadow-2xl">

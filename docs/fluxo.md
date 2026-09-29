@@ -12,11 +12,11 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciadas → Nova DR credenciada. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
 2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Coordenador EAD).
 3. **Envio de TAA às DRs** (CTM: Gestor EAD) — TAAs com as DRs → Novo TAA (um por DR) → Gestor da DR analisa → retorno para a CTM.
-4. **TAAs com CTMs** (DR solicitante: Gestor EAD) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado para ajuste → TAA aceito (saldo).
+4. **TAAs com CTMs** (DR solicitante: Gestor EAD) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado → TAA aceito (saldo).
 5. **Criação de portfólio** (CTM: Coordenador EAD) — Gestão de Portfólio → Novo produto (produtos de um edital).
 5a. **Aprovação de portfólio** (DN) — Aprovação de portfólio → Portfólio das CTMs.
 5b. **Portfólio das CTMs** (DR solicitante: Gestor EAD) — consulta do portfólio aprovado.
-6. **Criação de proposta** (CTM: Gestor EAD, o responsável; o Coordenador EAD também acessa) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
+6. **Criação de proposta** (CTM: Gestor EAD, o responsável; o Coordenador EAD também acessa) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando, Aprovado) → equipe técnica → Criar turmas.
 7. **Criação de oferta** (Coordenador EAD) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
 7a. **UCs da turma** (CTM: Coordenador EAD) — Equipe → equipe de cada UC → Integração com o Moodle → Histórico.
 7b. **Equipe das UCs** (CTM: Coordenador EAD) — Equipe → equipe de cada UC.
@@ -55,7 +55,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **Um TAA para cada DR específica** (não é guarda-chuva), com edital, **produtos**, vigência e valor global. A CTM do TAA é a **aprovada no edital** (menor custo) para esses produtos. Nunca chamar de "TA" ou "Termo de Adesão".
 - **Caminho normal**: a CTM que ganhou o edital **envia** o TAA para cada DR (tela **TAAs com as DRs**, `/taas-ctm`; escolhe **uma DR** por TAA). O **Gestor** da DR solicitante analisa. A DR também pode criar o seu (`/dashboard`), e aí quem analisa é a CTM.
 - **TAA é entre SENAI e SENAI**. **SESI não entra na v1** (sem perfil, contrato ou dados do SESI). **O DN não contrata CTM.**
-- **Status**: *Encaminhado* → *Em análise* (quem analisa abriu) → **Aceito**, **Retornado para ajuste** (com motivo; quem criou ajusta vigência/valor e reencaminha) ou **Cancelado** (recusa, com motivo, ou cancelamento por quem criou antes do aceite). Tudo fica no **histórico** do TAA.
+- **Status**: *Encaminhado* → *Em análise* (quem analisa abriu) → **Aceito**, **Retornado** (com motivo; quem criou ajusta vigência/valor e reencaminha) ou **Cancelado** (recusa, com motivo, ou cancelamento por quem criou antes do aceite). Tudo fica no **histórico** do TAA.
 - **Aceito é burocrático**: destrava a **negociação da oferta**, que dá origem às **propostas** (só contratante com TAA/contrato aceito e vigente entra na Nova proposta). Um TAA aceito pode não gerar nenhuma proposta ou atividade. O termo assinado é anexado depois do aceite ("Anexar assinado").
 - **Saldo** (TAA aceito) = valor global − executado (valor das propostas aceitas entre o contratante e a CTM nos produtos do TAA). Aparece na lista (coluna Saldo) e nos detalhes (barra executado/saldo).
 - No aceite pelo Gestor da DR, ele fica registrado como **Gestor solicitante**.
@@ -69,7 +69,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 
 ## Portfólio das CTMs
 - Cada CTM registra seus **produtos** (módulos → UCs), com **versões** (v1, v2…; a anterior não muda).
-- **Novo produto** e **nova versão** são **solicitações**: ficam *Aguardando aprovação* até o **DN** decidir em **Aprovação de portfólio** (`/portfolio/aprovacoes`): **Aprovar** ou **Reprovar** (com motivo, que a CTM vê). Enquanto houver versão pendente, não se abre outra.
+- **Novo produto** e **nova versão** são **solicitações**: ficam *Aguardando* até o **DN** decidir em **Aprovação de portfólio** (`/portfolio/aprovacoes`): **Aprovar** ou **Reprovar** (com motivo, que a CTM vê). Enquanto houver versão pendente, não se abre outra.
 - Só versões **aprovadas** entram no **Portfólio das CTMs** (`/portfolio`, visível para **todas as DRs**, somente leitura) e são usadas na oferta (matriz = última versão aprovada).
 - Cada versão pode ter **vínculo com o itinerário** (outro sistema; botão "Vincular ao itinerário", feito pela DR/CTM; integração a detalhar) e **documentos/materiais** vinculados (nome, tipo, link — o arquivo fica no repositório/drive). Nova versão copia os vínculos.
 - Na Gestão de Portfólio da CTM, cada linha é um produto: última versão, situação, versão no portfólio, itinerário, nº de documentos e de propostas.
@@ -103,7 +103,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Datas dos encontros presenciais: um por semana no **dia do presencial** da turma (padrão segunda); se a UC tem mais semanas que encontros, a 1ª semana é só a distância; semana com feriado fica sem encontro.
 
 ### Validação do cronograma e status da turma
-- Cronograma tem **versão** e situação: *Rascunho* → *Aguardando validação* (registra o envio à DR com **prazo**) → *Validado* (DR validou ou **passou o prazo sem resposta**). "DR pediu ajuste" gera a **próxima versão** (novo início + o que a DR pediu) e volta a Rascunho.
+- Cronograma tem **versão** e situação: *Rascunho* → *Aguardando* (registra o envio à DR com **prazo**) → *Validado* (DR validou ou **passou o prazo sem resposta**). "DR pediu ajuste" gera a **próxima versão** (novo início + o que a DR pediu) e volta a Rascunho.
 - Status da turma: **A iniciar** → **Buscar tutor** (ação "Confirmar turma", só com cronograma validado: a DR confirmou que a turma vai começar; libera o PCP e a criação de salas) → **Em andamento** (a partir do início) → **Finalizada** (depois do término). **Cancelada** a qualquer momento antes do fim, com motivo (a DR deve avisar com 10 dias).
 - **Prorrogar início**: nova data + motivo; todas as datas (UCs e aulas ao vivo) andam junto, sem aditivo. Só antes de começar.
 - **Dia do encontro presencial** (informado pela DR) e **escolas da turma** (nome, cidade, alunos) ficam na aba Cronograma.
@@ -158,14 +158,14 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **Responsável**: o **Gestor EAD** (fica registrado na proposta).
 - **Conteúdo**: início e fim; **cursos** = produtos do TAA, cada um com **quantidade de alunos** e início previsto; **matriz curricular** do portfólio (última versão aprovada, só leitura); **valor parametrizado pelo edital** = valor do curso no edital × alunos (não se digita). Também CNPJ, faturamento, nº CRM, link/anexo do documento.
 - O mesmo curso pode entrar em várias propostas do mesmo TAA (ex.: T01, T02).
-- **Status** (quem muda é o Gestor EAD, registrando o retorno da DR solicitante): **Rascunho** → **Em andamento** → **Aguardando retorno do cliente** → **Aprovado**; ou **Cancelado** (com motivo). Rascunho pode ser excluído.
+- **Status** (quem muda é o Gestor EAD, registrando o retorno da DR solicitante): **Rascunho** → **Em andamento** → **Aguardando** → **Aprovado**; ou **Cancelado** (com motivo). Rascunho pode ser excluído.
 - **Versões**: a proposta vai e vem — "Nova versão" guarda a atual em *Versões* (com o que mudou) e cria a vN+1; tudo fica no **histórico**.
 - **Saldo do TAA**: propostas **aprovadas** executam o saldo (valor do TAA − propostas aprovadas vinculadas). A Nova proposta mostra o saldo e avisa se passar.
 - **Depois de aprovada**: vincula-se a **equipe técnica** (supervisor e analista) na Gestão da proposta; ela define o **cronograma** e avalia o **agrupamento de UCs** (UCs iguais entre turmas de DRs iguais ou diferentes rodam juntas — aulas ao vivo no Moodle). A proposta aprovada segue para o **processo de turmas** ("Criar turmas" → Nova oferta, já com supervisor e analista).
 - Hierarquia: **proposta → cursos → turmas → UCs → alunos** (cada um com situação).
 - Alerta de prazo: proposta ainda não aprovada com turma prevista para começar em até 15 dias.
 
-- **Aditivo**: a proposta tem o nº de alunos por curso. Se as salas do Moodle das turmas da proposta (aprovada) tiverem **mais alunos do que a proposta**, a CTM recebe uma **notificação** (sino no topo, perfis CTM e Super admin) para fazer um **aditivo**. Na Gestão da proposta aparece o aviso com **Fazer aditivo** (também na lista de propostas); o aditivo é uma **nova versão** da proposta (permitida mesmo aprovada) com os alunos do Moodle já preenchidos e o motivo; a versão anterior fica no histórico. Status segue Aprovado (hipótese). Alunos no Moodle = integrados de cada escola da turma.
+- **Aditivo**: a proposta tem o nº de alunos por curso. Se as salas do Moodle das turmas da proposta (aprovada) tiverem **mais alunos do que a proposta**, a CTM recebe uma **notificação** (sino ao lado do avatar, no rodapé do menu, perfis CTM e Super admin) para fazer um **aditivo**. Na Gestão da proposta aparece o aviso com **Fazer aditivo** (também na lista de propostas); o aditivo é uma **nova versão** da proposta (permitida mesmo aprovada) com os alunos do Moodle já preenchidos e o motivo; a versão anterior fica no histórico. Status segue Aprovado (hipótese). Alunos no Moodle = integrados de cada escola da turma.
 ## Pendências (reunião de processos de 28/09/2026)
 - **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (à DR, prazos, integração). Hoje os avisos aparecem só nas telas.
 - **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesma DR.
@@ -286,4 +286,9 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Financeiro › Situação dos alunos: escolhe primeiro a **DR solicitante** (obrigatório); só então aparecem indicadores, escolas e alunos (coluna DR saiu da tabela).
 - 2026-09-29 — Tabelas (todas, via DataTable): botão **Tela cheia** ao lado de Filtros — a tabela ocupa a tela toda; "Sair da tela cheia" ou Esc volta.
 - 2026-09-29 — **Relatório de cobrança com várias propostas**: junta propostas aprovadas da mesma DR e do mesmo TAA (outro TAA não pode). Seed: PC-MG-006 aprovada com a turma TU-MG-004/2026 (Eletricista, SENAI-RJ), mesmo TAA da PC-MG-002.
+- 2026-09-29 — Tabelas: coluna "Última versão" virou **Versão**; colunas de versão e numéricas centralizadas; status simplificados (*Aguardando aprovação*, *Aguardando retorno do cliente*, *Aguardando validação* e *Aguardando confirmação* → **Aguardando**; *Retornado para ajuste* → **Retornado**); removido o botão de tela cheia; ações de linha só com ícones (Aprovar, Reprovar e Alterar status deixaram de ser botões com texto).
+- 2026-09-29 — Portfólio das CTMs: área tecnológica e modalidade passam para baixo do nome do produto (seguem como filtros). TAAs com as DRs: coluna Origem virou **Criado por** (CTM/DR) e a coluna Produtos saiu (produtos ficam nos detalhes). Sheets laterais sem overlay escuro, com a linha clicada em foco. Menu: só um item ativo (Aprovação de portfólio não marca mais Portfólio das CTMs).
+- 2026-09-29 — Tratativas pedagógicas (tabela): Tipo e Retorno do aluno em badges; Descrição virou botão **Visualizar** que abre um dropdown com o texto.
+- 2026-09-29 — Acompanhamento dos alunos (financeiro): cards de indicadores sem ícone, com texto quebrando linha em vez de cortar.
+- 2026-09-29 — Super admin: seções do menu lateral recolhíveis (só a primeira aberta por padrão). TAAs com CTMs: coluna Origem com valores CTM/DR. Acompanhamento dos alunos: botões Exportar planilha e Relatório de cobrança alinhados à esquerda.
 - 2026-09-29 — **Novos perfis**: CTM = Gestor EAD (antes Gestor de contrato), Coordenador EAD (antes Gestor de oferta + PCP), Coordenador Pedagógico (antes Pedagógico), Tutor e Monitor. DR solicitante = Gestor EAD, Coordenador EAD, Gestor Escolar e Coordenador Escolar (escolares: mesmos acessos, vinculados a uma ou mais escolas; filtro aplicado na Confirmação de desistências). Nova jornada "Desistências das escolas" (Coordenador Escolar).

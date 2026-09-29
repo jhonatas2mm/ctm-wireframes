@@ -13,7 +13,7 @@ import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { cn } from '@/lib/utils'
 
-// Fluxo do TAA/contrato (status Encaminhado → Em análise → Retornado para ajuste / Aceito / Cancelado), usado pela
+// Fluxo do TAA/contrato (status Encaminhado → Em análise → Retornado / Aceito / Cancelado), usado pela
 // lista do contratante (Gestor da DR) e pela da CTM. Quem criou encaminha, ajusta e reencaminha ou cancela; a outra
 // parte analisa: aceita, retorna para ajuste (motivo) ou recusa (Cancelado, motivo). Aceito: anexa o termo assinado.
 export type Papel = 'contratante' | 'ctm' | 'admin'
@@ -21,7 +21,7 @@ export type Papel = 'contratante' | 'ctm' | 'admin'
 const cor: Record<StatusContrato, string> = {
   Encaminhado: 'bg-sky-100 text-sky-800',
   'Em análise': 'bg-amber-100 text-amber-800',
-  'Retornado para ajuste': 'bg-orange-100 text-orange-800',
+  'Retornado': 'bg-orange-100 text-orange-800',
   Aceito: 'bg-emerald-100 text-emerald-800',
   Cancelado: 'bg-muted text-muted-foreground',
 }
@@ -65,9 +65,9 @@ export function useFluxoTaa(papel: Papel) {
       a.push({ rotulo: 'Retornar para ajuste', icone: RotateCcw, fazer: () => (setTexto(''), setMotivo({ c, tipo: 'ajuste' })) })
       a.push({ rotulo: 'Recusar', icone: X, fazer: () => (setTexto(''), setMotivo({ c, tipo: 'recusa' })) })
     }
-    if (souCriador(c) && c.status === 'Retornado para ajuste')
+    if (souCriador(c) && c.status === 'Retornado')
       a.push({ rotulo: 'Ajustar e reencaminhar', icone: Send, principal: true, fazer: () => (setAj({ inicio: iso(c.vigenciaInicio), fim: iso(c.vigenciaFim), valor: String(Math.round(c.valor * 100)), obs: '' }), setAjustar(c)) })
-    if (souCriador(c) && (c.status === 'Encaminhado' || c.status === 'Em análise' || c.status === 'Retornado para ajuste'))
+    if (souCriador(c) && (c.status === 'Encaminhado' || c.status === 'Em análise' || c.status === 'Retornado'))
       a.push({ rotulo: 'Cancelar', icone: X, fazer: () => confirmar({ titulo: `Cancelar o ${nome(c)}?`, acao: 'Cancelar', onConfirmar: () => mudar(c, { status: 'Cancelado', motivo: 'Cancelado por quem criou.' }, 'Cancelado por quem criou') }) })
     if (papel !== 'admin' && c.status === 'Aceito' && !c.anexoAssinado)
       a.push({ rotulo: 'Anexar assinado', icone: Paperclip, fazer: () => (setAnexo([`${c.numero.replace('/', '-')}-assinado.pdf`]), setAnexar(c)) })
@@ -109,7 +109,7 @@ export function useFluxoTaa(papel: Papel) {
             <Button onClick={() => {
               if (!motivo) return
               const t = texto.trim()
-              if (motivo.tipo === 'ajuste') mudar(motivo.c, { status: 'Retornado para ajuste', motivo: t }, `Retornado para ajuste${t ? `: ${t}` : ''}`)
+              if (motivo.tipo === 'ajuste') mudar(motivo.c, { status: 'Retornado', motivo: t }, `Retornado para ajuste${t ? `: ${t}` : ''}`)
               else mudar(motivo.c, { status: 'Cancelado', motivo: `Recusado: ${t}` }, `Recusado${t ? `: ${t}` : ''}`)
               setMotivo(null)
             }}>{motivo?.tipo === 'ajuste' ? 'Retornar para ajuste' : 'Recusar'}</Button>

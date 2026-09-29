@@ -61,9 +61,9 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
     className: 'font-mono text-xs',
     cell: (l) => (l.atual.edital ? <CellButton onClick={() => abrirEdital(l.atual.edital!)}>{l.atual.edital}</CellButton> : '—'),
   },
-  { header: 'Última versão', value: (l) => `v${l.atual.versao ?? 1}`, className: 'tabular-nums' },
+  { header: 'Versão', value: (l) => `v${l.atual.versao ?? 1}`, className: 'tabular-nums' },
   { header: 'Situação', value: (l) => situacaoDe(l.atual), filter: true, cell: (l) => <SituacaoBadge c={l.atual} /> },
-  { header: 'No portfólio', value: (l) => (l.noPortfolio ? `v${l.noPortfolio.versao ?? 1}` : '—'), className: 'tabular-nums' },
+  { header: 'No portfólio', value: (l) => (l.noPortfolio ? `v${l.noPortfolio.versao ?? 1}` : '—'), className: 'tabular-nums', align: 'center' },
   { header: 'Itinerário', value: (l) => (l.atual.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
   { header: 'Documentos', value: (l) => l.atual.materiais?.length ?? 0, className: 'text-right tabular-nums' },
   { header: 'Propostas', value: (l) => l.propostas, className: 'text-right tabular-nums' },
@@ -88,7 +88,7 @@ export default function GestaoProdutos() {
       id: atual.id,
       atual,
       noPortfolio: aprovados.find((c) => raizDe(c) === r),
-      pendente: familia.some((c) => situacaoDe(c) === 'Aguardando aprovação'),
+      pendente: familia.some((c) => situacaoDe(c) === 'Aguardando'),
       propostas: propostas.filter((p) => p.cursos.some((c) => c.nome === atual.nome)).length,
     }
   })

@@ -35,8 +35,7 @@ export default function TaaCtm() {
     { header: 'Nº', value: (c) => c.numero, search: true, className: 'font-mono' },
     ...(!ctm ? [{ header: 'CTM', value: (c: Contrato) => `SENAI-${c.dr}`, filter: true }] : []),
     { header: 'DR', value: (c) => nomeParte(c.contratante), search: true, filter: true },
-    { header: 'Origem', value: (c) => (c.origem === 'CTM' ? 'Enviado pela CTM' : 'Criado pela DR'), filter: true },
-    { header: 'Produtos', value: (c) => (c.produtos ?? []).map((p) => p.nome).join(', ') || '—', search: true, cell: (c) => <span className="line-clamp-2 max-w-64 text-sm">{(c.produtos ?? []).map((p) => p.nome).join(', ') || '—'}</span> },
+    { header: 'Criado por', value: (c) => (c.origem === 'CTM' ? 'CTM' : 'DR'), filter: true },
     { header: 'Saldo', value: (c) => (c.status === 'Aceito' ? 'sim' : '—'), className: 'text-right', cell: (c) => (c.status === 'Aceito' ? <SaldoTaa c={c} compacto /> : '—') },
     { header: 'Vigência', value: (c) => `${c.vigenciaInicio} a ${c.vigenciaFim}`, className: 'text-muted-foreground tabular-nums' },
     { header: 'Status', value: (c) => c.status, filter: true, cell: (c) => <StatusTaaBadge c={c} /> },
@@ -48,7 +47,7 @@ export default function TaaCtm() {
       <DataTable
         rows={rows}
         columns={colunas}
-        searchPlaceholder="Buscar DR, nº ou produto…"
+        searchPlaceholder="Buscar DR ou nº…"
         actions={(c) => (
           <>
             {fluxo.botoes(c)}

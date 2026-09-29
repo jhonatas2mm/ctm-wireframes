@@ -40,7 +40,7 @@ export function TaaSheet({ taa, onClose, rodape }: { taa: Contrato | null; onClo
               <SheetDescription className="sr-only">Detalhes do {inst}</SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4">
-              {(taa.status === 'Retornado para ajuste' || taa.status === 'Cancelado') && taa.motivo && (
+              {(taa.status === 'Retornado' || taa.status === 'Cancelado') && taa.motivo && (
                 <div className={taa.status === 'Cancelado' ? 'rounded-lg border bg-muted/50 p-3 text-sm' : 'rounded-lg border border-orange-200 bg-orange-50 p-3 text-sm text-orange-900'}>
                   <p className="mb-1 text-xs font-medium">{taa.status === 'Cancelado' ? 'Motivo do cancelamento' : 'Pedido de ajuste'}</p>
                   <p className="whitespace-pre-wrap">{taa.motivo}</p>

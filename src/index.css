@@ -270,7 +270,9 @@ html.ds-senai [data-slot="table-head"] {
 html.ds-senai [data-slot="table-body"] [data-slot="table-row"] { border-color: #F0F2F3; transition: background-color .15s; }
 html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:last-child { border-bottom: 0; }
 html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:hover,
-html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:hover [data-slot="table-cell"] { background-color: #FAFAFB; }
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:hover [data-slot="table-cell"],
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"][data-foco],
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"][data-foco] [data-slot="table-cell"] { background-color: #FAFAFB; }
 html.ds-senai [data-slot="table-cell"] { height: 3.5rem; padding-inline: 1rem; color: #3D4448; font-size: 0.875rem; }
 html.ds-senai [data-slot="table-body"] [data-slot="table-cell"]:first-child { color: #22272A; font-weight: 600; }
 html.ds-senai [data-slot="table-cell"].sticky, html.ds-senai [data-slot="table-head"].sticky { box-shadow: none !important; }
@@ -324,10 +326,16 @@ html.ds-senai [data-slot="table-cell"] button[aria-label]:not(:disabled) svg { c
 html.ds-senai body { min-width: 1280px; }
 
 /* Abas (padrão): trilho branco com borda; aba ativa em laranja suave, como o item ativo do menu */
-html.ds-senai [data-slot="tabs-list"][data-variant="default"] { height: 2.5rem; padding: 4px; gap: 2px; background: #FFFFFF; border: 1px solid #E5E8EA; border-radius: 0.875rem; }
-html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"] { padding-inline: 0.875rem; border-radius: 0.625rem; color: #5B6A70; }
-html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"]:hover { background: #F5F5F7; color: #22272A; }
-html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-active] { background: #FFF6ED; color: #C23C0D; font-weight: 600; box-shadow: none; }
+/* Abas primárias: pílula cinza clara; a ativa "sobe" (branco, borda fina e sombra leve); ícone opcional antes do texto. */
+html.ds-senai [data-slot="tabs-list"][data-variant="default"] { height: 2.75rem; padding: 4px; gap: 4px; background: #EEF0F1; border: 1px solid #E5E8EA; border-radius: 0.875rem; }
+html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"] { padding-inline: 1rem; gap: 0.5rem; border-radius: 0.625rem; color: #7A878C; border: 1px solid transparent; }
+html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"]:hover { color: #22272A; }
+html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-trigger"][data-active] { background: #FFFFFF; color: #22272A; font-weight: 600; border-color: #DDE1E3; box-shadow: 0 1px 2px rgb(0 0 0 / 0.06); }
+/* Abas secundárias (variant="line"): texto com a barrinha embaixo da ativa, na cor principal. */
+html.ds-senai [data-slot="tabs-list"][data-variant="line"] [data-slot="tabs-trigger"] { padding-inline: 0.75rem; color: #7A878C; }
+html.ds-senai [data-slot="tabs-list"][data-variant="line"] [data-slot="tabs-trigger"]:hover { color: #22272A; }
+html.ds-senai [data-slot="tabs-list"][data-variant="line"] [data-slot="tabs-trigger"][data-active] { color: #C23C0D; font-weight: 600; }
+html.ds-senai [data-slot="tabs-list"][data-variant="line"] [data-slot="tabs-trigger"]::after { background: #F5631A; }
 
 /* Campos nunca transparentes sobre o fundo da página: sempre fundo branco */
 html.ds-senai [data-slot="input"], html.ds-senai [data-slot="textarea"], html.ds-senai [data-slot="select-trigger"] { background-color: #FFFFFF; }

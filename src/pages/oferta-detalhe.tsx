@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Ban, CalendarClock, CalendarPlus, CheckCircle2, Layers, Merge, Pencil, Plus, Send, Trash2, X } from 'lucide-react'
+import { Ban, CalendarClock, CalendarDays, CalendarPlus, CheckCircle2, History, Layers, Link2, Merge, Pencil, Plus, Send, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -128,25 +128,25 @@ export default function OfertaDetalhe() {
 
         <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
           <TabsList>
-            <TabsTrigger value="cronograma">Cronograma</TabsTrigger>
-            <TabsTrigger value="execucao">UCs</TabsTrigger>
-            <TabsTrigger value="integracao">Integração com o AVA</TabsTrigger>
-            <TabsTrigger value="historico">Histórico</TabsTrigger>
+            <TabsTrigger value="cronograma"><CalendarDays /> Cronograma</TabsTrigger>
+            <TabsTrigger value="execucao"><Layers /> UCs</TabsTrigger>
+            <TabsTrigger value="integracao"><Link2 /> Integração com o AVA</TabsTrigger>
+            <TabsTrigger value="historico"><History /> Histórico</TabsTrigger>
           </TabsList>
 
           <TabsContent value="cronograma" className="space-y-6 pt-4">
             {/* Validação pela DR contratante: versões; sem resposta até o prazo, conta como validado */}
-            <section className={cn('flex flex-wrap items-center gap-4 rounded-[1.25rem] border p-4 bg-card', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando validação' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
+            <section className={cn('flex flex-wrap items-center gap-4 rounded-[1.25rem] border p-4 bg-card', sitCron === 'Validado' ? 'border-emerald-200 bg-emerald-50' : sitCron === 'Aguardando' ? 'border-amber-200 bg-amber-50' : 'bg-card')}>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">Cronograma v{cron.versao} · {sitCron}</p>
                 <p className="text-sm text-muted-foreground">
                   {sitCron === 'Rascunho' && 'Revise as datas e envie à DR contratante para validação (o envio é feito fora do sistema).'}
-                  {sitCron === 'Aguardando validação' && `Aguardando o SENAI-${t.drContratante} até ${dataBr(cron.prazo)} (faltam ${diasEntre(HOJE, cron.prazo ?? HOJE)} dias). Sem resposta até lá, o cronograma conta como validado.`}
-                  {sitCron === 'Validado' && (cron.situacao === 'Aguardando validação' ? `Validado por prazo em ${dataBr(cron.prazo)} (a DR não respondeu).` : `Validado pela DR em ${dataBr(cron.validadoEm)}.`)}
+                  {sitCron === 'Aguardando' && `Aguardando o SENAI-${t.drContratante} até ${dataBr(cron.prazo)} (faltam ${diasEntre(HOJE, cron.prazo ?? HOJE)} dias). Sem resposta até lá, o cronograma conta como validado.`}
+                  {sitCron === 'Validado' && (cron.situacao === 'Aguardando' ? `Validado por prazo em ${dataBr(cron.prazo)} (a DR não respondeu).` : `Validado pela DR em ${dataBr(cron.validadoEm)}.`)}
                 </p>
               </div>
               {aberta && sitCron === 'Rascunho' && <Button onClick={() => abrir('enviar', somar(HOJE, 10))}><Send /> Marcar como enviado à DR</Button>}
-              {aberta && sitCron === 'Aguardando validação' && (
+              {aberta && sitCron === 'Aguardando' && (
                 <Button onClick={() => registrar({ cronograma: { ...cron, situacao: 'Validado', validadoEm: HOJE } }, `Cronograma v${cron.versao} validado pelo SENAI-${t.drContratante}`)}><CheckCircle2 /> Registrar validação</Button>
               )}
               {aberta && sitCron !== 'Rascunho' && <Button variant="outline" onClick={() => abrir('versao', inicio)}><Pencil /> DR pediu ajuste</Button>}
@@ -325,7 +325,7 @@ export default function OfertaDetalhe() {
               <div className="grid gap-1.5"><Label>Prazo para validação <Req /></Label><Input type="date" value={data} onChange={(e) => setData(e.target.value)} /></div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setModal(null)}>Cancelar</Button>
-                <Button onClick={() => (registrar({ cronograma: { ...cron, situacao: 'Aguardando validação', prazo: data } }, `Cronograma v${cron.versao} enviado à DR para validação (prazo ${dataBr(data)})`), setModal(null))}>Registrar envio</Button>
+                <Button onClick={() => (registrar({ cronograma: { ...cron, situacao: 'Aguardando', prazo: data } }, `Cronograma v${cron.versao} enviado à DR para validação (prazo ${dataBr(data)})`), setModal(null))}>Registrar envio</Button>
               </DialogFooter>
             </>
           )}

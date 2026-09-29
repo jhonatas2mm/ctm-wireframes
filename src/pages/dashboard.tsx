@@ -16,7 +16,7 @@ const colunas = (todos: boolean): Column<Contrato>[] => [
     { header: 'Contratante', value: (c: Contrato) => nomeParte(c.contratante), search: true, filter: true },
     ] : []),
   { header: 'CTM contratada', value: (c) => `SENAI-${c.dr}`, search: true, filter: true },
-  { header: 'Origem', value: (c) => (c.origem === 'CTM' ? 'Recebido da CTM' : 'Criado pela DR'), filter: true },
+  { header: 'Origem', value: (c) => (c.origem === 'CTM' ? 'CTM' : 'DR'), filter: true },
   { header: 'Produtos', value: (c) => (c.produtos ?? []).map((p) => p.nome).join(', ') || '—', search: true, cell: (c) => <span className="line-clamp-2 max-w-64 text-sm">{(c.produtos ?? []).map((p) => p.nome).join(', ') || '—'}</span> },
   { header: 'Valor global', value: (c) => brl(c.valor), className: 'text-right tabular-nums' },
   { header: 'Saldo', value: (c) => (c.status === 'Aceito' ? 'sim' : '—'), className: 'text-right', cell: (c) => (c.status === 'Aceito' ? <SaldoTaa c={c} compacto /> : '—') },

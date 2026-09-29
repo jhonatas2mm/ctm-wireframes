@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
-import { AlertTriangle, FileDown, Hourglass, ReceiptText, UserMinus, Users } from 'lucide-react'
+import { FileDown, ReceiptText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -100,18 +100,18 @@ export function AcompanhamentoAlunos() {
             <SelectContent>{ciclos.map((c) => <SelectItem key={c} value={c}>{cicloBr(c)}</SelectItem>)}</SelectContent>
           </Select>
         </div>
-        <div className="ml-auto flex gap-2">
+        <div className="flex w-full gap-2">
           <Button variant="outline" onClick={exportar}><FileDown /> Exportar planilha</Button>
           <Button variant="outline" nativeButton={false} render={<a href={`#/financeiro/cobranca/${t.propostaId}?ciclo=${ciclo}`} />}><ReceiptText /> Relatório de cobrança</Button>
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard icon={Users} tom="blue" label="Alunos" value={String(alunos.length)} hint={`${alunos.filter((a) => a.integrado).length} integrados no AVA`} />
-        <StatCard icon={ReceiptText} tom="green" label="Faturamentos no ciclo" value={String(faturas)} hint={`aluno × UC · ${ucs.length} UC(s) no ciclo`} />
-        <StatCard icon={UserMinus} tom="gray" label="Alunos com desistência ou trancamento" value={String(alunos.filter((a) => a.ucs.some((m) => m.status !== 'Matriculado')).length)} hint="Em ao menos uma UC; nas outras segue matriculado" />
-        <StatCard icon={Hourglass} tom="amber" label="Desistências aguardando a DR" value={String(alunos.reduce((n, a) => n + a.ucs.filter(aguardandoDr).length, 0))} hint="Aluno × UC; seguem faturando até a DR confirmar" />
-        <StatCard icon={AlertTriangle} tom="amber" label="Suspensos sem formalização" value={String(suspensos)} hint="Seguem faturando: cobrar a formalização da DR" />
+        <StatCard quebra label="Alunos" value={String(alunos.length)} hint={`${alunos.filter((a) => a.integrado).length} integrados no AVA`} />
+        <StatCard quebra label="Faturamentos no ciclo" value={String(faturas)} hint={`aluno × UC · ${ucs.length} UC(s) no ciclo`} />
+        <StatCard quebra label="Alunos com desistência ou trancamento" value={String(alunos.filter((a) => a.ucs.some((m) => m.status !== 'Matriculado')).length)} hint="Em ao menos uma UC; nas outras segue matriculado" />
+        <StatCard quebra label="Desistências aguardando a DR" value={String(alunos.reduce((n, a) => n + a.ucs.filter(aguardandoDr).length, 0))} hint="Aluno × UC; seguem faturando até a DR confirmar" />
+        <StatCard quebra label="Suspensos sem formalização" value={String(suspensos)} hint="Seguem faturando: cobrar a formalização da DR" />
       </div>
 
       <DataTable rows={alunos} columns={colunas} searchPlaceholder="Buscar aluno ou CPF…" />
