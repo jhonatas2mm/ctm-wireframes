@@ -27,7 +27,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
 
   // Mesmo escopo das telas de acompanhamento: DR solicitante só vê a própria DR.
   const perfil = useProfile()
-  const uf = perfil === 'DR solicitante' ? profileOf(perfil).dr?.sigla.replace('SENAI-', '') : undefined
+  const uf = perfil.startsWith('DR solicitante') ? profileOf(perfil).dr?.sigla.replace('SENAI-', '') : undefined
   const contratosCtm = useContratosCtm().all.filter((c) => !uf || c.dr === uf)
   const turmas = useTurmasEad().all.filter((t) => contratosCtm.some((c) => c.id === t.contratoId))
   const alunos = useAlunosEad().all.filter((a) => turmas.some((t) => t.id === a.turmaId))

@@ -3,14 +3,15 @@ import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { EmptyState } from '@/components/wf'
 import { useContratos, useEditais, type Dr } from '@/lib/mock'
-import { statusVariant } from './taa-sheet'
+import { StatusTaaBadge } from './taa-fluxo'
 
 // Detalhes do DR (side sheet, perfil DN): contato, editais em que está credenciado e TAAs com o DN.
 export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void }) {
   const { all: editais } = useEditais()
   const { all: contratos } = useContratos()
   const meusEditais = dr ? editais.filter((e) => e.drs.includes(dr.uf)) : []
-  const taas = dr ? contratos.filter((c) => c.contratante === 'DN' && c.dr === dr.uf) : []
+  // TAAs em que a DR é a CTM contratada
+  const taas = dr ? contratos.filter((c) => c.dr === dr.uf) : []
   return (
     <Sheet open={!!dr} onOpenChange={(o) => !o && onClose()}>
       <SheetContent className="w-full gap-0 p-0 sm:max-w-3xl">
@@ -65,7 +66,7 @@ export function DrSheet({ dr, onClose }: { dr: Dr | null; onClose: () => void })
                       <li key={t.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                         <span className="font-mono font-medium">{t.numero}</span>
                         <span className="text-xs text-muted-foreground">{t.vigenciaInicio} a {t.vigenciaFim}</span>
-                        <Badge variant={statusVariant[t.status]} className="ml-auto">{t.status}</Badge>
+                        <span className="ml-auto"><StatusTaaBadge c={t} /></span>
                       </li>
                     ))}
                   </ul>

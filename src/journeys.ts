@@ -28,7 +28,7 @@ export const journeys: Journey[] = [
     profile: 'Super admin',
     steps: [
       { title: 'Perfis e permissões', path: '/admin/perfis', focus: '[data-slot="data-table"]', profile: 'Super admin', note: 'Lista de perfis com nº de telas e de usuários; abre um perfil.' },
-      { title: 'Permissões do perfil', path: '/admin/perfis/CTM%3A%20Comercial', profile: 'Super admin', note: 'Marca as telas que o perfil acessa (com “Selecionar todas”) e salva.' },
+      { title: 'Permissões do perfil', path: '/admin/perfis/CTM%3A%20Gestor%20de%20contrato', profile: 'Super admin', note: 'Marca as telas que o perfil acessa (com “Selecionar todas”) e salva.' },
     ],
   },
   {
@@ -46,6 +46,15 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Logs do sistema', path: '/admin/logs', focus: 'text=Linha do tempo', profile: 'Super admin', note: 'Tudo o que os usuários fazem na plataforma: login, visualizações, criações, edições, exclusões, aceites, exportações. Filtros por usuário, perfil, ação, módulo e DR; dá para salvar filtros (ex.: “Exclusões da DN”).' },
       { title: 'Detalhe do log', path: '/admin/logs/l1', profile: 'Super admin', note: 'Side nav com quem fez (perfil, DR), quando, módulo, IP e dispositivo, o que mudou (antes → depois) e outras ações do mesmo usuário.' },
+    ],
+  },
+  {
+    id: 'admin-feriados',
+    title: 'Feriados nacionais',
+    profile: 'Super admin',
+    steps: [
+      { title: 'Feriados nacionais', path: '/admin/feriados', profile: 'Super admin', note: 'Única base de datas do sistema: o cronograma da oferta só pula estes dias. Não há feriados por DR ou CTM por enquanto.' },
+      { title: 'Novo feriado', path: '/admin/feriados/novo', profile: 'Super admin', note: 'Nome e data. Editar e excluir (com confirmação) pela listagem.' },
     ],
   },
   {
@@ -75,33 +84,45 @@ export const journeys: Journey[] = [
     profile: 'DN',
     steps: [
       { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo edital', profile: 'DN', note: 'DN clica em “Novo edital”.' },
-      { title: 'Novo edital', path: '/editais/novo', profile: 'DN', note: 'Define vigência e cursos (valor e DRs credenciados por curso) e salva o edital.' },
+      { title: 'Novo edital', path: '/editais/novo', profile: 'DN', note: 'Define vigência e cursos: valor, DRs credenciados e a CTM aprovada de cada produto (a que ofereceu o menor custo).' },
       { title: 'Edital criado', path: '/editais/1/sucesso', profile: 'DN', note: 'Tela de sucesso: resumo do edital salvo, com opção de ver o edital ou voltar à gestão.' },
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Novo produto”.' },
-      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital, marca os produtos e cadastra módulos e UCs.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca os produtos e cadastra módulos e UCs. Salvar envia a solicitação ao DN: o produto fica Aguardando aprovação até entrar no portfólio.' },
       { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Supervisor', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
   {
-    id: 'contratos',
-    title: 'Contratação de CTM (TAA)',
-    profile: 'DN',
+    id: 'ctm-taa',
+    title: 'Envio de TAA às DRs',
+    profile: 'CTM: Gestor de contrato',
     steps: [
-      { title: 'TAAs com CTMs', path: '/dashboard', focus: 'text=Novo TAA', profile: 'DN', note: 'O DN não gerencia os TAAs da rede: aqui ficam só os TAAs em que o DN contrata uma CTM. Clica em “Novo TAA”.' },
-      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DN', note: 'Contratante fixo (SENAI DN); escolhe a CTM (DR credenciada), vigência e valor global; baixa o termo. Fica Em elaboração.' },
-      { title: 'TAA em elaboração', path: '/dashboard/3', profile: 'DN', note: 'Assinaturas fora do sistema. Ao voltar, “Anexar TAA assinado”.' },
-      { title: 'TAA vigente', path: '/dashboard/1', profile: 'DN', note: 'Com o TAA assinado anexado, o status passa a Vigente. A CTM já pode registrar propostas para o DN.' },
+      { title: 'TAAs com as DRs', path: '/taas-ctm', focus: 'text=Novo TAA', profile: 'CTM: Gestor de contrato', note: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica. A lista também mostra os TAAs que as DRs criaram (a CTM analisa) e o saldo dos aceitos.' },
+      { title: 'Novo TAA', path: '/taas-ctm/novo', profile: 'CTM: Gestor de contrato', note: 'Edital → produtos em que a CTM é a aprovada → DRs destinatárias; um TAA por DR, com status Encaminhado.' },
+      { title: 'Gestor da DR analisa', path: '/dashboard/16', profile: 'DR solicitante: SENAI', note: 'O Gestor da DR recebe o TAA (abrir marca Em análise) e aceita, retorna para ajuste (motivo) ou recusa (Cancelado).' },
+      { title: 'Retorno para a CTM', path: '/taas-ctm', profile: 'CTM: Gestor de contrato', note: 'Retornado para ajuste: a CTM ajusta e reencaminha. Aceito: o termo é assinado fora e anexado; o saldo cai conforme as propostas aceitas.' },
     ],
   },
   {
     id: 'dr-contratacao',
-    title: 'Contratação da CTM (TAA)',
-    profile: 'DR solicitante',
+    title: 'TAAs com CTMs',
+    profile: 'DR solicitante: SENAI',
     steps: [
-      { title: 'TAAs com CTMs', path: '/dashboard', focus: 'text=Novo TAA', profile: 'DR solicitante', note: 'A DR solicitante (SENAI-MG) contrata outra CTM. SENAI com SENAI é TAA; se o solicitante for SESI, o instrumento é contrato.' },
-      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DR solicitante', note: 'Contratante fixo (a própria DR); escolhe a CTM, vigência e valor global; baixa o termo. Fica Em elaboração.' },
-      { title: 'TAA em elaboração', path: '/dashboard/5', profile: 'DR solicitante', note: 'Assinaturas fora do sistema. Ao voltar, “Anexar TAA assinado”.' },
-      { title: 'TAA vigente', path: '/dashboard/4', profile: 'DR solicitante', note: 'Vigente: a CTM contratada registra as propostas para esta DR.' },
+      { title: 'TAAs com CTMs', path: '/dashboard', profile: 'DR solicitante: SENAI', note: 'O Gestor da DR (coordenador, interlocutor…) vê os TAAs recebidos das CTMs e os que criou, com status e saldo.' },
+      { title: 'TAA recebido da CTM', path: '/dashboard/16', profile: 'DR solicitante: SENAI', note: 'Analisa: Aceitar, Retornar para ajuste (motivo) ou Recusar (Cancelado). No aceite, o Gestor fica registrado como solicitante.' },
+      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DR solicitante: SENAI', note: 'A DR também pode criar: edital e produtos (a CTM é a aprovada no edital), Gestor solicitante, vigência e valor. Vai Encaminhado para a CTM analisar.' },
+      { title: 'Retornado para ajuste', path: '/dashboard/5', profile: 'DR solicitante: SENAI', note: 'A CTM pediu ajuste: o Gestor ajusta (vigência, valor) e reencaminha, ou cancela.' },
+      { title: 'TAA aceito', path: '/dashboard/4', profile: 'DR solicitante: SENAI', note: 'Aceito: vale para as propostas. Saldo = valor global − executado (propostas aceitas nos produtos do TAA). O termo assinado é anexado.' },
+    ],
+  },
+  {
+    id: 'sesi-contratacao',
+    title: 'Contratos com CTMs',
+    profile: 'DR solicitante: SESI',
+    steps: [
+      { title: 'Contratos com CTMs', path: '/dashboard', focus: 'text=Novo contrato', profile: 'DR solicitante: SESI', note: 'SESI com SENAI não é TAA: é contrato. Mesmos status (Encaminhado, Em análise, Retornado para ajuste, Aceito, Cancelado).' },
+      { title: 'Novo contrato', path: '/dashboard/novo-ta', profile: 'DR solicitante: SESI', note: 'O Gestor do SESI escolhe edital e produtos (a CTM é a aprovada), vigência e valor; vai Encaminhado para a CTM analisar.' },
+      { title: 'Contrato encaminhado', path: '/dashboard/14', profile: 'DR solicitante: SESI', note: 'Aguardando a análise da CTM SENAI-MG.' },
+      { title: 'Contrato aceito', path: '/dashboard/15', profile: 'DR solicitante: SESI', note: 'Aceito com a CTM SENAI-SC, com saldo.' },
     ],
   },
   {
@@ -110,8 +131,25 @@ export const journeys: Journey[] = [
     profile: 'CTM: Supervisor',
     steps: [
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Novo produto”.' },
-      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital, marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o produto fica Aguardando aprovação até entrar no portfólio.' },
       { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Supervisor', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
+    ],
+  },
+  {
+    id: 'aprovacao-portfolio',
+    title: 'Aprovação de portfólio',
+    profile: 'DN',
+    steps: [
+      { title: 'Aprovação de portfólio', path: '/portfolio/aprovacoes', focus: 'text=Aprovar', profile: 'DN', note: 'Solicitações das CTMs: novos produtos e novas versões. Visualizar mostra matriz, itinerário e documentos vinculados.' },
+      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DN', note: 'Aprovado, o produto (ou a nova versão) entra no portfólio, visível para todas as DRs. Reprovado volta para a CTM com o motivo.' },
+    ],
+  },
+  {
+    id: 'portfolio-dr',
+    title: 'Portfólio das CTMs',
+    profile: 'DR solicitante: SENAI',
+    steps: [
+      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DR solicitante: SENAI', note: 'Todas as DRs consultam o portfólio aprovado: produto, CTM, versão vigente, itinerário e documentos. Base para escolher os produtos do TAA.' },
     ],
   },
   {
@@ -130,9 +168,8 @@ export const journeys: Journey[] = [
     title: 'Criação de oferta',
     profile: 'CTM: Supervisor',
     steps: [
-      { title: 'Calendário', path: '/calendario', profile: 'CTM: Supervisor', note: 'Feriados nacionais (fixos) e recessos/férias da CTM: o gerador de cronograma pula esses dias.' },
       { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'CTM: Supervisor', note: 'Lista de ofertas (uma linha por turma, com a proposta); clica em “Adicionar oferta” na proposta.' },
-      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Supervisor', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pelo Calendário; dá para ajustar à mão.' },
+      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Supervisor', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pulando os feriados nacionais; dá para ajustar à mão.' },
       { title: 'Oferta criada', path: '/oferta/t1/sucesso', profile: 'CTM: Supervisor', note: 'Confirmação: ofertas criadas com o cronograma v1 em rascunho.' },
       { title: 'Validação do cronograma', path: '/oferta/t2', profile: 'CTM: Supervisor', note: 'Registra o envio à DR com prazo; a DR valida ou pede ajuste (nova versão). Sem resposta até o prazo, conta como validado. UCs agrupáveis com outras turmas aparecem marcadas.' },
       { title: 'Turma confirmada', path: '/oferta/t1', profile: 'CTM: Supervisor', note: 'Com o cronograma validado e a DR confirmando a turma, “Confirmar turma” muda o status para Buscar tutor (libera o PCP e a criação de salas). Também: prorrogar início e cancelar turma.' },
@@ -148,6 +185,43 @@ export const journeys: Journey[] = [
       { title: 'E-mail ao tutor', path: '/oferta/t1?aba=execucao', profile: 'CTM: Supervisor', note: '“Gerar” monta o e-mail com dados da turma, equipe e links (plano de curso, plano de ensino, pasta, sala). Copiar e enviar fora; marcar tutor confirmado. Planejamento/replanejamento pedem validação pedagógica.' },
       { title: 'Integração com o AVA', path: '/oferta/t1?aba=integracao', profile: 'CTM: Supervisor', note: 'Criar salas no AVA (botão), tabela de código CTM por escola + ID da sala por UC para a DR parametrizar no SGE, e situação da integração por escola com alerta 5 dias antes do início.' },
       { title: 'Histórico da turma', path: '/oferta/t1?aba=historico', profile: 'CTM: Supervisor', note: 'Tudo o que mudou na turma: versões do cronograma, confirmação, equipe, e-mails, salas.' },
+    ],
+  },
+  {
+    id: 'pcp-alocacao',
+    title: 'Alocação de tutores',
+    profile: 'CTM: PCP',
+    steps: [
+      { title: 'Equipe', path: '/equipe', profile: 'CTM: PCP', note: 'Tutores com competências (UCs) e dias disponíveis.' },
+      { title: 'Turma em Buscar tutor', path: '/oferta/t1?aba=execucao', profile: 'CTM: PCP', note: 'O PCP aloca o tutor de cada UC (competência primeiro), define a ação (Planejamento, Replanejamento ou Apropriação) e o dia das aulas ao vivo, olhando o curso inteiro.' },
+    ],
+  },
+  {
+    id: 'pedagogico',
+    title: 'Validação e acompanhamento',
+    profile: 'CTM: Pedagógico',
+    steps: [
+      { title: 'Validação pedagógica', path: '/oferta/t1?aba=execucao', profile: 'CTM: Pedagógico', note: 'UCs em planejamento/replanejamento: o pedagógico valida o material antes do monitor subir no AVA.' },
+      { title: 'Tratativas pedagógicas', path: '/tratativas', profile: 'CTM: Pedagógico', note: 'Registros categorizados por aluno ou turma; retornos pendentes e alertas de desistência.' },
+      { title: 'Nova tratativa', path: '/tratativas/nova', profile: 'CTM: Pedagógico', note: 'Registra a tratativa e quando acompanhar de novo.' },
+    ],
+  },
+  {
+    id: 'tutor',
+    title: 'Minhas UCs (em avaliação)',
+    profile: 'CTM: Tutor',
+    steps: [
+      { title: 'Turmas', path: '/oferta', profile: 'CTM: Tutor', note: 'Caixa em avaliação: o tutor consultaria as turmas em que foi alocado.' },
+      { title: 'UCs da turma', path: '/oferta/t1?aba=execucao', profile: 'CTM: Tutor', note: 'Em avaliação: ver a ação (planejamento/apropriação), o período e os links da UC em vez de depender só do e-mail.' },
+    ],
+  },
+  {
+    id: 'monitor',
+    title: 'Salas e tratativas (em avaliação)',
+    profile: 'CTM: Monitor',
+    steps: [
+      { title: 'Integração com o AVA', path: '/oferta/t1?aba=integracao', profile: 'CTM: Monitor', note: 'Caixa em avaliação: o monitor acompanharia salas criadas e a integração dos alunos por escola.' },
+      { title: 'Nova tratativa', path: '/tratativas/nova', profile: 'CTM: Monitor', note: 'Monitoria registra contatos com alunos (baixo acesso, atividade não entregue…).' },
     ],
   },
   {
@@ -167,22 +241,14 @@ export const journeys: Journey[] = [
       { title: 'Financeiro', path: '/financeiro', profile: 'CTM: Supervisor', note: 'Situação de cobrança por aluno: cobra até a DR formalizar a saída (corte dia 20, cobrança dia 5). Suspenso no AVA sem formalização vira alerta. Formalização registrada aqui, não por e-mail.' },
     ],
   },
-  {
-    id: 'gestor-gestao-contratos',
-    title: 'Gestão de contratos',
-    profile: 'CTM: Gestor de contrato',
-    steps: [
-      { title: 'Gestão de contratos', path: '/gestao-contratos', focus: 'row=006/2026', profile: 'CTM: Gestor de contrato', note: 'Gestor de contrato vê os TAAs (SENAI) e contratos (SESI) em que a CTM é contratada, com contratante, vigência, valor e status. Só consulta: quem cria e anexa o TAA é o contratante.' },
-      { title: 'Detalhes do TAA', path: '/gestao-contratos/7', profile: 'CTM: Gestor de contrato', note: 'Abre o TAA: partes, vigência, valor e o documento assinado.' },
-    ],
-  },
+
   {
     id: 'comercial-criacao-portfolio',
     title: 'Criação de portfólio',
     profile: 'CTM: Gestor de contrato',
     steps: [
-      { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Gestor de contrato', note: 'Gestor de contrato clica em “Novo produto”.' },
-      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Gestor de contrato', note: 'Escolhe um edital, marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um.' },
+      { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Gestor de contrato', note: 'O Gestor de contrato clica em “Novo produto”.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Gestor de contrato', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o produto fica Aguardando aprovação até entrar no portfólio.' },
       { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Gestor de contrato', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
@@ -191,7 +257,7 @@ export const journeys: Journey[] = [
     title: 'Criação de proposta',
     profile: 'CTM: Gestor de contrato',
     steps: [
-      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Gestor de contrato', note: 'Gestor de contrato clica em “Nova proposta”.' },
+      { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Gestor de contrato', note: 'O Gestor de contrato clica em “Nova proposta”.' },
       { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Gestor de contrato', note: 'Contratante: só quem tem TAA (SENAI) ou contrato (SESI) com a CTM. Registro mínimo (o documento é feito fora, no modelo): edital, contratante, CNPJ, faturamento (DR ou escolas), nº no CRM e link do documento; por curso, vagas, início previsto e valor. Salva Em negociação.' },
       { title: 'Proposta criada', path: '/produtos/4', profile: 'CTM: Gestor de contrato', note: 'Ao salvar, a proposta abre em Gestão da proposta, Em negociação, com os cursos, vagas e valores previstos; o acordo é fechado fora do sistema.' },
       { title: 'Proposta aceita ou recusada', path: '/produtos', focus: 'text=Aceitar', profile: 'CTM: Gestor de contrato', note: 'Depois do acordo (fora do sistema), marca Aceita ou Recusada (recusa pede feedback). Alerta quando a turma começa em até 15 dias e a proposta não foi aceita. Duplicar abre nova rodada; aceita ainda pode ser cancelada (com motivo).' },
@@ -203,7 +269,7 @@ export const journeys: Journey[] = [
     profile: 'CTM: Gestor de contrato',
     steps: [
       { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'CTM: Gestor de contrato', note: 'Lista de ofertas (uma linha por turma, com a proposta); clica em “Adicionar oferta” na proposta.' },
-      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Gestor de contrato', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pelo Calendário; dá para ajustar à mão.' },
+      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Gestor de contrato', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pulando os feriados nacionais; dá para ajustar à mão.' },
       { title: 'Oferta criada', path: '/oferta/t1/sucesso', profile: 'CTM: Gestor de contrato', note: 'Confirmação: ofertas criadas com o cronograma v1 em rascunho.' },
       { title: 'Validação do cronograma', path: '/oferta/t2', profile: 'CTM: Gestor de contrato', note: 'Registra o envio à DR com prazo; a DR valida ou pede ajuste (nova versão). Sem resposta até o prazo, conta como validado. UCs agrupáveis com outras turmas aparecem marcadas.' },
       { title: 'Turma confirmada', path: '/oferta/t1', profile: 'CTM: Gestor de contrato', note: 'Com o cronograma validado e a DR confirmando a turma, “Confirmar turma” muda o status para Buscar tutor (libera o PCP e a criação de salas). Também: prorrogar início e cancelar turma.' },
@@ -212,13 +278,23 @@ export const journeys: Journey[] = [
   {
     id: 'dr-acompanhamento',
     title: 'Acompanhamento da execução',
-    profile: 'DR solicitante',
+    profile: 'DR solicitante: SENAI',
     steps: [
-      { title: 'Painel', path: '/acompanhamento', focus: 'text=Requer atenção', profile: 'DR solicitante', note: 'Dashboard da DR solicitante (SENAI-MG): indicadores gerais e, por contrato, as turmas com execução e quantos alunos requerem atenção.' },
-      { title: 'Gestão de Contratos', path: '/contratos', focus: '[data-slot="data-table"]', profile: 'DR solicitante', note: 'Contratos da DR com o CTM: empresa cliente, cursos EAD, vigência, valor e status.' },
-      { title: 'Detalhes do contrato', path: '/contratos/c1', profile: 'DR solicitante', note: 'Side nav com os dados do contrato, vagas ocupadas e as turmas que o CTM opera para a empresa.' },
-      { title: 'Detalhes da turma', path: '/turmas-ead/t1', profile: 'DR solicitante', note: 'Execução do calendário, progresso e média dos alunos, tutor do CTM e lista de alunos.' },
-      { title: 'Detalhes do aluno', path: '/alunos/a2', profile: 'DR solicitante', note: 'Motivos que pedem atitude, notas das atividades e histórico de acessos ao AVA e ao Portal do aluno.' },
+      { title: 'Painel', path: '/acompanhamento', focus: 'text=Requer atenção', profile: 'DR solicitante: SENAI', note: 'Dashboard da DR solicitante (SENAI-MG): indicadores gerais e, por contrato, as turmas com execução e quantos alunos requerem atenção.' },
+      { title: 'Gestão de Contratos', path: '/contratos', focus: '[data-slot="data-table"]', profile: 'DR solicitante: SENAI', note: 'Contratos da DR com o CTM: empresa cliente, cursos EAD, vigência, valor e status.' },
+      { title: 'Detalhes do contrato', path: '/contratos/c1', profile: 'DR solicitante: SENAI', note: 'Side nav com os dados do contrato, vagas ocupadas e as turmas que o CTM opera para a empresa.' },
+      { title: 'Detalhes da turma', path: '/turmas-ead/t1', profile: 'DR solicitante: SENAI', note: 'Execução do calendário, progresso e média dos alunos, tutor do CTM e lista de alunos.' },
+      { title: 'Detalhes do aluno', path: '/alunos/a2', profile: 'DR solicitante: SENAI', note: 'Motivos que pedem atitude, notas das atividades e histórico de acessos ao AVA e ao Portal do aluno.' },
+    ],
+  },
+  {
+    id: 'sesi-acompanhamento',
+    title: 'Acompanhamento da execução',
+    profile: 'DR solicitante: SESI',
+    steps: [
+      { title: 'Painel', path: '/acompanhamento', profile: 'DR solicitante: SESI', note: 'Dashboard do SESI-MG: turmas que a CTM opera para ele e alunos que requerem atenção.' },
+      { title: 'Detalhes do contrato', path: '/contratos/c7', profile: 'DR solicitante: SESI', note: 'Contrato do SESI-MG com a CTM (empresa cliente, vagas, turmas).' },
+      { title: 'Detalhes da turma', path: '/turmas-ead/t9', profile: 'DR solicitante: SESI', note: 'Execução e alunos da turma.' },
     ],
   },
 ]

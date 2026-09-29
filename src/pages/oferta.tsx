@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { DataTable, EmptyState, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
-import { statusTurma, aoVivoTurma, chUc, situacaoCronograma, useCalendario, useCursosDr, useEquipe, useProdutos, useTurmas, type Produto, type StatusTurma, type Turma, type UcTurma } from '@/lib/mock'
+import { situacaoDe, statusTurma, aoVivoTurma, chUc, situacaoCronograma, useCalendario, useCursosDr, useEquipe, useProdutos, useTurmas, type Produto, type StatusTurma, type Turma, type UcTurma } from '@/lib/mock'
 import { gerarCronograma, parametrosPadrao, type ParametrosCronograma } from '@/lib/cronograma'
 import { cn } from '@/lib/utils'
 import { PropostaSheet } from './proposta-sheet'
@@ -149,7 +149,8 @@ export default function Oferta() {
 function useMatriz() {
   const { all } = useCursosDr()
   return (curso: string): Turma['modulos'] => {
-    const versoes = all.filter((c) => c.nome === curso).sort((a, b) => (b.versao ?? 1) - (a.versao ?? 1))
+    // Só versões aprovadas pelo DN vão para a oferta.
+    const versoes = all.filter((c) => c.nome === curso && situacaoDe(c) === 'Aprovado').sort((a, b) => (b.versao ?? 1) - (a.versao ?? 1))
     const base = versoes[0]?.modulos ?? [
       { nome: 'Módulo básico', unidades: [{ nome: 'Unidade curricular 1', cargaHoraria: 0 }, { nome: 'Unidade curricular 2', cargaHoraria: 0 }] },
       { nome: 'Módulo específico', unidades: [{ nome: 'Unidade curricular 3', cargaHoraria: 0 }] },
@@ -332,7 +333,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
               </div>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={params.terminarNaSexta} onChange={(e) => setP({ terminarNaSexta: e.target.checked })} /> UC termina na sexta-feira</label>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={params.iniciarModuloDezembro} onChange={(e) => setP({ iniciarModuloDezembro: e.target.checked })} /> Pode iniciar módulo em dezembro</label>
-              <p className="text-xs text-muted-foreground">Só dias úteis; pula feriados nacionais, recessos e férias do Calendário.</p>
+              <p className="text-xs text-muted-foreground">Só dias úteis; pula os feriados nacionais.</p>
               <Button type="button" variant="outline" disabled={!modulos.length} onClick={() => setModulos(gerar(modulos))}><CalendarCog /> Gerar cronograma</Button>
             </div>
           </section>

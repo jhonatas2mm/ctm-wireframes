@@ -30,18 +30,18 @@ export const raias: Raia[] = [
   { id: 'dn', nome: 'DN', pool: 'dn', perfil: 'DN' },
   { id: 'comercial', nome: 'Gestor de contrato', pool: 'ctm', perfil: 'CTM: Gestor de contrato' },
   { id: 'supervisor', nome: 'Supervisão', pool: 'ctm', perfil: 'CTM: Supervisor' },
-  { id: 'pcp', nome: 'PCP', pool: 'ctm' },
+  { id: 'pcp', nome: 'PCP', pool: 'ctm', perfil: 'CTM: PCP' },
   { id: 'analista', nome: 'Analista', pool: 'ctm' },
-  { id: 'tutor', nome: 'Tutor', pool: 'ctm' },
-  { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm' },
+  { id: 'tutor', nome: 'Tutor', pool: 'ctm', perfil: 'CTM: Tutor' },
+  { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm', perfil: 'CTM: Pedagógico' },
   { id: 'financeiro', nome: 'Financeiro', pool: 'ctm' },
-  { id: 'dr', nome: 'DR solicitante (SENAI/SESI) ou DN', pool: 'dr', perfil: 'DR solicitante' },
+  { id: 'dr', nome: 'Gestor da DR solicitante (SENAI/SESI)', pool: 'dr', perfil: 'DR solicitante: SENAI' },
   { id: 'ava', nome: 'AVA / SGE', pool: 'sis' },
 ]
 
 export const fases: Fase[] = [
   { id: 'credenciamento', nome: 'Credenciamento' },
-  { id: 'contrato', nome: 'Contratação (TAA / contrato)' },
+  { id: 'contrato', nome: 'TAA (um por DR) / contrato' },
   { id: 'proposta', nome: 'Proposta comercial' },
   { id: 'oferta', nome: 'Gestão da oferta' },
   { id: 'execucao', nome: 'Gestão da execução' },
@@ -54,13 +54,14 @@ export const nos: No[] = [
   // Credenciamento
   { id: 'inicio', tipo: 'inicio', raia: 'dn', col: 0, rotulo: 'Início', fase: 'credenciamento' },
   { id: 'credenciar', tipo: 'tarefa', raia: 'dn', col: 1, rotulo: 'Credenciar DR', fase: 'credenciamento', tela: '/drs/novo', descricao: 'O DN credencia o Departamento Regional que vai operar como CTM.', regras: ['DR nasce Ativa; pode ser inativada com confirmação.'] },
-  { id: 'edital', tipo: 'tarefa', raia: 'dn', col: 2, rotulo: 'Publicar edital', fase: 'credenciamento', tela: '/editais/novo', descricao: 'Vigência, áreas tecnológicas e cursos do portfólio nacional, com valor e DRs credenciados por curso.', regras: ['Área, modalidade e CH vêm do catálogo (fixas).', 'Só se oferta o que está no edital.'] },
-  { id: 'produto', tipo: 'tarefa', raia: 'supervisor', col: 3, rotulo: 'Cadastrar produto (matriz)', fase: 'credenciamento', tela: '/gestao-produtos/novo', descricao: 'Cada CTM cadastra seus produtos: módulos e UCs conforme o plano de curso.', regras: ['Nova versão não altera o que já foi negociado na anterior.', 'Versões podem rodar ao mesmo tempo.'] },
+  { id: 'edital', tipo: 'tarefa', raia: 'dn', col: 2, rotulo: 'Publicar edital', fase: 'credenciamento', tela: '/editais/novo', descricao: 'Vigência, áreas tecnológicas e cursos do portfólio nacional, com valor e DRs credenciados por curso.', regras: ['Área, modalidade e CH vêm do catálogo (fixas).', 'Por produto, a CTM aprovada é a que ofereceu o menor custo.', 'Só se oferta o que está no edital.'] },
+  { id: 'produto', tipo: 'tarefa', raia: 'supervisor', col: 3, rotulo: 'Cadastrar produto (matriz)', fase: 'credenciamento', tela: '/gestao-produtos/novo', descricao: 'Cada CTM solicita a inclusão de produtos (módulos e UCs conforme o plano de curso) ou de novas versões; vincula o itinerário e documentos/materiais.', regras: ['Nova versão não altera o que já foi negociado na anterior.', 'Versões podem rodar ao mesmo tempo.'] },
 
+  { id: 'aprova-portfolio', tipo: 'decisao', raia: 'dn', col: 4, rotulo: 'DN aprova?', fase: 'credenciamento', tela: '/portfolio/aprovacoes', descricao: 'O DN aprova (entra no Portfólio das CTMs, visível para todas as DRs) ou reprova com motivo (a CTM ajusta e envia nova versão).' },
   // Contrato
-  { id: 'taa', tipo: 'tarefa', raia: 'dr', col: 4, rotulo: 'Criar TAA / contrato com a CTM', fase: 'contrato', tela: '/dashboard/novo-ta', descricao: 'Quem contrata cria o instrumento escolhendo a CTM: vigência e valor global (teto). Sem produtos.', regras: ['SENAI ↔ SENAI (DR solicitante SENAI-XX ou o DN): TAA, no modelo do DN.', 'SESI-XX ↔ SENAI: contrato (não é TAA).', 'A CTM não gerencia TAAs, só propostas.', 'Passar do teto exige aditivo.'] },
-  { id: 'assinar-taa', tipo: 'tarefa', raia: 'comercial', col: 5, rotulo: 'CTM assina', fase: 'contrato', fora: true, descricao: 'Assinaturas fora do sistema (assinatura digital).' },
-  { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Anexar assinado (Vigente)', fase: 'contrato', tela: '/dashboard', descricao: 'Quem contratou anexa o termo assinado; o TAA/contrato fica Vigente e a CTM passa a vê-lo nas propostas.' },
+  { id: 'taa', tipo: 'tarefa', raia: 'comercial', col: 4, rotulo: 'Enviar TAA à DR', fase: 'contrato', tela: '/taas-ctm/novo', descricao: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica (Encaminhado), com os produtos em que é a aprovada. A DR também pode criar o seu (aí a CTM analisa). SESI: contrato.', regras: ['TAA só SENAI ↔ SENAI; SESI ↔ SENAI é contrato.', 'Status: Encaminhado → Em análise → Retornado para ajuste / Aceito / Cancelado.', 'Saldo = valor global − executado.'] },
+  { id: 'assinar-taa', tipo: 'decisao', raia: 'dr', col: 5, rotulo: 'Gestor aceita?', fase: 'contrato', tela: '/dashboard/16', descricao: 'O Gestor da DR analisa: aceita, retorna para ajuste (a CTM ajusta e reencaminha) ou recusa (Cancelado).' },
+  { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Aceito: assinar e anexar', fase: 'contrato', fora: true, tela: '/dashboard/4', descricao: 'Aceito, o termo é assinado fora do sistema e anexado. É burocrático: só destrava a negociação da oferta, que dá origem às propostas — pode não gerar nenhuma. O saldo cai conforme a execução.' },
 
   // Proposta
   { id: 'proposta', tipo: 'tarefa', raia: 'comercial', col: 7, rotulo: 'Registrar proposta', fase: 'proposta', tela: '/produtos/novo', descricao: 'O documento é feito no modelo, fora; no sistema fica o registro mínimo: DR, CNPJ, faturamento, nº CRM, link e cursos com vagas, início previsto e valor.', regras: ['Nasce Em negociação.', 'Cada curso só em uma proposta (pendente de validação).'] },
@@ -70,7 +71,7 @@ export const nos: No[] = [
   { id: 'aceite', tipo: 'tarefa', raia: 'comercial', col: 10, rotulo: 'Registrar aceite', fase: 'proposta', tela: '/produtos', descricao: 'Marca a proposta como Aceita (ou Recusada, com feedback). Aceita ainda pode ser cancelada.' },
 
   // Oferta
-  { id: 'nova-oferta', tipo: 'tarefa', raia: 'supervisor', col: 11, rotulo: 'Nova oferta + cronograma', fase: 'oferta', tela: '/oferta/proposta/2/nova', descricao: 'Escolhe a proposta aceita e os cursos; o sistema gera o cronograma por UC.', regras: ['Só dias úteis; pula feriados, recessos e férias do Calendário.', 'Semanas = CH ÷ horas por semana; UC termina na sexta.', 'UCs agrupáveis com outras turmas ficam marcadas.'] },
+  { id: 'nova-oferta', tipo: 'tarefa', raia: 'supervisor', col: 11, rotulo: 'Nova oferta + cronograma', fase: 'oferta', tela: '/oferta/proposta/2/nova', descricao: 'Escolhe a proposta aceita e os cursos; o sistema gera o cronograma por UC.', regras: ['Só dias úteis; pula os feriados nacionais (Super admin).', 'Semanas = CH ÷ horas por semana; UC termina na sexta.', 'UCs agrupáveis com outras turmas ficam marcadas.'] },
   { id: 'enviar-cron', tipo: 'tarefa', raia: 'supervisor', col: 12, rotulo: 'Enviar cronograma à DR', fase: 'oferta', tela: '/oferta/t2', descricao: 'Registra o envio (e-mail) com prazo de validação.' },
   { id: 'valida', tipo: 'decisao', raia: 'dr', col: 13, rotulo: 'Valida?', fase: 'oferta', fora: true, descricao: 'A DR valida ou pede ajuste. Sem resposta até o prazo, conta como validado.' },
   { id: 'ajuste', tipo: 'tarefa', raia: 'supervisor', col: 14, rotulo: 'Nova versão do cronograma', fase: 'oferta', tela: '/oferta/t2', descricao: 'Gera a versão seguinte com o que a DR pediu.' },
@@ -108,9 +109,12 @@ export const arestas: Aresta[] = [
   { de: 'inicio', para: 'credenciar' },
   { de: 'credenciar', para: 'edital' },
   { de: 'edital', para: 'produto' },
-  { de: 'produto', para: 'taa', rotulo: 'portfólio' },
-  { de: 'taa', para: 'assinar-taa', rotulo: 'envia' },
-  { de: 'assinar-taa', para: 'taa-vigente', rotulo: 'assinado' },
+  { de: 'produto', para: 'aprova-portfolio', rotulo: 'solicita' },
+  { de: 'aprova-portfolio', para: 'taa', rotulo: 'aprovado' },
+  { de: 'aprova-portfolio', para: 'produto', rotulo: 'reprovado' },
+  { de: 'taa', para: 'assinar-taa', rotulo: 'encaminha' },
+  { de: 'assinar-taa', para: 'taa', rotulo: 'ajuste' },
+  { de: 'assinar-taa', para: 'taa-vigente', rotulo: 'aceito' },
   { de: 'taa-vigente', para: 'proposta', rotulo: 'vigente' },
   { de: 'proposta', para: 'dr-aceita', rotulo: 'negocia' },
   { de: 'proposta', para: 'alerta-prazo' },

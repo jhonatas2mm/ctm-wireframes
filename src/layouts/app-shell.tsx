@@ -26,17 +26,21 @@ import { profileOf } from '@/journey/profiles'
 const secoes = ['DN', 'CTM', 'DR solicitante', 'Administração', 'Sistema'] as const
 const secaoDe = (path: string, perfil?: string): (typeof secoes)[number] =>
   path.startsWith('/admin') ? 'Administração'
-  : path.startsWith('/dashboard') && perfil === 'DR solicitante' ? 'DR solicitante'
-  : ['/painel-dn', '/drs', '/dashboard', '/editais'].some((p) => path.startsWith(p)) ? 'DN'
+  // Portfólio das CTMs é visto por todos: fica no setor do próprio perfil
+  : path === '/portfolio' && perfil?.startsWith('DR solicitante') ? 'DR solicitante'
+  : path === '/portfolio' && perfil === 'DN' ? 'DN'
+  : path.startsWith('/dashboard') ? 'DR solicitante'
+  : ['/painel-dn', '/drs', '/editais', '/portfolio/aprovacoes'].some((p) => path.startsWith(p)) ? 'DN'
   : ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'].some((p) => path.startsWith(p)) ? 'DR solicitante'
   : path.startsWith('/componentes') ? 'Sistema'
   : 'CTM'
 
 // Organizadores dentro de cada setor (menus longos); o Painel fica solto no topo.
 const subgrupos: Record<string, [string, string[]][]> = {
-  DN: [['Credenciamento', ['/drs']], ['Contratação', ['/dashboard', '/editais']]],
-  CTM: [['Comercial', ['/gestao-contratos', '/gestao-produtos', '/produtos']], ['Execução', ['/oferta', '/calendario', '/equipe', '/tratativas']], ['Financeiro', ['/financeiro']]],
-  'DR solicitante': [['Contratos', ['/contratos', '/dashboard']], ['Execução', ['/turmas-ead', '/alunos']]],
+  DN: [['Credenciamento', ['/drs']], ['Editais e portfólio', ['/editais', '/portfolio']]],
+  CTM: [['Comercial', ['/taas-ctm', '/gestao-produtos', '/portfolio', '/produtos']], ['Execução', ['/oferta', '/equipe', '/tratativas']], ['Financeiro', ['/financeiro']]],
+  'DR solicitante': [['Contratação', ['/dashboard', '/contratos', '/portfolio']], ['Execução', ['/turmas-ead', '/alunos']]],
+  Administração: [['Usuários e acesso', ['/admin/usuarios', '/admin/perfis']], ['Registros', ['/admin/auditoria', '/admin/logs']], ['Configurações', ['/admin/feriados']]],
 }
 const subgrupoDe = (sec: string, path: string) => subgrupos[sec]?.find(([, ps]) => ps.some((p) => path.startsWith(p)))?.[0] ?? ''
 

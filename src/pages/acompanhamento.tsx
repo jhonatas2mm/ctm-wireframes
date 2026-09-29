@@ -16,7 +16,7 @@ import { DataTable, EmptyState, PageHeader, RowAction, StatCard, type Column } f
 import {
   HOJE, alertasAluno, dataBr, diasEntre, diasSemAcesso, mediaAluno, progressoEsperado, situacaoAluno, statusTurmaEad,
   useAlunosEad, useContratosCtm, useTurmasEad,
-  type AlunoEad, type ContratoCtm, type SituacaoAluno, type TurmaEad,
+  type AlunoEad, type ContratoCtm, type SituacaoAluno, type TurmaEad, nomeParte,
 } from '@/lib/mock'
 
 // Acompanhamento da DR solicitante: contratos com o CTM (operação EAD), turmas e alunos. Somente leitura.
@@ -27,7 +27,7 @@ const corSituacao: Record<SituacaoAluno, 'default' | 'secondary' | 'outline'> = 
 // Escopo dos dados: a DR solicitante vê só a própria DR; o Super admin (e o protótipo livre) vê a plataforma toda.
 function useDados() {
   const perfil = useProfile()
-  const uf = perfil === 'DR solicitante' ? profileOf(perfil).dr?.sigla.replace('SENAI-', '') : undefined
+  const uf = perfil.startsWith('DR solicitante') ? profileOf(perfil).dr?.sigla.replace('SENAI-', '') : undefined
   const global = !uf
   const contratos = useContratosCtm().all.filter((c) => !uf || c.dr === uf)
   const turmas = useTurmasEad().all.filter((t) => contratos.some((c) => c.id === t.contratoId))
@@ -346,7 +346,7 @@ export function Contratos() {
 
   const colunas: Column<ContratoCtm>[] = [
     { header: 'Contrato', value: (c) => c.numero, search: true, cell: (c) => <Badge variant="secondary" className="font-mono">{c.numero}</Badge> },
-    ...(d.global ? [{ header: 'DR solicitante', value: (c: ContratoCtm) => `SENAI-${c.dr}`, filter: true } as Column<ContratoCtm>] : []),
+    ...(d.global ? [{ header: 'DR solicitante', value: (c: ContratoCtm) => nomeParte(c.dr), filter: true } as Column<ContratoCtm>] : []),
     { header: 'Empresa', value: (c) => c.empresa, search: true },
     { header: 'Cursos EAD', value: (c) => c.cursos.length, className: 'text-right tabular-nums' },
     { header: 'Turmas', value: (c) => d.turmas.filter((t) => t.contratoId === c.id).length, className: 'text-right tabular-nums' },

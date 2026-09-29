@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { EmptyState, ModulosEditor, moduloVazio } from '@/components/wf'
-import { useCursosDr, useEditais, type Modulo } from '@/lib/mock'
+import { aprovadaDe, useCursosDr, useEditais, type Modulo } from '@/lib/mock'
 import { cn } from '@/lib/utils'
 
 // DR do usuário logado (perfil Supervisor).
@@ -27,10 +27,10 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
   const [estrutura, setEstrutura] = useState<Record<string, Modulo[]>>({})
   const [ativo, setAtivo] = useState<string | null>(null)
 
-  const editais = todos.filter((e) => e.cursos.some((c) => c.drs.includes(DR)))
+  const editais = todos.filter((e) => e.cursos.some((c) => aprovadaDe(c) === DR))
   const visiveis = editais.filter((e) => norm(`${e.numero} ${e.cursos.map((c) => c.nome).join(' ')}`).includes(norm(busca.trim())))
   const edital = editais.find((e) => e.id === editalId)
-  const cursos = edital?.cursos.filter((c) => c.drs.includes(DR)) ?? []
+  const cursos = edital?.cursos.filter((c) => aprovadaDe(c) === DR) ?? []
   const jaCriado = (nome: string) => db.all.some((c) => c.edital === edital?.numero && c.nome === nome)
   const livres = cursos.filter((c) => !jaCriado(c.nome))
   const sel = cursos.filter((c) => marcados.includes(c.nome))
@@ -42,8 +42,8 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
   // Protótipo: já abre com um edital escolhido e um produto preenchido (módulos e UCs de exemplo).
   useEffect(() => {
     if (!open) return
-    const e = editais.find((x) => x.cursos.some((c) => c.drs.includes(DR) && !db.all.some((d) => d.edital === x.numero && d.nome === c.nome)))
-    const c = e?.cursos.find((c) => c.drs.includes(DR) && !db.all.some((d) => d.edital === e.numero && d.nome === c.nome))
+    const e = editais.find((x) => x.cursos.some((c) => aprovadaDe(c) === DR && !db.all.some((d) => d.edital === x.numero && d.nome === c.nome)))
+    const c = e?.cursos.find((c) => aprovadaDe(c) === DR && !db.all.some((d) => d.edital === e.numero && d.nome === c.nome))
     if (!e || !c) return
     setEditalId(e.id)
     setMarcados([c.nome])
@@ -70,7 +70,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
   const setModulos = (fn: (ms: Modulo[]) => Modulo[]) => void (atual && setEstrutura((e) => ({ ...e, [atual.nome]: fn(e[atual.nome] ?? []) })))
   const salvar = () => {
     if (!edital) return
-    for (const c of sel) db.add({ nome: c.nome, edital: edital.numero, area: c.area, modalidade: c.modalidade, cargaHorariaEdital: c.cargaHoraria, modulos: estrutura[c.nome], versao: 1, criadoEm: new Date().toISOString() })
+    for (const c of sel) db.add({ nome: c.nome, edital: edital.numero, area: c.area, modalidade: c.modalidade, cargaHorariaEdital: c.cargaHoraria, modulos: estrutura[c.nome], versao: 1, ctm: DR, situacao: 'Aguardando aprovação', criadoEm: new Date().toISOString() }) // solicitação: o DN aprova para entrar no portfólio
     reset()
     onOpenChange(false)
   }
@@ -108,7 +108,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
                       {on ? <CheckCircle2 className="size-4" /> : <Circle className="size-4 text-muted-foreground" />}
                     </span>
                     <span className="text-xs text-muted-foreground">Vigência {e.vigenciaInicio} a {e.vigenciaFim}</span>
-                    <span className="text-xs text-muted-foreground">{e.cursos.filter((c) => c.drs.includes(DR)).length} curso(s) para o SENAI-{DR}</span>
+                    <span className="text-xs text-muted-foreground">{e.cursos.filter((c) => aprovadaDe(c) === DR).length} curso(s) para o SENAI-{DR}</span>
                   </button>
                 )
               })}

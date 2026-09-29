@@ -23,9 +23,9 @@ const journeysOf = (_profile: Profile) => journeys
 // Perfil sem jornadas: navega livre a partir da tela inicial.
 const FREE: Journey = { id: '', title: 'Sem jornada', profile: '', steps: [{ title: 'Início', path: '/dashboard' }] }
 
-// Perfis agrupados: "CTM: Supervisor" e "CTM: Gestor de contrato" são subperfis do perfil CTM.
-const grupoDe = (nome: string) => (nome.startsWith('CTM: ') ? 'CTM' : nome)
-const subDe = (nome: string) => (nome.startsWith('CTM: ') ? nome.slice(5) : null)
+// Perfis agrupados (grupo/caixa em profiles.ts): CTM → Gestor de contrato, PCP, Supervisor, Pedagógico, Tutor, Monitor; DR solicitante → SENAI, SESI.
+const grupoDe = (nome: string) => profileOf(nome).grupo ?? nome
+const subDe = (nome: string) => profileOf(nome).caixa ?? null
 const grupos = [...new Set(profiles.map((p) => grupoDe(p.name)))]
 const membros = (g: string) => profiles.filter((p) => grupoDe(p.name) === g)
 
@@ -487,7 +487,7 @@ export function JourneyShell() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {/* Subperfis do perfil (ex.: CTM → Supervisor, Comercial), enfileirados; clicar seleciona */}
+              {/* Subperfis do perfil (ex.: CTM → Gestor de contrato, Supervisor), enfileirados; clicar seleciona */}
               {membros(grupoDe(profile)).length > 1 &&
                 membros(grupoDe(profile)).map((m) => {
                   const ativo = m.name === profile
@@ -496,10 +496,11 @@ export function JourneyShell() {
                       key={m.name}
                       type="button"
                       onClick={() => !ativo && trocarSubperfil(m.name)}
-                      className={cn('rounded-t-md border border-b-0 px-3 py-1 text-sm transition-colors', ativo ? 'font-semibold text-white' : 'hover:brightness-125')}
+                      title={m.avaliacao ? 'Em avaliação' : undefined}
+                      className={cn('rounded-t-md border border-b-0 px-3 py-1 text-sm transition-colors', ativo ? 'font-semibold text-white' : 'hover:brightness-125', m.avaliacao && !ativo && 'border-dashed')}
                       style={ativo ? { background: m.color, borderColor: m.color } : { borderColor: `${m.color}88`, color: m.color, background: `${m.color}1a` }}
                     >
-                      {subDe(m.name)}
+                      {subDe(m.name)}{m.avaliacao && <span className="ml-1 text-[10px] opacity-70">?</span>}
                     </button>
                   )
                 })}

@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound } from 'lucide-react'
+import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, BookOpenCheck, ClipboardCheck, Send } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
 import Produtos from '@/pages/produtos'
@@ -14,6 +14,8 @@ import Equipe from '@/pages/equipe'
 import Calendario from '@/pages/calendario'
 import Tratativas from '@/pages/tratativas'
 import Financeiro from '@/pages/financeiro'
+import Portfolio from '@/pages/portfolio'
+import TaaCtm from '@/pages/taa-ctm'
 import Components from '@/pages/components'
 import { Auditoria, Perfis, Usuarios } from '@/pages/admin'
 import Logs from '@/pages/logs'
@@ -43,7 +45,7 @@ export const screens: Screen[] = [
   { path: '/painel-dn', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelDn, profiles: ['DN'], data: ['contratos', 'editais', 'drs'] },
   { path: '/drs', title: 'Gestão de DRs', group: 'Telas', icon: Building2, component: GestaoDrs, profiles: ['DN', 'Super admin'], data: ['drs'] },
   { path: '/drs/novo', title: 'Nova DR credenciada', group: 'Telas', icon: Building2, component: GestaoDrs, hidden: true, data: ['drs'] },
-  { path: '/dashboard', title: 'TAAs com CTMs', group: 'Telas', icon: FileSignature, component: Dashboard, profiles: ['DN', 'DR solicitante', 'Super admin'], data: ['contratos'] },
+  { path: '/dashboard', title: 'Contratação de CTM', group: 'Telas', icon: FileSignature, component: Dashboard, profiles: ['DR solicitante: SENAI', 'DR solicitante: SESI', 'Super admin'], data: ['contratos'] },
   { path: '/dashboard/novo-ta', title: 'Novo TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, hidden: true, data: ['contratos'] },
   { path: '/dashboard/:id', title: 'Detalhes do TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, hidden: true, data: ['contratos'] },
   { path: '/editais', title: 'Gestão de Editais', group: 'Telas', icon: FileSpreadsheet, component: Editais, profiles: ['DN', 'Super admin'], data: ['editais'] },
@@ -51,27 +53,29 @@ export const screens: Screen[] = [
   { path: '/editais/:id/sucesso', title: 'Edital criado', group: 'Telas', icon: FileSpreadsheet, component: Editais, hidden: true, data: ['editais'] },
   { path: '/painel-ctm', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelSupervisor, profiles: ['CTM: Supervisor'], data: ['produtos', 'turmas', 'taas-dr'] },
   { path: '/painel-comercial', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelComercial, profiles: ['CTM: Gestor de contrato'], data: ['produtos', 'cursos-dr'] },
-  { path: '/gestao-contratos', title: 'Gestão de contratos', group: 'Telas', icon: FileSignature, component: Dashboard, profiles: ['CTM: Gestor de contrato'], data: ['contratos'] },
-  { path: '/gestao-contratos/:id', title: 'Detalhes do TAA', group: 'Telas', icon: FileSignature, component: Dashboard, hidden: true, data: ['contratos'] },
+  { path: '/portfolio/aprovacoes', title: 'Aprovação de portfólio', group: 'Telas', icon: ClipboardCheck, component: Portfolio, profiles: ['DN', 'Super admin'], data: ['cursos-dr'] },
+  { path: '/portfolio', title: 'Portfólio das CTMs', group: 'Telas', icon: BookOpenCheck, component: Portfolio, data: ['cursos-dr'] },
+  { path: '/taas-ctm', title: 'TAAs com as DRs', group: 'Telas', icon: Send, component: TaaCtm, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['contratos'] },
+  { path: '/taas-ctm/novo', title: 'Novo TAA', group: 'Telas', icon: Send, component: TaaCtm, hidden: true, data: ['contratos'] },
   { path: '/gestao-produtos', title: 'Gestão de Portfólio', group: 'Telas', icon: Boxes, component: GestaoProdutos, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['cursos-dr'] },
   { path: '/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['produtos'] },
   { path: '/gestao-produtos/novo', title: 'Novo produto', group: 'Telas', icon: Boxes, component: GestaoProdutos, hidden: true, data: ['cursos-dr'] },
   { path: '/produtos/novo', title: 'Nova proposta', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
   { path: '/produtos/:id', title: 'Gestão da proposta', group: 'Telas', icon: Package, component: GestaoProposta, hidden: true, data: ['produtos'] },
-  { path: '/oferta', title: 'Gestão da oferta', group: 'Telas', icon: GraduationCap, component: Oferta, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['turmas', 'calendario'] },
-  { path: '/equipe', title: 'Equipe', group: 'Telas', icon: UsersRound, component: Equipe, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['equipe'] },
+  { path: '/oferta', title: 'Gestão da oferta', group: 'Telas', icon: GraduationCap, component: Oferta, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'CTM: PCP', 'CTM: Pedagógico', 'CTM: Tutor', 'CTM: Monitor', 'Super admin'], data: ['turmas', 'calendario'] },
+  { path: '/equipe', title: 'Equipe', group: 'Telas', icon: UsersRound, component: Equipe, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'CTM: PCP', 'Super admin'], data: ['equipe'] },
   { path: '/equipe/nova', title: 'Nova pessoa', group: 'Telas', icon: UsersRound, component: Equipe, hidden: true, data: ['equipe'] },
-  { path: '/calendario', title: 'Calendário', group: 'Telas', icon: CalendarDays, component: Calendario, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['calendario'] },
-  { path: '/calendario/novo', title: 'Novo período', group: 'Telas', icon: CalendarDays, component: Calendario, hidden: true, data: ['calendario'] },
-  { path: '/tratativas', title: 'Tratativas pedagógicas', group: 'Telas', icon: ClipboardList, component: Tratativas, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['tratativas'] },
+  { path: '/admin/feriados', title: 'Feriados nacionais', group: 'Telas', icon: CalendarDays, component: Calendario, profiles: ['Super admin'], data: ['calendario'] },
+  { path: '/admin/feriados/novo', title: 'Novo feriado', group: 'Telas', icon: CalendarDays, component: Calendario, hidden: true, data: ['calendario'] },
+  { path: '/tratativas', title: 'Tratativas pedagógicas', group: 'Telas', icon: ClipboardList, component: Tratativas, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'CTM: Pedagógico', 'CTM: Monitor', 'Super admin'], data: ['tratativas'] },
   { path: '/tratativas/nova', title: 'Nova tratativa', group: 'Telas', icon: ClipboardList, component: Tratativas, hidden: true, data: ['tratativas'] },
   { path: '/financeiro', title: 'Financeiro', group: 'Telas', icon: Wallet, component: Financeiro, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['formalizacoes'] },
-  { path: '/acompanhamento', title: 'Painel', group: 'Telas', icon: Gauge, component: Painel, profiles: ['DR solicitante', 'Super admin'], data: ['contratos-ctm', 'turmas-ead', 'alunos-ead'] },
-  { path: '/contratos', title: 'Gestão de Contratos', group: 'Telas', icon: FileSignature, component: Contratos, profiles: ['DR solicitante', 'Super admin'], data: ['contratos-ctm'] },
+  { path: '/acompanhamento', title: 'Painel', group: 'Telas', icon: Gauge, component: Painel, profiles: ['DR solicitante: SENAI', 'DR solicitante: SESI', 'Super admin'], data: ['contratos-ctm', 'turmas-ead', 'alunos-ead'] },
+  { path: '/contratos', title: 'Gestão de Contratos', group: 'Telas', icon: FileSignature, component: Contratos, profiles: ['DR solicitante: SENAI', 'DR solicitante: SESI', 'Super admin'], data: ['contratos-ctm'] },
   { path: '/contratos/:id', title: 'Detalhes do contrato', group: 'Telas', icon: FileSignature, component: Contratos, hidden: true, data: ['contratos-ctm'] },
-  { path: '/turmas-ead', title: 'Turmas', group: 'Telas', icon: Video, component: Turmas, profiles: ['DR solicitante', 'Super admin'], data: ['turmas-ead'] },
+  { path: '/turmas-ead', title: 'Turmas', group: 'Telas', icon: Video, component: Turmas, profiles: ['DR solicitante: SENAI', 'DR solicitante: SESI', 'Super admin'], data: ['turmas-ead'] },
   { path: '/turmas-ead/:id', title: 'Detalhes da turma', group: 'Telas', icon: Video, component: Turmas, hidden: true, data: ['turmas-ead'] },
-  { path: '/alunos', title: 'Alunos', group: 'Telas', icon: UserRound, component: Alunos, profiles: ['DR solicitante', 'Super admin'], data: ['alunos-ead'] },
+  { path: '/alunos', title: 'Alunos', group: 'Telas', icon: UserRound, component: Alunos, profiles: ['DR solicitante: SENAI', 'DR solicitante: SESI', 'Super admin'], data: ['alunos-ead'] },
   { path: '/alunos/:id', title: 'Detalhes do aluno', group: 'Telas', icon: UserRound, component: Alunos, hidden: true, data: ['alunos-ead'] },
   { path: '/oferta/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/proposta/:pid', title: 'Ofertas da proposta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },

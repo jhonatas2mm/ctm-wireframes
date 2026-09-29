@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { AttachField, DataTable, Req, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { cn } from '@/lib/utils'
-import { alertaPrazo, dataBr, inicioPrevisto, instrumentoDe, nomeParte, taaEntre, useContratos, useCursos, useEditais, useProdutos, type Contrato, type Produto, type Registro } from '@/lib/mock'
+import { alertaPrazo, contratoAtivo, dataBr, inicioPrevisto, instrumentoDe, nomeParte, produtosContratados, taaEntre, useContratos, useCursos, useEditais, useProdutos, type Contrato, type Produto, type Registro } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
 
 // DR do usuário logado (perfil Supervisor) — é sempre a ofertante.
@@ -64,7 +64,7 @@ const colunas = (abrirEdital: (numero: string) => void, taas: Contrato[]): Colum
     cell: (p) => {
       const t = taaEntre(taas, p.drContratante, p.drOfertante)
       return t
-        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">{instrumentoDe(t.contratante)}</span> <span className="font-mono">{t.numero}</span>{t.status !== 'Vigente' && <Badge variant="outline">{t.status}</Badge>}</span>
+        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">{instrumentoDe(t.contratante)}</span> <span className="font-mono">{t.numero}</span>{t.status !== 'Aceito' && <Badge variant="outline">{t.status}</Badge>}</span>
         : <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900"><AlertTriangle className="size-3" /> Sem {instrumentoDe(p.drContratante)}</Badge>
     },
   },
@@ -93,7 +93,7 @@ const colunas = (abrirEdital: (numero: string) => void, taas: Contrato[]): Colum
   { header: 'CH total', value: (p) => `${p.cursos.reduce((t, c) => t + c.cargaHoraria, 0)} h`, className: 'text-right tabular-nums' },
 ]
 
-// Gestão de propostas (CTM: Supervisor/Comercial): propostas da CTM para os contratantes que têm TAA com ela.
+// Gestão de propostas (CTM: Supervisor/Gestor de contrato): propostas da CTM para os contratantes que têm TAA com ela.
 export default function Produtos() {
   const { confirmar, dialogo } = useConfirmar()
   const navigate = useNavigate()
@@ -219,7 +219,10 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
   const editais = useEditais().all.filter((e) => e.drs.includes(DR_OFERTANTE))
   const contratante = escolhida
   // Contratantes possíveis: quem tem TAA (não encerrado) com esta CTM — DR solicitante ou o DN.
-  const comTaa = useContratos().all.filter((c) => c.dr === DR_OFERTANTE && c.status !== 'Encerrado')
+  const contratos = useContratos().all
+  const comTaa = contratos.filter((c) => c.dr === DR_OFERTANTE && contratoAtivo(c))
+  // Só os produtos que o contratante contratou desta CTM (TAA/contrato) podem entrar na proposta.
+  const contratados = (quem: string | null) => (quem ? produtosContratados(contratos, quem, DR_OFERTANTE) : [])
   const [docs, setDocs] = useState<string[]>([])
   const [vigIni, setVigIni] = useState('')
   const [vigFim, setVigFim] = useState('')
@@ -246,9 +249,12 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
       setVigFim(isoDe(origem.vigenciaFim))
       return
     }
-    const livres = cursos.filter((c) => !jaNoPortfolio.has(c.id)).slice(0, 2)
+    // Exemplo: 1º contratante com produto contratado e ainda livre.
+    const livresDe = (quem: string) => cursos.filter((c) => contratados(quem).includes(c.nome) && !jaNoPortfolio.has(c.id)).slice(0, 2)
+    const quem = comTaa.map((t) => t.contratante).find((q) => livresDe(q).length) ?? comTaa[0]?.contratante ?? null
+    const livres = quem ? livresDe(quem) : []
     setEdital(editais[0]?.numero ?? null)
-    setContratante('BA')
+    setContratante(quem)
     setIds(livres.map((c) => c.id))
     setValores(Object.fromEntries(livres.map((c, i) => [c.id, String((i + 1) * 350000)])))
     setVagas(Object.fromEntries(livres.map((c, i) => [c.id, String(30 - i * 5)])))
@@ -262,7 +268,7 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
     setVigIni('2026-11-01')
     setVigFim('2027-10-31')
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
-  const visiveis = cursos.filter((c) => norm(`${c.codigo} ${c.nome} ${c.area} ${c.modalidade}`).includes(norm(busca.trim())))
+  const visiveis = cursos.filter((c) => contratados(contratante).includes(c.nome) && norm(`${c.codigo} ${c.nome} ${c.area} ${c.modalidade}`).includes(norm(busca.trim())))
   const sel = cursos.filter((c) => ids.includes(c.id))
   const total = sel.reduce((t, c) => t + centavos(valores[c.id]), 0)
   // Nº da proposta comercial: PC-<DR ofertante>-<seq>/<ano>
@@ -323,13 +329,13 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
               </label>
               <label className="grid gap-1 text-xs">
                 <span className="text-muted-foreground">Contratante (com TAA ou contrato) <Req /></span>
-                <Select value={contratante} onValueChange={(v) => setContratante(v as string)}>
+                <Select value={contratante} onValueChange={(v) => { setContratante(v as string); setIds((xs) => xs.filter((id) => contratados(v as string).includes(cursos.find((c) => c.id === id)?.nome ?? ''))) }}>
                   <SelectTrigger className="w-full">
                     <SelectValue>{(v: string | null) => (v ? nomeParte(v) : 'Selecione o contratante')}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {comTaa.map((t) => (
-                      <SelectItem key={t.id} value={t.contratante}>{nomeParte(t.contratante)} <span className="text-xs text-muted-foreground">· {instrumentoDe(t.contratante)} {t.numero}{t.status !== 'Vigente' ? ` (${t.status})` : ''}</span></SelectItem>
+                      <SelectItem key={t.id} value={t.contratante}>{nomeParte(t.contratante)} <span className="text-xs text-muted-foreground">· {instrumentoDe(t.contratante)} {t.numero}{t.status !== 'Aceito' ? ` (${t.status})` : ''}</span></SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -378,7 +384,7 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
 
           {/* 2ª coluna: cursos do Itinerário Nacional */}
           <div className="flex min-h-0 flex-col gap-3 border-r px-6 py-6">
-            <h3 className="text-sm font-semibold">Cursos do Itinerário Nacional {ids.length > 0 && <span className="text-muted-foreground font-normal">({ids.length} selecionados)</span>}</h3>
+            <h3 className="text-sm font-semibold">Produtos do {contratante ? instrumentoDe(contratante) : 'TAA'} {ids.length > 0 && <span className="text-muted-foreground font-normal">({ids.length} selecionados)</span>}</h3>
             <div className="flex min-h-0 flex-1 flex-col rounded-lg border">
               <div className="relative">
                 <Search className="text-muted-foreground absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -390,7 +396,7 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
                 />
               </div>
               <ul className="min-h-0 flex-1 overflow-y-auto border-t">
-                {visiveis.length === 0 && <li className="text-muted-foreground px-3 py-2 text-sm">Nenhum curso encontrado.</li>}
+                {visiveis.length === 0 && <li className="text-muted-foreground px-3 py-2 text-sm">{contratante ? `Nenhum produto contratado por ${nomeParte(contratante)} com esta CTM.` : 'Escolha o contratante.'}</li>}
                 {visiveis.map((c) => {
                   const usado = jaNoPortfolio.has(c.id)
                   const on = ids.includes(c.id)

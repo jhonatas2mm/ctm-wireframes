@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 const StatusUsuarioBadge = ({ status }: { status: Usuario['status'] }) => (
   <Badge variant="outline" className={cn('border-transparent', status === 'Ativo' ? 'bg-emerald-100 text-emerald-800' : 'bg-muted text-muted-foreground')}>{status}</Badge>
 )
-const drLabel = (dr: string) => (dr === 'DN' ? 'DN' : `SENAI-${dr}`)
+const drLabel = (dr: string) => (dr === 'DN' ? 'DN' : dr.startsWith('SESI-') ? dr : `SENAI-${dr}`)
 
 // Super admin · Gestão de usuários: lista, novo/editar (sheet lateral) e ativar/inativar com confirmação.
 const colunasUsuarios: Column<Usuario>[] = [

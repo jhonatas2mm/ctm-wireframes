@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/wf'
 import { BarList, Bloco, BlocoTitulo, Kpi, Linha, brl, brlCurto, isoDeBr } from '@/components/wf/dash'
 import {
-  HOJE, diasEntre, statusTurma,
+  HOJE, aprovadosAtuais, diasEntre, situacaoDe, statusTurma,
   instrumentoDe, nomeParte, useContratos, useCursosDr, useDrs, useEditais, useProdutos, useTurmas,
   type StatusProposta,
 } from '@/lib/mock'
@@ -16,46 +16,43 @@ import {
 const ver = (to: string, texto = 'Ver todos') => <Button variant="outline" size="sm" render={<Link to={to} />} nativeButton={false}>{texto}</Button>
 const dataBr = (iso: string) => iso.split('-').reverse().join('/')
 
-// ── DN: DRs credenciadas, TAAs (DN ↔ DR) e editais ─────────────────────────
+// ── DN: DRs credenciadas, portfólio das CTMs (aprovações) e editais ─────────
 export function PainelDn() {
   const navigate = useNavigate()
-  const taas = useContratos().all.filter((t) => t.contratante === 'DN')
+  const portfolio = useCursosDr().all
   const editais = useEditais().all
   const drs = useDrs().all
-  const vigentes = taas.filter((t) => t.status === 'Vigente')
-  const elaboracao = taas.filter((t) => t.status === 'Em elaboração')
+  const pendentes = portfolio.filter((c) => situacaoDe(c) === 'Aguardando aprovação')
+  const noPortfolio = aprovadosAtuais(portfolio)
+  const porCtm = Object.entries(noPortfolio.reduce<Record<string, number>>((r, c) => ({ ...r, [c.ctm ?? '—']: (r[c.ctm ?? '—'] ?? 0) + 1 }), {})).sort((a, b) => b[1] - a[1])
   const editaisVig = editais.filter((e) => isoDeBr(e.vigenciaInicio) <= HOJE && HOJE <= isoDeBr(e.vigenciaFim))
   const ativas = drs.filter((d) => d.status === 'Ativo')
   const comEdital = new Set(editais.flatMap((e) => e.drs))
   const semEdital = ativas.filter((d) => !comEdital.has(d.uf))
-  const aVencer = vigentes.map((t) => ({ t, dias: diasEntre(HOJE, isoDeBr(t.vigenciaFim)) })).filter((x) => x.dias <= 180).sort((a, b) => a.dias - b.dias)
 
   return (
     <div className="space-y-5">
       <PageHeader title="Painel" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi icon={Building2} tom="blue" rotulo="DRs credenciadas ativas" valor={ativas.length} extra={`${drs.length - ativas.length} inativas`} />
-        <Kpi icon={FileSignature} tom="green" rotulo="TAAs vigentes" valor={vigentes.length} extra={brlCurto(vigentes.reduce((n, t) => n + t.valor, 0))} />
-        <Kpi icon={Hourglass} tom="amber" rotulo="TAAs aguardando assinatura" valor={elaboracao.length} extra="em elaboração" />
+        <Kpi icon={Hourglass} tom="amber" rotulo="Solicitações de portfólio" valor={pendentes.length} extra="aguardando aprovação" />
+        <Kpi icon={FileSignature} tom="green" rotulo="Produtos no portfólio" valor={noPortfolio.length} extra={`${porCtm.length} CTMs`} />
         <Kpi icon={FileSpreadsheet} tom="orange" rotulo="Editais vigentes" valor={editaisVig.length} extra={`${editaisVig.reduce((n, e) => n + e.cursos.length, 0)} cursos`} />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
         <Bloco>
-          <BlocoTitulo titulo="Valor global dos TAAs vigentes" sub="Por DR" acao={ver('/dashboard')} />
-          <BarList formato={brlCurto} itens={vigentes.sort((a, b) => b.valor - a.valor).map((t) => ({ rotulo: `SENAI-${t.dr}`, sub: `TAA ${t.numero}`, valor: t.valor, tom: 'orange' }))} />
+          <BlocoTitulo titulo="Solicitações de portfólio" sub="Novos produtos e novas versões das CTMs" acao={ver('/portfolio/aprovacoes', 'Aprovar')} />
+          <div className="divide-y">
+            {pendentes.map((c) => (
+              <Linha key={c.id} inicial={c.ctm ?? '—'} tom="amber" titulo={`${c.nome} · v${c.versao ?? 1}`} sub={`SENAI-${c.ctm} · ${(c.versao ?? 1) > 1 ? 'nova versão' : 'novo produto'}`} direita={<Badge>Aguardando</Badge>} onClick={() => navigate('/portfolio/aprovacoes')} />
+            ))}
+            {!pendentes.length && <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma solicitação pendente.</p>}
+          </div>
         </Bloco>
         <Bloco>
-          <BlocoTitulo titulo="Pendências de TAA" sub="Aguardando assinatura ou vencendo em até 180 dias" />
-          <div className="divide-y">
-            {elaboracao.map((t) => (
-              <Linha key={t.id} inicial={t.dr} tom="amber" titulo={`TAA ${t.numero} · SENAI-${t.dr}`} sub="Aguardando TAA assinado" direita={<Badge>{t.status}</Badge>} onClick={() => navigate(`/dashboard/${t.id}`)} />
-            ))}
-            {aVencer.map(({ t, dias }) => (
-              <Linha key={t.id} inicial={t.dr} tom="red" titulo={`TAA ${t.numero} · SENAI-${t.dr}`} sub={`Vence em ${t.vigenciaFim}`} direita={<span className="text-sm font-semibold text-[#C11414]">{dias} dias</span>} onClick={() => navigate(`/dashboard/${t.id}`)} />
-            ))}
-            {!elaboracao.length && !aVencer.length && <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma pendência.</p>}
-          </div>
+          <BlocoTitulo titulo="Portfólio por CTM" sub="Produtos aprovados" acao={ver('/portfolio')} />
+          <BarList itens={porCtm.map(([uf, n]) => ({ rotulo: `SENAI-${uf}`, valor: n, tom: 'orange' }))} />
         </Bloco>
       </div>
 
