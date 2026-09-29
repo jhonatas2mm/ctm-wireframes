@@ -546,15 +546,15 @@ export const useUsuarios = () => useCollection<Usuario>('usuarios-v7', usuarios)
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
   { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/editais', '/portfolio/aprovacoes', '/portfolio'] },
-  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/gestao-contratos', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
+  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/taas-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
   { id: 'DR solicitante: SESI', perfil: 'DR solicitante: SESI', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
   { id: 'CTM: PCP', perfil: 'CTM: PCP', telas: ['/oferta', '/equipe'] },
   { id: 'CTM: Pedagógico', perfil: 'CTM: Pedagógico', telas: ['/oferta', '/tratativas'] },
   { id: 'CTM: Tutor', perfil: 'CTM: Tutor', telas: ['/oferta'] },
   { id: 'CTM: Monitor', perfil: 'CTM: Monitor', telas: ['/oferta', '/tratativas'] },
   { id: 'DR solicitante: SENAI', perfil: 'DR solicitante: SENAI', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
-  { id: 'CTM: Gestor de contrato', perfil: 'CTM: Gestor de contrato', telas: ['/painel-comercial', '/gestao-contratos', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
-  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/gestao-contratos', '/editais', '/portfolio/aprovacoes', '/portfolio', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs', '/admin/feriados'] },
+  { id: 'CTM: Gestor de contrato', perfil: 'CTM: Gestor de contrato', telas: ['/painel-comercial', '/taas-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
+  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/taas-ctm', '/editais', '/portfolio/aprovacoes', '/portfolio', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs', '/admin/feriados'] },
 ]
 export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v14', permissoes)
 

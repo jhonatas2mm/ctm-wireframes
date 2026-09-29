@@ -24,8 +24,11 @@ import { profileOf } from '@/journey/profiles'
 
 // Setores do menu (na ordem); setor sem telas visíveis não aparece.
 const secoes = ['DN', 'CTM', 'DR solicitante', 'Administração', 'Sistema'] as const
-const secaoDe = (path: string): (typeof secoes)[number] =>
+const secaoDe = (path: string, perfil?: string): (typeof secoes)[number] =>
   path.startsWith('/admin') ? 'Administração'
+  // Portfólio das CTMs é visto por todos: fica no setor do próprio perfil
+  : path === '/portfolio' && perfil?.startsWith('DR solicitante') ? 'DR solicitante'
+  : path === '/portfolio' && perfil === 'DN' ? 'DN'
   : path.startsWith('/dashboard') ? 'DR solicitante'
   : ['/painel-dn', '/drs', '/editais', '/portfolio/aprovacoes'].some((p) => path.startsWith(p)) ? 'DN'
   : ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'].some((p) => path.startsWith(p)) ? 'DR solicitante'
@@ -35,8 +38,9 @@ const secaoDe = (path: string): (typeof secoes)[number] =>
 // Organizadores dentro de cada setor (menus longos); o Painel fica solto no topo.
 const subgrupos: Record<string, [string, string[]][]> = {
   DN: [['Credenciamento', ['/drs']], ['Editais e portfólio', ['/editais', '/portfolio']]],
-  CTM: [['Contratos', ['/gestao-contratos', '/produtos', '/gestao-produtos', '/portfolio']], ['Execução', ['/oferta', '/equipe', '/tratativas']], ['Financeiro', ['/financeiro']]],
-  'DR solicitante': [['Contratos', ['/contratos', '/dashboard']], ['Execução', ['/turmas-ead', '/alunos']]],
+  CTM: [['Contratos', ['/taas-ctm', '/gestao-produtos', '/portfolio', '/produtos']], ['Execução', ['/oferta', '/equipe', '/tratativas']], ['Financeiro', ['/financeiro']]],
+  'DR solicitante': [['Contratação', ['/dashboard', '/contratos', '/portfolio']], ['Execução', ['/turmas-ead', '/alunos']]],
+  Administração: [['Usuários e acesso', ['/admin/usuarios', '/admin/perfis']], ['Registros', ['/admin/auditoria', '/admin/logs']], ['Configurações', ['/admin/feriados']]],
 }
 const subgrupoDe = (sec: string, path: string) => subgrupos[sec]?.find(([, ps]) => ps.some((p) => path.startsWith(p)))?.[0] ?? ''
 
@@ -77,7 +81,7 @@ export function AppShell() {
         </div>
         <SidebarContent>
           {secoes
-            .map((sec) => ({ sec, itens: noMenu.filter((s) => secaoDe(s.path) === sec) }))
+            .map((sec) => ({ sec, itens: noMenu.filter((s) => secaoDe(s.path, perfil) === sec) }))
             .filter((x) => x.itens.length)
             .flatMap(({ sec, itens }, _, todas) => {
               // Painel solto (sem rótulo) e depois um grupo por organizador; com mais de um setor (Super admin), o rótulo leva o setor.

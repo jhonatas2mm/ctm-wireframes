@@ -96,10 +96,10 @@ export const journeys: Journey[] = [
     title: 'Envio de TAA às DRs',
     profile: 'CTM: Gestor de contrato',
     steps: [
-      { title: 'Gestão de contratos', path: '/gestao-contratos', focus: 'text=Novo TAA', profile: 'CTM: Gestor de contrato', note: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica. A lista também mostra os TAAs que as DRs criaram (a CTM analisa) e o saldo dos aceitos.' },
-      { title: 'Novo TAA', path: '/gestao-contratos/novo', profile: 'CTM: Gestor de contrato', note: 'Edital → produtos em que a CTM é a aprovada → DRs destinatárias; um TAA por DR, com status Encaminhado.' },
+      { title: 'TAAs com as DRs', path: '/taas-ctm', focus: 'text=Novo TAA', profile: 'CTM: Gestor de contrato', note: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica. A lista também mostra os TAAs que as DRs criaram (a CTM analisa) e o saldo dos aceitos.' },
+      { title: 'Novo TAA', path: '/taas-ctm/novo', profile: 'CTM: Gestor de contrato', note: 'Edital → produtos em que a CTM é a aprovada → DRs destinatárias; um TAA por DR, com status Encaminhado.' },
       { title: 'Gestor da DR analisa', path: '/dashboard/16', profile: 'DR solicitante: SENAI', note: 'O Gestor da DR recebe o TAA (abrir marca Em análise) e aceita, retorna para ajuste (motivo) ou recusa (Cancelado).' },
-      { title: 'Retorno para a CTM', path: '/gestao-contratos', profile: 'CTM: Gestor de contrato', note: 'Retornado para ajuste: a CTM ajusta e reencaminha. Aceito: o termo é assinado fora e anexado; o saldo cai conforme as propostas aceitas.' },
+      { title: 'Retorno para a CTM', path: '/taas-ctm', profile: 'CTM: Gestor de contrato', note: 'Retornado para ajuste: a CTM ajusta e reencaminha. Aceito: o termo é assinado fora e anexado; o saldo cai conforme as propostas aceitas.' },
     ],
   },
   {
@@ -241,6 +241,7 @@ export const journeys: Journey[] = [
       { title: 'Financeiro', path: '/financeiro', profile: 'CTM: Supervisor', note: 'Situação de cobrança por aluno: cobra até a DR formalizar a saída (corte dia 20, cobrança dia 5). Suspenso no AVA sem formalização vira alerta. Formalização registrada aqui, não por e-mail.' },
     ],
   },
+
   {
     id: 'comercial-criacao-portfolio',
     title: 'Criação de portfólio',

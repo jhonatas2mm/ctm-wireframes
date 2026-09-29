@@ -11,9 +11,12 @@ import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { EditalDetalhes } from '@/pages/edital-detalhes'
 
-// Visão rápida do curso (dados do catálogo), no botão Detalhes ao lado do nome.
+// Linha = produto (família de versões): a versão mais recente e a que está no portfólio (última aprovada).
+type Linha = { id: string; atual: CursoDr; noPortfolio?: CursoDr; pendente: boolean; propostas: number }
+
+// Visão rápida do produto (dados do catálogo), no botão Detalhes ao lado do nome.
 function CursoDetalhes({ c }: { c: CursoDr }) {
-  const itens: [string, string][] = [['Modalidade', c.modalidade ?? '—'], ['Área tecnológica', c.area ?? '—'], ['Carga horária', `${c.cargaHorariaEdital ?? 0} h`]]
+  const itens: [string, string][] = [['Modalidade', c.modalidade ?? '—'], ['Área tecnológica', c.area ?? '—'], ['Carga horária', c.cargaHorariaEdital ? `${c.cargaHorariaEdital} h` : '—']]
   return (
     <Popover.Root>
       <Popover.Trigger render={<Button size="xs" variant="outline" className="border-neutral-300 bg-white font-normal text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900" />}>
@@ -38,11 +41,16 @@ function CursoDetalhes({ c }: { c: CursoDr }) {
   )
 }
 
-// Linha = produto (família de versões): a versão mais recente e a que está no portfólio (última aprovada).
-type Linha = { id: string; atual: CursoDr; noPortfolio?: CursoDr; pendente: boolean; propostas: number }
-
 const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<Linha>[] => [
-  { header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium', cell: (l) => <span className="flex items-center gap-1.5"><span className="block max-w-72 truncate" title={l.atual.nome}>{l.atual.nome}</span><CursoDetalhes c={l.atual} /></span> },
+  {
+    header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium',
+    cell: (l) => (
+      <span className="flex items-center gap-1.5">
+        <span className="block max-w-72 truncate" title={l.atual.nome}>{l.atual.nome}</span>
+        <CursoDetalhes c={l.atual} />
+      </span>
+    ),
+  },
   ...(todas ? [{ header: 'CTM', value: (l: Linha) => (l.atual.ctm ? `SENAI-${l.atual.ctm}` : '—'), filter: true }] : []),
   {
     header: 'Edital',

@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, BookOpenCheck, ClipboardCheck } from 'lucide-react'
+import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, BookOpenCheck, ClipboardCheck, Send } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
 import Produtos from '@/pages/produtos'
@@ -55,9 +55,9 @@ export const screens: Screen[] = [
   { path: '/painel-comercial', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelComercial, profiles: ['CTM: Gestor de contrato'], data: ['produtos', 'cursos-dr'] },
   { path: '/portfolio/aprovacoes', title: 'Aprovação de portfólio', group: 'Telas', icon: ClipboardCheck, component: Portfolio, profiles: ['DN', 'Super admin'], data: ['cursos-dr'] },
   { path: '/portfolio', title: 'Portfólio das CTMs', group: 'Telas', icon: BookOpenCheck, component: Portfolio, data: ['cursos-dr'] },
-  { path: '/gestao-contratos', title: 'Gestão de contratos', group: 'Telas', icon: FileSignature, component: TaaCtm, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['contratos'] },
-  { path: '/gestao-contratos/:id', title: 'Detalhes do TAA', group: 'Telas', icon: FileSignature, component: TaaCtm, hidden: true, data: ['contratos'] },
-  { path: '/gestao-contratos/novo', title: 'Novo TAA', group: 'Telas', icon: FileSignature, component: TaaCtm, hidden: true, data: ['contratos'] },
+  { path: '/taas-ctm', title: 'TAAs com as DRs', group: 'Telas', icon: Send, component: TaaCtm, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['contratos'] },
+  { path: '/taas-ctm/:id', title: 'Detalhes do TAA', group: 'Telas', icon: Send, component: TaaCtm, hidden: true, data: ['contratos'] },
+  { path: '/taas-ctm/novo', title: 'Novo TAA', group: 'Telas', icon: Send, component: TaaCtm, hidden: true, data: ['contratos'] },
   { path: '/gestao-produtos', title: 'Gestão de Portfólio', group: 'Telas', icon: Boxes, component: GestaoProdutos, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['cursos-dr'] },
   { path: '/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, profiles: ['CTM: Supervisor', 'CTM: Gestor de contrato', 'Super admin'], data: ['produtos'] },
   { path: '/gestao-produtos/novo', title: 'Novo produto', group: 'Telas', icon: Boxes, component: GestaoProdutos, hidden: true, data: ['cursos-dr'] },
