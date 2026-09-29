@@ -104,15 +104,14 @@ export function AppShell() {
             return (
               <SidebarGroup key={key} className="py-1">
                 {rotulo && (colapsavel ? (
-                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="h-auto min-h-8 w-full cursor-pointer justify-between gap-2 py-1.5 text-left hover:text-sidebar-foreground" />}>
+                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="ml-2 h-auto min-h-8 w-[calc(100%-0.5rem)] cursor-pointer justify-between gap-2 py-1.5 text-left hover:text-sidebar-foreground" />}>
                     <span className="min-w-0 flex-1 text-left">{rotulo}</span>
                     <ChevronDown className={cn('size-4 shrink-0 transition-transform', !aberto && '-rotate-90')} />
                   </SidebarGroupLabel>
-                ) : <SidebarGroupLabel className="text-left">{rotulo}</SidebarGroupLabel>)}
+                ) : <SidebarGroupLabel className="ml-2 text-left">{rotulo}</SidebarGroupLabel>)}
                 {aberto && (
                   <SidebarGroupContent>
-                    {/* Itens de cada área recuados em relação ao rótulo da seção */}
-                    <SidebarMenu className={cn(rotulo && 'ml-3 w-auto')}>
+                    <SidebarMenu>
                       {lista.map((s) => (
                         <SidebarMenuItem key={s.path}>
                           <SidebarMenuButton isActive={s.path === ativo} render={<Link to={s.path} />}>
