@@ -79,8 +79,8 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
     <Sheet open={open} onOpenChange={(v) => (v || reset(), onOpenChange(v))}>
       <SheetContent side="bottom" className="data-[side=bottom]:h-[95vh] gap-0 overflow-hidden rounded-t-xl p-0">
         <SheetHeader className="border-b px-6 py-4">
-          <SheetTitle className="text-lg">Novo produto</SheetTitle>
-          <SheetDescription className="sr-only">Escolha o edital, os produtos e cadastre módulos e UCs</SheetDescription>
+          <SheetTitle className="text-lg">Novo curso</SheetTitle>
+          <SheetDescription className="sr-only">Escolha o edital, os cursos e cadastre módulos e UCs</SheetDescription>
         </SheetHeader>
 
         <div className="grid min-h-0 flex-1 grid-cols-[18rem_20rem_1fr] overflow-hidden">
@@ -119,7 +119,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
           {/* Produtos do edital (um ou mais) */}
           <section className="flex min-h-0 flex-col border-r">
             <div className="flex shrink-0 items-center justify-between gap-2 border-b px-3 py-2">
-              <h3 className="text-sm font-semibold">Produtos do edital {edital && <span className="font-normal text-muted-foreground">({sel.length})</span>}</h3>
+              <h3 className="text-sm font-semibold">Cursos do edital {edital && <span className="font-normal text-muted-foreground">({sel.length})</span>}</h3>
               {livres.length > 1 && (
                 <Button variant="ghost" size="sm" onClick={marcarTodos}>
                   {marcados.length === livres.length ? 'Desmarcar todos' : 'Selecionar todos'}
@@ -154,7 +154,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
           {/* Módulos e UCs do produto ativo */}
           <section className="min-h-0 overflow-y-auto px-6 py-4">
             {!atual ? (
-              <EmptyState title={edital ? 'Selecione um ou mais produtos' : 'Escolha um edital'} />
+              <EmptyState title={edital ? 'Selecione um ou mais cursos' : 'Escolha um edital'} />
             ) : (
               <div className="mx-auto grid max-w-3xl gap-4">
                 <h3 className="font-semibold">{atual.nome}</h3>
@@ -167,11 +167,11 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
         <SheetFooter className="flex-row items-center justify-between gap-4 border-t px-6 py-3">
           <p className="text-sm">
             <span className="text-2xl font-semibold tabular-nums">{prontos}/{sel.length}</span>
-            <span className="text-muted-foreground"> produto(s) prontos{edital && ` · ${edital.numero}`}</span>
+            <span className="text-muted-foreground"> curso(s) prontos{edital && ` · ${edital.numero}`}</span>
           </p>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!podeSalvar} motivo="Selecione ao menos um produto" onClick={salvar}>Salvar {sel.length > 1 ? `${sel.length} produtos` : 'produto'}</Button>
+            <Button disabled={!podeSalvar} motivo="Selecione ao menos um curso" onClick={salvar}>Salvar {sel.length > 1 ? `${sel.length} cursos` : 'curso'}</Button>
           </div>
         </SheetFooter>
       </SheetContent>

@@ -22,7 +22,7 @@ const ACOES: [string, string, string][] = [
   ['/taas-ctm/novo', 'Novo TAA', '/taas-ctm'],
   ['/dashboard/novo-ta', 'Novo TAA', '/dashboard'],
   ['/oferta/nova', 'Nova oferta', '/oferta'],
-  ['/gestao-produtos/novo', 'Novo produto', '/gestao-produtos'],
+  ['/gestao-produtos/novo', 'Novo curso', '/gestao-produtos'],
   ['/editais/novo', 'Novo edital', '/editais'],
   ['/drs/novo', 'Novo DR credenciado', '/drs'],
   ['/equipe/nova', 'Nova pessoa', '/equipe'],

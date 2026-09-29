@@ -35,7 +35,7 @@ export function NovoProdutoSheet({ open, onOpenChange }: { open: boolean; onOpen
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full gap-0 sm:max-w-2xl">
         <SheetHeader className="border-b">
-          <SheetTitle>Novo produto</SheetTitle>
+          <SheetTitle>Novo curso</SheetTitle>
           <SheetDescription>Busque o curso pelo código ou nome.</SheetDescription>
           <div className="relative mt-3">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />

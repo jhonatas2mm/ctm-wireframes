@@ -60,7 +60,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                 {p.id === atual?.id && <Badge variant="outline">Mais recente</Badge>}
                 <SituacaoBadge c={p} />
               </div>
-              <SheetDescription className="sr-only">Detalhes e versões do produto</SheetDescription>
+              <SheetDescription className="sr-only">Detalhes e versões do curso</SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4">
               {situacaoDe(p) === 'Reprovado' && p.motivo && (
@@ -119,7 +119,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                         </span>
                         <Button size="icon-sm" variant="ghost" aria-label={`Abrir ${m.nome}`} render={<a href={m.link} target="_blank" rel="noreferrer" />} nativeButton={false}><ExternalLink /></Button>
                         {!somenteLeitura && (
-                          <Button size="icon-sm" variant="ghost" aria-label={`Desvincular ${m.nome}`} onClick={() => confirmar({ titulo: `Desvincular “${m.nome}” deste produto?`, acao: 'Desvincular', onConfirmar: () => db.update(p.id, { materiais: materiais.filter((_, j) => j !== i) }) })}><Trash2 /></Button>
+                          <Button size="icon-sm" variant="ghost" aria-label={`Desvincular ${m.nome}`} onClick={() => confirmar({ titulo: `Desvincular “${m.nome}” deste curso?`, acao: 'Desvincular', onConfirmar: () => db.update(p.id, { materiais: materiais.filter((_, j) => j !== i) }) })}><Trash2 /></Button>
                         )}
                       </li>
                     ))}
@@ -193,7 +193,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Vincular ao itinerário</DialogTitle>
-                  <DialogDescription>Vínculo com o sistema de itinerários (a integração será detalhada depois). Informe o código do itinerário deste produto.</DialogDescription>
+                  <DialogDescription>Vínculo com o sistema de itinerários (a integração será detalhada depois). Informe o código do itinerário deste curso.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-1.5"><Label>Código do itinerário <Req /></Label><Input value={codigo} onChange={(e) => setCodigo(e.target.value)} /></div>
                 <DialogFooter>

@@ -36,7 +36,7 @@ export function PainelDn() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi icon={Building2} tom="blue" rotulo="DRs credenciados ativas" valor={ativas.length} extra={`${drs.length - ativas.length} inativas`} />
         <Kpi icon={Hourglass} tom="amber" rotulo="Solicitações de portfólio" valor={pendentes.length} extra="aguardando aprovação" />
-        <Kpi icon={FileSignature} tom="green" rotulo="Produtos no portfólio" valor={noPortfolio.length} extra={`${porCtm.length} CTMs`} />
+        <Kpi icon={FileSignature} tom="green" rotulo="Cursos no portfólio" valor={noPortfolio.length} extra={`${porCtm.length} CTMs`} />
         <Kpi icon={FileSpreadsheet} tom="orange" rotulo="Editais vigentes" valor={editaisVig.length} extra={`${editaisVig.reduce((n, e) => n + e.cursos.length, 0)} cursos`} />
       </div>
 
@@ -45,7 +45,7 @@ export function PainelDn() {
           <BlocoTitulo titulo="Solicitações de portfólio" sub="Novos produtos e novas versões das CTMs" acao={ver('/portfolio/aprovacoes', 'Aprovar')} />
           <div className="divide-y">
             {pendentes.map((c) => (
-              <Linha key={c.id} inicial={c.ctm ?? '—'} tom="amber" titulo={`${c.nome} · v${c.versao ?? 1}`} sub={`SENAI-${c.ctm} · ${(c.versao ?? 1) > 1 ? 'nova versão' : 'novo produto'}`} direita={<Badge>Aguardando</Badge>} onClick={() => navigate('/portfolio/aprovacoes')} />
+              <Linha key={c.id} inicial={c.ctm ?? '—'} tom="amber" titulo={`${c.nome} · v${c.versao ?? 1}`} sub={`SENAI-${c.ctm} · ${(c.versao ?? 1) > 1 ? 'nova versão' : 'novo curso'}`} direita={<Badge>Aguardando</Badge>} onClick={() => navigate('/portfolio/aprovacoes')} />
             ))}
             {!pendentes.length && <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma solicitação pendente.</p>}
           </div>
@@ -209,7 +209,7 @@ export function PainelComercial() {
         <Kpi icon={Handshake} tom="amber" rotulo="Em andamento" valor={brlCurto(negociacao)} extra={`${aguardando.length} propostas`} />
         <Kpi icon={CircleDollarSign} tom="green" rotulo="Valor fechado" valor={brlCurto(fechado)} extra={`${aceitas} propostas aprovadas`} />
         <Kpi icon={Percent} tom="blue" rotulo="Taxa de aprovação" valor={`${taxa}%`} extra={`${recusadas} canceladas`} />
-        <Kpi icon={Boxes} tom="orange" rotulo="Produtos no portfólio" valor={portfolio.length} extra="cursos do DR" />
+        <Kpi icon={Boxes} tom="orange" rotulo="Cursos no portfólio" valor={portfolio.length} extra="cursos do DR" />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">

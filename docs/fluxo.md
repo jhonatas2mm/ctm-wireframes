@@ -78,7 +78,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 ## Portfólio das CTMs
 - Cada CTM registra seus **produtos** (módulos → UCs), com **versões** (v1, v2…; a anterior não muda).
 - **Novo produto** e **nova versão** são **solicitações**: ficam *Aguardando* até o **DN** decidir em **Aprovação de portfólio** (`/portfolio/aprovacoes`): **Aprovar** ou **Reprovar** (com motivo, que a CTM vê). Enquanto houver versão pendente, não se abre outra.
-- Só versões **aprovadas** entram no **Portfólio das CTMs** (`/portfolio`, visível para **todas os DRs**, somente leitura) e são usadas na oferta (matriz = última versão aprovada).
+- Só versões **aprovadas** entram no **Portfólio das CTMs** (`/portfolio`, visível para **todos os DRs**, somente leitura) e são usadas na oferta (matriz = última versão aprovada).
 - Cada versão pode ter **vínculo com o itinerário** (outro sistema; botão "Vincular ao itinerário", feito pelo DR/CTM; integração a detalhar) e **documentos/materiais** vinculados (nome, tipo, link — o arquivo fica no repositório/drive). Nova versão copia os vínculos.
 - Na Gestão de Portfólio da CTM, cada linha é um produto: última versão, situação, versão no portfólio, itinerário, nº de documentos e de propostas.
 
@@ -150,7 +150,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - A formalização é registrada no sistema (antes era por e-mail), com data e a partir de quando deixa de cobrar (UC em andamento ou próxima UC).
 - **Corte no dia 20**: formalizações até o dia 20 saem da cobrança do dia 5 do mês seguinte; depois do dia 20, da cobrança do mês subsequente.
 - Resumo de alunos cobrados por escola.
-- **Situação dos alunos** abre com as **DRs solicitantes em cards** (sem select): cada card traz alunos, cobrados, saídas formalizadas e suspensos sem formalização, com as ações **Ver alunos**, **Acompanhamento** (abre a aba já no DR) e **Relatório de cobrança** (proposta aprovada do DR). "Todas os DRs" volta aos cards.
+- **Situação dos alunos** abre com as **DRs solicitantes em cards** (sem select): cada card traz alunos, cobrados, saídas formalizadas e suspensos sem formalização, com as ações **Ver alunos**, **Acompanhamento** (abre a aba já no DR) e **Relatório de cobrança** (proposta aprovada do DR). "Todos os DRs" volta aos cards.
 - Três visões (abas): **Situação dos alunos** (DRs em cards; escolher uma abre os alunos, com breadcrumb Financeiro > SENAI-XX), **Acompanhamento dos alunos** e **Relatório de cobrança**.
 - **Ciclo financeiro** (mês de cobrança) = janela do **dia 21 do mês anterior ao dia 20** do mês (corte no dia 20).
 - **Acompanhamento dos alunos** (relatório geral, no lugar da planilha da CTM): escolhe **turma** e **ciclo**; cada aluno com e-mail, telefone, CPF, escola, **status geral** (Matriculado, Desistente, Trancado), **data de saída** e **monitor**; uma coluna por **UC do ciclo** com a situação (**Ativo**, **Suspenso** desde a data, **Não integrado nesta UC**) e se **fatura**. Indicadores: alunos (integrados), faturamentos aluno × UC, desistentes/trancados e suspensos sem formalização. Exporta planilha; atalho para o relatório de cobrança da proposta.
@@ -324,3 +324,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Tela "Gestão de DRs credenciados" passa a se chamar **Gestão de DRs**.
 - 2026-09-29 — **Escolas**: o DR solicitante cadastra as escolas (tela Escolas); o DN valida ou recusa com motivo no detalhe do DR (Gestão de DRs, coluna Escolas com pendentes). Só escolas validadas entram nas turmas. Nova jornada "Cadastro e validação de escolas".
 - 2026-09-29 — **Edital por área tecnológica**: o edital deixa de ter cursos, valor e CH; tem áreas tecnológicas, cada uma com valor por hora e um único DR vinculado. Cursos vêm do catálogo pela área; valor por estudante = valor/hora × CH do curso. Novo edital, lista e detalhes refeitos.
+- 2026-09-29 — Portfólio: o item do portfólio é **curso** (não produto) em Gestão de Portfólio, Aprovação de portfólio, Portfólio das CTMs e jornadas ("Novo curso", "Curso criado"). Tabelas do portfólio sem a coluna **Edital**; Aprovação de portfólio sem a coluna **UCs**.

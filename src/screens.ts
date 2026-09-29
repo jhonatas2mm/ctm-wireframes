@@ -65,7 +65,7 @@ export const screens: Screen[] = [
   { path: '/taas-ctm/novo', title: 'Novo TAA', group: 'Telas', icon: Send, component: TaaCtm, hidden: true, data: ['contratos'] },
   { path: '/gestao-produtos', title: 'Gestão de Portfólio', group: 'Telas', icon: Boxes, component: GestaoProdutos, profiles: ['CTM: Coordenador EAD', 'CTM: Gestor EAD', 'Super admin'], data: ['cursos-dr'] },
   { path: '/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, profiles: ['CTM: Coordenador EAD', 'CTM: Gestor EAD', 'Super admin'], data: ['produtos'] },
-  { path: '/gestao-produtos/novo', title: 'Novo produto', group: 'Telas', icon: Boxes, component: GestaoProdutos, hidden: true, data: ['cursos-dr'] },
+  { path: '/gestao-produtos/novo', title: 'Novo curso', group: 'Telas', icon: Boxes, component: GestaoProdutos, hidden: true, data: ['cursos-dr'] },
   { path: '/produtos/novo', title: 'Nova proposta', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
   { path: '/produtos/:id', title: 'Gestão da proposta', group: 'Telas', icon: Package, component: GestaoProposta, hidden: true, data: ['produtos'] },
   { path: '/oferta', title: 'Gestão da oferta', group: 'Telas', icon: GraduationCap, component: Oferta, profiles: ['CTM: Coordenador EAD', 'CTM: Gestor EAD', 'CTM: Coordenador Pedagógico', 'CTM: Tutor', 'CTM: Monitor', 'Super admin'], data: ['turmas', 'calendario'] },

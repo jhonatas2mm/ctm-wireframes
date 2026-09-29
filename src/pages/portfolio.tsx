@@ -30,7 +30,7 @@ function PortfolioPublico() {
   const rows = aprovadosAtuais(all)
   const colunas: Column<CursoDr>[] = [
     {
-      header: 'Produto', value: (c) => c.nome, search: true, className: 'font-medium',
+      header: 'Curso', value: (c) => c.nome, search: true, className: 'font-medium',
       cell: (c) => (
         <div className="leading-tight">
           <span className="font-medium">{c.nome}</span>
@@ -41,14 +41,13 @@ function PortfolioPublico() {
     { header: 'CTM', value: ctmDe, filter: true },
     { header: 'Versão', value: (c) => `v${c.versao ?? 1}`, className: 'tabular-nums' },
     { header: 'CH', value: (c) => `${c.cargaHorariaEdital ?? 0} h`, className: 'text-right tabular-nums' },
-    { header: 'Edital', value: (c) => c.edital ?? '—', filter: true, className: 'font-mono text-xs' },
     { header: 'Itinerário', value: (c) => c.itinerario?.codigo ?? '—', cell: (c) => (c.itinerario ? <span className="flex items-center gap-1 font-mono text-xs"><Route className="size-3.5 text-muted-foreground" />{c.itinerario.codigo}</span> : '—') },
     { header: 'Documentos', value: (c) => c.materiais?.length ?? 0, className: 'text-right tabular-nums' },
   ]
   return (
     <>
-      <PageHeader title="Portfólio das CTMs" description="Produtos aprovados pelo DN, com a versão vigente de cada CTM." />
-      <DataTable rows={rows} columns={colunas} filters={filtrosPortfolio} searchPlaceholder="Buscar produto…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
+      <PageHeader title="Portfólio das CTMs" description="Cursos aprovados pelo DN, com a versão vigente de cada CTM." />
+      <DataTable rows={rows} columns={colunas} filters={filtrosPortfolio} searchPlaceholder="Buscar curso…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
       <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
     </>
   )
@@ -65,17 +64,15 @@ function Aprovacoes() {
     db.update(c.id, { situacao: aprovado ? 'Aprovado' : 'Reprovado', motivo: aprovado ? undefined : mot, decididoEm: new Date().toISOString() })
   const aprovar = (c: CursoDr) => confirmar({
     titulo: `Aprovar ${c.nome} v${c.versao ?? 1} (${ctmDe(c)})?`,
-    descricao: (c.versao ?? 1) > 1 ? 'A nova versão passa a ser a vigente no portfólio; a anterior continua valendo para o que já foi negociado.' : 'O produto entra no Portfólio das CTMs e fica disponível para todas os DRs.',
+    descricao: (c.versao ?? 1) > 1 ? 'A nova versão passa a ser a vigente no portfólio; a anterior continua valendo para o que já foi negociado.' : 'O curso entra no Portfólio das CTMs e fica disponível para todos os DRs.',
     acao: 'Aprovar',
     onConfirmar: () => decidir(c, true),
   })
   const colunas: Column<CursoDr>[] = [
     { header: 'Solicitado em', value: (c) => data(c.criadoEm), className: 'tabular-nums' },
     { header: 'CTM', value: ctmDe, filter: true },
-    { header: 'Produto', value: (c) => c.nome, search: true, className: 'font-medium' },
-    { header: 'Tipo', value: (c) => ((c.versao ?? 1) > 1 ? `Nova versão (v${c.versao})` : 'Novo produto'), filter: true },
-    { header: 'Edital', value: (c) => c.edital ?? '—', className: 'font-mono text-xs' },
-    { header: 'UCs', value: (c) => c.modulos.reduce((n, m) => n + m.unidades.length, 0), className: 'text-right tabular-nums' },
+    { header: 'Curso', value: (c) => c.nome, search: true, className: 'font-medium' },
+    { header: 'Tipo', value: (c) => ((c.versao ?? 1) > 1 ? `Nova versão (v${c.versao})` : 'Novo curso'), filter: true },
     { header: 'Itinerário', value: (c) => (c.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
     { header: 'Situação', value: (c) => situacaoDe(c), filter: true, cell: (c) => <SituacaoBadge c={c} /> },
   ]
@@ -85,13 +82,13 @@ function Aprovacoes() {
       <PageHeader title="Aprovação de portfólio" />
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <StatCard icon={ClipboardCheck} tom="amber" label="Aguardando aprovação" value={String(pendentes.length)} />
-        <StatCard icon={PackageCheck} tom="green" label="Produtos no portfólio" value={String(aprovadosAtuais(db.all).length)} />
+        <StatCard icon={PackageCheck} tom="green" label="Cursos no portfólio" value={String(aprovadosAtuais(db.all).length)} />
         <StatCard icon={ThumbsDown} tom="red" label="Reprovados" value={String(db.all.filter((c) => situacaoDe(c) === 'Reprovado').length)} />
       </div>
       <DataTable
         rows={[...pendentes, ...historico.filter((c) => !pendentes.includes(c))]}
         columns={colunas}
-        searchPlaceholder="Buscar produto ou CTM…"
+        searchPlaceholder="Buscar curso ou CTM…"
         actions={(c) => (
           <>
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />

@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { NovaVersaoSheet, ProdutoSheet, SituacaoBadge } from '@/pages/produto-sheets'
 import { Button } from '@/components/ui/button'
 import { NovoCursoDialog } from '@/pages/novo-curso-dialog'
-import { CellButton, cellButton, DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
+import { cellButton, DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
 import { aprovadosAtuais, raizDe, situacaoDe, useCursosDr, useEditais, useProdutos, type CursoDr } from '@/lib/mock'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
@@ -20,7 +20,7 @@ function CursoDetalhes({ c }: { c: CursoDr }) {
   const itens: [string, string][] = [['Modalidade', c.modalidade ?? '—'], ['Área tecnológica', c.area ?? '—'], ['Carga horária', c.cargaHorariaEdital ? `${c.cargaHorariaEdital} h` : '—']]
   return (
     <Popover.Root>
-      <Popover.Trigger render={<Button size="icon-xs" variant="outline" className={cn(cellButton, 'size-6 px-0')} aria-label="Detalhes do produto" title="Detalhes do produto" />}>
+      <Popover.Trigger render={<Button size="icon-xs" variant="outline" className={cn(cellButton, 'size-6 px-0')} aria-label="Detalhes do curso" title="Detalhes do curso" />}>
         <Info />
       </Popover.Trigger>
       <Popover.Portal>
@@ -42,9 +42,9 @@ function CursoDetalhes({ c }: { c: CursoDr }) {
   )
 }
 
-const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<Linha>[] => [
+const colunas = (todas: boolean): Column<Linha>[] => [
   {
-    header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium',
+    header: 'Curso', value: (l) => l.atual.nome, search: true, className: 'font-medium',
     cell: (l) => (
       <span className="flex items-center gap-1.5">
         <span className="max-w-64">{l.atual.nome}</span>
@@ -53,14 +53,6 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
     ),
   },
   ...(todas ? [{ header: 'CTM', value: (l: Linha) => (l.atual.ctm ? `SENAI-${l.atual.ctm}` : '—'), filter: true }] : []),
-  {
-    header: 'Edital',
-    value: (l) => l.atual.edital ?? '—',
-    search: true,
-    filter: true,
-    className: 'font-mono text-xs',
-    cell: (l) => (l.atual.edital ? <CellButton onClick={() => abrirEdital(l.atual.edital!)}>{l.atual.edital}</CellButton> : '—'),
-  },
   { header: 'Versão', value: (l) => `v${l.atual.versao ?? 1}`, className: 'tabular-nums' },
   { header: 'Situação', value: (l) => situacaoDe(l.atual), filter: true, cell: (l) => <SituacaoBadge c={l.atual} /> },
   { header: 'No portfólio', value: (l) => (l.noPortfolio ? `v${l.noPortfolio.versao ?? 1}` : '—'), className: 'tabular-nums', align: 'center' },
@@ -100,14 +92,14 @@ export default function GestaoProdutos() {
     <>
       <PageHeader
         title="Gestão de Portfólio"
-        description="Produtos da sua CTM. Novos produtos e novas versões entram no portfólio depois da aprovação do DN."
-        actions={<Button onClick={() => navigate('/gestao-produtos/novo')}><Plus /> Novo produto</Button>}
+        description="Cursos da sua CTM. Novos cursos e novas versões entram no portfólio depois da aprovação do DN."
+        actions={<Button onClick={() => navigate('/gestao-produtos/novo')}><Plus /> Novo curso</Button>}
       />
       <NovoCursoDialog open={pathname === '/gestao-produtos/novo'} onOpenChange={(v) => !v && navigate('/gestao-produtos')} />
       <DataTable
         rows={linhas}
-        columns={colunas(setEditalAberto, !ctm)}
-        searchPlaceholder="Buscar produto…"
+        columns={colunas(!ctm)}
+        searchPlaceholder="Buscar curso…"
         filters={[
           { label: 'Modalidade', values: (l) => [l.atual.modalidade ?? '—'] },
           { label: 'Área tecnológica', values: (l) => [l.atual.area ?? '—'] },

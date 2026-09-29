@@ -79,9 +79,9 @@ export function AcompanhamentoAlunos() {
         <div className="grid gap-1.5">
           <Label>DR solicitante</Label>
           <Select value={dr || 'todas'} onValueChange={(v) => set('dr', v === 'todas' ? '' : (v as string))}>
-            <SelectTrigger className="w-full"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Todas os DRs')}</SelectValue></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Todos os DRs')}</SelectValue></SelectTrigger>
             <SelectContent>
-              <SelectItem value="todas">Todas os DRs</SelectItem>
+              <SelectItem value="todas">Todos os DRs</SelectItem>
               {drs.map((d) => <SelectItem key={d} value={d}>SENAI-{d}</SelectItem>)}
             </SelectContent>
           </Select>
