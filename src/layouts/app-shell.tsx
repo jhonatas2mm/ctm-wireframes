@@ -49,7 +49,8 @@ export function AppShell() {
   // Menu e avatar seguem o perfil ativo na casca (fora dela, mostra tudo).
   const perfil = useProfile()
   const noMenu = screens.filter((s) => !s.hidden && (!perfil || !s.profiles || s.profiles.includes(perfil)))
-  const dr = profileOf(perfil).dr
+  // Cartão da DR só fora da área CTM (a CTM é a operação, não se identifica como DR no menu)
+  const dr = perfil?.startsWith('CTM:') ? undefined : profileOf(perfil).dr
   const user = profileOf(perfil).user ?? { nome: 'Maria Silva', email: 'maria.silva@senai.br' }
   const iniciais = user.nome.split(' ').map((p) => p[0]).slice(0, 2).join('')
 

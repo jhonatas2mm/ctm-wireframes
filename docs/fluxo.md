@@ -327,3 +327,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Casca: selo do perfil mostra "Área: <perfil>" (sem ícone de pessoa); abas de subperfil com rótulo "Subperfil:".
 - 2026-09-29 — Busca rápida: seção Telas também em grade de 3 colunas (com o ícone de cada tela).
 - 2026-09-29 — Painéis: listas sem as bolinhas de sigla à esquerda (a DR continua no texto de cada linha).
+- 2026-09-29 — Menu lateral: perfis da área CTM não mostram o cartão "Departamento Regional".
