@@ -129,13 +129,13 @@ export function AppShell() {
           </DropdownMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         {/* Some quando não há breadcrumb nem botão de reabrir o menu */}
         <header className="flex h-12 items-center gap-2 px-4 md:px-6 [&:has(#topbar-slot:empty):not(:has(button))]:hidden">
           {/* PageHeader renderiza o breadcrumb aqui via portal */}
           <div id="topbar-slot" className="min-w-0 flex-1" />
         </header>
-        <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
+        <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 p-4 md:p-6">
           <Outlet />
         </div>
       </SidebarInset>
