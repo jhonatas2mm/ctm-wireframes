@@ -279,50 +279,51 @@ export function JourneyShell() {
       <main className="flex min-w-0 flex-1 flex-col">
         {!cheia && (<>
         <header className="flex flex-wrap items-center gap-3 px-4 py-2">
-          <div className="ml-auto flex items-center gap-1">
-            {canEdit && (
-              <Button
-                disabled={device !== 'desktop'}
-                title={device !== 'desktop' ? 'Anotações só na visão desktop' : undefined}
-                size="sm"
-                variant={mode === 'add' ? 'default' : 'ghost'}
-                onClick={() => setMode(mode === 'add' ? 'view' : 'add')}
-              >
-                <MapPinPlus /> {mode === 'add' ? 'Clique na tela… (Esc)' : 'Anotar'}
+          {/* Ferramentas em dois grupos: Análise (processo e requisitos) e Design (a interface do protótipo) */}
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
+              <span className="mr-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Análise</span>
+              {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
+              <Button size="sm" variant={mapa ? 'secondary' : 'ghost'} onClick={() => setMapa(!mapa)}>
+                <Workflow /> Mapa do processo
               </Button>
-            )}
-            <Button size="sm" variant={panel ? 'secondary' : 'ghost'} onClick={() => setPanel(!panel)}>
-              <MessageSquareText /> <span className="tabular-nums">{screenPins.length}</span>
-            </Button>
-            <Button size="sm" variant={guia ? 'secondary' : 'ghost'} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
-              <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
-            </Button>
-            <span className="mx-1 h-4 w-px bg-border" />
-            {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
-            <Button size="sm" variant={mapa ? 'secondary' : 'ghost'} onClick={() => setMapa(!mapa)}>
-              <Workflow /> Mapa do processo
-            </Button>
-            <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
-              <ExternalLink /> Abrir protótipo livre
-            </Button>
-<DropdownMenu>
-              <DropdownMenuTrigger render={<Button size="sm" variant="ghost" />}>
-                <RotateCcw /> Restaurar dados
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="dark w-56">
-                <DropdownMenuItem
-                  disabled={!telaData?.length}
-                  onClick={() => setRestaurar('tela')}
+              {canEdit && (
+                <Button
+                  disabled={device !== 'desktop'}
+                  title={device !== 'desktop' ? 'Anotações só na visão desktop' : 'Marcar um ponto da tela com um requisito, dúvida ou ajuste'}
+                  size="sm"
+                  variant={mode === 'add' ? 'default' : 'ghost'}
+                  onClick={() => setMode(mode === 'add' ? 'view' : 'add')}
                 >
-                  Somente desta tela
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setRestaurar('tudo')}
-                >
-                  Todo o protótipo
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <MapPinPlus /> {mode === 'add' ? 'Clique na tela… (Esc)' : 'Anotar'}
+                </Button>
+              )}
+              <Button size="sm" variant={panel ? 'secondary' : 'ghost'} title="Anotações desta tela" onClick={() => setPanel(!panel)}>
+                <MessageSquareText /> Anotações <span className="tabular-nums text-muted-foreground">{screenPins.length}</span>
+              </Button>
+            </div>
+            <div className="flex items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
+              <span className="mr-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Design</span>
+              <Button size="sm" variant={guia ? 'secondary' : 'ghost'} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
+                <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
+              </Button>
+              <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
+                <ExternalLink /> Abrir protótipo livre
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button size="sm" variant="ghost" />}>
+                  <RotateCcw /> Restaurar dados
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="dark w-56">
+                  <DropdownMenuItem disabled={!telaData?.length} onClick={() => setRestaurar('tela')}>
+                    Somente desta tela
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setRestaurar('tudo')}>
+                    Todo o protótipo
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </header>
 
