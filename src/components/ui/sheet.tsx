@@ -7,6 +7,17 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
+// Sheets laterais abertas (sem escurecer o fundo): a tabela usa isso para manter em foco a linha que abriu o detalhe.
+let laterais = 0
+const ouvintes = new Set<() => void>()
+const mudou = (d: number) => { laterais += d; ouvintes.forEach((f) => f()) }
+export const useSheetLateralAberta = () =>
+  React.useSyncExternalStore((f) => (ouvintes.add(f), () => void ouvintes.delete(f)), () => laterais > 0)
+function MarcaLateral() {
+  React.useEffect(() => (mudou(1), () => mudou(-1)), [])
+  return null
+}
+
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
 }
@@ -48,7 +59,8 @@ function SheetContent({
 }) {
   return (
     <SheetPortal>
-      <SheetOverlay />
+      {/* Só a sheet de baixo (formulário) escurece o fundo; a lateral deixa a tabela visível (o clique fora ainda fecha). */}
+      <SheetOverlay className={side !== "bottom" ? "bg-transparent supports-backdrop-filter:backdrop-blur-none" : undefined} />
       <SheetPrimitive.Popup
         data-slot="sheet-content"
         data-side={side}
@@ -58,6 +70,7 @@ function SheetContent({
         )}
         {...props}
       >
+        {side !== "bottom" && <MarcaLateral />}
         {children}
         {showCloseButton && (
           <SheetPrimitive.Close

@@ -4,6 +4,7 @@ import { Popover } from '@base-ui/react/popover'
 import { useLocation } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
+import { useSheetLateralAberta } from '@/components/ui/sheet'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -133,6 +134,9 @@ export function DataTable<T extends { id: string }>({
   cards?: boolean // habilita a 2ª visualização em cards (uma linha por registro, sem rolagem horizontal); abre em cards
 }) {
   const centro = useMemo(() => columns.map((c) => centraliza(c, rows)), [columns, rows])
+  // Linha clicada (ou com ação clicada): fica em foco, como no hover, enquanto o detalhe (sheet lateral) estiver aberto.
+  const [foco, setFoco] = useState<string | null>(null)
+  const detalheAberto = useSheetLateralAberta()
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
 
@@ -332,7 +336,7 @@ export function DataTable<T extends { id: string }>({
             // Cards: 1ª e 2ª colunas no cabeçalho (título e situação), ações à direita; demais colunas em grade de rótulo/valor.
             <div className="space-y-2 p-3">
               {daPagina.map((r) => (
-                <div key={r.id} className={cn('rounded-[1.25rem] border bg-card p-4', onRowClick && 'cursor-pointer hover:border-foreground/20')} onClick={onRowClick && (() => onRowClick(r))}>
+                <div key={r.id} className={cn('rounded-[1.25rem] border bg-card p-4', onRowClick && 'cursor-pointer hover:border-foreground/20', detalheAberto && foco === r.id && 'border-foreground/20')} onClickCapture={() => setFoco(r.id)} onClick={onRowClick && (() => onRowClick(r))}>
                   <div className="flex items-center gap-3">
                     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 font-semibold">
                       {columns.slice(0, 2).map((c) => <span key={c.header}>{c.cell ? c.cell(r) : c.value(r)}</span>)}
@@ -366,7 +370,9 @@ export function DataTable<T extends { id: string }>({
               {daPagina.map((r) => (
                 <TableRow
                   key={r.id}
-                  className={cn(onRowClick && 'cursor-pointer')}
+                  className={cn(onRowClick && 'cursor-pointer', detalheAberto && foco === r.id && 'bg-muted/50')}
+                  data-foco={detalheAberto && foco === r.id ? '' : undefined}
+                  onClickCapture={() => setFoco(r.id)}
                   onClick={onRowClick && (() => onRowClick(r))}
                 >
                   {columns.map((c, i) => (

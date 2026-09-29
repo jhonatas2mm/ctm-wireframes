@@ -63,7 +63,7 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
   },
   { header: 'Versão', value: (l) => `v${l.atual.versao ?? 1}`, className: 'tabular-nums' },
   { header: 'Situação', value: (l) => situacaoDe(l.atual), filter: true, cell: (l) => <SituacaoBadge c={l.atual} /> },
-  { header: 'No portfólio', value: (l) => (l.noPortfolio ? `v${l.noPortfolio.versao ?? 1}` : '—'), className: 'tabular-nums' },
+  { header: 'No portfólio', value: (l) => (l.noPortfolio ? `v${l.noPortfolio.versao ?? 1}` : '—'), className: 'tabular-nums', align: 'center' },
   { header: 'Itinerário', value: (l) => (l.atual.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
   { header: 'Documentos', value: (l) => l.atual.materiais?.length ?? 0, className: 'text-right tabular-nums' },
   { header: 'Propostas', value: (l) => l.propostas, className: 'text-right tabular-nums' },

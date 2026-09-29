@@ -4,7 +4,7 @@ import { Check, ClipboardCheck, Eye, PackageCheck, Route, ThumbsDown, X } from '
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
-import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, useConfirmar } from '@/components/wf'
+import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, type FilterDef, useConfirmar } from '@/components/wf'
 import { aprovadosAtuais, situacaoDe, useCursosDr, type CursoDr } from '@/lib/mock'
 import { ProdutoSheet, SituacaoBadge } from '@/pages/produto-sheets'
 
@@ -18,16 +18,28 @@ export default function Portfolio() {
   return pathname.startsWith('/portfolio/aprovacoes') ? <Aprovacoes /> : <PortfolioPublico />
 }
 
+// Área e modalidade aparecem sob o nome do produto; continuam como filtros.
+const filtrosPortfolio: FilterDef<CursoDr>[] = [
+  { label: 'Área tecnológica', values: (c) => [c.area ?? '—'] },
+  { label: 'Modalidade', values: (c) => [c.modalidade ?? '—'] },
+]
+
 function PortfolioPublico() {
   const { all } = useCursosDr()
   const [ver, setVer] = useState<string | null>(null)
   const rows = aprovadosAtuais(all)
   const colunas: Column<CursoDr>[] = [
-    { header: 'Produto', value: (c) => c.nome, search: true, className: 'font-medium' },
+    {
+      header: 'Produto', value: (c) => c.nome, search: true, className: 'font-medium',
+      cell: (c) => (
+        <div className="leading-tight">
+          <span className="font-medium">{c.nome}</span>
+          <span className="mt-0.5 block text-xs font-normal text-muted-foreground">{[c.area, c.modalidade].filter(Boolean).join(' · ')}</span>
+        </div>
+      ),
+    },
     { header: 'CTM', value: ctmDe, filter: true },
     { header: 'Versão', value: (c) => `v${c.versao ?? 1}`, className: 'tabular-nums' },
-    { header: 'Área tecnológica', value: (c) => c.area ?? '—', filter: true },
-    { header: 'Modalidade', value: (c) => c.modalidade ?? '—', filter: true },
     { header: 'CH', value: (c) => `${c.cargaHorariaEdital ?? 0} h`, className: 'text-right tabular-nums' },
     { header: 'Edital', value: (c) => c.edital ?? '—', filter: true, className: 'font-mono text-xs' },
     { header: 'Itinerário', value: (c) => c.itinerario?.codigo ?? '—', cell: (c) => (c.itinerario ? <span className="flex items-center gap-1 font-mono text-xs"><Route className="size-3.5 text-muted-foreground" />{c.itinerario.codigo}</span> : '—') },
@@ -36,7 +48,7 @@ function PortfolioPublico() {
   return (
     <>
       <PageHeader title="Portfólio das CTMs" description="Produtos aprovados pelo DN, com a versão vigente de cada CTM." />
-      <DataTable rows={rows} columns={colunas} searchPlaceholder="Buscar produto…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
+      <DataTable rows={rows} columns={colunas} filters={filtrosPortfolio} searchPlaceholder="Buscar produto…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
       <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
     </>
   )

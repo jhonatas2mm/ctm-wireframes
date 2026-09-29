@@ -270,7 +270,9 @@ html.ds-senai [data-slot="table-head"] {
 html.ds-senai [data-slot="table-body"] [data-slot="table-row"] { border-color: #F0F2F3; transition: background-color .15s; }
 html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:last-child { border-bottom: 0; }
 html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:hover,
-html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:hover [data-slot="table-cell"] { background-color: #FAFAFB; }
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:hover [data-slot="table-cell"],
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"][data-foco],
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"][data-foco] [data-slot="table-cell"] { background-color: #FAFAFB; }
 html.ds-senai [data-slot="table-cell"] { height: 3.5rem; padding-inline: 1rem; color: #3D4448; font-size: 0.875rem; }
 html.ds-senai [data-slot="table-body"] [data-slot="table-cell"]:first-child { color: #22272A; font-weight: 600; }
 html.ds-senai [data-slot="table-cell"].sticky, html.ds-senai [data-slot="table-head"].sticky { box-shadow: none !important; }
