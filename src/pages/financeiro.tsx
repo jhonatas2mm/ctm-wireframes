@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertTriangle,CalendarClock, ClipboardList, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ciclosDe } from '@/lib/alunos-turma'
 import { brl, linhasCobranca } from '@/lib/cobranca'
 import { AcompanhamentoAlunos } from './acompanhamento-alunos'
@@ -29,32 +30,25 @@ const situacoes: SituacaoFormal[] = ['Desistente', 'Trancado', 'Validado', 'Tran
 
 // Financeiro (CTM): situação de cada aluno para a cobrança. A CTM cobra até a DR formalizar a saída; mudança de status
 // no AVA sem formalização não para a cobrança, mas vira alerta. A formalização passa a ser registrada aqui (não por e-mail).
-// Sem abas: a tela inicial é a lista de DRs (cards); daí se navega para os alunos da DR (?dr=), o acompanhamento dos
-// alunos (?aba=acompanhamento) e os relatórios de cobrança (?aba=cobranca), cada um com breadcrumb de volta ao Financeiro.
+// Visões (abas): situação dos alunos (DRs em cards; ?dr= abre os alunos da DR, com breadcrumb), acompanhamento dos
+// alunos por turma e ciclo e relatório de cobrança por proposta (aba pela URL: ?aba=acompanhamento | cobranca).
 export default function Financeiro() {
   const [params, setParams] = useSearchParams()
   const aba = (['cobranca', 'acompanhamento'] as const).find((a) => a === params.get('aba')) ?? 'alunos'
   const dr = aba === 'alunos' ? params.get('dr') : null
-  const inicio = { label: 'Financeiro', to: '/financeiro' }
-  const breadcrumb =
-    aba === 'acompanhamento' ? [inicio, { label: 'Acompanhamento dos alunos' }]
-    : aba === 'cobranca' ? [inicio, { label: 'Relatórios de cobrança' }]
-    : dr ? [inicio, { label: `SENAI-${dr}` }]
-    : undefined
-  const ir = (a: string) => setParams({ aba: a })
   return (
     <>
-      <PageHeader
-        title={aba === 'acompanhamento' ? 'Acompanhamento dos alunos' : aba === 'cobranca' ? 'Relatórios de cobrança' : dr ? `Situação dos alunos · SENAI-${dr}` : 'Financeiro'}
-        breadcrumb={breadcrumb}
-        actions={!breadcrumb && (
-          <>
-            <Button variant="outline" onClick={() => ir('acompanhamento')}><ClipboardList className="text-primary" /> Acompanhamento dos alunos</Button>
-            <Button variant="outline" onClick={() => ir('cobranca')}><ReceiptText className="text-primary" /> Relatórios de cobrança</Button>
-          </>
-        )}
-      />
-      {aba === 'acompanhamento' ? <AcompanhamentoAlunos /> : aba === 'cobranca' ? <CobrancaPropostas /> : <SituacaoAlunos />}
+      <PageHeader title="Financeiro" breadcrumb={dr ? [{ label: 'Financeiro', to: '/financeiro?aba=alunos' }, { label: `SENAI-${dr}` }] : undefined} />
+      <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
+        <TabsList>
+          <TabsTrigger value="alunos"><Users /> Situação dos alunos</TabsTrigger>
+          <TabsTrigger value="acompanhamento"><ClipboardList /> Acompanhamento dos alunos</TabsTrigger>
+          <TabsTrigger value="cobranca"><ReceiptText /> Relatório de cobrança</TabsTrigger>
+        </TabsList>
+        <TabsContent value="alunos" className="pt-4"><SituacaoAlunos /></TabsContent>
+        <TabsContent value="acompanhamento" className="pt-4"><AcompanhamentoAlunos /></TabsContent>
+        <TabsContent value="cobranca" className="pt-4"><CobrancaPropostas /></TabsContent>
+      </Tabs>
     </>
   )
 }
@@ -174,7 +168,7 @@ function SituacaoAlunos() {
               ))}
             </dl>
             <div className="flex shrink-0 gap-2">
-              <Button variant="outline" className="text-primary hover:text-primary" onClick={() => ir('alunos', d)}><Users /> Ver alunos</Button>
+              <Button variant="outline" onClick={() => ir('alunos', d)}><Users className="text-primary" /> Ver alunos</Button>
               <Button variant="outline" onClick={() => ir('acompanhamento', d)}><ClipboardList className="text-primary" /> Acompanhamento</Button>
               <Button variant="outline" disabled={!relatorio} motivo="Nenhuma proposta aprovada com turmas para esta DR" onClick={() => relatorio && navigate(`/financeiro/cobranca/${relatorio.id}`)}><ReceiptText className="text-primary" /> Relatório de cobrança</Button>
             </div>
