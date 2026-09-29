@@ -165,6 +165,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (à DR, prazos, integração). Hoje os avisos aparecem só nas telas.
 - **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesma DR.
 - **Código da turma**: padrão citado = curso/modalidade + nº sequencial por DR + ano/semestre de início (ex.: T02MS, 2026-1).
+- **CH na Nova oferta**: hoje a soma das CHs acima da CH do produto **bloqueia** o "Salvar oferta", o que conflita com o padrão "nenhum campo bloqueia o protótipo". A definir: manter como regra estrutural ou só avisar (total em vermelho) sem bloquear.
 - Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, novos perfis (Analista, PCP, Monitor, Pedagógico, Tutor), acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
 ## Percurso (histórico de decisões)
