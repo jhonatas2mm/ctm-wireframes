@@ -44,7 +44,7 @@ export function AppShell() {
   return (
     <SidebarProvider style={{ '--sidebar-width': '15rem' } as React.CSSProperties}>
       <Sidebar variant="floating">
-        <SidebarHeader className="flex-row items-center justify-between py-2 pr-2 pl-3">
+        <SidebarHeader className="flex-row items-center justify-between pt-3 pb-4 pr-2 pl-3">
           {/* Logo do protótipo: marca laranja + nome */}
           <div className="flex items-center gap-2.5">
             <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5631A] to-[#BF340F] text-white shadow-sm">
@@ -54,7 +54,7 @@ export function AppShell() {
           </div>
         </SidebarHeader>
         {dr && (
-          <div className="mx-2 mb-2 flex items-center gap-3 rounded-2xl border bg-card p-2.5">
+          <div className="mx-2 mb-4 flex items-center gap-3 rounded-2xl border bg-card p-2.5">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF6ED] text-[#E84910]">
               <Building2 className="size-5" />
             </div>
@@ -64,7 +64,7 @@ export function AppShell() {
             </div>
           </div>
         )}
-        <div className="mx-2 mb-1">
+        <div className="mx-2 mb-3">
           <BuscaRapida telas={noMenu.map((s) => s.path)} />
         </div>
         <SidebarContent>
