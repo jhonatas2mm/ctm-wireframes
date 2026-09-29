@@ -336,3 +336,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Selects (todos): a lista se ajusta ao texto (no mínimo a largura do campo, até 36rem e o espaço da tela) e quebra linha se preciso, sem cortar opções (ex.: contratos no painel do Gestor SENAI).
 - 2026-09-29 — Painel da DR solicitante (Gestor SENAI/SESI): sem os ícones ao lado dos números em Alunos ativos, Requer atenção e Acessos ao portal.
 - 2026-09-29 — Painel da DR solicitante: listas de Turmas e Requer atenção sem as bolinhas de iniciais.
+- 2026-09-29 — Selects (todos): a lista abre abaixo do campo com altura de até 24rem (ou o espaço da tela), só o necessário quando há poucas opções — antes abria sobre o campo e ficava curta.
