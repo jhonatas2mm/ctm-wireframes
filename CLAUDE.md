@@ -36,6 +36,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **Abas**: primárias = `<TabsList>` padrão (pílula cinza clara, aba ativa branca elevada) **com ícone** antes do texto; secundárias = `<TabsList variant="line">` (barrinha laranja embaixo da ativa). Estilo em `src/index.css`.
 - Tabelas (DS SENAI, em `src/index.css`): card branco raio 20px, cabeçalho branco com texto pequeno semibold cinza, linhas de 56px, 1ª coluna semibold, ações em ícones soltos.
 - **Filtros de DR, estado, curso/produto, turma, modalidade, área tecnológica, nomes e outros com muitos valores** (ou mais de 10 opções) são campo de busca com vários escolhidos em etiquetas (automático no `DataTable`).
+- **Filtros de código/identificador** (nº de proposta, TAA, turma, edital…) são sempre busca com vários escolhidos; **filtros de valor em R$** são uma barra de ajuste (mínimo–máximo). Automático no `DataTable`.
 - **Filtros de data** (coluna só com datas): intervalo De/Até com campos de data (automático no `DataTable`).
 - Colunas de **Curso/Produto** nas tabelas: largura limitada e texto quebrando linha (automático no `DataTable`).
 - **Toda tabela usa `DataTable`** com busca, botão **Filtros** (popover na **largura da tabela**, filtros em **4 colunas**, todos **multiselect** — pílulas, busca com etiquetas ou intervalo de datas; um filtro por coluna; `filter: true` = topo da lista; prop `filters` para valores múltiplos; fora do botão só a busca e etiquetas dos filtros aplicados) e ações via `RowAction`.

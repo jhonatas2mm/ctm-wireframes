@@ -94,15 +94,47 @@ const iso = (v: string) => { const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})/); re
 const ehData = (opts: string[]) => { const d = opts.filter((o) => o && o !== '—'); return d.length > 0 && d.every((o) => iso(o)) }
 const br = (v: string) => v.split('-').reverse().join('/')
 const intervalo = (v: string) => { const [de = '', ate = ''] = v.slice(DATA.length).split('|'); return { de, ate } }
+// Filtro de valor (coluna só com valores em R$): barra de ajuste com mínimo e máximo. Guardado como "VALOR:<min>|<max>".
+const VALOR = 'VALOR:'
+const reais = (v: string) => { const m = v.match(/^R\$\s?(-?[\d.]+(?:,\d{1,2})?)$/); return m ? Number(m[1].replace(/\./g, '').replace(',', '.')) : NaN }
+const ehValor = (opts: string[]) => { const d = opts.filter((o) => o && o !== '—'); return d.length > 1 && d.every((o) => !Number.isNaN(reais(o))) }
+const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+const faixa = (v: string) => { const [a, b] = v.slice(VALOR.length).split('|').map(Number); return { min: a, max: b } }
+// Códigos/identificadores (nº de proposta, TAA, turma, edital…): sempre busca com vários escolhidos, nunca pílulas.
+const ehCodigo = (opts: string[]) => { const d = opts.filter((o) => o && o !== '—'); return d.length > 0 && d.every((o) => /\d/.test(o) && /[/-]/.test(o) && !iso(o)) }
 const textoFiltro = (v: string) => {
+  if (v.startsWith(VALOR)) { const { min, max } = faixa(v); return `${brl(min)} a ${brl(max)}` }
   if (!v.startsWith(DATA)) return partes(v).join(', ')
   const { de, ate } = intervalo(v)
   return de && ate ? `${br(de)} a ${br(ate)}` : de ? `a partir de ${br(de)}` : `até ${br(ate)}`
 }
 const casa = (filtro: string, valores: string[]) => {
+  if (filtro.startsWith(VALOR)) { const { min, max } = faixa(filtro); return valores.some((v) => { const n = reais(v); return n >= min && n <= max }) }
   if (!filtro.startsWith(DATA)) return partes(filtro).some((v) => valores.includes(v))
   const { de, ate } = intervalo(filtro)
   return valores.some((v) => { const d = iso(v); return !!d && (!de || d >= de) && (!ate || d <= ate) })
+}
+
+// Barra de ajuste com dois pontos (mínimo e máximo), entre o menor e o maior valor da coluna.
+function FiltroValor({ opts, valor, set }: { opts: string[]; valor: string; set: (v: string) => void }) {
+  const ns = opts.map(reais).filter((n) => !Number.isNaN(n))
+  const lo = Math.min(...ns), hi = Math.max(...ns)
+  const passo = Math.max(1, Math.round((hi - lo) / 100))
+  const { min, max } = valor.startsWith(VALOR) ? faixa(valor) : { min: lo, max: hi }
+  const por = (a: number, b: number) => set(a <= lo && b >= hi ? '' : `${VALOR}${Math.min(a, b)}|${Math.max(a, b)}`)
+  const pct = (n: number) => (hi === lo ? 0 : ((n - lo) / (hi - lo)) * 100)
+  const trilho = 'pointer-events-none absolute inset-x-0 top-0 h-5 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-primary [&::-webkit-slider-thumb]:bg-white [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-primary [&::-moz-range-thumb]:bg-white'
+  return (
+    <div className="space-y-2">
+      <div className="relative h-5">
+        <div className="absolute inset-x-0 top-2 h-1 rounded-full bg-muted" />
+        <div className="absolute top-2 h-1 rounded-full bg-primary" style={{ left: `${pct(min)}%`, right: `${100 - pct(max)}%` }} />
+        <input type="range" aria-label="Valor mínimo" min={lo} max={hi} step={passo} value={min} onChange={(e) => por(Math.min(Number(e.target.value), max), max)} className={trilho} />
+        <input type="range" aria-label="Valor máximo" min={lo} max={hi} step={passo} value={max} onChange={(e) => por(min, Math.max(Number(e.target.value), min))} className={trilho} />
+      </div>
+      <div className="flex justify-between text-xs tabular-nums text-muted-foreground"><span>{brl(min)}</span><span>{brl(max)}</span></div>
+    </div>
+  )
 }
 
 function FiltroData({ valor, set }: { valor: string; set: (v: string) => void }) {
@@ -282,7 +314,9 @@ export function DataTable<T extends { id: string }>({
                           <span className="text-xs font-semibold text-muted-foreground">{d.label}</span>
                           {ehData(opts) ? (
                             <FiltroData valor={atual} set={set} />
-                          ) : ehBusca(d.label, opts.length) ? (
+                          ) : ehValor(opts) ? (
+                            <FiltroValor opts={opts} valor={atual} set={set} />
+                          ) : ehBusca(d.label, opts.length) || ehCodigo(opts) ? (
                             <FiltroBusca opts={opts} valor={atual} set={set} />
                           ) : (
                             // Pílulas com seleção múltipla (clicar de novo desmarca).
