@@ -14,6 +14,7 @@ import Equipe from '@/pages/equipe'
 import Calendario from '@/pages/calendario'
 import Tratativas from '@/pages/tratativas'
 import Financeiro from '@/pages/financeiro'
+import RelatorioCobranca from '@/pages/relatorio-cobranca'
 import Portfolio from '@/pages/portfolio'
 import TaaCtm from '@/pages/taa-ctm'
 import Components from '@/pages/components'
@@ -70,7 +71,8 @@ export const screens: Screen[] = [
   { path: '/admin/feriados/novo', title: 'Novo feriado', group: 'Telas', icon: CalendarDays, component: Calendario, hidden: true, data: ['calendario'] },
   { path: '/tratativas', title: 'Tratativas pedagógicas', group: 'Telas', icon: ClipboardList, component: Tratativas, profiles: ['CTM: Gestor de oferta', 'CTM: Gestor de contrato', 'CTM: Pedagógico', 'CTM: Monitor', 'Super admin'], data: ['tratativas'] },
   { path: '/tratativas/nova', title: 'Nova tratativa', group: 'Telas', icon: ClipboardList, component: Tratativas, hidden: true, data: ['tratativas'] },
-  { path: '/financeiro', title: 'Financeiro', group: 'Telas', icon: Wallet, component: Financeiro, profiles: ['CTM: Gestor de oferta', 'CTM: Gestor de contrato', 'Super admin'], data: ['formalizacoes'] },
+  { path: '/financeiro', title: 'Financeiro', group: 'Telas', icon: Wallet, component: Financeiro, profiles: ['CTM: Gestor de oferta', 'CTM: Gestor de contrato', 'Super admin'], data: ['formalizacoes', 'ajustes-cobranca'] },
+  { path: '/financeiro/cobranca/:id', title: 'Relatório de cobrança', group: 'Telas', icon: Wallet, component: RelatorioCobranca, hidden: true, data: ['ajustes-cobranca'] },
   { path: '/acompanhamento', title: 'Painel', group: 'Telas', icon: Gauge, component: Painel, profiles: ['DR solicitante: SENAI', 'Super admin'], data: ['contratos-ctm', 'turmas-ead', 'alunos-ead'] },
   { path: '/contratos', title: 'Gestão de Contratos', group: 'Telas', icon: FileSignature, component: Contratos, profiles: ['DR solicitante: SENAI', 'Super admin'], data: ['contratos-ctm'] },
   { path: '/contratos/:id', title: 'Detalhes do contrato', group: 'Telas', icon: FileSignature, component: Contratos, hidden: true, data: ['contratos-ctm'] },

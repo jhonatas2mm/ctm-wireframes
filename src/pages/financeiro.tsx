@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { AlertTriangle, CalendarClock, FileCheck2, RotateCcw, Users } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { AlertTriangle, CalendarClock, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { brl, ciclosDe, linhasCobranca } from './relatorio-cobranca'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -8,8 +11,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, useConfirmar } from '@/components/wf'
 import {
-  HOJE, dataBr, diasSemAcesso, escolasDr, useAlunosEad, useContratosCtm, useFormalizacoes, useTurmasEad,
-  type AlunoEad, type Formalizacao, type SituacaoFormal,
+  HOJE, dataBr, diasSemAcesso, escolasDr, nomeParte, useAjustesCobranca, useAlunosEad, useContratos, useContratosCtm, useFormalizacoes, useProdutos, useTurmas, useTurmasEad,
+  type AlunoEad, type Formalizacao, type Produto, type SituacaoFormal,
 } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
 import { cn } from '@/lib/utils'
@@ -25,7 +28,59 @@ const situacoes: SituacaoFormal[] = ['Desistente', 'Trancado', 'Validado', 'Tran
 
 // Financeiro (CTM): situação de cada aluno para a cobrança. A CTM cobra até a DR formalizar a saída; mudança de status
 // no AVA sem formalização não para a cobrança, mas vira alerta. A formalização passa a ser registrada aqui (não por e-mail).
+// Visões: situação dos alunos (formalizações) e relatório de cobrança por proposta (aba pela URL: ?aba=cobranca).
 export default function Financeiro() {
+  const [params, setParams] = useSearchParams()
+  const aba = params.get('aba') === 'cobranca' ? 'cobranca' : 'alunos'
+  return (
+    <>
+      <PageHeader title="Financeiro" />
+      <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
+        <TabsList>
+          <TabsTrigger value="alunos">Situação dos alunos</TabsTrigger>
+          <TabsTrigger value="cobranca">Relatório de cobrança</TabsTrigger>
+        </TabsList>
+        <TabsContent value="alunos" className="pt-4"><SituacaoAlunos /></TabsContent>
+        <TabsContent value="cobranca" className="pt-4"><CobrancaPropostas /></TabsContent>
+      </Tabs>
+    </>
+  )
+}
+
+// Relatório de cobrança: a CTM escolhe a proposta (aprovada, com turmas) e abre o relatório do ciclo.
+function CobrancaPropostas() {
+  const navigate = useNavigate()
+  const turmas = useTurmas().all
+  const taas = useContratos().all
+  const ajustes = useAjustesCobranca().all
+  const propostas = useProdutos().all.filter((p) => p.status === 'Aprovado')
+  const turmasDe = (p: Produto) => turmas.filter((t) => t.propostaId === p.id && t.fase !== 'Cancelada')
+  const cicloAtual = (p: Produto) => { const cs = ciclosDe(turmasDe(p)); return cs.find((c) => c >= HOJE.slice(0, 7)) ?? cs[0] }
+  const valorCiclo = (p: Produto) => {
+    const c = cicloAtual(p)
+    if (!c) return 0
+    return linhasCobranca(p, turmasDe(p), c).reduce((s, l) => s + l.valor, 0) + ajustes.filter((a) => a.propostaId === p.id && a.ciclo === c).reduce((s, a) => s + a.ch * a.alunos * a.valorHora, 0)
+  }
+  const colunas: Column<Produto>[] = [
+    { header: 'Proposta', value: (p) => p.numero, search: true, cell: (p) => <Badge variant="secondary" className="font-mono">{p.numero}</Badge> },
+    { header: 'Contratante', value: (p) => nomeParte(p.drContratante), filter: true },
+    { header: 'TAA', value: (p) => taas.find((t) => t.id === p.taaId)?.numero ?? '—', className: 'font-mono text-xs' },
+    { header: 'Cursos', value: (p) => p.cursos.map((c) => c.nome).join(', '), search: true },
+    { header: 'Turmas', value: (p) => turmasDe(p).length, className: 'text-right tabular-nums' },
+    { header: 'Ciclo', value: (p) => { const c = cicloAtual(p); return c ? `${Number(c.slice(5))}/${c.slice(0, 4)}` : '—' }, className: 'tabular-nums' },
+    { header: 'Valor do ciclo', value: (p) => valorCiclo(p), cell: (p) => <span className="font-medium tabular-nums">{brl(valorCiclo(p))}</span>, className: 'text-right' },
+  ]
+  return (
+    <DataTable
+      rows={propostas}
+      columns={colunas}
+      searchPlaceholder="Buscar proposta ou curso…"
+      actions={(p) => <RowAction label="Abrir relatório" icon={ReceiptText} disabled={!turmasDe(p).length} motivo="Proposta sem turmas" onClick={() => navigate(`/financeiro/cobranca/${p.id}`)} />}
+    />
+  )
+}
+
+function SituacaoAlunos() {
   const { confirmar, dialogo } = useConfirmar()
   const autor = useAutor()
   const alunos = useAlunosEad().all
@@ -74,7 +129,6 @@ export default function Financeiro() {
   const abrir = (a: AlunoEad) => (setF({ situacao: 'Desistente', data: HOJE, aPartirDe: 'Módulo atual' }), setAberto(a))
   return (
     <>
-      <PageHeader title="Financeiro" />
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} tom="blue" label="Alunos cobrados" value={String(cobrados.length)} hint={`de ${alunos.length} matriculados`} />
         <StatCard icon={FileCheck2} tom="green" label="Saídas formalizadas" value={String(alunos.length - cobrados.length)} />

@@ -20,7 +20,7 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 7. **Criação de oferta** (Gestor de oferta) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
 7a. **UCs da turma** (CTM: Gestor de oferta) — Equipe → equipe de cada UC → Integração com o Moodle → Histórico.
 7b. **Acompanhamento pedagógico** (Gestor de oferta) — Tratativas pedagógicas → Nova tratativa.
-7c. **Financeiro** (Gestor de oferta) — situação de cobrança por aluno e formalizações.
+7c. **Financeiro** (Gestor de oferta) — situação de cobrança por aluno e formalizações → Relatório de cobrança (Gestor de contrato): proposta → relatório do ciclo.
 7d. **Equipe das UCs** (CTM: PCP) — Equipe → equipe de cada UC.
 7e. **Planejamento das UCs** (CTM: Pedagógico) — UC em planejamento (aulas ao vivo + presenciais) → Tratativas.
 7f. **Avaliação do planejamento** (CTM: Tutor) e **Salas e avaliações no Moodle** (CTM: Monitor).
@@ -138,6 +138,11 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - A formalização é registrada no sistema (antes era por e-mail), com data e a partir de quando deixa de cobrar (UC em andamento ou próxima UC).
 - **Corte no dia 20**: formalizações até o dia 20 saem da cobrança do dia 5 do mês seguinte; depois do dia 20, da cobrança do mês subsequente.
 - Resumo de alunos cobrados por escola.
+- Duas visões (abas): **Situação dos alunos** e **Relatório de cobrança**.
+- **Relatório de cobrança** (modelo da planilha da CTM, usado para cobrar a DR solicitante): a CTM escolhe a **proposta aprovada** (com turmas) e abre o relatório (`/financeiro/cobranca/:id`). Cabeçalho com dados do cliente e serviço (instituição, CNPJ, TAA, serviço, e-mails da cobrança) e **ciclo financeiro** (mês).
+  - Uma linha por **turma × escola × UC** em andamento no ciclo: curso/modalidade, escola-município, código da turma, UC, CH total, período, **CH cobrada** (CH da UC proporcional aos dias da UC dentro do mês — hipótese a validar), **nº de alunos** (integrados no AVA), **valor aluno/hora** (valor do aluno no edital ÷ CH do curso) e valor total; link de acesso para conferência.
+  - **Ajustes de cobrança**: linhas extras do ciclo (ex.: aluno integrado depois da cobrança anterior), com observação; listadas em Observações.
+  - Total do ciclo e **vencimento** (dia 28 do mês seguinte — hipótese); exporta planilha (CSV) ou imprime/PDF.
 
 ## Proposta comercial (CTM)
 - A proposta é **sempre criada pela CTM**. A **negociação é fora do sistema**; quando avança, a CTM cria a proposta **vinculada a um TAA/contrato aceito** (Gestão de propostas → Nova proposta).
@@ -354,3 +359,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Novo TAA (Gestor de contrato): DR destinatária vira um select com **uma DR só** (um TAA por vez). Casca: conteúdo da coluna lateral não extrapola mais a caixa (selects e etapas encolhem; textos longos com reticências).
 - 2026-09-29 — Equipe: funções Monitor front e Monitor back unificadas em **Monitor** (Nova pessoa e alocação). Dados da equipe reiniciados (equipe-v3).
 - 2026-09-29 — Visualização em cards: botões de ação com o mesmo padrão da coluna Ações (contorno neutro, ícone na cor principal).
+- 2026-09-29 — **Relatório de cobrança** no Financeiro (aba): escolhe a proposta aprovada e abre o relatório por ciclo (turma × escola × UC, CH cobrada, alunos, valor aluno/hora, ajustes, total e vencimento), no modelo da planilha da CTM; exporta planilha ou PDF.

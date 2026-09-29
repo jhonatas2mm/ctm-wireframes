@@ -228,6 +228,8 @@ export const journeys: Journey[] = [
     profile: 'CTM: Gestor de oferta',
     steps: [
       { title: 'Financeiro', path: '/financeiro', profile: 'CTM: Gestor de oferta', note: 'Situação de cobrança por aluno: cobra até a DR formalizar a saída (corte dia 20, cobrança dia 5). Suspenso no AVA sem formalização vira alerta. Formalização registrada aqui, não por e-mail.' },
+      { title: 'Relatório de cobrança', path: '/financeiro?aba=cobranca', focus: 'text=Abrir relatório', profile: 'CTM: Gestor de contrato', note: 'A CTM escolhe a proposta aprovada para cobrar da DR solicitante.' },
+      { title: 'Relatório da proposta', path: '/financeiro/cobranca/2', profile: 'CTM: Gestor de contrato', note: 'Por ciclo (mês): uma linha por turma × escola × UC com CH cobrada, alunos integrados e valor aluno/hora; ajustes de cobrança; exporta planilha ou PDF.' },
     ],
   },
 
