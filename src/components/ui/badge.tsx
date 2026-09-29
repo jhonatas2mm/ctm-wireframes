@@ -32,7 +32,7 @@ const tones: Record<string, "green" | "blue" | "orange" | "red" | "gray"> = {
   Vigente: "green", Ativo: "green", Ativa: "green", Aceita: "green", "Em dia": "green", "Em andamento": "green",
   "Aceita pelo contratante": "blue", "A iniciar": "blue",
   "Em análise": "orange", "Em risco": "orange", "Aguardando CTM": "orange",
-  Recusada: "red", Evadido: "red", Erro: "red", Aviso: "orange", Info: "blue",
+  Recusada: "red", Evadido: "red", Excluiu: "red", Recusou: "red", Criou: "green", Aceitou: "green", Editou: "orange", Anexou: "blue", Exportou: "blue", Login: "gray", Logout: "gray", Visualizou: "gray",
   "Em elaboração": "gray", Encerrado: "gray", Finalizada: "gray", Inativo: "gray", Inativa: "gray",
 }
 

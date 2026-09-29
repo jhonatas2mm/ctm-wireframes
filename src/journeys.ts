@@ -42,8 +42,8 @@ export const journeys: Journey[] = [
     title: 'Logs do sistema',
     profile: 'Super admin',
     steps: [
-      { title: 'Logs do sistema', path: '/admin/logs', profile: 'Super admin', note: 'Saúde da plataforma: erros, avisos e informativos de integrações (AVA, Portal do aluno), jobs, e-mail, autenticação e API. Filtros por nível e origem; dá para salvar filtros (ex.: “Erros de integração”).' },
-      { title: 'Detalhe do log', path: '/admin/logs/l1', profile: 'Super admin', note: 'Side nav com mensagem, horário, duração, usuário, ID da requisição (copiar), stack trace ou payload e outros eventos da mesma origem.' },
+      { title: 'Logs do sistema', path: '/admin/logs', profile: 'Super admin', note: 'Tudo o que os usuários fazem na plataforma: login, visualizações, criações, edições, exclusões, aceites, exportações. Filtros por usuário, perfil, ação, módulo e DR; dá para salvar filtros (ex.: “Exclusões da DN”).' },
+      { title: 'Detalhe do log', path: '/admin/logs/l1', profile: 'Super admin', note: 'Side nav com quem fez (perfil, DR), quando, módulo, IP e dispositivo, o que mudou (antes → depois) e outras ações do mesmo usuário.' },
     ],
   },
   {

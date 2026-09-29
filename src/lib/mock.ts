@@ -366,33 +366,40 @@ export const alertasAluno = (a: AlunoEad, t: TurmaEad): string[] => {
 export const situacaoAluno = (a: AlunoEad, t: TurmaEad): SituacaoAluno =>
   statusTurmaEad(t) !== 'Finalizada' && diasSemAcesso(a) > 30 ? 'Evadido' : alertasAluno(a, t).length ? 'Em risco' : 'Em dia'
 
-// ── Logs do sistema (Super admin) ───────────────────────────────────────────
-export type NivelLog = 'Erro' | 'Aviso' | 'Info'
-export type LogSistema = { id: string; quando: string; nivel: NivelLog; origem: string; mensagem: string; usuario?: string; requisicao: string; duracaoMs: number; detalhe: string } // quando ISO
-const mensagensLog: [NivelLog, string, string][] = [
-  ['Erro', 'Integração AVA', 'Timeout ao sincronizar notas da turma EAD-MG-0101'],
-  ['Aviso', 'Autenticação', '5 tentativas de login sem sucesso para paulo.mendes@senaimg.org.br'],
-  ['Info', 'Job agendado', 'Sincronização diária de acessos concluída (32 alunos)'],
-  ['Erro', 'E-mail', 'Falha ao enviar convite para novo usuário (SMTP 550)'],
-  ['Info', 'API', 'Proposta PC-MG-002/2026 aceita pelo SENAI-RJ'],
-  ['Aviso', 'Integração Portal do aluno', 'Resposta lenta do Portal do aluno (4,8 s)'],
-  ['Info', 'Autenticação', 'Login de fernanda.costa@senai.br'],
-  ['Erro', 'API', 'Erro 500 ao gerar PDF do TAA 102/2026'],
-  ['Info', 'API', 'Edital ED-006/2026 criado'],
-  ['Aviso', 'Job agendado', 'Relatório semanal gerado com 2 turmas sem dados de acesso'],
+// ── Logs do sistema (Super admin): tudo o que os usuários fazem na plataforma ──
+export type AcaoLog = 'Login' | 'Logout' | 'Visualizou' | 'Criou' | 'Editou' | 'Excluiu' | 'Aceitou' | 'Recusou' | 'Exportou' | 'Anexou'
+export type Alteracao = { campo: string; antes: string; depois: string }
+export type LogSistema = { id: string; quando: string; usuario: string; email: string; perfil: string; dr: string; acao: AcaoLog; modulo: string; registro: string; ip: string; dispositivo: string; alteracoes: Alteracao[] } // quando ISO
+const pessoasLog = [
+  { usuario: 'Fernanda Costa', email: 'fernanda.costa@senai.br', perfil: 'Super admin', dr: 'DN' },
+  { usuario: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br', perfil: 'CTM: Supervisor', dr: 'MG' },
+  { usuario: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br', perfil: 'CTM: Comercial', dr: 'MG' },
+  { usuario: 'Maria Silva', email: 'maria.silva@senai.br', perfil: 'DN', dr: 'DN' },
+  { usuario: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', perfil: 'DR solicitante', dr: 'MG' },
 ]
-const logs: LogSistema[] = Array.from({ length: 36 }, (_, i) => {
-  const [nivel, origem, mensagem] = mensagensLog[i % mensagensLog.length]
+const acoesLog: [AcaoLog, string, string, Alteracao[]][] = [
+  ['Login', 'Autenticação', '—', []],
+  ['Criou', 'Gestão de propostas', 'Proposta PC-MG-004/2026', [{ campo: 'Status', antes: '—', depois: 'Em elaboração' }]],
+  ['Editou', 'Gestão de Editais', 'Edital ED-002/2026', [{ campo: 'Vigência (fim)', antes: '31/01/2027', depois: '28/02/2027' }, { campo: 'Valor', antes: 'R$ 8.640,00', depois: 'R$ 9.040,00' }]],
+  ['Visualizou', 'Alunos', 'Aluno Daniel Rocha', []],
+  ['Aceitou', 'Gestão de propostas', 'Proposta PC-MG-002/2026', [{ campo: 'Status', antes: 'Em análise', depois: 'Aceita' }]],
+  ['Exportou', 'Gestão de Contratos', 'Contratos (4 registros)', []],
+  ['Anexou', 'Gestão de TAA', 'TAA 101/2026', [{ campo: 'TAA assinado', antes: '—', depois: 'TAA-101-2026-assinado.pdf' }, { campo: 'Status', antes: 'Em elaboração', depois: 'Vigente' }]],
+  ['Excluiu', 'Gestão de Portfólio', 'Produto Soldador (versão 1)', []],
+  ['Recusou', 'Gestão de propostas', 'Proposta PC-MG-003/2026', [{ campo: 'Status', antes: 'Em análise', depois: 'Recusada' }, { campo: 'Feedback', antes: '—', depois: 'Valor acima do previsto no edital' }]],
+  ['Editou', 'Gestão de usuários', 'Usuário Roberto Lima', [{ campo: 'Status', antes: 'Ativo', depois: 'Inativo' }]],
+  ['Visualizou', 'Painel', 'Painel da DR solicitante', []],
+  ['Logout', 'Autenticação', '—', []],
+]
+const logs: LogSistema[] = Array.from({ length: 48 }, (_, i) => {
+  const [acao, modulo, registro, alteracoes] = acoesLog[i % acoesLog.length]
+  const p = pessoasLog[(i * 3) % pessoasLog.length]
   return {
     id: `l${i + 1}`,
-    quando: new Date(Date.parse('2026-09-28T11:30:00Z') - i * 47 * 60_000).toISOString(),
-    nivel, origem, mensagem,
-    usuario: origem === 'Autenticação' || origem === 'API' ? ['fernanda.costa@senai.br', 'carlos.andrade@senaimg.org.br', 'maria.silva@senai.br'][i % 3] : undefined,
-    requisicao: `req_${(0x9f3a2c + i * 7919).toString(16)}`,
-    duracaoMs: nivel === 'Erro' ? 30000 : 120 + ((i * 37) % 900),
-    detalhe: nivel === 'Erro'
-      ? `Error: ${mensagem}\n    at sync (services/${origem.toLowerCase().replace(/ /g, '-')}.ts:${40 + i}:13)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)`
-      : `{\n  "origem": "${origem}",\n  "evento": "${mensagem}",\n  "status": "ok"\n}`,
+    quando: new Date(Date.parse('2026-09-28T11:30:00Z') - i * 53 * 60_000).toISOString(),
+    ...p, acao, modulo, registro, alteracoes,
+    ip: `189.40.${(i * 17) % 255}.${(i * 29) % 255}`,
+    dispositivo: ['Chrome · Windows', 'Safari · macOS', 'Edge · Windows', 'Chrome · Android'][i % 4],
   }
 })
-export const useLogs = () => useCollection<LogSistema>('logs', logs)
+export const useLogs = () => useCollection<LogSistema>('logs-v2', logs)

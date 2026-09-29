@@ -8,7 +8,7 @@ Na casca, o select agrupa por perfil que inicia a jornada e **numera dentro de c
 0a. **Gestão de usuários** (Super admin) — Gestão de usuários → Novo usuário → Editar usuário.
 0b. **Perfis e permissões** (Super admin) — Perfis e permissões → Permissões do perfil.
 0c. **Auditoria** (Super admin) — trilha de ações, somente leitura.
-0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): erros/avisos/informativos de integrações, jobs, e-mail, autenticação e API.
+0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): ações dos usuários na plataforma (login, visualizou, criou, editou com antes/depois, excluiu, aceitou/recusou, exportou, anexou).
 0d. **Supervisão das áreas** (Super admin) — Gestão de DRs → Editais → Propostas → Oferta.
 1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciadas → Nova DR credenciada. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
 2. **Gestão de Contratos** (DN) — Gestão de TAA → Novo TAA → TAA em elaboração → TAA vigente.
@@ -195,4 +195,5 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-28 — Ajustes de UI: modais/side navs com fundo sólido (sem transparência); tags de status com contorno; ícones de ação das tabelas em laranja; lixeira sem vermelho; “Ações” centralizado; botão Recusar proposta em vermelho; Gestão de TAAs sem coluna Cursos; nome do curso com reticências + nome completo no hover (Portfólio); detalhe do edital em side nav; total da Nova proposta no rodapé fixo da 3ª coluna.
 - 2026-09-28 — Super admin vê dados de toda a plataforma no acompanhamento (DR solicitante vê só a própria DR). Mock: contratos CTM com campo `dr` e novos contratos SP/BA (contratos-ctm-v2, turmas-ead-v2, alunos-ead-v3).
 - 2026-09-28 — Nova jornada **Logs do sistema** (Super admin): `/admin/logs` e `/admin/logs/:id` (side nav com stack trace/payload e eventos relacionados). Permissões: permissoes-v6.
-
+- 2026-09-28 — Logs do sistema = **ações dos usuários** na plataforma (não erros técnicos): usuário, perfil, DR, ação, módulo, registro, IP, dispositivo e alterações antes/depois (logs-v2).
+- 2026-09-28 — Logs do sistema com visão **Linha do tempo** (padrão): agrupada por dia, ícone colorido por ação, frase “Fulano editou X”, antes/depois inline, filtro por ação, busca e “Carregar mais”; alternância para Tabela.
