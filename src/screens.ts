@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette } from 'lucide-react'
+import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
 import Produtos from '@/pages/produtos'
@@ -13,6 +13,7 @@ import { Alunos, Contratos, Painel, Turmas } from '@/pages/acompanhamento'
 import OfertaDetalhe from '@/pages/oferta-detalhe'
 import Components from '@/pages/components'
 import { Auditoria, Perfis, Usuarios } from '@/pages/admin'
+import Logs from '@/pages/logs'
 
 // Registro de telas: adicione uma entrada aqui e ela aparece na rota e no menu.
 export type Screen = {
@@ -33,6 +34,8 @@ export const screens: Screen[] = [
   { path: '/admin/perfis', title: 'Perfis e permissões', group: 'Telas', icon: ShieldCheck, component: Perfis, profiles: ['Super admin'], data: ['permissoes'] },
   { path: '/admin/perfis/:id', title: 'Permissões do perfil', group: 'Telas', icon: ShieldCheck, component: Perfis, hidden: true, data: ['permissoes'] },
   { path: '/admin/auditoria', title: 'Auditoria', group: 'Telas', icon: History, component: Auditoria, profiles: ['Super admin'], data: ['auditoria'] },
+  { path: '/admin/logs', title: 'Logs do sistema', group: 'Telas', icon: ScrollText, component: Logs, profiles: ['Super admin'], data: ['logs'] },
+  { path: '/admin/logs/:id', title: 'Detalhe do log', group: 'Telas', icon: ScrollText, component: Logs, hidden: true, data: ['logs'] },
   { path: '/drs', title: 'Gestão de DRs', group: 'Telas', icon: Building2, component: GestaoDrs, profiles: ['DN', 'Super admin'], data: ['drs'] },
   { path: '/drs/novo', title: 'Nova DR credenciada', group: 'Telas', icon: Building2, component: GestaoDrs, hidden: true, data: ['drs'] },
   { path: '/dashboard', title: 'Gestão de TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, profiles: ['DN', 'Super admin'], data: ['contratos'] },

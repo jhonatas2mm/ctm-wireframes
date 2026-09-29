@@ -1,3 +1,4 @@
+import type * as React from "react"
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -26,18 +27,29 @@ const badgeVariants = cva(
   }
 )
 
+// Tom semântico do status (Tags do DS SENAI). Só tem efeito visual no protótipo (html.ds-senai, src/index.css).
+const tones: Record<string, "green" | "blue" | "orange" | "red" | "gray"> = {
+  Vigente: "green", Ativo: "green", Ativa: "green", Aceita: "green", "Em dia": "green", "Em andamento": "green",
+  "Aceita pelo contratante": "blue", "A iniciar": "blue",
+  "Em análise": "orange", "Em risco": "orange", "Aguardando CTM": "orange",
+  Recusada: "red", Evadido: "red", Erro: "red", Aviso: "orange", Info: "blue",
+  "Em elaboração": "gray", Encerrado: "gray", Finalizada: "gray", Inativo: "gray", Inativa: "gray",
+}
+
 function Badge({
   className,
   variant = "default",
   render,
   ...props
 }: useRender.ComponentProps<"span"> & VariantProps<typeof badgeVariants>) {
+  const tone = typeof props.children === "string" ? tones[props.children] : undefined
   return useRender({
     defaultTagName: "span",
     props: mergeProps<"span">(
       {
         className: cn(badgeVariants({ variant }), className),
-      },
+        ...(tone && { "data-tone": tone }),
+      } as React.ComponentProps<"span">,
       props
     ),
     render,

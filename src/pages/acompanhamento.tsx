@@ -1,7 +1,13 @@
+import { useProfile } from '@/journey/profile'
+import { profileOf } from '@/journey/profiles'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Eye, Users } from 'lucide-react'
+import type * as React from 'react'
+import { CalendarRange, CheckCircle2, Eye, GraduationCap, MonitorSmartphone, TrendingUp, TriangleAlert, UserX, Users, type LucideIcon } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Progress } from '@/components/ui/progress'
@@ -18,14 +24,18 @@ const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', curren
 const periodo = (i: string, f: string) => `${dataBr(i)} a ${dataBr(f)}`
 const corSituacao: Record<SituacaoAluno, 'default' | 'secondary' | 'outline'> = { 'Em dia': 'secondary', 'Em risco': 'outline', Evadido: 'default' }
 
+// Escopo dos dados: a DR solicitante vê só a própria DR; o Super admin (e o protótipo livre) vê a plataforma toda.
 function useDados() {
-  const contratos = useContratosCtm().all
-  const turmas = useTurmasEad().all
-  const alunos = useAlunosEad().all
+  const perfil = useProfile()
+  const uf = perfil === 'DR solicitante' ? profileOf(perfil).dr?.sigla.replace('SENAI-', '') : undefined
+  const global = !uf
+  const contratos = useContratosCtm().all.filter((c) => !uf || c.dr === uf)
+  const turmas = useTurmasEad().all.filter((t) => contratos.some((c) => c.id === t.contratoId))
+  const alunos = useAlunosEad().all.filter((a) => turmas.some((t) => t.id === a.turmaId))
   const turmaDe = (a: AlunoEad) => turmas.find((t) => t.id === a.turmaId)!
   const contratoDe = (t: TurmaEad) => contratos.find((c) => c.id === t.contratoId)
   const alunosDa = (t: TurmaEad) => alunos.filter((a) => a.turmaId === t.id)
-  return { contratos, turmas, alunos, turmaDe, contratoDe, alunosDa }
+  return { contratos, turmas, alunos, turmaDe, contratoDe, alunosDa, global }
 }
 
 const ultimoAcesso = (a: AlunoEad) => {
@@ -48,6 +58,7 @@ function colunasTurma(d: ReturnType<typeof useDados>): Column<TurmaEad>[] {
   return [
     { header: 'Turma', value: (t) => t.codigo, search: true, cell: (t) => <Badge variant="secondary" className="font-mono">{t.codigo}</Badge> },
     { header: 'Curso', value: (t) => t.curso, search: true },
+    ...(d.global ? [{ header: 'DR', value: (t: TurmaEad) => `SENAI-${d.contratoDe(t)?.dr ?? ''}`, filter: true } as Column<TurmaEad>] : []),
     { header: 'Empresa', value: (t) => d.contratoDe(t)?.empresa ?? '—', filter: true },
     { header: 'Alunos', value: (t) => d.alunosDa(t).length, className: 'text-right tabular-nums' },
     { header: 'Em risco', value: (t) => d.alunosDa(t).filter((a) => situacaoAluno(a, t) !== 'Em dia').length, className: 'text-right tabular-nums' },
@@ -67,87 +78,261 @@ function colunasAluno(d: ReturnType<typeof useDados>, comTurma = true): Column<A
   ]
 }
 
+// Card de turma (Painel e detalhe do contrato): números grandes + execução + ver alunos.
+function TurmaCard({ t, d }: { t: TurmaEad; d: ReturnType<typeof useDados> }) {
+  const navigate = useNavigate()
+  const n = d.alunosDa(t)
+  const atencao = n.filter((a) => alertasAluno(a, t).length).length
+  const exec = progressoEsperado(t)
+  return (
+    <div className="flex flex-col gap-4 rounded-2xl border bg-card p-4">
+      <div className="space-y-1.5">
+        <div className="line-clamp-2 min-h-10 font-semibold leading-5" title={t.curso}>{t.curso}</div>
+        <div className="flex items-center justify-between gap-2">
+          <Link to={`/turmas-ead/${t.id}`} className="font-mono text-xs text-muted-foreground hover:underline">{t.codigo}</Link>
+          <Badge variant="outline" className="shrink-0">{statusTurmaEad(t)}</Badge>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 divide-x rounded-xl bg-muted/60 py-3 text-center">
+        <Metrica valor={n.length} rotulo="alunos" />
+        <button type="button" disabled={!atencao} onClick={() => navigate(`/turmas-ead/${t.id}?ver=alunos`)} className="enabled:hover:opacity-80">
+          <Metrica valor={atencao} rotulo="atenção" destaque={atencao > 0} />
+        </button>
+        <Metrica valor={`${exec}%`} rotulo="execução" />
+      </div>
+      <Progress value={exec} />
+      <Button variant="ghost" size="sm" className="-mb-1 self-end" onClick={() => navigate(`/turmas-ead/${t.id}?ver=alunos`)}>
+        <Users /> Ver alunos
+      </Button>
+    </div>
+  )
+}
+
+function Metrica({ valor, rotulo, destaque }: { valor: React.ReactNode; rotulo: string; destaque?: boolean }) {
+  return (
+    <div className="px-2">
+      <div className={cn('text-2xl font-bold tabular-nums', destaque && 'text-[#C23C0D]')}>{valor}</div>
+      <div className="text-xs text-muted-foreground">{rotulo}</div>
+    </div>
+  )
+}
+
+// ── Gráficos simples em SVG (sem dependência) ──────────────────────────────
+// Curva suave passando pelos pontos (Catmull-Rom → Bézier).
+function curva(pts: [number, number][]) {
+  if (pts.length < 2) return ''
+  let d = `M${pts[0][0]},${pts[0][1]}`
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] ?? p2
+    d += ` C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`
+  }
+  return d
+}
+const pontos = (v: number[], w: number, h: number, max = Math.max(1, ...v), pad = 4): [number, number][] =>
+  v.map((y, i) => [(i / Math.max(1, v.length - 1)) * w, pad + (h - 2 * pad) * (1 - y / max)])
+
+function Sparkline({ v, cor }: { v: number[]; cor: string }) {
+  const w = 200, h = 56, pts = pontos(v, w, h), id = `sp${cor.slice(1)}`
+  const linha = curva(pts)
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-14 w-full" preserveAspectRatio="none">
+      <defs><linearGradient id={id} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor={cor} stopOpacity=".18" /><stop offset="1" stopColor={cor} stopOpacity="0" /></linearGradient></defs>
+      <path d={`${linha} L${w},${h} L0,${h} Z`} fill={`url(#${id})`} />
+      <path d={linha} fill="none" stroke={cor} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+    </svg>
+  )
+}
+
+function GraficoLinhas({ series, rotulos }: { series: { nome: string; cor: string; v: number[] }[]; rotulos: string[] }) {
+  const w = 600, h = 200, max = Math.max(4, ...series.flatMap((s) => s.v))
+  const topo = Math.ceil(max / 4) * 4
+  return (
+    <div>
+      <svg viewBox={`0 0 ${w} ${h}`} className="h-52 w-full" preserveAspectRatio="none">
+        {[0, 1, 2, 3, 4].map((i) => <line key={i} x1="0" x2={w} y1={4 + (i * (h - 8)) / 4} y2={4 + (i * (h - 8)) / 4} stroke="#E4E8E9" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />)}
+        {series.map((s) => {
+          const pts = pontos(s.v, w, h, topo), linha = curva(pts), id = `gl${s.cor.slice(1)}`
+          return (
+            <g key={s.nome}>
+              <defs><linearGradient id={id} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor={s.cor} stopOpacity=".16" /><stop offset="1" stopColor={s.cor} stopOpacity="0" /></linearGradient></defs>
+              <path d={`${linha} L${w},${h} L0,${h} Z`} fill={`url(#${id})`} />
+              <path d={linha} fill="none" stroke={s.cor} strokeWidth="2.5" vectorEffect="non-scaling-stroke" />
+            </g>
+          )
+        })}
+      </svg>
+      <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+        {rotulos.map((r, i) => <span key={i} className={cn(i === rotulos.length - 1 && 'font-semibold text-[#E84910]')}>{r}</span>)}
+      </div>
+    </div>
+  )
+}
+
+function Variacao({ pct }: { pct: number }) {
+  const sobe = pct >= 0
+  return (
+    <span className={cn('inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-xs font-semibold', sobe ? 'bg-[#E3F5EE] text-[#008257]' : 'bg-[#FBE6E5] text-[#C11414]')}>
+      {sobe ? '↑' : '↓'} {Math.abs(pct)}%
+    </span>
+  )
+}
+
+// Ícone em caixa arredondada colorida, ao lado de números grandes.
+const tons = {
+  orange: 'bg-[#FFF6ED] text-[#E84910]', blue: 'bg-[#EEF7FF] text-[#1670FA]', green: 'bg-[#E3F5EE] text-[#008257]',
+  red: 'bg-[#FBE6E5] text-[#C11414]', amber: 'bg-[#FDF0E6] text-[#C23C0D]', gray: 'bg-[#F0F1F2] text-[#536167]',
+}
+export type Tom = keyof typeof tons
+function IconBox({ icon: Icon, tom }: { icon: LucideIcon; tom: Tom }) {
+  return <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', tons[tom])}><Icon className="size-5" /></div>
+}
+
+const Bloco = ({ className, ...p }: React.ComponentProps<'section'>) => <section className={cn('rounded-3xl bg-card p-5', className)} {...p} />
+
 // ── Painel ───────────────────────────────────────────────────────────────────
-// Dashboard por contrato: cada contrato mostra suas turmas e, dentro de cada turma, os alunos que pedem atitude.
+// Dashboard da DR solicitante: filtro por contrato, indicadores com tendência, acessos ao portal,
+// turmas com execução e alunos que requerem atenção.
 export function Painel() {
   const d = useDados()
   const navigate = useNavigate()
+  const [contrato, setContrato] = useState('todos')
   const [aberto, setAberto] = useState<string | null>(null)
-  const ativas = d.turmas.filter((t) => statusTurmaEad(t) === 'Em andamento')
-  const alunosAtivos = d.alunos.filter((a) => ativas.some((t) => t.id === a.turmaId))
-  const conta = (x: SituacaoAluno) => alunosAtivos.filter((a) => situacaoAluno(a, d.turmaDe(a)) === x).length
-  const contratos = d.contratos.filter((c) => c.status !== 'Em elaboração').sort((x, y) => x.status.localeCompare(y.status) * -1)
+  const turmas = d.turmas.filter((t) => d.contratoDe(t)?.status !== 'Em elaboração' && (contrato === 'todos' || t.contratoId === contrato))
+  const ativas = turmas.filter((t) => statusTurmaEad(t) === 'Em andamento')
+  const alunos = d.alunos.filter((a) => ativas.some((t) => t.id === a.turmaId))
+  const atencao = alunos.map((a) => ({ a, m: alertasAluno(a, d.turmaDe(a)) })).filter((x) => x.m.length).sort((x, y) => diasSemAcesso(y.a) - diasSemAcesso(x.a))
+  const evadidos = alunos.filter((a) => situacaoAluno(a, d.turmaDe(a)) === 'Evadido').length
+
+  // Acessos por dia (últimos 14 dias) e por portal.
+  const dias = Array.from({ length: 14 }, (_, i) => new Date(Date.parse(HOJE) - (13 - i) * 86_400_000).toISOString().slice(0, 10))
+  const porDia = (portal?: string) => dias.map((dia) => alunos.reduce((n, a) => n + a.acessos.filter((x) => x.data === dia && (!portal || x.portal === portal)).length, 0))
+  const total = porDia(), ava = porDia('AVA'), portal = porDia('Portal do aluno')
+  const soma = (v: number[]) => v.reduce((n, x) => n + x, 0)
+  const sem7 = soma(total.slice(7)), ant7 = soma(total.slice(0, 7))
+  const varAcessos = ant7 ? Math.round(((sem7 - ant7) / ant7) * 100) : 0
+  const ativos7 = alunos.filter((a) => diasSemAcesso(a) <= 7).length
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Painel" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard label="Contratos vigentes" value={String(d.contratos.filter((c) => c.status === 'Vigente').length)} />
-        <StatCard label="Turmas em andamento" value={String(ativas.length)} />
-        <StatCard label="Alunos ativos" value={String(alunosAtivos.length)} />
-        <StatCard label="Em risco" value={String(conta('Em risco'))} />
-        <StatCard label="Evadidos" value={String(conta('Evadido'))} />
+    <div className="space-y-5">
+      <PageHeader
+        title="Painel"
+        actions={
+          <Select value={contrato} onValueChange={(v) => setContrato(String(v))}>
+            <SelectTrigger className="min-w-56 bg-card">
+              <SelectValue>{(v: string) => (v === 'todos' ? (d.global ? 'Todas as DRs e contratos' : 'Todos os contratos') : d.contratos.find((c) => c.id === v)?.empresa)}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os contratos</SelectItem>
+              {d.contratos.filter((c) => c.status !== 'Em elaboração').map((c) => <SelectItem key={c.id} value={c.id}>{d.global && `SENAI-${c.dr} · `}{c.empresa} · {c.numero}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        }
+      />
+
+      <div className="grid gap-5 lg:grid-cols-[2fr_3fr]">
+        <div className="grid gap-5">
+          <Bloco className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">Alunos ativos</span>
+              <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver alunos</Button>
+            </div>
+            <div className="flex items-center gap-3"><IconBox icon={Users} tom="orange" /><span className="text-3xl font-bold tabular-nums">{alunos.length}</span><span className="text-sm text-muted-foreground">em {ativas.length} turmas</span></div>
+            <div className="grid grid-cols-[1fr_auto] items-end gap-4">
+              <Sparkline v={total} cor="#E84910" />
+              <p className="w-32 text-xs text-muted-foreground"><b className="text-foreground">{ativos7}</b> acessaram o portal nos últimos 7 dias</p>
+            </div>
+          </Bloco>
+          <Bloco className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">Requer atenção</span>
+              <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver detalhes</Button>
+            </div>
+            <div className="flex items-center gap-3"><IconBox icon={TriangleAlert} tom="amber" /><span className="text-3xl font-bold tabular-nums">{atencao.length}</span><span className="text-sm text-muted-foreground">alunos · {evadidos} evadidos</span></div>
+            <div className="flex h-2 overflow-hidden rounded-full bg-muted">
+              <div className="bg-[#00A369]" style={{ width: `${((alunos.length - atencao.length) / Math.max(1, alunos.length)) * 100}%` }} />
+              <div className="bg-[#F8833F]" style={{ width: `${((atencao.length - evadidos) / Math.max(1, alunos.length)) * 100}%` }} />
+              <div className="bg-[#E31A1A]" style={{ width: `${(evadidos / Math.max(1, alunos.length)) * 100}%` }} />
+            </div>
+            <div className="flex gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-[#00A369]" />Em dia</span>
+              <span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-[#F8833F]" />Em risco</span>
+              <span className="flex items-center gap-1.5"><i className="size-2 rounded-full bg-[#E31A1A]" />Evadidos</span>
+            </div>
+          </Bloco>
+        </div>
+
+        <Bloco className="space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="text-lg font-bold">Acessos ao portal</div>
+              <div className="mt-1 text-xs text-muted-foreground">Últimos 7 dias</div>
+              <div className="mt-1 flex items-center gap-3"><IconBox icon={MonitorSmartphone} tom="green" /><span className="text-3xl font-bold tabular-nums">{sem7}</span><Variacao pct={varAcessos} /></div>
+            </div>
+            <div className="flex gap-4 text-sm">
+              <span className="flex items-center gap-1.5"><i className="size-2.5 rounded-full bg-[#E84910]" />AVA</span>
+              <span className="flex items-center gap-1.5"><i className="size-2.5 rounded-full bg-[#00A369]" />Portal do aluno</span>
+            </div>
+          </div>
+          <GraficoLinhas
+            series={[{ nome: 'AVA', cor: '#E84910', v: ava }, { nome: 'Portal do aluno', cor: '#00A369', v: portal }]}
+            rotulos={dias.filter((_, i) => i % 2 === 1).map((x) => dataBr(x).slice(0, 5))}
+          />
+        </Bloco>
       </div>
 
-      {contratos.map((c) => {
-        const turmas = d.turmas.filter((t) => t.contratoId === c.id)
-        const alunos = turmas.flatMap(d.alunosDa)
-        const risco = alunos.filter((a) => situacaoAluno(a, d.turmaDe(a)) !== 'Em dia').length
-        return (
-          <Card key={c.id}>
-            <CardHeader className="flex flex-row flex-wrap items-center gap-3">
-              <CardTitle className="text-lg">{c.empresa}</CardTitle>
-              <Badge variant="secondary" className="font-mono">{c.numero}</Badge>
-              <Badge variant={c.status === 'Vigente' ? 'default' : 'outline'}>{c.status}</Badge>
-              <span className="text-sm text-muted-foreground tabular-nums">{periodo(c.inicio, c.fim)}</span>
-              <Link to={`/contratos/${c.id}`} className="ml-auto text-sm underline underline-offset-4 hover:text-primary">Ver contrato</Link>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {[
-                  ['Turmas', turmas.length],
-                  ['Alunos', `${alunos.length} / ${c.vagas}`],
-                  ['Requer atenção', risco],
-                  ['Progresso médio', `${alunos.length ? Math.round(alunos.reduce((n, a) => n + a.progresso, 0) / alunos.length) : 0}%`],
-                ].map(([l, v]) => (
-                  <div key={l} className="rounded-lg bg-muted/50 p-3">
-                    <div className="text-xs text-muted-foreground">{l}</div>
-                    <div className="text-2xl font-semibold tabular-nums">{v}</div>
+      <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
+        <Bloco>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-lg font-bold">Turmas</span>
+            <Button variant="outline" size="sm" render={<Link to="/turmas-ead" />} nativeButton={false}>Ver todas</Button>
+          </div>
+          <div className="divide-y">
+            {turmas.map((t) => {
+              const n = d.alunosDa(t), exec = progressoEsperado(t), risco = n.filter((a) => alertasAluno(a, t).length).length
+              return (
+                <button key={t.id} type="button" onClick={() => navigate(`/turmas-ead/${t.id}`)} className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 py-3.5 text-left sm:grid-cols-[auto_2fr_1fr_1.3fr]">
+                  <div className="flex size-10 items-center justify-center rounded-full bg-[#EEF7FF] text-sm font-bold text-[#164194]">{d.contratoDe(t)?.empresa[0]}</div>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold">{t.curso}</div>
+                    <div className="truncate text-xs text-muted-foreground">{d.contratoDe(t)?.empresa} · <span className="font-mono">{t.codigo}</span></div>
                   </div>
-                ))}
-              </div>
-              <div className="divide-y rounded-lg border">
-                {turmas.map((t) => {
-                  const atencao = d.alunosDa(t).map((a) => ({ a, m: alertasAluno(a, t) })).filter((x) => x.m.length)
-                  return (
-                    <div key={t.id} className="space-y-2 p-3">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <Link to={`/turmas-ead/${t.id}`} className="font-mono text-sm underline underline-offset-4 hover:text-primary">{t.codigo}</Link>
-                        <span className="text-sm">{t.curso}</span>
-                        <Badge variant="outline">{statusTurmaEad(t)}</Badge>
-                        <div className="ml-auto flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="tabular-nums">{d.alunosDa(t).length} alunos</span>
-                          <Barra valor={progressoEsperado(t)} />
-                          <RowAction label="Ver alunos" icon={Users} onClick={() => navigate(`/turmas-ead/${t.id}?ver=alunos`)} />
-                        </div>
-                      </div>
-                      {atencao.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {atencao.map(({ a, m }) => (
-                            <button key={a.id} type="button" onClick={() => setAberto(a.id)} className="rounded-md border px-2 py-1 text-left text-xs hover:bg-muted">
-                              <span className="font-medium">{a.nome}</span> <span className="text-muted-foreground">· {m.join(' · ')}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        )
-      })}
+                  <div className="hidden text-sm sm:block">
+                    <div className="text-xs text-muted-foreground">Alunos</div>
+                    <div className="font-semibold tabular-nums">{n.length}{risco > 0 && <span className="ml-1.5 text-xs font-medium text-[#C23C0D]">· {risco} atenção</span>}</div>
+                  </div>
+                  <div className="w-28 sm:w-auto">
+                    <div className="mb-1.5 flex justify-between text-xs"><span className="text-muted-foreground">{statusTurmaEad(t)}</span><span className="font-semibold tabular-nums">{exec}%</span></div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-[#E84910]" style={{ width: `${exec}%` }} /></div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </Bloco>
+
+        <Bloco>
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-lg font-bold">Requer atenção</span>
+            <Badge variant="secondary" className="tabular-nums">{atencao.length}</Badge>
+          </div>
+          <div className="max-h-[26rem] space-y-4 overflow-y-auto pr-1">
+            {atencao.slice(0, 8).map(({ a, m }) => (
+              <button key={a.id} type="button" onClick={() => setAberto(a.id)} className="flex w-full gap-3 text-left">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#FFF6ED] text-sm font-bold text-[#C23C0D]">{a.nome.split(' ').map((x) => x[0]).slice(0, 2).join('')}</div>
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="truncate font-semibold">{a.nome}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">{ultimoAcesso(a)}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">{d.turmaDe(a).curso}</div>
+                  <div className="rounded-xl bg-muted/70 px-3 py-2 text-sm">{m.join(' · ')}</div>
+                </div>
+              </button>
+            ))}
+            {atencao.length === 0 && <EmptyState title="Nenhum aluno requer atenção" />}
+          </div>
+        </Bloco>
+      </div>
       <AlunoSheet aluno={d.alunos.find((a) => a.id === aberto) ?? null} d={d} onClose={() => setAberto(null)} />
     </div>
   )
@@ -161,6 +346,7 @@ export function Contratos() {
 
   const colunas: Column<ContratoCtm>[] = [
     { header: 'Contrato', value: (c) => c.numero, search: true, cell: (c) => <Badge variant="secondary" className="font-mono">{c.numero}</Badge> },
+    ...(d.global ? [{ header: 'DR solicitante', value: (c: ContratoCtm) => `SENAI-${c.dr}`, filter: true } as Column<ContratoCtm>] : []),
     { header: 'Empresa', value: (c) => c.empresa, search: true },
     { header: 'Cursos EAD', value: (c) => c.cursos.length, className: 'text-right tabular-nums' },
     { header: 'Turmas', value: (c) => d.turmas.filter((t) => t.contratoId === c.id).length, className: 'text-right tabular-nums' },
@@ -181,7 +367,6 @@ export function Contratos() {
 
 // Detalhe do contrato em side nav (direita); /contratos/:id = lista com a side nav aberta.
 function ContratoDetalhe({ c, d }: { c: ContratoCtm; d: ReturnType<typeof useDados> }) {
-  const navigate = useNavigate()
   const turmas = d.turmas.filter((t) => t.contratoId === c.id)
   const alunos = turmas.flatMap(d.alunosDa)
   const conta = (x: SituacaoAluno) => alunos.filter((a) => situacaoAluno(a, d.turmaDe(a)) === x).length
@@ -233,28 +418,8 @@ function ContratoDetalhe({ c, d }: { c: ContratoCtm; d: ReturnType<typeof useDad
           {turmas.length === 0 ? (
             <EmptyState title="Nenhuma turma neste contrato" />
           ) : (
-            <div className="divide-y rounded-lg border">
-              {turmas.map((t) => {
-                const n = d.alunosDa(t)
-                const risco = n.filter((a) => situacaoAluno(a, t) !== 'Em dia').length
-                return (
-                  <div key={t.id} className="flex flex-wrap items-center gap-3 p-3">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <Link to={`/turmas-ead/${t.id}`} className="font-mono text-sm underline underline-offset-4 hover:text-primary">{t.codigo}</Link>
-                        <Badge variant="outline">{statusTurmaEad(t)}</Badge>
-                      </div>
-                      <div className="truncate text-sm text-muted-foreground">{t.curso} · {periodo(t.inicio, t.fim)}</div>
-                    </div>
-                    <span className="text-xs text-muted-foreground tabular-nums">{n.length} alunos{risco > 0 && ` · ${risco} requer atenção`}</span>
-                    <Barra valor={progressoEsperado(t)} />
-                    <div className="flex gap-0.5">
-                      <RowAction label="Visualizar" icon={Eye} onClick={() => navigate(`/turmas-ead/${t.id}`)} />
-                      <RowAction label="Ver alunos" icon={Users} onClick={() => navigate(`/turmas-ead/${t.id}?ver=alunos`)} />
-                    </div>
-                  </div>
-                )
-              })}
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3">
+              {turmas.map((t) => <TurmaCard key={t.id} t={t} d={d} />)}
             </div>
           )}
         </div>
@@ -293,10 +458,10 @@ function TurmaDetalhe({ t, d }: { t: TurmaEad; d: ReturnType<typeof useDados> })
     <div className="space-y-6">
       <PageHeader title={<span className="flex items-center gap-3">{t.curso} <Badge variant="secondary" className="font-mono">{t.codigo}</Badge></span>} breadcrumb={[{ label: 'Turmas', to: '/turmas-ead' }, { label: t.codigo }]} />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Situação" value={statusTurmaEad(t)} hint={periodo(t.inicio, t.fim)} />
-        <StatCard label="Execução do calendário" value={`${progressoEsperado(t)}%`} />
-        <StatCard label="Progresso médio dos alunos" value={`${Math.round(media((a) => a.progresso))}%`} />
-        <StatCard label="Média de notas" value={media(mediaAluno).toFixed(1)} />
+        <StatCard icon={CalendarRange} tom="blue" label="Situação" value={statusTurmaEad(t)} hint={periodo(t.inicio, t.fim)} />
+        <StatCard icon={TrendingUp} tom="orange" label="Execução do calendário" value={`${progressoEsperado(t)}%`} />
+        <StatCard icon={GraduationCap} tom="green" label="Progresso médio dos alunos" value={`${Math.round(media((a) => a.progresso))}%`} />
+        <StatCard icon={CheckCircle2} tom="blue" label="Média de notas" value={media(mediaAluno).toFixed(1)} />
       </div>
       <Card>
         <CardContent className="grid gap-2 pt-6 text-sm sm:grid-cols-3">
@@ -326,17 +491,20 @@ export function Alunos() {
     <div className="space-y-6">
       <PageHeader title="Alunos" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard label="Alunos" value={String(d.alunos.length)} />
-        <StatCard label="Em dia" value={String(porSituacao('Em dia'))} />
-        <StatCard label="Em risco" value={String(porSituacao('Em risco'))} />
-        <StatCard label="Evadidos" value={String(porSituacao('Evadido'))} />
-        <StatCard label="Sem acesso há mais de 7 dias" value={String(d.alunos.filter((a) => statusTurmaEad(d.turmaDe(a)) !== 'Finalizada' && diasSemAcesso(a) > 7).length)} />
+        <StatCard icon={Users} tom="blue" label="Alunos" value={String(d.alunos.length)} />
+        <StatCard icon={CheckCircle2} tom="green" label="Em dia" value={String(porSituacao('Em dia'))} />
+        <StatCard icon={TriangleAlert} tom="amber" label="Em risco" value={String(porSituacao('Em risco'))} />
+        <StatCard icon={UserX} tom="red" label="Evadidos" value={String(porSituacao('Evadido'))} />
+        <StatCard icon={MonitorSmartphone} tom="gray" label="Sem acesso há mais de 7 dias" value={String(d.alunos.filter((a) => statusTurmaEad(d.turmaDe(a)) !== 'Finalizada' && diasSemAcesso(a) > 7).length)} />
       </div>
       <DataTable
         rows={d.alunos}
         columns={colunasAluno(d)}
         searchPlaceholder="Buscar aluno ou turma…"
-        filters={[{ label: 'Empresa', values: (a) => [d.contratoDe(d.turmaDe(a))?.empresa ?? '—'] }]}
+        filters={[
+          ...(d.global ? [{ label: 'DR', values: (a: AlunoEad) => [`SENAI-${d.contratoDe(d.turmaDe(a))?.dr ?? ''}`] }] : []),
+          { label: 'Empresa', values: (a) => [d.contratoDe(d.turmaDe(a))?.empresa ?? '—'] },
+        ]}
         onRowClick={(a) => navigate(`/alunos/${a.id}`)}
         actions={(a) => <RowAction label="Visualizar" icon={Eye} onClick={() => navigate(`/alunos/${a.id}`)} />}
       />
@@ -371,10 +539,10 @@ function AlunoDetalhe({ a, d }: { a: AlunoEad; d: ReturnType<typeof useDados> })
         </Card>
       )}
       <div className="grid gap-4 sm:grid-cols-2">
-        <StatCard label="Progresso" value={`${a.progresso}%`} hint={`Esperado pelo calendário: ${progressoEsperado(t)}%`} />
-        <StatCard label="Média" value={mediaAluno(a).toFixed(1)} />
-        <StatCard label="Último acesso" value={ultimoAcesso(a)} hint={a.acessos[0] ? dataBr(a.acessos[0].data) : undefined} />
-        <StatCard label="Turma" value={t.codigo} hint={t.curso} />
+        <StatCard icon={TrendingUp} tom="orange" label="Progresso" value={`${a.progresso}%`} hint={`Esperado pelo calendário: ${progressoEsperado(t)}%`} />
+        <StatCard icon={CheckCircle2} tom="blue" label="Média" value={mediaAluno(a).toFixed(1)} />
+        <StatCard icon={MonitorSmartphone} tom="green" label="Último acesso" value={ultimoAcesso(a)} hint={a.acessos[0] ? dataBr(a.acessos[0].data) : undefined} />
+        <StatCard icon={GraduationCap} tom="gray" label="Turma" value={t.codigo} hint={t.curso} />
       </div>
       <div className="grid gap-4">
         <Card>

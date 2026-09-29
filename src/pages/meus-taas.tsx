@@ -18,7 +18,6 @@ const colunas: Column<TaaDr>[] = [
   { header: 'TAA', value: (t) => t.numero, search: true, className: 'font-mono' },
   { header: 'DR parceira', value: (t) => `SENAI-${t.drParceira}`, search: true, filter: true },
   { header: 'Vigência', value: (t) => (t.vigenciaInicio === '—' ? '—' : `${t.vigenciaInicio} a ${t.vigenciaFim}`), className: 'text-muted-foreground' },
-  { header: 'Cursos', value: (t) => t.cursos, className: 'text-right tabular-nums' },
   { header: 'Status', value: (t) => t.status, filter: true, cell: (t) => <Badge variant={statusVariant[t.status]}>{t.status}</Badge> },
 ]
 

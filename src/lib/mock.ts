@@ -261,9 +261,9 @@ const permissoes: PermissaoPerfil[] = [
   { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
   { id: 'DR solicitante', perfil: 'DR solicitante', telas: ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'] },
   { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/meus-taas', '/gestao-produtos', '/produtos', '/oferta'] },
-  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria'] },
+  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v5', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v6', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [
@@ -286,14 +286,16 @@ export const diasEntre = (a: string, b: string) => Math.round((Date.parse(b) - D
 export const dataBr = (iso: string) => iso.split('-').reverse().join('/')
 
 export type StatusContratoCtm = 'Vigente' | 'Em elaboração' | 'Encerrado'
-export type ContratoCtm = { id: string; numero: string; empresa: string; cnpj: string; cursos: string[]; vagas: number; valor: number; inicio: string; fim: string; status: StatusContratoCtm }
+export type ContratoCtm = { id: string; numero: string; dr: string; empresa: string; cnpj: string; cursos: string[]; vagas: number; valor: number; inicio: string; fim: string; status: StatusContratoCtm }
 const contratosCtm: ContratoCtm[] = [
-  { id: 'c1', numero: 'CT-MG-001/2026', empresa: 'Panvel Farmácias', cnpj: '92.665.611/0001-77', cursos: ['Excel Avançado (EAD)', 'Atendimento ao Cliente (EAD)'], vagas: 60, valor: 48000, inicio: '2026-03-01', fim: '2027-02-28', status: 'Vigente' },
-  { id: 'c2', numero: 'CT-MG-002/2026', empresa: 'Usiminas', cnpj: '60.894.730/0001-05', cursos: ['NR-10 Segurança em Eletricidade (EAD)', 'Leitura e Interpretação de Desenho (EAD)'], vagas: 50, valor: 62500, inicio: '2026-05-01', fim: '2027-04-30', status: 'Vigente' },
-  { id: 'c3', numero: 'CT-MG-003/2026', empresa: 'Fiat Chrysler', cnpj: '16.701.716/0001-56', cursos: ['Lean Manufacturing (EAD)'], vagas: 30, valor: 27000, inicio: '2026-01-15', fim: '2026-07-31', status: 'Encerrado' },
-  { id: 'c4', numero: 'CT-MG-004/2026', empresa: 'Cemig', cnpj: '17.155.730/0001-64', cursos: ['Gestão de Projetos (EAD)'], vagas: 40, valor: 36000, inicio: '2026-11-01', fim: '2027-10-31', status: 'Em elaboração' },
+  { id: 'c1', dr: 'MG', numero: 'CT-MG-001/2026', empresa: 'Panvel Farmácias', cnpj: '92.665.611/0001-77', cursos: ['Excel Avançado (EAD)', 'Atendimento ao Cliente (EAD)'], vagas: 60, valor: 48000, inicio: '2026-03-01', fim: '2027-02-28', status: 'Vigente' },
+  { id: 'c2', dr: 'MG', numero: 'CT-MG-002/2026', empresa: 'Usiminas', cnpj: '60.894.730/0001-05', cursos: ['NR-10 Segurança em Eletricidade (EAD)', 'Leitura e Interpretação de Desenho (EAD)'], vagas: 50, valor: 62500, inicio: '2026-05-01', fim: '2027-04-30', status: 'Vigente' },
+  { id: 'c3', dr: 'MG', numero: 'CT-MG-003/2026', empresa: 'Fiat Chrysler', cnpj: '16.701.716/0001-56', cursos: ['Lean Manufacturing (EAD)'], vagas: 30, valor: 27000, inicio: '2026-01-15', fim: '2026-07-31', status: 'Encerrado' },
+  { id: 'c5', dr: 'SP', numero: 'CT-SP-001/2026', empresa: 'Natura', cnpj: '71.673.990/0001-77', cursos: ['Excel Avançado (EAD)', 'Gestão de Projetos (EAD)'], vagas: 45, valor: 40500, inicio: '2026-04-01', fim: '2027-03-31', status: 'Vigente' },
+  { id: 'c6', dr: 'BA', numero: 'CT-BA-001/2026', empresa: 'Braskem', cnpj: '42.150.391/0001-70', cursos: ['NR-10 Segurança em Eletricidade (EAD)'], vagas: 30, valor: 33000, inicio: '2026-07-01', fim: '2027-06-30', status: 'Vigente' },
+  { id: 'c4', dr: 'MG', numero: 'CT-MG-004/2026', empresa: 'Cemig', cnpj: '17.155.730/0001-64', cursos: ['Gestão de Projetos (EAD)'], vagas: 40, valor: 36000, inicio: '2026-11-01', fim: '2027-10-31', status: 'Em elaboração' },
 ]
-export const useContratosCtm = () => useCollection<ContratoCtm>('contratos-ctm', contratosCtm)
+export const useContratosCtm = () => useCollection<ContratoCtm>('contratos-ctm-v2', contratosCtm)
 
 export type StatusTurmaEad = 'A iniciar' | 'Em andamento' | 'Finalizada'
 export type TurmaEad = { id: string; codigo: string; contratoId: string; curso: string; tutor: string; inicio: string; fim: string }
@@ -302,9 +304,12 @@ const turmasEad: TurmaEad[] = [
   { id: 't2', codigo: 'EAD-MG-0102', contratoId: 'c1', curso: 'Atendimento ao Cliente (EAD)', tutor: 'Bruno Tavares', inicio: '2026-09-01', fim: '2026-12-18' },
   { id: 't3', codigo: 'EAD-MG-0201', contratoId: 'c2', curso: 'NR-10 Segurança em Eletricidade (EAD)', tutor: 'Cláudia Moura', inicio: '2026-06-01', fim: '2026-10-30' },
   { id: 't4', codigo: 'EAD-MG-0202', contratoId: 'c2', curso: 'Leitura e Interpretação de Desenho (EAD)', tutor: 'Diego Santos', inicio: '2026-10-13', fim: '2027-02-26' },
+  { id: 't6', codigo: 'EAD-SP-0101', contratoId: 'c5', curso: 'Excel Avançado (EAD)', tutor: 'Fábio Nunes', inicio: '2026-08-17', fim: '2026-12-11' },
+  { id: 't7', codigo: 'EAD-SP-0102', contratoId: 'c5', curso: 'Gestão de Projetos (EAD)', tutor: 'Gisele Araújo', inicio: '2026-09-08', fim: '2027-01-29' },
+  { id: 't8', codigo: 'EAD-BA-0101', contratoId: 'c6', curso: 'NR-10 Segurança em Eletricidade (EAD)', tutor: 'Hugo Matos', inicio: '2026-07-20', fim: '2026-11-27' },
   { id: 't5', codigo: 'EAD-MG-0301', contratoId: 'c3', curso: 'Lean Manufacturing (EAD)', tutor: 'Elaine Prado', inicio: '2026-02-02', fim: '2026-06-26' },
 ]
-export const useTurmasEad = () => useCollection<TurmaEad>('turmas-ead', turmasEad)
+export const useTurmasEad = () => useCollection<TurmaEad>('turmas-ead-v2', turmasEad)
 export const statusTurmaEad = (t: TurmaEad): StatusTurmaEad => (HOJE < t.inicio ? 'A iniciar' : HOJE > t.fim ? 'Finalizada' : 'Em andamento')
 // Progresso esperado da turma pelo calendário (0–100).
 export const progressoEsperado = (t: TurmaEad) => Math.max(0, Math.min(100, Math.round((diasEntre(t.inicio, HOJE) / diasEntre(t.inicio, t.fim)) * 100)))
@@ -324,8 +329,8 @@ const alunosEad: AlunoEad[] = turmasEad.filter((t) => HOJE >= t.inicio).flatMap(
     const fim = HOJE > t.fim ? t.fim : HOJE
     const esperado = progressoEsperado(t)
     const ultimo = tipo === 'evadido' ? 35 + (n % 10) : tipo === 'sem-acesso' ? 9 + (n % 5) : n % 3
-    const acessos: Acesso[] = Array.from({ length: 6 }, (_, k) => ({
-      data: new Date(Date.parse(fim) - (ultimo + k * (3 + (n % 3))) * dia).toISOString().slice(0, 10),
+    const acessos: Acesso[] = Array.from({ length: 24 }, (_, k) => ({
+      data: new Date(Date.parse(fim) - (ultimo + k + Math.floor(k / 3) * (n % 2)) * dia).toISOString().slice(0, 10),
       portal: ((k + n) % 3 === 0 ? 'Portal do aluno' : 'AVA') as Portal,
       minutos: 20 + ((n * 7 + k * 13) % 70),
     })).filter((a) => a.data >= t.inicio)
@@ -339,7 +344,7 @@ const alunosEad: AlunoEad[] = turmasEad.filter((t) => HOJE >= t.inicio).flatMap(
     return { id: `a${n + 1}`, nome, email: `${nome.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').replace(/ /g, '.')}@email.com`, turmaId: t.id, progresso, atividades, acessos }
   }),
 )
-export const useAlunosEad = () => useCollection<AlunoEad>('alunos-ead', alunosEad)
+export const useAlunosEad = () => useCollection<AlunoEad>('alunos-ead-v3', alunosEad)
 
 export const mediaAluno = (a: AlunoEad) => {
   const ns = a.atividades.map((x) => x.nota ?? 0)
@@ -351,7 +356,8 @@ export const alertasAluno = (a: AlunoEad, t: TurmaEad): string[] => {
   if (statusTurmaEad(t) === 'Finalizada') return []
   const m: string[] = []
   const d = diasSemAcesso(a)
-  if (d > 7) m.push(`Sem acesso há ${d} dias`)
+  if (!a.acessos.length) m.push('Nunca acessou o portal')
+  else if (d > 7) m.push(`Sem acesso há ${d} dias`)
   if (mediaAluno(a) < 6) m.push('Média abaixo de 6')
   if (a.atividades.some((x) => x.nota === null)) m.push('Atividade não entregue')
   if (progressoEsperado(t) - a.progresso > 10) m.push('Progresso atrasado')
@@ -359,3 +365,34 @@ export const alertasAluno = (a: AlunoEad, t: TurmaEad): string[] => {
 }
 export const situacaoAluno = (a: AlunoEad, t: TurmaEad): SituacaoAluno =>
   statusTurmaEad(t) !== 'Finalizada' && diasSemAcesso(a) > 30 ? 'Evadido' : alertasAluno(a, t).length ? 'Em risco' : 'Em dia'
+
+// ── Logs do sistema (Super admin) ───────────────────────────────────────────
+export type NivelLog = 'Erro' | 'Aviso' | 'Info'
+export type LogSistema = { id: string; quando: string; nivel: NivelLog; origem: string; mensagem: string; usuario?: string; requisicao: string; duracaoMs: number; detalhe: string } // quando ISO
+const mensagensLog: [NivelLog, string, string][] = [
+  ['Erro', 'Integração AVA', 'Timeout ao sincronizar notas da turma EAD-MG-0101'],
+  ['Aviso', 'Autenticação', '5 tentativas de login sem sucesso para paulo.mendes@senaimg.org.br'],
+  ['Info', 'Job agendado', 'Sincronização diária de acessos concluída (32 alunos)'],
+  ['Erro', 'E-mail', 'Falha ao enviar convite para novo usuário (SMTP 550)'],
+  ['Info', 'API', 'Proposta PC-MG-002/2026 aceita pelo SENAI-RJ'],
+  ['Aviso', 'Integração Portal do aluno', 'Resposta lenta do Portal do aluno (4,8 s)'],
+  ['Info', 'Autenticação', 'Login de fernanda.costa@senai.br'],
+  ['Erro', 'API', 'Erro 500 ao gerar PDF do TAA 102/2026'],
+  ['Info', 'API', 'Edital ED-006/2026 criado'],
+  ['Aviso', 'Job agendado', 'Relatório semanal gerado com 2 turmas sem dados de acesso'],
+]
+const logs: LogSistema[] = Array.from({ length: 36 }, (_, i) => {
+  const [nivel, origem, mensagem] = mensagensLog[i % mensagensLog.length]
+  return {
+    id: `l${i + 1}`,
+    quando: new Date(Date.parse('2026-09-28T11:30:00Z') - i * 47 * 60_000).toISOString(),
+    nivel, origem, mensagem,
+    usuario: origem === 'Autenticação' || origem === 'API' ? ['fernanda.costa@senai.br', 'carlos.andrade@senaimg.org.br', 'maria.silva@senai.br'][i % 3] : undefined,
+    requisicao: `req_${(0x9f3a2c + i * 7919).toString(16)}`,
+    duracaoMs: nivel === 'Erro' ? 30000 : 120 + ((i * 37) % 900),
+    detalhe: nivel === 'Erro'
+      ? `Error: ${mensagem}\n    at sync (services/${origem.toLowerCase().replace(/ /g, '-')}.ts:${40 + i}:13)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)`
+      : `{\n  "origem": "${origem}",\n  "evento": "${mensagem}",\n  "status": "ok"\n}`,
+  }
+})
+export const useLogs = () => useCollection<LogSistema>('logs', logs)

@@ -8,6 +8,7 @@ Na casca, o select agrupa por perfil que inicia a jornada e **numera dentro de c
 0a. **Gestão de usuários** (Super admin) — Gestão de usuários → Novo usuário → Editar usuário.
 0b. **Perfis e permissões** (Super admin) — Perfis e permissões → Permissões do perfil.
 0c. **Auditoria** (Super admin) — trilha de ações, somente leitura.
+0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): erros/avisos/informativos de integrações, jobs, e-mail, autenticação e API.
 0d. **Supervisão das áreas** (Super admin) — Gestão de DRs → Editais → Propostas → Oferta.
 1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciadas → Nova DR credenciada. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
 2. **Gestão de Contratos** (DN) — Gestão de TAA → Novo TAA → TAA em elaboração → TAA vigente.
@@ -22,7 +23,7 @@ Na casca, o select agrupa por perfil que inicia a jornada e **numera dentro de c
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
 ## Perfis
-- **Super admin** (provisório) — administra usuários, perfis/permissões e auditoria; vê todas as telas do menu.
+- **Super admin** (provisório) — administra usuários, perfis/permissões, auditoria e logs do sistema; vê todas as telas do menu e **os dados de toda a plataforma** (ex.: no acompanhamento, contratos/turmas/alunos de todas as DRs, com coluna/filtro de DR). Menu setorizado (DN, CTM, DR solicitante, Administração).
 - **DN** — cria e gerencia editais e faz a gestão de DRs (contatos, status, editais em que cada DR está credenciado).
 - **Comercial** — por enquanto tem as mesmas telas do Supervisor e também pode criar TAA pela própria Gestão de TAAs.
 - **Supervisor** (ex.: SENAI-MG) — cadastra produtos, cria propostas comerciais e também pode criar TAA (mesmas jornadas do Comercial).
@@ -178,3 +179,20 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-28 — Gestão de Contratos: “Visualizar” abre o detalhe em **side nav** (`/contratos/:id` = lista com a side nav aberta); dentro, as turmas do contrato levam ao detalhe da turma.
 - 2026-09-28 — Painel da DR solicitante vira dashboard **por contrato**: indicadores gerais; um card por contrato (vigentes e encerrados) com turmas, alunos/vagas, requer atenção e progresso médio; em cada turma, execução e os alunos com alerta (abrem em side nav).
 - 2026-09-28 — Side navs (Sheet à direita) dois degraus mais largas em todo o projeto (padrão lg; ex.: lg→3xl). Detalhe do contrato redesenhado: dados em lista, vigência e vagas com barra, contagem por situação e turmas em lista com execução e ações.
+- 2026-09-28 — Painel: turmas de cada contrato viram cards com números grandes (alunos, requer atenção, execução %), barra de execução e “Ver alunos”; saem as etiquetas de alunos.
+- 2026-09-28 — Detalhe do contrato: turmas usam o mesmo card do Painel (números grandes, execução, Ver alunos) no lugar da lista.
+- 2026-09-28 — Design system atual registrado em `docs/design-system-atual.md` (para poder trocar e voltar). Troca de design system vale só para o layout do protótipo, **nunca para a casca** de jornadas.
+- 2026-09-28 — Design system SENAI (docs/design-system.md) aplicado ao protótipo via classe `ds-senai` no <html> do iframe (`?frame=1`): Open Sans, primária laranja #BF340F, neutros SENAI, raio 8px. Casca intacta; visual anterior em docs/design-system-atual.md.
+- 2026-09-28 — DS SENAI: primária laranja, secundária azul; sheets/modais flutuantes estilo iOS (afastados das bordas, cantos arredondados); fundo liso #F5F5F7, sem gradiente.
+- 2026-09-28 — Menu lateral do protótipo flutuante (afastado das bordas, cantos arredondados), como os modais.
+- 2026-09-28 — Revisão visual do DS: primária laranja base #E84910 (hover #F5631A, click #BF340F); status em Tags suaves automáticas (Badge com data-tone por texto); controles h-36 raio 10px; tabela com cabeçalho discreto; links em azul SENAI; avatar com iniciais em círculo azul (foto opcional em public/avatars/<e-mail>.jpg); menu do Super admin setorizado (DN, CTM, DR solicitante, Administração).
+- 2026-09-28 — Tabelas no estilo do DS: card branco arredondado, cabeçalho limpo (sem fundo), linhas mais altas, 1ª coluna em destaque, ações como ícones soltos.
+- 2026-09-28 — Painel da DR solicitante redesenhado: KPIs com ícone em círculo colorido; contrato em bloco com inicial da empresa, status, resumo em colunas; cards de turma com métricas em faixa e barra de execução. Ícones do menu em neutro mais claro que o texto (ativo em laranja).
+- 2026-09-28 — Painel da DR solicitante no estilo dashboard: filtro por contrato; cards com sparkline e ícone em caixa colorida; gráfico de acessos ao portal (AVA × Portal do aluno, 14 dias, variação semanal); lista de turmas com barra de execução; feed “Requer atenção” (abre o aluno em side nav). StatCard ganhou ícone em caixa colorida (prop icon/tom). Filtros: popover com cabeçalho (contagem + Limpar), pílulas para até 6 valores e select para mais. Mock: acessos mais frequentes (alunos-ead-v2); aluno sem acesso = “Nunca acessou o portal”.
+- 2026-09-28 — Menu lateral sem cor (some no fundo; item ativo em cartão branco), caixa da DR com ícone; logo CTM (marca laranja) no lugar de “CTM · Wireframes”. DataTable: busca e filtros dentro do mesmo container da tabela.
+- 2026-09-28 — Busca rápida (⌘K) no menu lateral: telas + registros do perfil, sem acento, várias palavras, por situação/motivo. Paginação (10/página) em todo DataTable. Menu do avatar com “Sair”. Botão de esconder o menu removido.
+- 2026-09-28 — Filtros salvos por tabela (no navegador), só dentro do painel de Filtros; filtros aplicados sempre numa linha abaixo da barra, em etiquetas cinza.
+- 2026-09-28 — Ajustes de UI: modais/side navs com fundo sólido (sem transparência); tags de status com contorno; ícones de ação das tabelas em laranja; lixeira sem vermelho; “Ações” centralizado; botão Recusar proposta em vermelho; Gestão de TAAs sem coluna Cursos; nome do curso com reticências + nome completo no hover (Portfólio); detalhe do edital em side nav; total da Nova proposta no rodapé fixo da 3ª coluna.
+- 2026-09-28 — Super admin vê dados de toda a plataforma no acompanhamento (DR solicitante vê só a própria DR). Mock: contratos CTM com campo `dr` e novos contratos SP/BA (contratos-ctm-v2, turmas-ead-v2, alunos-ead-v3).
+- 2026-09-28 — Nova jornada **Logs do sistema** (Super admin): `/admin/logs` e `/admin/logs/:id` (side nav com stack trace/payload e eventos relacionados). Permissões: permissoes-v6.
+

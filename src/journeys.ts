@@ -38,6 +38,15 @@ export const journeys: Journey[] = [
     ],
   },
   {
+    id: 'admin-logs',
+    title: 'Logs do sistema',
+    profile: 'Super admin',
+    steps: [
+      { title: 'Logs do sistema', path: '/admin/logs', profile: 'Super admin', note: 'Saúde da plataforma: erros, avisos e informativos de integrações (AVA, Portal do aluno), jobs, e-mail, autenticação e API. Filtros por nível e origem; dá para salvar filtros (ex.: “Erros de integração”).' },
+      { title: 'Detalhe do log', path: '/admin/logs/l1', profile: 'Super admin', note: 'Side nav com mensagem, horário, duração, usuário, ID da requisição (copiar), stack trace ou payload e outros eventos da mesma origem.' },
+    ],
+  },
+  {
     id: 'admin-visao-geral',
     title: 'Supervisão das áreas',
     profile: 'Super admin',
@@ -163,7 +172,7 @@ export const journeys: Journey[] = [
     title: 'Acompanhamento da execução',
     profile: 'DR solicitante',
     steps: [
-      { title: 'Painel', path: '/acompanhamento', profile: 'DR solicitante', note: 'Dashboard da DR solicitante (SENAI-MG): indicadores gerais e, por contrato, as turmas com execução e os alunos que requerem atenção (clicar abre o aluno em side nav).' },
+      { title: 'Painel', path: '/acompanhamento', profile: 'DR solicitante', note: 'Dashboard da DR solicitante (SENAI-MG): indicadores gerais e, por contrato, as turmas com execução e quantos alunos requerem atenção.' },
       { title: 'Gestão de Contratos', path: '/contratos', profile: 'DR solicitante', note: 'Contratos da DR com o CTM: empresa cliente, cursos EAD, vigência, valor e status.' },
       { title: 'Detalhes do contrato', path: '/contratos/c1', profile: 'DR solicitante', note: 'Side nav com os dados do contrato, vagas ocupadas e as turmas que o CTM opera para a empresa.' },
       { title: 'Detalhes da turma', path: '/turmas-ead/t1', profile: 'DR solicitante', note: 'Execução do calendário, progresso e média dos alunos, tutor do CTM e lista de alunos.' },

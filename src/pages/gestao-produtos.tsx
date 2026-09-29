@@ -16,7 +16,7 @@ type ProdutoDr = { id: string; codigo: string; nome: string; modalidade: string;
 const versaoFicticia = (id: string) => ([...id].reduce((t, ch) => t + ch.charCodeAt(0), 0) % 3) + 1
 
 const colunas = (abrirEdital: (numero: string) => void): Column<ProdutoDr>[] => [
-  { header: 'Curso', value: (p) => p.nome, search: true, className: 'font-medium' },
+  { header: 'Curso', value: (p) => p.nome, search: true, className: 'font-medium', cell: (p) => <span className="block max-w-72 truncate" title={p.nome}>{p.nome}</span> },
   {
     header: 'Edital',
     value: (p) => p.edital ?? '—',

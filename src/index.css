@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/open-sans";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -135,3 +136,184 @@
   background-image: radial-gradient(rgb(255 255 255 / 0.22) 1px, transparent 1px);
   background-size: 14px 14px;
 }
+
+/* Design system SENAI (docs/design-system.md) — só no protótipo (iframe ?frame=1, classe posta em main.tsx).
+   A casca de jornadas não recebe a classe e mantém o visual anterior (docs/design-system-atual.md). */
+html.ds-senai {
+    --font-sans: 'Open Sans Variable', sans-serif;
+    --background: #FFFFFF;
+    --foreground: #22272A;
+    --card: #FFFFFF;
+    --card-foreground: #22272A;
+    --popover: #FFFFFF;
+    --popover-foreground: #22272A;
+    --primary: #E84910;
+    --primary-foreground: #FFFFFF;
+    --secondary: #EEF7FF;
+    --secondary-foreground: #164194;
+    --muted: #F5F5F5;
+    --muted-foreground: #617379;
+    --accent: #FFF6ED;
+    --accent-foreground: #C23C0D;
+    --destructive: #E31A1A;
+    --border: #E4E8E9;
+    --input: #E4E8E9;
+    --ring: #F8833F;
+    --chart-1: #7A2514;
+    --chart-2: #E84910;
+    --chart-3: #F8833F;
+    --chart-4: #FBB076;
+    --chart-5: #54B2FF;
+    --radius: 0.75rem;
+    --sidebar: #FFFFFF;
+    --sidebar-foreground: #22272A;
+    --sidebar-primary: #E84910;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #FFF6ED;
+    --sidebar-accent-foreground: #C23C0D;
+    --sidebar-border: #E4E8E9;
+    --sidebar-ring: #F8833F;
+}
+html.ds-senai body { font-family: var(--font-sans); }
+/* Botão primário: hover orange-600, click orange-800 (Figma). */
+html.ds-senai button.bg-primary:hover, html.ds-senai a.bg-primary:hover { background-color: #F5631A; }
+html.ds-senai button.bg-primary:active, html.ds-senai a.bg-primary:active { background-color: #BF340F; }
+/* Progresso: barra laranja arredondada. */
+html.ds-senai [data-slot="progress-indicator"] { background-color: #E84910; border-radius: 9999px; }
+/* Campos: foco com borda laranja; desabilitado com fundo neutral-100. */
+html.ds-senai input:focus-visible, html.ds-senai textarea:focus-visible { border-color: #E84910; }
+html.ds-senai input:disabled, html.ds-senai textarea:disabled { background-color: #F5F5F5; color: #A7B5B9; }
+
+/* ── Pegada iOS do DS SENAI: fundo holográfico, superfícies de vidro, bastante arredondamento ── */
+/* Fundo liso estilo iOS (cinza de grupo); sem gradiente. */
+html.ds-senai body,
+html.ds-senai [data-slot="sidebar-wrapper"] { background: #F5F5F7; }
+html.ds-senai [data-slot="sidebar-inset"] { background: transparent; }
+/* Containers planos: branco, borda fina neutral-150, sem sombra. */
+html.ds-senai [data-slot="card"],
+html.ds-senai [data-slot="table-container"],
+html.ds-senai [data-slot="sidebar-inner"] {
+    background-color: #FFFFFF;
+    border-color: #E4E8E9;
+    box-shadow: none;
+}
+html.ds-senai [data-slot="card"] { border-radius: 1.25rem; }
+
+/* Camadas flutuantes: vidro mais opaco, sombra maior, cantos grandes */
+html.ds-senai [data-slot="sheet-content"],
+html.ds-senai [data-slot="dialog-content"],
+html.ds-senai [data-slot="select-content"],
+html.ds-senai [data-slot="dropdown-menu-content"] {
+    background-color: rgb(255 255 255 / 0.88);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    box-shadow: 0 12px 40px rgb(34 39 42 / 0.14);
+}
+html.ds-senai [data-slot="dialog-content"] { border-radius: 1.5rem; }
+html.ds-senai [data-slot="sheet-overlay"],
+html.ds-senai [data-slot="dialog-overlay"] {
+    background-color: rgb(34 39 42 / 0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+/* Cabeçalho da tabela no vidro */
+/* Botão primário com leve gradiente laranja */
+html.ds-senai button.bg-primary, html.ds-senai a.bg-primary { background-image: none; }
+html.ds-senai button.bg-primary:hover, html.ds-senai a.bg-primary:hover { background-image: none; }
+
+/* Menu lateral: item ativo em pílula laranja-clara (em vez de preto); sidebar em vidro */
+html.ds-senai [data-slot="sidebar-menu-button"] { border-radius: 0.75rem; }
+html.ds-senai [data-slot="sidebar-menu-button"][data-active] { background-color: #FFF6ED; color: #C23C0D; font-weight: 600; }
+/* Sheets flutuantes estilo iOS: não encostam nas bordas, todos os cantos arredondados */
+html.ds-senai [data-slot="sheet-content"] { border: 1px solid rgb(255 255 255 / 0.8); border-radius: 1.75rem; overflow: hidden; }
+html.ds-senai [data-slot="sheet-content"][data-side="right"] { top: 0.75rem; bottom: 0.75rem; right: 0.75rem; height: auto; }
+html.ds-senai [data-slot="sheet-content"][data-side="left"] { top: 0.75rem; bottom: 0.75rem; left: 0.75rem; height: auto; }
+html.ds-senai [data-slot="sheet-content"][data-side="bottom"] { left: 0.75rem; right: 0.75rem; bottom: 0.75rem; }
+html.ds-senai [data-slot="sheet-content"][data-side="top"] { left: 0.75rem; right: 0.75rem; top: 0.75rem; }
+
+/* Menu lateral flutuante (variant="floating"): afastado das bordas, cantos grandes, sem sombra */
+html.ds-senai [data-slot="sidebar-container"] { padding: 0.75rem 0 0.75rem 0.75rem; }
+html.ds-senai [data-variant="floating"] [data-slot="sidebar-inner"] { border-radius: 1.75rem; border: 1px solid #E4E8E9; box-shadow: none; --tw-ring-shadow: 0 0 #0000; }
+/* Status: Tags suaves do DS (texto escuro, só o fundo muda). data-tone vem do Badge. */
+html.ds-senai [data-tone] { border-color: transparent; color: #3D4448; border-radius: 0.5rem; font-weight: 500; }
+html.ds-senai [data-tone="green"] { background-color: #E3F5EE; color: #00543C; }
+html.ds-senai [data-tone="blue"] { background-color: #E3F0FD; color: #164194; }
+html.ds-senai [data-tone="orange"] { background-color: #FDF0E6; color: #992B14; }
+html.ds-senai [data-tone="red"] { background-color: #FBE6E5; color: #9F1515; }
+html.ds-senai [data-tone="gray"] { background-color: #F0F1F2; color: #536167; }
+/* Demais badges (ids etc.) também em cantos de tag */
+html.ds-senai .rounded-4xl { border-radius: 0.5rem; }
+
+/* ── Refinos de harmonia (revisão geral) ── */
+/* Controles um pouco maiores e mais arredondados (DS: botão MD / campo MD) */
+html.ds-senai [data-slot="button"].h-8 { height: 2.25rem; padding-inline: 0.875rem; }
+html.ds-senai [data-slot="button"].size-8 { width: 2.25rem; height: 2.25rem; }
+html.ds-senai [data-slot="button"], html.ds-senai [data-slot="input"], html.ds-senai [data-slot="select-trigger"] { border-radius: 0.625rem; }
+html.ds-senai [data-slot="input"].h-8, html.ds-senai [data-slot="select-trigger"].h-8 { height: 2.25rem; }
+html.ds-senai [data-slot="button"].bg-primary { font-weight: 600; }
+/* Tabela: cabeçalho discreto, linhas respirando */
+/* Títulos em neutral-950, textos de apoio slate */
+html.ds-senai h1, html.ds-senai h2, html.ds-senai h3, html.ds-senai [data-slot="card-title"] { color: #22272A; letter-spacing: -0.01em; }
+/* Links sublinhados na cor secundária (azul SENAI) */
+html.ds-senai a.underline { color: #164194; text-decoration-color: rgb(22 65 148 / 0.35); }
+/* Badges de identificador (secondary, mono) em azul suave */
+html.ds-senai .font-mono.bg-secondary { font-weight: 600; letter-spacing: 0; }
+/* ── Tabelas (DataTable): card branco arredondado, cabeçalho limpo, linhas altas ── */
+html.ds-senai [data-slot="data-table"] { border-radius: 1.25rem; border-color: #E4E8E9; background: #FFFFFF; }
+html.ds-senai [data-slot="data-table"] [data-slot="table-container"] { border: 0; background: transparent; box-shadow: none; }
+html.ds-senai [data-slot="table-header"] { background: #FFFFFF; }
+html.ds-senai [data-slot="table-header"] [data-slot="table-row"] { border-bottom: 1px solid #E4E8E9; }
+html.ds-senai [data-slot="table-head"] {
+    height: 2.75rem; padding-inline: 1rem; background: #FFFFFF !important; box-shadow: none !important;
+    color: #617379; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.01em;
+}
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"] { border-color: #F0F2F3; transition: background-color .15s; }
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:last-child { border-bottom: 0; }
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:hover,
+html.ds-senai [data-slot="table-body"] [data-slot="table-row"]:hover [data-slot="table-cell"] { background-color: #FAFAFB; }
+html.ds-senai [data-slot="table-cell"] { height: 3.5rem; padding-inline: 1rem; color: #3D4448; font-size: 0.875rem; }
+html.ds-senai [data-slot="table-body"] [data-slot="table-cell"]:first-child { color: #22272A; font-weight: 600; }
+html.ds-senai [data-slot="table-cell"].sticky, html.ds-senai [data-slot="table-head"].sticky { box-shadow: none !important; }
+/* Ações da linha: ícones soltos, com fundo só no hover */
+html.ds-senai [data-slot="table-cell"] [data-slot="button"] { border-color: transparent; background: transparent; color: #E84910; border-radius: 9999px; }
+html.ds-senai [data-slot="table-cell"] [data-slot="button"]:hover { background: #FFF6ED; color: #C23C0D; }
+
+/* Menu lateral: ícones em neutro mais claro que o texto; no item ativo, laranja */
+html.ds-senai [data-slot="sidebar-menu-button"] { color: #3D4448; }
+html.ds-senai [data-slot="sidebar-menu-button"] > svg { color: #7C8F94; }
+html.ds-senai [data-slot="sidebar-menu-button"][data-active] > svg { color: #E84910; }
+/* Menu lateral sem cor (estilo Monday): some no fundo da página, sem borda; item ativo em cartão branco */
+html.ds-senai [data-slot="sidebar-container"] { padding: 0.75rem 0 0.75rem 0.75rem; }
+html.ds-senai [data-variant="floating"] [data-slot="sidebar-inner"],
+html.ds-senai [data-slot="sidebar-inner"] { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+html.ds-senai [data-slot="sidebar-footer"] { border-top: 0; }
+html.ds-senai [data-slot="sidebar-menu-button"] { height: 2.5rem; padding-inline: 0.75rem; color: #22272A; }
+html.ds-senai [data-slot="sidebar-menu-button"]:hover { background: rgb(255 255 255 / 0.6); }
+html.ds-senai [data-slot="sidebar-menu-button"][data-active] {
+    background: #FFFFFF; color: #22272A; font-weight: 600;
+    box-shadow: inset 0 0 0 1px #E4E8E9;
+}
+html.ds-senai [data-slot="sidebar-menu-button"][data-active] > svg { color: #E84910; }
+/* Botão de abrir/fechar o menu na mesma cor dos ícones do menu */
+html.ds-senai [data-slot="sidebar-trigger"] { color: #7C8F94; }
+html.ds-senai [data-slot="sidebar-trigger"]:hover { color: #22272A; background: rgb(255 255 255 / 0.7); }
+/* ── Ajustes de legibilidade ── */
+/* Modais, side navs e menus flutuantes: fundo sólido (sem transparência/blur) */
+html.ds-senai [data-slot="sheet-content"],
+html.ds-senai [data-slot="dialog-content"],
+html.ds-senai [data-slot="select-content"],
+html.ds-senai [data-slot="dropdown-menu-content"] {
+    background-color: #FFFFFF !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+/* Tags de status: contorno no tom, para não "sumir" sobre fundos coloridos/cinza */
+html.ds-senai [data-tone] { box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06); }
+html.ds-senai [data-tone="green"] { box-shadow: inset 0 0 0 1px #B6E6D2; }
+html.ds-senai [data-tone="blue"] { box-shadow: inset 0 0 0 1px #C4DCF8; }
+html.ds-senai [data-tone="orange"] { box-shadow: inset 0 0 0 1px #F7D3BA; }
+html.ds-senai [data-tone="red"] { box-shadow: inset 0 0 0 1px #F2C4C2; }
+html.ds-senai [data-tone="gray"] { box-shadow: inset 0 0 0 1px #DDE2E4; }
+/* Ícones das ações da tabela sempre na cor principal */
+html.ds-senai [data-slot="table-cell"] button[aria-label]:not(:disabled) { color: #E84910; }
+html.ds-senai [data-slot="table-cell"] button[aria-label]:not(:disabled) svg { color: inherit; }

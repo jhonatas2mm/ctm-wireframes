@@ -1,7 +1,7 @@
-import { useMemo, useState, type ReactNode } from 'react'
-import { Search, SlidersHorizontal, X, type LucideIcon } from 'lucide-react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X, type LucideIcon } from 'lucide-react'
 import { Popover } from '@base-ui/react/popover'
-import { Badge } from '@/components/ui/badge'
+import { useLocation } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -54,6 +54,24 @@ export function DataTable<T extends { id: string }>({
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
 
+  // Filtros salvos (por tabela, no navegador): nome → combinação de filtros.
+  const { pathname } = useLocation()
+  const chaveSalvos = `filtros-salvos:${pathname.replace(/\/[^/]*\d[^/]*$/, '')}:${columns.map((c) => c.header).join('|')}`
+  const [salvos, setSalvos] = useState<{ nome: string; filtros: Record<string, string> }[]>(() => {
+    try { return JSON.parse(localStorage.getItem(chaveSalvos) ?? '[]') } catch { return [] }
+  })
+  const [nomeSalvo, setNomeSalvo] = useState('')
+  const gravar = (v: typeof salvos) => {
+    setSalvos(v)
+    try { localStorage.setItem(chaveSalvos, JSON.stringify(v)) } catch { /* sem armazenamento */ }
+  }
+  const salvarAtual = () => {
+    const nome = nomeSalvo.trim() || `Filtro ${salvos.length + 1}`
+    gravar([...salvos.filter((x) => x.nome !== nome), { nome, filtros: Object.fromEntries(Object.entries(filters).filter(([, v]) => v)) }])
+    setNomeSalvo('')
+  }
+  const igual = (f: Record<string, string>) => JSON.stringify(f) === JSON.stringify(Object.fromEntries(Object.entries(filters).filter(([, v]) => v)))
+
   // Todos os filtros possíveis (colunas com cabeçalho + extras); os marcados aparecem na barra.
   const all: FilterDef<T>[] = useMemo(
     () => [...[...columns.filter((c) => c.header)].sort((x, y) => Number(!!y.filter) - Number(!!x.filter)).map((c) => ({ label: c.header, values: (r: T) => [String(c.value(r))] })), ...extra],
@@ -74,13 +92,21 @@ export function DataTable<T extends { id: string }>({
     )
   }, [rows, columns, defs, q, filters])
 
+  // Paginação: 10 por página; volta à 1ª página quando busca/filtros mudam.
+  const [pagina, setPagina] = useState(1)
+  const porPagina = 10
+  const totalPag = Math.max(1, Math.ceil(visible.length / porPagina))
+  const pag = Math.min(pagina, totalPag)
+  const daPagina = visible.slice((pag - 1) * porPagina, pag * porPagina)
+  useEffect(() => setPagina(1), [q, filters])
+
   const nAtivos = Object.values(filters).filter(Boolean).length
   const active = q !== '' || nAtivos > 0
   const hasSearch = columns.some((c) => c.search)
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
+    <div data-slot="data-table" className="overflow-hidden rounded-lg border bg-card">
+      <div className="flex flex-wrap items-center gap-2 border-b p-3">
         {hasSearch && (
           <div className="relative w-full sm:w-64">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -94,57 +120,111 @@ export function DataTable<T extends { id: string }>({
             </Popover.Trigger>
             <Popover.Portal>
               <Popover.Positioner align="start" sideOffset={6} className="z-50">
-                <Popover.Popup className="w-80 space-y-3 rounded-lg border bg-popover p-3 text-popover-foreground shadow-md outline-none">
-                  {all.map((d) => (
-                    <div key={d.label} className="grid gap-1">
-                      <span className="text-xs font-medium text-muted-foreground">{d.label}</span>
-                      <Select value={filters[d.label] || ALL} onValueChange={(v) => setFilters({ ...filters, [d.label]: v === ALL ? '' : String(v) })}>
-                        <SelectTrigger className={cn('w-full', filters[d.label] && 'border-foreground/40')}>
-                          <SelectValue>{(v: string) => (v === ALL ? 'Todos' : v)}</SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={ALL}>Todos</SelectItem>
-                          {options[d.label].map((o) => (
-                            <SelectItem key={o} value={o}>{o}</SelectItem>
+                <Popover.Popup className="w-[22rem] overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-lg outline-none">
+                  <div className="flex items-center justify-between border-b px-4 py-3">
+                    <span className="flex items-center gap-2 text-sm font-semibold">
+                      <SlidersHorizontal className="size-4 text-muted-foreground" /> Filtros
+                      {nAtivos > 0 && <span className="rounded-full bg-primary px-1.5 text-xs text-primary-foreground tabular-nums">{nAtivos}</span>}
+                    </span>
+                    <button type="button" disabled={!nAtivos} onClick={() => setFilters({})} className="text-xs font-medium text-primary disabled:text-muted-foreground/60">
+                      Limpar
+                    </button>
+                  </div>
+                  <div className="max-h-[60vh] space-y-4 overflow-y-auto p-4">
+                    {salvos.length > 0 && (
+                      <div className="space-y-2 border-b pb-4">
+                        <span className="text-xs font-semibold text-muted-foreground">Filtros salvos</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {salvos.map((f) => (
+                            <span key={f.nome} className={cn('inline-flex items-center gap-1 rounded-full border py-1 pr-1 pl-3 text-xs', igual(f.filtros) && 'border-primary bg-accent font-semibold text-accent-foreground')}>
+                              <button type="button" onClick={() => setFilters(f.filtros)}>★ {f.nome}</button>
+                              <button type="button" aria-label={`Apagar filtro ${f.nome}`} onClick={() => gravar(salvos.filter((x) => x.nome !== f.nome))} className="rounded-full p-0.5 text-muted-foreground hover:bg-muted">
+                                <X className="size-3" />
+                              </button>
+                            </span>
                           ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  ))}
+                        </div>
+                      </div>
+                    )}
+                    {all.map((d) => {
+                      const opts = options[d.label]
+                      const atual = filters[d.label] || ''
+                      const set = (v: string) => setFilters({ ...filters, [d.label]: v })
+                      return (
+                        <div key={d.label} className="space-y-2">
+                          <span className="text-xs font-semibold text-muted-foreground">{d.label}</span>
+                          {opts.length <= 6 ? (
+                            // Poucos valores: pílulas clicáveis (clicar de novo desmarca).
+                            <div className="flex flex-wrap gap-1.5">
+                              {opts.map((o) => (
+                                <button
+                                  key={o}
+                                  type="button"
+                                  onClick={() => set(atual === o ? '' : o)}
+                                  className={cn(
+                                    'rounded-full border px-3 py-1 text-xs transition-colors',
+                                    atual === o ? 'border-primary bg-accent font-semibold text-accent-foreground' : 'hover:bg-muted',
+                                  )}
+                                >
+                                  {o}
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <Select value={atual || ALL} onValueChange={(v) => set(v === ALL ? '' : String(v))}>
+                              <SelectTrigger className={cn('w-full', atual && 'border-primary')}>
+                                <SelectValue>{(v: string) => (v === ALL ? 'Todos' : v)}</SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={ALL}>Todos</SelectItem>
+                                {opts.map((o) => (
+                                  <SelectItem key={o} value={o}>{o}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                   {nAtivos > 0 && (
-                    <Button variant="ghost" size="sm" className="w-full" onClick={() => setFilters({})}>
-                      <X /> Limpar filtros
-                    </Button>
+                    <div className="flex items-center gap-2 border-t bg-muted/40 px-4 py-3">
+                      <Input value={nomeSalvo} onChange={(e) => setNomeSalvo(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && salvarAtual()} placeholder="Nome do filtro (ex.: Em risco Panvel)" className="h-8 bg-card text-xs" />
+                      <Button size="sm" onClick={salvarAtual}>Salvar filtro</Button>
+                    </div>
                   )}
                 </Popover.Popup>
               </Popover.Positioner>
             </Popover.Portal>
           </Popover.Root>
         )}
-        {Object.entries(filters)
-          .filter(([, v]) => v)
-          .map(([label, v]) => (
-            <Badge key={label} variant="secondary" className="gap-1 pr-1">
-              {label}: {v}
-              <button type="button" aria-label={`Remover filtro ${label}`} className="rounded p-0.5 hover:bg-foreground/10" onClick={() => setFilters(({ [label]: _, ...rest }) => rest)}>
-                <X className="size-3" />
-              </button>
-            </Badge>
-          ))}
-        {active && (
-          <Button variant="ghost" size="sm" onClick={() => (setQ(''), setFilters({}))}>
-            Limpar tudo
-          </Button>
-        )}
         <span className="ml-auto text-xs text-muted-foreground tabular-nums">
           {visible.length} de {rows.length}
         </span>
       </div>
+      {/* Filtros aplicados: sempre numa linha abaixo da barra, em etiquetas cinza */}
+      {active && (
+        <div className="flex flex-wrap items-center gap-1.5 border-b bg-muted/30 px-3 py-2">
+          {Object.entries(filters)
+            .filter(([, v]) => v)
+            .map(([label, v]) => (
+              <span key={label} className="inline-flex items-center gap-1 rounded-lg bg-[#EEF0F1] py-1 pr-1 pl-2.5 text-xs text-[#3D4448]">
+                <span className="text-muted-foreground">{label}:</span> <span className="font-medium">{v}</span>
+                <button type="button" aria-label={`Remover filtro ${label}`} className="rounded p-0.5 hover:bg-foreground/10" onClick={() => setFilters(({ [label]: _, ...rest }) => rest)}>
+                  <X className="size-3" />
+                </button>
+              </span>
+            ))}
+          <button type="button" onClick={() => (setQ(''), setFilters({}))} className="ml-1 text-xs font-medium text-muted-foreground hover:text-foreground">
+            Limpar tudo
+          </button>
+        </div>
+      )}
 
       {visible.length === 0 ? (
-        <EmptyState title="Nenhum resultado" description="Ajuste a busca ou os filtros." />
+        <div className="p-6"><EmptyState title="Nenhum resultado" description="Ajuste a busca ou os filtros." /></div>
       ) : (
-        <div className="rounded-lg border">
+        <div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -153,11 +233,11 @@ export function DataTable<T extends { id: string }>({
                     {c.header}
                   </TableHead>
                 ))}
-                {actions && <TableHead className="sticky right-0 z-10 w-px bg-muted text-right shadow-[-8px_0_8px_-8px_rgb(0_0_0/0.15)]">Ações</TableHead>}
+                {actions && <TableHead className="sticky right-0 z-10 w-px bg-muted text-center shadow-[-8px_0_8px_-8px_rgb(0_0_0/0.15)]">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {visible.map((r) => (
+              {daPagina.map((r) => (
                 <TableRow
                   key={r.id}
                   className={cn(onRowClick && 'cursor-pointer')}
@@ -177,8 +257,41 @@ export function DataTable<T extends { id: string }>({
               ))}
             </TableBody>
           </Table>
+          <Paginador pagina={pag} total={totalPag} de={(pag - 1) * porPagina + 1} ate={Math.min(pag * porPagina, visible.length)} n={visible.length} ir={setPagina} />
         </div>
       )}
+    </div>
+  )
+}
+
+// Paginador (DS SENAI: setas, números com reticências, página ativa preenchida).
+function Paginador({ pagina, total, de, ate, n, ir }: { pagina: number; total: number; de: number; ate: number; n: number; ir: (p: number) => void }) {
+  const nums: (number | '…')[] = []
+  for (let p = 1; p <= total; p++) {
+    if (p === 1 || p === total || Math.abs(p - pagina) <= 1) nums.push(p)
+    else if (nums.at(-1) !== '…') nums.push('…')
+  }
+  const btn = 'flex size-8 items-center justify-center rounded-lg text-sm tabular-nums transition-colors'
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2.5">
+      <span className="text-xs text-muted-foreground tabular-nums">Mostrando {de}–{ate} de {n}</span>
+      <div className="flex items-center gap-1">
+        <button type="button" aria-label="Página anterior" disabled={pagina === 1} onClick={() => ir(pagina - 1)} className={cn(btn, 'text-muted-foreground hover:bg-muted disabled:opacity-40')}>
+          <ChevronLeft className="size-4" />
+        </button>
+        {nums.map((p, i) =>
+          p === '…' ? (
+            <span key={`e${i}`} className="px-1 text-sm text-muted-foreground">…</span>
+          ) : (
+            <button key={p} type="button" onClick={() => ir(p)} className={cn(btn, p === pagina ? 'bg-primary font-semibold text-primary-foreground' : 'border hover:bg-muted')}>
+              {p}
+            </button>
+          ),
+        )}
+        <button type="button" aria-label="Próxima página" disabled={pagina === total} onClick={() => ir(pagina + 1)} className={cn(btn, 'text-muted-foreground hover:bg-muted disabled:opacity-40')}>
+          <ChevronRight className="size-4" />
+        </button>
+      </div>
     </div>
   )
 }
@@ -188,14 +301,13 @@ export function RowAction({
   label,
   icon: Icon,
   onClick,
-  destructive,
   disabled,
   motivo,
 }: {
   label: string
   icon: LucideIcon
   onClick: () => void
-  destructive?: boolean
+  destructive?: boolean // mantido por compatibilidade; sem cor vermelha (padrão do projeto)
   disabled?: boolean
   motivo?: string // por que está desabilitado (mostrado no tooltip)
 }) {
@@ -206,7 +318,7 @@ export function RowAction({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className={cn(destructive && 'text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive')}
+     
     >
       <Icon />
     </Button>
@@ -218,7 +330,7 @@ export function RowAction({
         <TooltipTrigger render={<span tabIndex={0} className="inline-flex cursor-not-allowed" />}>{botao}</TooltipTrigger>
       ) : (
         <TooltipTrigger
-          render={<Button size="icon-sm" variant="outline" aria-label={label} onClick={onClick} className={cn(destructive && 'text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive')} />}
+          render={<Button size="icon-sm" variant="outline" aria-label={label} onClick={onClick} />}
         >
           <Icon />
         </TooltipTrigger>

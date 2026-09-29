@@ -106,7 +106,7 @@ export default function Produtos() {
             ) : (
               <>
                 <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => setDecisao({ p, tipo: 'Aceita' })}><ThumbsUp /> Aceitar</Button>
-                <Button size="sm" variant="outline" className="mr-1 h-7 px-2 text-xs" onClick={() => (setFeedback(''), setDecisao({ p, tipo: 'Recusada' }))}><ThumbsDown /> Recusar</Button>
+                <Button size="sm" variant="outline" className="mr-1 h-7 border-[#E31A1A]/40 px-2 text-xs text-[#C11414] hover:bg-[#FBE6E5] hover:text-[#C11414]" onClick={() => (setFeedback(''), setDecisao({ p, tipo: 'Recusada' }))}><ThumbsDown /> Recusar</Button>
               </>
             )}
             <RowAction label="Visualizar" icon={Eye} onClick={() => setVerProposta(p)} />
@@ -139,7 +139,8 @@ export default function Produtos() {
           <DialogFooter>
             <Button variant="ghost" onClick={() => setDecisao(null)}>Cancelar</Button>
             <Button
-              variant={decisao?.tipo === 'Recusada' ? 'destructive' : 'default'}
+              variant="default"
+              className={cn(decisao?.tipo === 'Recusada' && 'bg-[#E31A1A] text-white hover:bg-[#C11414]')}
               onClick={() => {
                 if (!decisao) return
                 update(decisao.p.id, decisao.tipo === 'Recusada' ? { status: 'Recusada', feedback: feedback.trim() } : { status: 'Aceita' })
@@ -308,7 +309,8 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
           </div>
 
           {/* 3ª coluna: cursos escolhidos (dados do itinerário, não editáveis) com valor previsto */}
-          <div className="bg-muted/30 min-h-0 overflow-y-auto px-6 py-6">
+          <div className="bg-muted/30 flex min-h-0 flex-col">
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6">
             {!sel.length ? (
               <div className="text-muted-foreground grid h-full place-items-center rounded-lg border border-dashed p-8 text-center text-sm">
                 Selecione um ou mais cursos à esquerda.
@@ -360,15 +362,15 @@ function NovaPropostaSheet({ open, onOpenChange, contratanteFixo }: { open: bool
               </div>
             )}
           </div>
+          {/* Total fixo no rodapé da 3ª coluna */}
+          <div className="flex items-baseline justify-between gap-3 border-t bg-card px-6 py-4">
+            <span className="text-muted-foreground text-sm">Valor total · {sel.length} curso(s)</span>
+            <span className="text-2xl font-bold tabular-nums">{brl(total)}</span>
+          </div>
+          </div>
         </div>
 
-        <SheetFooter className="flex-row items-center justify-between gap-4 border-t px-6 py-3">
-          <div>
-            <p className="text-sm">
-              <span className="text-2xl font-semibold tabular-nums">{brl(total)}</span>
-              <span className="text-muted-foreground"> · {sel.length} curso(s)</span>
-            </p>
-          </div>
+        <SheetFooter className="flex-row items-center justify-end gap-4 border-t px-6 py-3">
           <div className="flex shrink-0 gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
             <Button disabled={!podeSalvar} onClick={() => salvar('Em elaboração')}>Salvar proposta</Button>
