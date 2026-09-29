@@ -34,6 +34,46 @@ export type Column<T> = {
 }
 
 const ALL = '__all__'
+// Filtro com vários valores (campo de busca): valores juntados por SEP no mesmo texto do filtro.
+const SEP = '\u001f'
+const partes = (v: string) => v.split(SEP).filter(Boolean)
+// Filtros de DR/estado/nomes (muitos valores possíveis) viram campo de busca com vários escolhidos; os demais, pílulas/select.
+const ehBusca = (label: string, n: number) => n > 10 || /\b(DRs?|CTMs?|Estados?|UF|Contratante|Ofertante|Destinat[aá]ri[oa]s?|Nome|Empresa|Escolas?|Tutor|Cidade|Alunos?|Usu[aá]rios?|Respons[aá]vel|Pessoa)\b/i.test(label)
+
+// Campo de busca com resultados logo abaixo; escolhidos viram etiquetas (como o EstadosInput).
+function FiltroBusca({ opts, valor, set }: { opts: string[]; valor: string; set: (v: string) => void }) {
+  const [t, setT] = useState('')
+  const sel = partes(valor)
+  const achados = t.trim() ? opts.filter((o) => !sel.includes(o) && norm(o).includes(norm(t.trim()))).slice(0, 8) : []
+  const por = (v: string[]) => set(v.join(SEP))
+  return (
+    <div className="space-y-1.5">
+      {sel.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {sel.map((o) => (
+            <span key={o} className="inline-flex items-center gap-1 rounded-full border border-primary bg-accent py-0.5 pr-1 pl-2.5 text-xs font-medium text-accent-foreground">
+              {o}
+              <button type="button" aria-label={`Remover ${o}`} className="rounded-full p-0.5 hover:bg-foreground/10" onClick={() => por(sel.filter((x) => x !== o))}><X className="size-3" /></button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="relative">
+        <Search className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
+        <Input className="h-8 pl-8 text-xs" placeholder={`Buscar (${opts.length} opções)…`} value={t} onChange={(e) => setT(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter' && achados[0]) (por([...sel, achados[0]]), setT('')) }} />
+      </div>
+      {achados.length > 0 && (
+        <div className="overflow-hidden rounded-lg border bg-card">
+          {achados.map((o) => (
+            <button key={o} type="button" className="block w-full px-3 py-1.5 text-left text-xs hover:bg-muted" onClick={() => (por([...sel, o]), setT(''))}>{o}</button>
+          ))}
+        </div>
+      )}
+      {t.trim() && !achados.length && <p className="px-1 text-xs text-muted-foreground">Nada encontrado.</p>}
+    </div>
+  )
+}
 const norm = (s: string) => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
 
 export function DataTable<T extends { id: string }>({
@@ -90,7 +130,7 @@ export function DataTable<T extends { id: string }>({
     return rows.filter(
       (r) =>
         (!t || columns.some((c) => c.search && norm(String(c.value(r))).includes(t))) &&
-        defs.every((d) => !filters[d.label] || d.values(r).includes(filters[d.label])),
+        defs.every((d) => !filters[d.label] || partes(filters[d.label]).some((v) => d.values(r).includes(v))),
     )
   }, [rows, columns, defs, q, filters])
 
@@ -170,7 +210,9 @@ export function DataTable<T extends { id: string }>({
                       return (
                         <div key={d.label} className="space-y-2">
                           <span className="text-xs font-semibold text-muted-foreground">{d.label}</span>
-                          {opts.length <= 6 ? (
+                          {ehBusca(d.label, opts.length) ? (
+                            <FiltroBusca opts={opts} valor={atual} set={set} />
+                          ) : opts.length <= 6 ? (
                             // Poucos valores: pílulas clicáveis (clicar de novo desmarca).
                             <div className="flex flex-wrap gap-1.5">
                               {opts.map((o) => (
@@ -226,7 +268,7 @@ export function DataTable<T extends { id: string }>({
             .filter(([, v]) => v)
             .map(([label, v]) => (
               <span key={label} className="inline-flex items-center gap-1 rounded-lg bg-[#EEF0F1] py-1 pr-1 pl-2.5 text-xs text-[#3D4448]">
-                <span className="text-muted-foreground">{label}:</span> <span className="font-medium">{v}</span>
+                <span className="text-muted-foreground">{label}:</span> <span className="font-medium">{partes(v).join(', ')}</span>
                 <button type="button" aria-label={`Remover filtro ${label}`} className="rounded p-0.5 hover:bg-foreground/10" onClick={() => setFilters(({ [label]: _, ...rest }) => rest)}>
                   <X className="size-3" />
                 </button>

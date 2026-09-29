@@ -323,3 +323,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Menu lateral: cartão da DR sem o ícone ao lado.
 - 2026-09-29 — Menu lateral: campo Buscar sem preenchimento (só borda), para ter menos destaque.
 - 2026-09-29 — DataTable ganhou a 2ª visualização em **cards** (prop `cards`): um card por linha, código e status no topo, ações à direita e demais colunas em grade — sem rolagem horizontal. Botão Cards/Tabela na barra da tabela (lembrado por tela). Ativado em Gestão de propostas (abre em cards).
+- 2026-09-29 — Filtros (todas as tabelas): DR, CTM, estado, contratante, nomes, empresa, escola etc. — e qualquer filtro com mais de 10 opções — viram **campo de busca** com resultados abaixo e **vários valores** escolhidos como etiquetas (mostra linhas com qualquer um deles). Poucos valores continuam em pílulas.
