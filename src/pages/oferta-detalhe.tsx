@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { EmptyState, PageHeader, Req, useConfirmar } from '@/components/wf'
 import {
   HOJE, agrupaveis, chUc, dataBr as br, diasEntre, diasSemana, periodoTurma, situacaoCronograma, statusTurma,
-  useCalendario, useProdutos, useTurmas, type AulaAoVivo, type EscolaTurma, type Turma,
+  useCalendarioAtivo, useProdutos, useTurmas, type AulaAoVivo, type EscolaTurma, type Turma,
 } from '@/lib/mock'
 import { deslocar, gerarCronograma, parametrosPadrao } from '@/lib/cronograma'
 import { useAutor } from '@/lib/autor'
@@ -40,7 +40,7 @@ export default function OfertaDetalhe() {
   const t = db.get(id)
   const { confirmar, dialogo } = useConfirmar()
   const { all: propostas } = useProdutos()
-  const { all: calendario } = useCalendario()
+  const { all: calendario } = useCalendarioAtivo()
   const [verProposta, setVerProposta] = useState(false)
   const [visao, setVisao] = useState<'linha' | 'tabela'>('linha')
   // UC em edição (módulo, UC) e rascunho da aula ao vivo; um dia por UC.

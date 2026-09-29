@@ -54,7 +54,7 @@ export const journeys: Journey[] = [
     profile: 'Super admin',
     steps: [
       { title: 'Feriados nacionais', path: '/admin/feriados', profile: 'Super admin', note: 'Única base de datas do sistema: o cronograma da oferta só pula estes dias. Não há feriados por DR ou CTM por enquanto.' },
-      { title: 'Novo feriado', path: '/admin/feriados/novo', profile: 'Super admin', note: 'Nome e data. Editar e excluir (com confirmação) pela listagem.' },
+      { title: 'Novo feriado', path: '/admin/feriados/novo', profile: 'Super admin', note: 'Nome e data. Na listagem, Desconsiderar (com confirmação) tira o feriado do cronograma; Buscar feriados traz o ano atual e o próximo da API.' },
     ],
   },
   {

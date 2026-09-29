@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { CellButton, DataTable, EmptyState, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
-import { situacaoDe, statusTurma, aoVivoTurma, chUc, situacaoCronograma, useCalendario, useCursosDr, useEquipe, useProdutos, useTurmas, type Produto, type StatusTurma, type Turma, type UcTurma } from '@/lib/mock'
+import { situacaoDe, statusTurma, aoVivoTurma, chUc, situacaoCronograma, useCalendarioAtivo, useCursosDr, useEquipe, useProdutos, useTurmas, type Produto, type StatusTurma, type Turma, type UcTurma } from '@/lib/mock'
 import { gerarCronograma, parametrosPadrao, type ParametrosCronograma } from '@/lib/cronograma'
 import { cn } from '@/lib/utils'
 import { PropostaSheet } from './proposta-sheet'
@@ -163,7 +163,7 @@ function useMatriz() {
 function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: boolean; onOpenChange: (v: boolean) => void; onSaved: (ids: string[]) => void; propostaFixa?: string }) {
   const db = useTurmas()
   const { all: propostas } = useProdutos()
-  const { all: calendario } = useCalendario()
+  const { all: calendario } = useCalendarioAtivo()
   const equipe = useEquipe().all.filter((p) => p.status === 'Ativo')
   const matrizDe = useMatriz()
   const [propostaId, setPropostaId] = useState<string | null>(null)

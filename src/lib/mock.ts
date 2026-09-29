@@ -499,7 +499,7 @@ export const agrupaveis = (todas: Turma[], t: Turma, uc: UcTurma) =>
 // Por enquanto não há feriados/recessos por DR ou por CTM.
 // O gerador de cronograma pula esses dias. Datas ISO; fim só em períodos.
 export type TipoData = 'Feriado nacional'
-export type DataCalendario = { id: string; nome: string; tipo: TipoData; inicio: string; fim?: string }
+export type DataCalendario = { id: string; nome: string; tipo: TipoData; inicio: string; fim?: string; origem?: 'Manual' | 'BrasilAPI'; desconsiderado?: boolean }
 const calendario: DataCalendario[] = [
   ...([
     ['2026-10-12', 'Nossa Senhora Aparecida'], ['2026-11-02', 'Finados'], ['2026-11-15', 'Proclamação da República'], ['2026-11-20', 'Dia da Consciência Negra'],
@@ -508,6 +508,11 @@ const calendario: DataCalendario[] = [
   ] as const).map(([inicio, nome], i): DataCalendario => ({ id: `f${i + 1}`, nome, tipo: 'Feriado nacional', inicio })),
 ]
 export const useCalendario = () => useCollection<DataCalendario>('calendario-v2', calendario)
+// Só os feriados considerados: é o que o gerador de cronograma usa (os desconsiderados não são pulados).
+export const useCalendarioAtivo = () => {
+  const db = useCalendario()
+  return { ...db, all: db.all.filter((c) => !c.desconsiderado) }
+}
 
 // Equipe da CTM (gestão da execução): quem pode ser alocado nas turmas. Funções configuráveis por CTM.
 export type FuncaoEquipe = 'Tutor' | 'Monitor' | 'Pedagógico' | 'Interlocutor' | 'Analista' | 'Supervisor'

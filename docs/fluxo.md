@@ -124,7 +124,10 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - As salas são criadas por UC (aba UCs). Aqui: aviso de estrutura pronta/e-mail à DR, **dados de integração** (código CTM por escola + ID da sala de cada UC + início + semestre, "Copiar tabela") e **situação da integração** por escola, com alerta quando faltam 5 dias ou menos para o início.
 
 ## Feriados nacionais (Super admin)
-- Tela **Feriados nacionais** (`/admin/feriados`, só Super admin): novo, editar e excluir (com confirmação).
+- Tela **Feriados nacionais** (`/admin/feriados`, só Super admin): **Novo feriado** (manual), **Buscar feriados**, **Visualizar calendário** e, por linha, **Desconsiderar** (com confirmação) / **Considerar**. Não há editar nem excluir.
+- **Buscar feriados**: mostra a fonte (API pública **BrasilAPI**, `GET brasilapi.com.br/api/feriados/v1/{ano}`; no protótipo a chamada é simulada), busca o **ano atual** e/ou o **próximo ano** e importa só os que ainda não existem (origem *BrasilAPI*; os cadastrados à mão são *Manual*).
+- **Desconsiderado** = o gerador de cronograma **não pula** a data; continua na lista e pode ser considerado de novo.
+- **Visualizar calendário**: 12 meses do ano, feriado considerado em destaque e desconsiderado riscado.
 - Serve só para o gerador de cronograma **pular as datas de feriado nacional**. Por enquanto **não há feriados, recessos ou férias por DR ou por CTM**.
 
 ## Equipe (CTM)
@@ -293,3 +296,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Super admin: seções do menu lateral recolhíveis (só a primeira aberta por padrão). TAAs com CTMs: coluna Origem com valores CTM/DR. Acompanhamento dos alunos: botões Exportar planilha e Relatório de cobrança alinhados à esquerda.
 - 2026-09-29 — Tabelas com e-mail ou telefone (Gestão de usuários, Gestão de DRs, Equipe, Acompanhamento dos alunos): ícone para copiar ao lado do valor (`CopiaTexto`). Menu: rótulos sempre à esquerda; o termo "Administração" saiu dos rótulos.
 - 2026-09-29 — **Novos perfis**: CTM = Gestor EAD (antes Gestor de contrato), Coordenador EAD (antes Gestor de oferta + PCP), Coordenador Pedagógico (antes Pedagógico), Tutor e Monitor. DR solicitante = Gestor EAD, Coordenador EAD, Gestor Escolar e Coordenador Escolar (escolares: mesmos acessos, vinculados a uma ou mais escolas; filtro aplicado na Confirmação de desistências). Nova jornada "Desistências das escolas" (Coordenador Escolar).
+- 2026-09-29 — Feriados nacionais: saem editar e excluir; entram **Desconsiderar/Considerar**, **Buscar feriados** (API BrasilAPI simulada, ano atual e próximo, com a fonte informada) e **Visualizar calendário**. Colunas Origem e Situação (Considerado/Desconsiderado).
