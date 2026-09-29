@@ -285,7 +285,7 @@ export function JourneyShell() {
             <div className="flex flex-1 items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
               <span className="mr-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Análise</span>
               {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
-              <Button size="sm" variant={mapa ? 'secondary' : 'ghost'} onClick={() => setMapa(!mapa)}>
+              <Button size="sm" variant="ghost" className={cn(mapa && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} onClick={() => setMapa(!mapa)}>
                 <Workflow /> Mapa do processo
               </Button>
               {canEdit && (
@@ -293,19 +293,20 @@ export function JourneyShell() {
                   disabled={device !== 'desktop'}
                   title={device !== 'desktop' ? 'Anotações só na visão desktop' : 'Marcar um ponto da tela com um requisito, dúvida ou ajuste'}
                   size="sm"
-                  variant={mode === 'add' ? 'default' : 'ghost'}
+                  variant="ghost"
+                  className={cn(mode === 'add' && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')}
                   onClick={() => setMode(mode === 'add' ? 'view' : 'add')}
                 >
                   <MapPinPlus /> {mode === 'add' ? 'Clique na tela… (Esc)' : 'Anotar'}
                 </Button>
               )}
-              <Button size="sm" variant={panel ? 'secondary' : 'ghost'} title="Anotações desta tela" onClick={() => setPanel(!panel)}>
+              <Button size="sm" variant="ghost" className={cn(panel && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Anotações desta tela" onClick={() => setPanel(!panel)}>
                 <MessageSquareText /> Anotações <span className="tabular-nums text-muted-foreground">{screenPins.length}</span>
               </Button>
             </div>
             <div className="flex flex-1 items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
               <span className="mr-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Design</span>
-              <Button size="sm" variant={guia ? 'secondary' : 'ghost'} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
+              <Button size="sm" variant="ghost" className={cn(guia && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
                 <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
               </Button>
               <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
