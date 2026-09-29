@@ -111,7 +111,8 @@ export function AppShell() {
                 ) : <SidebarGroupLabel className="ml-2 pl-3 text-left">{rotulo}</SidebarGroupLabel>)}
                 {aberto && (
                   <SidebarGroupContent>
-                    <SidebarMenu>
+                    {/* Itens de uma área ligados ao rótulo (pai) por linhas em árvore */}
+                    <SidebarMenu className={cn(rotulo && 'menu-arvore')}>
                       {lista.map((s) => (
                         <SidebarMenuItem key={s.path}>
                           <SidebarMenuButton isActive={s.path === ativo} render={<Link to={s.path} />}>
