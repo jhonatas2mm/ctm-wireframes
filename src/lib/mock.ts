@@ -561,6 +561,10 @@ export type AjusteCobranca = { id: string; propostaId: string; ciclo: string; uc
 const ajustesCobranca: AjusteCobranca[] = [
   { id: 'aj1', propostaId: '2', ciclo: '2026-11', uc: 'Leitura de desenho técnico', turma: 'SENAI Maracanã', ch: 20, alunos: 1, valorHora: 8, observacao: 'Aluna Ana Clara Sousa integrada após a cobrança de 10/2026.' },
 ]
+// Dupla checagem da desistência: o Moodle marca o aluno como desistente e a DR solicitante confirma ou contesta
+// (falha de integração). id = id do aluno da turma (alunos-turma.ts).
+export type ConfirmacaoDesistencia = { id: string; situacao: 'Confirmada' | 'Contestada'; em: string; por: string; motivo?: string }
+export const useConfirmacoesDesistencia = () => useCollection<ConfirmacaoDesistencia>('desistencias-v1', [])
 export const useAjustesCobranca = () => useCollection<AjusteCobranca>('ajustes-cobranca-v1', ajustesCobranca)
 export const escolasDr: Record<string, string[]> = { MG: ['SENAI CETEL', 'SENAI Contagem', 'SENAI Betim'], SP: ['SENAI Anchieta', 'SENAI Campinas'], BA: ['SENAI Dendezeiros'] }
 

@@ -1,11 +1,11 @@
 import { useSearchParams } from 'react-router-dom'
-import { AlertTriangle, FileDown, ReceiptText, UserMinus, Users } from 'lucide-react'
+import { AlertTriangle, FileDown, Hourglass, ReceiptText, UserMinus, Users } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DataTable, EmptyState, StatCard, type Column } from '@/components/wf'
-import { HOJE, dataBr, useTurmas, type UcTurma } from '@/lib/mock'
+import { HOJE, dataBr, useConfirmacoesDesistencia, useTurmas, type UcTurma } from '@/lib/mock'
 import { alunosDaTurma, cicloBr, ciclosDe, fatura, janelaCiclo, situacaoNaUc, ucNoCiclo, type AlunoTurma } from '@/lib/alunos-turma'
 import { cn } from '@/lib/utils'
 
@@ -13,10 +13,14 @@ import { cn } from '@/lib/utils'
 // contato, status geral, saída formalizada e monitor; por UC do ciclo, a situação (ativo, suspenso, não integrado) e se
 // fatura. É a base do nº de alunos do Relatório de cobrança. Turma e ciclo pela URL (?turma=&ciclo=).
 const curto = (iso: string) => iso.slice(8) + '/' + iso.slice(5, 7)
-const tomSituacao = { Ativo: 'text-foreground', Suspenso: 'text-amber-700', 'Não integrado nesta UC': 'text-muted-foreground' }
+const tomSituacao = { Ativo: 'text-foreground', Suspenso: 'text-amber-700', 'Desistente no Moodle': 'text-amber-700', 'Não integrado nesta UC': 'text-muted-foreground' }
+// Status geral com a dupla checagem da desistência (Moodle → confirmação da DR)
+const statusGeral = (a: AlunoTurma) =>
+  a.confirmacao === 'Aguardando DR' ? 'Desistente (aguardando DR)' : a.confirmacao === 'Contestada' ? 'Matriculado (desistência contestada)' : a.status
 
 export function AcompanhamentoAlunos() {
   const [params, setParams] = useSearchParams()
+  const conf = useConfirmacoesDesistencia().all
   const turmas = useTurmas().all.filter((t) => t.fase !== 'Cancelada' && (t.escolas ?? []).length)
   const t = turmas.find((x) => x.id === params.get('turma')) ?? turmas[0]
   const ciclos = t ? ciclosDe([t]) : []
@@ -24,7 +28,7 @@ export function AcompanhamentoAlunos() {
   const set = (k: string, v: string) => setParams((p) => { const n = new URLSearchParams(p); n.set('aba', 'acompanhamento'); n.set(k, v); if (k === 'turma') n.delete('ciclo'); return n }, { replace: true })
   if (!t || !ciclo) return <EmptyState title="Nenhuma turma com escolas e cronograma" />
 
-  const alunos = alunosDaTurma(t)
+  const alunos = alunosDaTurma(t, conf)
   const ucs: UcTurma[] = t.modulos.flatMap((m) => m.unidades).filter((u) => ucNoCiclo(u, ciclo))
   const j = janelaCiclo(ciclo)
   const faturas = alunos.reduce((n, a) => n + ucs.filter((u) => fatura(a, u, ciclo)).length, 0)
@@ -37,7 +41,21 @@ export function AcompanhamentoAlunos() {
     },
     { header: 'CPF', value: (a) => a.cpf, search: true, className: 'font-mono text-xs' },
     { header: 'Escola', value: (a) => a.escola, filter: true, cell: (a) => <span><span className="block">{a.escola}</span><span className="text-xs text-muted-foreground">{a.cidade}</span></span> },
-    { header: 'Status geral', value: (a) => a.status, filter: true, cell: (a) => <Badge variant="outline">{a.status}</Badge> },
+    {
+      header: 'Status geral', value: statusGeral, filter: true,
+      cell: (a) => (
+        <span className="block min-w-40">
+          <Badge variant="outline">{a.status}</Badge>
+          {a.confirmacao && (
+            <span className={cn('mt-1 block text-xs', a.confirmacao === 'Aguardando DR' ? 'font-medium text-amber-700' : 'text-muted-foreground')}>
+              {a.confirmacao === 'Aguardando DR' && 'Moodle: desistente · aguardando confirmação da DR'}
+              {a.confirmacao === 'Confirmada' && `Desistência confirmada pela DR${a.confirmacaoEm ? ` em ${dataBr(a.confirmacaoEm)}` : ''}`}
+              {a.confirmacao === 'Contestada' && 'DR contestou a desistência do Moodle (falha de integração)'}
+            </span>
+          )}
+        </span>
+      ),
+    },
     { header: 'Data de saída', value: (a) => (a.dataSaida ? dataBr(a.dataSaida) : ''), cell: (a) => (a.dataSaida ? <span className="font-medium tabular-nums">{dataBr(a.dataSaida)}</span> : '—') },
     { header: 'Monitor', value: (a) => a.monitor ?? '', filter: true, cell: (a) => a.monitor ?? '—' },
     ...ucs.map((u): Column<AlunoTurma> => ({
@@ -60,7 +78,7 @@ export function AcompanhamentoAlunos() {
   // Planilha (CSV) no formato da planilha da CTM
   const exportar = () => {
     const cab = ['Aluno', 'Grupo', 'CPF', 'E-mail', 'Telefone', 'Status geral', 'Data de saída', 'Monitor', ...ucs.flatMap((u) => [`UC ${u.nome}`, `Faturamento ${u.nome} ${dataBr(j.ini)} a ${dataBr(j.fim)}`])]
-    const rows = alunos.map((a) => [a.nome, `${t.codigo} - ${a.escola}`, a.cpf, a.email, a.telefone, a.status, a.dataSaida ? dataBr(a.dataSaida) : '', a.monitor ?? '', ...ucs.flatMap((u) => { const s = situacaoNaUc(a, u); return [`${s.situacao}${s.desde ? ` - ${dataBr(s.desde)}` : ''}`, fatura(a, u, ciclo) ? 'SIM' : 'NÃO'] })])
+    const rows = alunos.map((a) => [a.nome, `${t.codigo} - ${a.escola}`, a.cpf, a.email, a.telefone, statusGeral(a), a.dataSaida ? dataBr(a.dataSaida) : '', a.monitor ?? '', ...ucs.flatMap((u) => { const s = situacaoNaUc(a, u); return [`${s.situacao}${s.desde ? ` - ${dataBr(s.desde)}` : ''}`, fatura(a, u, ciclo) ? 'SIM' : 'NÃO'] })])
     const csv = [cab, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n')
     const url = URL.createObjectURL(new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' }))
     Object.assign(document.createElement('a'), { href: url, download: `acompanhamento-${t.codigo.replace(/\W+/g, '-')}-${ciclo}.csv` }).click()
@@ -90,10 +108,11 @@ export function AcompanhamentoAlunos() {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard icon={Users} tom="blue" label="Alunos" value={String(alunos.length)} hint={`${alunos.filter((a) => a.integrado).length} integrados no AVA`} />
         <StatCard icon={ReceiptText} tom="green" label="Faturamentos no ciclo" value={String(faturas)} hint={`aluno × UC · ${ucs.length} UC(s) no ciclo`} />
-        <StatCard icon={UserMinus} tom="gray" label="Desistentes e trancados" value={String(alunos.filter((a) => a.status !== 'Matriculado').length)} />
+        <StatCard icon={UserMinus} tom="gray" label="Desistentes e trancados" value={String(alunos.filter((a) => a.status !== 'Matriculado').length)} hint="Saída vale após a confirmação da DR" />
+        <StatCard icon={Hourglass} tom="amber" label="Desistências aguardando a DR" value={String(alunos.filter((a) => a.confirmacao === 'Aguardando DR').length)} hint="Seguem faturando até a DR confirmar" />
         <StatCard icon={AlertTriangle} tom="amber" label="Suspensos sem formalização" value={String(suspensos)} hint="Seguem faturando: cobrar a formalização da DR" />
       </div>
 

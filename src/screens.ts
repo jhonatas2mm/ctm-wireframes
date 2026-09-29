@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
+import { UserX } from 'lucide-react'
 import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, BookOpenCheck, ClipboardCheck, Send } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
@@ -15,6 +16,7 @@ import Calendario from '@/pages/calendario'
 import Tratativas from '@/pages/tratativas'
 import Financeiro from '@/pages/financeiro'
 import RelatorioCobranca from '@/pages/relatorio-cobranca'
+import Desistencias from '@/pages/desistencias'
 import Portfolio from '@/pages/portfolio'
 import TaaCtm from '@/pages/taa-ctm'
 import Components from '@/pages/components'
@@ -80,6 +82,7 @@ export const screens: Screen[] = [
   { path: '/turmas-ead/:id', title: 'Detalhes da turma', group: 'Telas', icon: Video, component: Turmas, hidden: true, data: ['turmas-ead'] },
   { path: '/alunos', title: 'Alunos', group: 'Telas', icon: UserRound, component: Alunos, profiles: ['DR solicitante: SENAI', 'Super admin'], data: ['alunos-ead'] },
   { path: '/alunos/:id', title: 'Detalhes do aluno', group: 'Telas', icon: UserRound, component: Alunos, hidden: true, data: ['alunos-ead'] },
+  { path: '/desistencias', title: 'Confirmação de desistências', group: 'Telas', icon: UserX, component: Desistencias, profiles: ['DR solicitante: SENAI', 'Super admin'], data: ['desistencias'] },
   { path: '/oferta/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/proposta/:pid', title: 'Ofertas da proposta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/proposta/:pid/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },

@@ -1,5 +1,5 @@
 // Cálculo do Relatório de cobrança (CTM → DR solicitante): por proposta e ciclo financeiro. Regras em docs/fluxo.md.
-import type { Produto, Turma } from './mock'
+import type { ConfirmacaoDesistencia, Produto, Turma } from './mock'
 import { alunosDaTurma, fatura, janelaCiclo } from './alunos-turma'
 
 export const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -13,9 +13,9 @@ export type LinhaCobranca = {
 
 // CH cobrada no ciclo = CH da UC proporcional aos dias da UC dentro da janela do ciclo (21 a 20).
 // Alunos = os que faturam a UC no ciclo (Relatório geral de acompanhamento).
-export function linhasCobranca(p: Produto, turmas: Turma[], ciclo: string): LinhaCobranca[] {
+export function linhasCobranca(p: Produto, turmas: Turma[], ciclo: string, conf: ConfirmacaoDesistencia[] = []): LinhaCobranca[] {
   const { ini, fim } = janelaCiclo(ciclo)
-  return turmas.flatMap((t) => { const al = alunosDaTurma(t); return (t.escolas ?? []).flatMap((e) => t.modulos.flatMap((m) => {
+  return turmas.flatMap((t) => { const al = alunosDaTurma(t, conf); return (t.escolas ?? []).flatMap((e) => t.modulos.flatMap((m) => {
     const cp = p.cursos.find((c) => c.nome === m.curso)
     const valorHora = cp ? cp.valorAluno / (cp.cargaHoraria || 1) : 0
     return m.unidades.filter((u) => u.inicio && u.fim && u.inicio <= fim && u.fim >= ini).map((u) => {
