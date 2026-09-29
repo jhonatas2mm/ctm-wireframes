@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { AlertTriangle, CalendarCog, CheckCircle2, Circle, Eye, Layers, Plus, Trash2 } from 'lucide-react'
+import { AlertTriangle, CalendarCog, CheckCircle2, Circle, Eye, Info, Layers, Plus, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -45,9 +45,9 @@ const colunasOfertas = (verProposta: (id: string) => void): Column<LinhaOferta>[
     value: (l) => l.proposta.numero,
     search: true,
     cell: (l) => (
-      <span className="flex flex-col items-start gap-1 py-1">
+      <span className="flex items-center gap-1.5">
         <Badge variant="secondary" className="font-mono">{l.proposta.numero}</Badge>
-        <CellButton onClick={() => verProposta(l.proposta.id)}>Detalhes</CellButton>
+        <CellButton icone onClick={() => verProposta(l.proposta.id)} label="Detalhes da proposta"><Info /></CellButton>
       </span>
     ),
   },

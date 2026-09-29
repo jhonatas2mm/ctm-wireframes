@@ -417,9 +417,10 @@ function Paginador({ pagina, total, de, ate, n, ir }: { pagina: number; total: n
 /** Botão de ação de linha: ícone com tooltip. */
 // Ação de clique dentro de uma célula (fora da coluna Ações): 3º nível — outline neutro, menos destaque que as Ações.
 export const cellButton = 'h-6 border-neutral-300 bg-white px-2 text-xs font-normal text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
-export function CellButton({ onClick, children, className }: { onClick: () => void; children: ReactNode; className?: string }) {
+// icone: só ícone (ex.: Info para "Detalhes"), logo após o texto da célula; label vira tooltip/aria-label.
+export function CellButton({ onClick, children, className, icone, label }: { onClick: () => void; children: ReactNode; className?: string; icone?: boolean; label?: string }) {
   return (
-    <Button type="button" size="xs" variant="outline" className={cn(cellButton, className)} onClick={(e) => (e.stopPropagation(), onClick())}>
+    <Button type="button" size={icone ? 'icon-xs' : 'xs'} variant="outline" aria-label={label} title={label} className={cn(cellButton, icone && 'size-6 px-0', className)} onClick={(e) => (e.stopPropagation(), onClick())}>
       {children}
     </Button>
   )

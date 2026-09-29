@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Eye, GitBranchPlus, Plus } from 'lucide-react'
+import { Eye, GitBranchPlus, Info, Plus } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Popover } from '@base-ui/react/popover'
 import { useState } from 'react'
 import { NovaVersaoSheet, ProdutoSheet, SituacaoBadge } from '@/pages/produto-sheets'
@@ -19,8 +20,8 @@ function CursoDetalhes({ c }: { c: CursoDr }) {
   const itens: [string, string][] = [['Modalidade', c.modalidade ?? '—'], ['Área tecnológica', c.area ?? '—'], ['Carga horária', c.cargaHorariaEdital ? `${c.cargaHorariaEdital} h` : '—']]
   return (
     <Popover.Root>
-      <Popover.Trigger render={<Button size="xs" variant="outline" className={cellButton} />}>
-        Detalhes
+      <Popover.Trigger render={<Button size="icon-xs" variant="outline" className={cn(cellButton, 'size-6 px-0')} aria-label="Detalhes do produto" title="Detalhes do produto" />}>
+        <Info />
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner align="start" sideOffset={6} className="z-50">
@@ -45,7 +46,7 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
   {
     header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium',
     cell: (l) => (
-      <span className="flex flex-col items-start gap-1 py-1">
+      <span className="flex items-center gap-1.5">
         <span className="max-w-64">{l.atual.nome}</span>
         <CursoDetalhes c={l.atual} />
       </span>
