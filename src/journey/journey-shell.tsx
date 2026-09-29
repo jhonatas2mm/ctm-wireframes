@@ -412,15 +412,15 @@ export function JourneyShell() {
               const doPerfil = visibleJourneys.filter((j) => grupoDe(inicio(j)) === grupo)
               return (
                 <Select value={doPerfil.some((j) => j.id === jid) ? jid : ''} onValueChange={(v) => v && go(v as string, 0)} disabled={!doPerfil.length}>
-                  <SelectTrigger size="sm" className="w-52 shrink-0">
+                  <SelectTrigger size="sm" className="w-72 shrink-0">
                     <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}${subDe(inicio(j)) ? ` (${subDe(inicio(j))})` : ''}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="dark min-w-72" alignItemWithTrigger={false} searchable={false}>
+                  <SelectContent className="dark w-max max-w-[36rem] min-w-72" alignItemWithTrigger={false} searchable={false}>
                     {doPerfil.map((j) => (
                       <SelectItem key={j.id} value={j.id}>
                         <span className="flex w-full items-center justify-between gap-3">
-                          <span>{numero(j.id)}. {j.title}{subDe(inicio(j)) && <span className="ml-1.5 text-[10px] text-muted-foreground">({subDe(inicio(j))})</span>}</span>
-                          <span className="rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{j.steps.length} {j.steps.length === 1 ? 'etapa' : 'etapas'}</span>
+                          <span className="whitespace-normal">{numero(j.id)}. {j.title}{subDe(inicio(j)) && <span className="ml-1.5 text-[10px] text-muted-foreground">({subDe(inicio(j))})</span>}</span>
+                          <span className="shrink-0 rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{j.steps.length} {j.steps.length === 1 ? 'etapa' : 'etapas'}</span>
                         </span>
                       </SelectItem>
                     ))}
