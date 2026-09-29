@@ -92,6 +92,10 @@ export const statusContrato: StatusContrato[] = ['Encaminhado', 'Em análise', '
 const isoDeBr = (br: string) => br.split('/').reverse().join('-')
 export const vigenciaEncerrada = (c: { vigenciaFim: string }) => !!c.vigenciaFim && c.vigenciaFim !== '—' && isoDeBr(c.vigenciaFim) < HOJE
 export const contratoAtivo = (c: { status: StatusContrato; vigenciaFim: string }) => c.status === 'Aceito' && !vigenciaEncerrada(c)
+// Um TAA por edital para cada par CTM × DR solicitante (cancelado não conta). Novo edital = novo TAA para o mesmo par,
+// mesmo com outro TAA em andamento.
+export const taaDoEdital = (todos: Contrato[], edital: string | null | undefined, ctm: string | null | undefined, contratante: string) =>
+  todos.find((c) => !!edital && c.edital === edital && c.dr === ctm && c.contratante === contratante && c.status !== 'Cancelado')
 export const emTramitacao = (c: { status: StatusContrato }) => c.status === 'Encaminhado' || c.status === 'Em análise' || c.status === 'Retornado para ajuste'
 // Quem analisa: a outra parte (se a CTM criou, o contratante; senão, a CTM).
 export const analisaDe = (c: { origem?: 'Contratante' | 'CTM' }): 'contratante' | 'ctm' => (c.origem === 'CTM' ? 'contratante' : 'ctm')
@@ -140,13 +144,15 @@ const contratos: Contrato[] = [
   taa('10', '009/2026', 'GO', 'MG', ['01/08/2026', '31/07/2027'], 450000, 'Aceito', 'ED-001/2026', ['Técnico em Segurança do Trabalho']),
   taa('11', '010/2026', 'PE', 'MG', ['01/07/2026', '30/06/2027'], 260000, 'Aceito', 'ED-001/2026', ['Técnico em Segurança do Trabalho']),
   taa('12', '011/2026', 'BA', 'MG', ['01/10/2026', '30/09/2027'], 300000, 'Em análise', 'ED-002/2026', ['Mecânico de Manutenção de Máquinas', 'Desenhista de Produtos Gráficos']),
+  // Mesmo par CTM × DR com outro edital: novo TAA (o do ED-001 segue em andamento). Um TAA por edital para cada par.
+  { ...taa('17', '013/2026', 'SP', 'MG', ['01/12/2026', '30/11/2027'], 250000, 'Em análise', 'ED-002/2026', ['Soldador']), origem: 'CTM', enviadoEm: '2026-09-26T10:00:00Z' },
   // TAAs enviados pelas CTMs, aguardando a avaliação do Gestor da DR
   { ...taa('16', '012/2026', 'MG', 'RJ', ['01/11/2026', '31/10/2027'], 300000, 'Encaminhado', 'ED-001/2026', ['Técnico em Eletrotécnica']), gestor: undefined, origem: 'CTM', enviadoEm: '2026-09-25T10:00:00Z' },
   { ...taa('17', '013/2026', 'PR', 'MG', ['01/11/2026', '31/10/2027'], 500000, 'Em análise', 'ED-001/2026', ['Técnico em Mecatrônica', 'Técnico em Segurança do Trabalho']), origem: 'CTM', enviadoEm: '2026-09-22T10:00:00Z' },
   { ...taa('18', '014/2026', 'DF', 'MG', ['01/10/2026', '30/09/2027'], 250000, 'Cancelado', 'ED-001/2026', ['Técnico em Mecatrônica']), origem: 'CTM', enviadoEm: '2026-09-01T10:00:00Z', motivo: 'Recusado pelo Gestor: a DR não prevê turmas desse curso em 2027.', historico: [{ quando: '2026-09-01T10:00:00Z', texto: 'Encaminhado à DR', autor: 'Juliana Pereira' }, { quando: '2026-09-08T10:00:00Z', texto: 'Recusado pelo Gestor: a DR não prevê turmas desse curso em 2027.', autor: 'Gestor SENAI-DF' }].reverse() },
 ]
 
-export const useContratos = () => useCollection<Contrato>('contratos-v10', contratos)
+export const useContratos = () => useCollection<Contrato>('contratos-v11', contratos)
 // Saldo do TAA: valor global menos o executado — propostas ASSINADAS vinculadas ao TAA (ou, sem vínculo, entre o
 // contratante e a CTM nos produtos do TAA).
 export const saldoTaa = (c: Contrato, propostas: Produto[]) => {

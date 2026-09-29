@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { DataTable, PageHeader, Req, RowAction, type Column } from '@/components/wf'
-import { aprovadaDe, contratoAtivo, emTramitacao, nomeParte, useContratos, useDrs, useEditais, type Contrato } from '@/lib/mock'
+import { aprovadaDe, taaDoEdital, nomeParte, useContratos, useDrs, useEditais, type Contrato } from '@/lib/mock'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { cn } from '@/lib/utils'
@@ -77,8 +77,8 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
   const [valor, setValor] = useState('')
   const edital = editais.find((e) => e.numero === editalNum)
   const produtos = (edital?.cursos ?? []).filter((c) => aprovadaDe(c) === ctm)
-  // DR que já tem TAA ativo ou pendente com esta CTM para algum dos produtos escolhidos
-  const jaTem = (uf: string) => db.all.find((c) => c.contratante === uf && c.dr === ctm && (contratoAtivo(c) || emTramitacao(c)) && c.produtos?.some((p) => nomes.includes(p.nome)))
+  // Um TAA por edital para cada CTM × DR: DR que já tem TAA com esta CTM neste edital fica bloqueada
+  const jaTem = (uf: string) => taaDoEdital(db.all, editalNum, ctm, uf)
   // Protótipo: já abre preenchido com dados de exemplo.
   useEffect(() => {
     if (!open) return
@@ -153,7 +153,7 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
               <SelectContent>
                 {drs.map((d) => {
                   const ja = jaTem(d.uf)
-                  return <SelectItem key={d.uf} value={d.uf} disabled={!!ja}>SENAI-{d.uf}{ja && <span className="ml-2 text-xs text-muted-foreground">já tem TAA {ja.numero}</span>}</SelectItem>
+                  return <SelectItem key={d.uf} value={d.uf} disabled={!!ja}>SENAI-{d.uf}{ja && <span className="ml-2 text-xs text-muted-foreground">já tem o TAA {ja.numero} neste edital</span>}</SelectItem>
                 })}
               </SelectContent>
             </Select>

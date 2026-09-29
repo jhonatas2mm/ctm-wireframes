@@ -11,7 +11,7 @@ import { Check, Download, FileText, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
-import { aprovadaDe, contratoAtivo, emTramitacao, nomeParte, useContratos, useEditais, type ProdutoTaa } from '@/lib/mock'
+import { aprovadaDe, nomeParte, taaDoEdital, useContratos, useEditais, type ProdutoTaa } from '@/lib/mock'
 
 const fmtData = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '____/____/______')
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -28,8 +28,8 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
   // CTM contratada = aprovada do 1º produto escolhido; os demais precisam ser da mesma CTM.
   const dr = produtos.find((c) => nomes.includes(c.nome)) ? aprovadaDe(produtos.find((c) => nomes.includes(c.nome))!) : null
   const escolhidos: ProdutoTaa[] = produtos.filter((c) => nomes.includes(c.nome)).map(({ nome, area, modalidade, cargaHoraria, valor }) => ({ nome, area, modalidade, cargaHoraria, valor }))
-  // Produto que o contratante já tem contratado com a CTM aprovada (TAA não encerrado)
-  const jaContratado = (nome: string, ctm: string) => db.all.find((c) => c.contratante === contratante && c.dr === ctm && (contratoAtivo(c) || emTramitacao(c)) && c.produtos?.some((p) => p.nome === nome))
+  // Um TAA por edital para cada CTM × DR: CTM que já tem TAA com o contratante neste edital fica bloqueada
+  const jaContratado = (_nome: string, ctm: string) => taaDoEdital(db.all, editalNum, ctm, contratante)
   const [inicio, setInicio] = useState('')
   const [fim, setFim] = useState('')
   const [valor, setValor] = useState('')
@@ -158,7 +158,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
                         </span>
                         <span className="shrink-0 text-right text-xs">
                           <span className="block font-medium">SENAI-{ctm}</span>
-                          <span className="block text-muted-foreground">{propria ? 'é a própria DR' : ja ? `já no ${ja.numero}` : outra ? 'outra CTM: outro TAA' : 'aprovada no edital'}</span>
+                          <span className="block text-muted-foreground">{propria ? 'é a própria DR' : ja ? `já tem o TAA ${ja.numero} neste edital` : outra ? 'outra CTM: outro TAA' : 'aprovada no edital'}</span>
                         </span>
                       </label>
                     </li>
