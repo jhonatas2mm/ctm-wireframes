@@ -41,6 +41,6 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - Buscas de estado/DR: campo com resultados logo abaixo e escolhidos como etiquetas (`EstadosInput`).
 
 ## Domínio
-- **TAA** = Termo de Acordo Administrativo (DN ↔ DR). Nunca "TA"/"Termo de Adesão".
+- **TAA** = Termo de Acordo Administrativo: quem contrata (DR solicitante SENAI-XX ou o DN) cria para contratar uma CTM. Só SENAI ↔ SENAI; SESI-XX ↔ SENAI é **contrato**. A CTM não gerencia TAAs, só propostas. Nunca "TA"/"Termo de Adesão".
 - **Edital** (DN): vigência + cursos; cada curso tem valor e DRs credenciados. Área, modalidade e CH são fixas do catálogo.
-- **Proposta comercial** (Supervisor): DR ofertante (própria, fixa) → DR contratante; vários cursos, cada um com valor previsto; Nº `PC-<UF>-<seq>/<ano>`. Cada curso só entra uma vez nas propostas.
+- **Proposta comercial** (Supervisor): DR ofertante (própria, fixa) → contratante com TAA/contrato com a CTM; vários cursos, cada um com valor previsto; Nº `PC-<UF>-<seq>/<ano>`. Cada curso só entra uma vez nas propostas.

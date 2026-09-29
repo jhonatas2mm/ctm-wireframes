@@ -7,12 +7,19 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { AttachField, DataTable, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { NovoTaSheet } from './novo-ta-sheet'
 import { TaaSheet, statusVariant } from './taa-sheet'
-import { useContratos, type Contrato } from '@/lib/mock'
+import { instrumentoDe, nomeParte, useContratos, type Contrato } from '@/lib/mock'
+import { useProfile } from '@/journey/profile'
+import { profileOf } from '@/journey/profiles'
 
-
-const colunas: Column<Contrato>[] = [
+const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+const colunas = (todos: boolean): Column<Contrato>[] => [
   { header: 'Contrato', value: (c) => c.numero, search: true, className: 'font-mono' },
-  { header: 'DR', value: (c) => `SENAI-${c.dr}`, search: true, filter: true },
+  ...(todos ? [
+    { header: 'Contratante', value: (c: Contrato) => nomeParte(c.contratante), search: true, filter: true },
+    { header: 'Instrumento', value: (c: Contrato) => instrumentoDe(c.contratante), filter: true },
+  ] : []),
+  { header: 'CTM contratada', value: (c) => `SENAI-${c.dr}`, search: true, filter: true },
+  { header: 'Valor global', value: (c) => brl(c.valor), className: 'text-right tabular-nums' },
   {
     header: 'Vigência',
     value: (c) => (c.vigenciaInicio === '—' ? '—' : `${c.vigenciaInicio} a ${c.vigenciaFim}`),
@@ -26,9 +33,15 @@ const colunas: Column<Contrato>[] = [
   },
 ]
 
+// TAAs com CTMs: quem contrata (DN ou DR solicitante) cria e acompanha os TAAs em que é contratante.
+// Super admin vê todos. A CTM não tem esta tela (só propostas).
 export default function Dashboard() {
   const { confirmar, dialogo } = useConfirmar()
-  const { all: contratos, remove, update } = useContratos()
+  const perfil = useProfile()
+  const contratante = perfil === 'DN' ? 'DN' : profileOf(perfil).dr?.sigla.replace('SENAI-', '') ?? (perfil === 'Super admin' ? null : 'DN')
+  const todos = perfil === 'Super admin'
+  const { all: base, remove, update } = useContratos()
+  const contratos = todos ? base : base.filter((c) => c.contratante === contratante)
   // TAA em elaboração aguardando o upload do assinado
   const [anexar, setAnexar] = useState<Contrato | null>(null)
   const [anexo, setAnexo] = useState<string[]>([])
@@ -41,7 +54,7 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader
-        title="Gestão de TAA"
+        title="TAAs com CTMs"
         actions={
           <Button onClick={() => navigate('/dashboard/novo-ta')}>
             <Plus /> Novo TAA
@@ -51,8 +64,8 @@ export default function Dashboard() {
       <section className="space-y-3">
         <DataTable
           rows={contratos}
-          columns={colunas}
-          searchPlaceholder="Buscar contrato ou DR…"
+          columns={colunas(todos)}
+          searchPlaceholder="Buscar contrato ou CTM…"
           actions={(c) => (
             <>
               <RowAction label="Visualizar" icon={Eye} onClick={() => setVerId(c.id)} />
@@ -69,7 +82,7 @@ export default function Dashboard() {
           )}
         />
       </section>
-      <TaaSheet taa={contratos.find((c) => c.id === verId) ?? null} onClose={() => setVerId(null)} onAnexar={(c) => (setAnexo([`TAA-${c.numero.replace("/", "-")}-assinado.pdf`]), setAnexar(c))} />
+      <TaaSheet taa={base.find((c) => c.id === verId) ?? null} onClose={() => setVerId(null)} onAnexar={(c) => (setAnexo([`TAA-${c.numero.replace("/", "-")}-assinado.pdf`]), setAnexar(c))} />
       <Dialog open={!!anexar} onOpenChange={(v) => !v && setAnexar(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -90,7 +103,7 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
       {/* Side sheet com rota própria para poder ser etapa de jornada. */}
-      <NovoTaSheet open={pathname === '/dashboard/novo-ta'} onOpenChange={(v) => !v && navigate('/dashboard')} />
+      <NovoTaSheet open={pathname === '/dashboard/novo-ta'} contratante={contratante ?? 'DN'} onOpenChange={(v) => !v && navigate('/dashboard')} />
       {dialogo}
     </>
   )

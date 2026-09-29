@@ -2,7 +2,7 @@ import { Download, FileText, Paperclip } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import type { Contrato, StatusContrato } from '@/lib/mock'
+import { instrumentoDe, nomeParte, type Contrato, type StatusContrato } from '@/lib/mock'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 export const statusVariant: Record<StatusContrato, 'default' | 'secondary' | 'outline'> = {
@@ -21,7 +21,7 @@ export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onC
           <>
             <SheetHeader className="border-b px-6 py-4">
               <div className="flex items-center gap-2">
-                <SheetTitle className="text-lg">TAA</SheetTitle>
+                <SheetTitle className="text-lg">{instrumentoDe(taa.contratante)}</SheetTitle>
                 <Badge variant="secondary" className="font-mono">Nº {taa.numero}</Badge>
                 <Badge variant={statusVariant[taa.status]}>{taa.status}</Badge>
               </div>
@@ -31,7 +31,8 @@ export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onC
               <dl className="grid gap-4">
                 {([
                   ['Status', <Badge variant={statusVariant[taa.status]}>{taa.status}</Badge>],
-                  ['Departamento Regional', `SENAI-${taa.dr}`],
+                  ['Contratante', nomeParte(taa.contratante)],
+                  ['CTM contratada', `SENAI-${taa.dr}`],
                   ['Valor global', brl(taa.valor)],
                   ['Vigência', `${taa.vigenciaInicio} a ${taa.vigenciaFim}`],
                 ] as [string, React.ReactNode][]).map(([k, v]) => (

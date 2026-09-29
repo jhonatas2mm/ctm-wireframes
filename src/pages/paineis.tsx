@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/wf'
 import { BarList, Bloco, BlocoTitulo, Kpi, Linha, brl, brlCurto, isoDeBr } from '@/components/wf/dash'
 import {
   HOJE, diasEntre, statusTurma,
-  useContratos, useCursosDr, useDrs, useEditais, useProdutos, useTaasDr, useTurmas,
+  instrumentoDe, nomeParte, useContratos, useCursosDr, useDrs, useEditais, useProdutos, useTurmas,
   type StatusProposta,
 } from '@/lib/mock'
 
@@ -19,7 +19,7 @@ const dataBr = (iso: string) => iso.split('-').reverse().join('/')
 // ── DN: DRs credenciadas, TAAs (DN ↔ DR) e editais ─────────────────────────
 export function PainelDn() {
   const navigate = useNavigate()
-  const taas = useContratos().all
+  const taas = useContratos().all.filter((t) => t.contratante === 'DN')
   const editais = useEditais().all
   const drs = useDrs().all
   const vigentes = taas.filter((t) => t.status === 'Vigente')
@@ -107,7 +107,8 @@ export function PainelSupervisor() {
   const navigate = useNavigate()
   const propostas = useProdutos().all
   const turmas = useTurmas().all
-  const taas = useTaasDr().all
+  // Quem contratou esta CTM (TAA com SENAI, contrato com SESI); a CTM só consulta.
+  const taas = useContratos().all.filter((c) => c.dr === 'MG')
   const conta = (s: StatusProposta) => propostas.filter((p) => (p.status ?? 'Em elaboração') === s).length
   const ativas = turmas.filter((t) => !['Finalizada', 'Cancelada'].includes(statusTurma(t)))
   const aulas = turmas
@@ -176,10 +177,10 @@ export function PainelSupervisor() {
           </div>
         </Bloco>
         <Bloco>
-          <BlocoTitulo titulo="TAAs com DRs" acao={ver('/meus-taas')} />
+          <BlocoTitulo titulo="Contratantes" sub="TAA (SENAI) ou contrato (SESI) com esta CTM" />
           <div className="divide-y">
             {taas.map((t) => (
-              <Linha key={t.id} inicial={t.drParceira} titulo={`TAA ${t.numero} · SENAI-${t.drParceira}`} sub={t.vigenciaInicio === '—' ? 'Sem vigência definida' : `${t.vigenciaInicio} a ${t.vigenciaFim}`} direita={<Badge>{t.status}</Badge>} />
+              <Linha key={t.id} inicial={t.contratante.replace('SESI-', '')} titulo={`${instrumentoDe(t.contratante)} ${t.numero} · ${nomeParte(t.contratante)}`} sub={t.vigenciaInicio === '—' ? 'Sem vigência definida' : `${t.vigenciaInicio} a ${t.vigenciaFim}`} direita={<Badge>{t.status}</Badge>} />
             ))}
           </div>
         </Bloco>

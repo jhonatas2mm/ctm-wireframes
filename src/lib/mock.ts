@@ -40,14 +40,17 @@ const cursos: Curso[] = [
 
 export const useCursos = () => useCollection<Curso>('cursos', cursos)
 
-// Termos de Acordo Administrativo (TAA): contrato guarda-chuva firmado com cada Departamento Regional (DR);
-// os produtos (cursos) são vinculados ao TAA depois. Números, datas e valores FICTÍCIOS.
+// Contratação da CTM (DR credenciada) por quem solicita: guarda-chuva com vigência e valor global; sem produtos.
+// Instrumento: TAA (Termo de Acordo Administrativo) só entre SENAI e SENAI (DR solicitante SENAI-XX ou o DN);
+// com o SESI (SESI-XX) é Contrato. Quem contrata cria; a CTM não gerencia TAAs/contratos, só propostas.
+// Uma mesma DR pode ser CTM (ofertante) e DR solicitante (contratante). Números, datas e valores FICTÍCIOS.
 export type StatusContrato = 'Vigente' | 'Em elaboração' | 'Encerrado'
 
 export type Contrato = {
   id: string
   numero: string
-  dr: string // Departamento Regional (UF)
+  contratante: string // 'DN', UF da DR SENAI solicitante (ex.: 'MG') ou 'SESI-UF'
+  dr: string // UF da CTM contratada
   vigenciaInicio: string
   vigenciaFim: string
   valor: number // valor global (R$)
@@ -55,19 +58,36 @@ export type Contrato = {
   anexoAssinado?: string // TAA assinado fora do sistema (anexado)
   status: StatusContrato
 }
+export const nomeParte = (x: string) => (x === 'DN' ? 'SENAI DN' : x.startsWith('SESI-') ? x : `SENAI-${x}`)
+// SENAI ↔ SENAI = TAA; SESI ↔ SENAI = Contrato.
+export type Instrumento = 'TAA' | 'Contrato'
+export const instrumentoDe = (contratante: string): Instrumento => (contratante.startsWith('SESI-') ? 'Contrato' : 'TAA')
 
+const taa = (id: string, numero: string, contratante: string, dr: string, vig: [string, string], valor: number, status: StatusContrato): Contrato => ({ id, numero, contratante, dr, vigenciaInicio: vig[0], vigenciaFim: vig[1], valor, status })
 const contratos: Contrato[] = [
-  { id: '1', numero: '001/2026', dr: 'SP', vigenciaInicio: '01/02/2026', vigenciaFim: '31/01/2027', valor: 1250000, status: 'Vigente' },
-  { id: '2', numero: '002/2026', dr: 'MG', vigenciaInicio: '15/03/2026', vigenciaFim: '14/03/2027', valor: 860000, status: 'Vigente' },
-  { id: '3', numero: '003/2026', dr: 'RS', vigenciaInicio: '01/04/2026', vigenciaFim: '31/03/2027', valor: 540000, status: 'Vigente' },
-  { id: '4', numero: '004/2026', dr: 'BA', vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', valor: 420000, status: 'Em elaboração' },
-  { id: '5', numero: '005/2026', dr: 'PR', vigenciaInicio: '01/06/2026', vigenciaFim: '31/05/2027', valor: 910000, status: 'Vigente' },
-  { id: '6', numero: '006/2026', dr: 'PE', vigenciaInicio: '01/11/2026', vigenciaFim: '31/10/2027', valor: 380000, status: 'Em elaboração' },
-  { id: '7', numero: '014/2025', dr: 'SC', vigenciaInicio: '01/03/2025', vigenciaFim: '28/02/2026', valor: 670000, status: 'Encerrado' },
-  { id: '8', numero: '021/2025', dr: 'GO', vigenciaInicio: '01/07/2025', vigenciaFim: '30/06/2026', valor: 450000, status: 'Encerrado' },
+  // DN contratando CTMs
+  taa('1', '001/2026', 'DN', 'MG', ['01/02/2026', '31/01/2027'], 1250000, 'Vigente'),
+  taa('2', '002/2026', 'DN', 'SC', ['15/03/2026', '14/03/2027'], 860000, 'Vigente'),
+  taa('3', '003/2026', 'DN', 'GO', ['01/10/2026', '30/09/2027'], 540000, 'Em elaboração'),
+  // SENAI-MG como DR solicitante contratando outras CTMs
+  taa('4', '004/2026', 'MG', 'SC', ['01/03/2026', '28/02/2027'], 480000, 'Vigente'),
+  taa('5', '005/2026', 'MG', 'GO', ['01/11/2026', '31/10/2027'], 320000, 'Em elaboração'),
+  taa('6', '014/2025', 'MG', 'RS', ['01/03/2025', '28/02/2026'], 270000, 'Encerrado'),
+  // DRs solicitantes que contrataram a CTM SENAI-MG (base das propostas da CTM)
+  taa('7', '006/2026', 'SP', 'MG', ['01/03/2026', '28/02/2027'], 910000, 'Vigente'),
+  taa('8', '007/2026', 'RJ', 'MG', ['15/04/2026', '14/04/2027'], 420000, 'Vigente'),
+  taa('9', '008/2026', 'ES', 'MG', ['01/06/2026', '31/05/2027'], 380000, 'Vigente'),
+  taa('10', '009/2026', 'GO', 'MG', ['01/08/2026', '31/07/2027'], 450000, 'Vigente'),
+  taa('11', '010/2026', 'PE', 'MG', ['01/07/2026', '30/06/2027'], 260000, 'Vigente'),
+  taa('12', '011/2026', 'BA', 'MG', ['01/10/2026', '30/09/2027'], 300000, 'Em elaboração'),
+  // SESI solicitante: contrato (não é TAA)
+  taa('13', 'CT-001/2026', 'SESI-SP', 'MG', ['01/05/2026', '30/04/2027'], 350000, 'Vigente'),
+  taa('14', 'CT-002/2026', 'SESI-MG', 'MG', ['01/11/2026', '31/10/2027'], 200000, 'Em elaboração'),
 ]
 
-export const useContratos = () => useCollection<Contrato>('contratos-v2', contratos)
+export const useContratos = () => useCollection<Contrato>('contratos-v3', contratos)
+// TAA ou contrato (não encerrado) entre um contratante e uma CTM.
+export const taaEntre = (todos: Contrato[], contratante: string, ctm: string) => todos.find((c) => c.contratante === contratante && c.dr === ctm && c.status !== 'Encerrado')
 
 // Editais: oferta de cursos em CTMs (estados), com os DRs credenciados a executá-los. Dados FICTÍCIOS.
 // Área, modalidade e CH vêm do catálogo (fixas); só o valor é definido por curso no edital.
@@ -102,26 +122,6 @@ const editais: Edital[] = [
 ]
 
 export const useEditais = () => useCollection<Edital>('editais-v8', editais)
-
-// TAAs da DR logada (perfil Supervisor = SENAI-MG) com outras DRs. Dados FICTÍCIOS.
-export type TaaDr = {
-  id: string
-  numero: string
-  drParceira: string // UF da outra DR
-  vigenciaInicio: string
-  vigenciaFim: string
-  cursos: number
-  status: StatusContrato
-}
-
-const taasDr: TaaDr[] = [
-  { id: '1', numero: '101/2026', drParceira: 'SP', vigenciaInicio: '01/03/2026', vigenciaFim: '28/02/2027', cursos: 4, status: 'Vigente' },
-  { id: '2', numero: '102/2026', drParceira: 'RJ', vigenciaInicio: '15/04/2026', vigenciaFim: '14/04/2027', cursos: 2, status: 'Vigente' },
-  { id: '3', numero: '103/2026', drParceira: 'ES', vigenciaInicio: '—', vigenciaFim: '—', cursos: 0, status: 'Em elaboração' },
-  { id: '4', numero: '087/2025', drParceira: 'GO', vigenciaInicio: '01/02/2025', vigenciaFim: '31/01/2026', cursos: 3, status: 'Encerrado' },
-]
-
-export const useTaasDr = () => useCollection<TaaDr>('taas-dr', taasDr)
 
 // Unidades Curriculares (UCs) de cada curso do Itinerário Nacional, por id do curso. Nomes e CH FICTÍCIOS.
 export type UC = { nome: string; cargaHoraria: number }
@@ -177,9 +177,12 @@ const propostas: Produto[] = [
   { id: '4', numero: 'PC-MG-004/2026', edital: 'ED-005/2026', status: 'Em negociação', drOfertante: 'MG', drContratante: 'GO', cnpj: '03.769.437/0001-10', crm: 'CRM-2026-0388', faturamento: 'DR', cursos: [cp('11', 5600, 25, '2026-10-08'), cp('14', 400, 40, '2026-11-09')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z',
     historico: [reg('2026-08-18T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-09-02T11:20:00Z', 'Nova rodada: vagas de Mecânico de Usinagem de 20 para 25')] },
   { id: '5', numero: 'PC-MG-005/2026', edital: 'ED-001/2026', status: 'Cancelada', drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'A DR cancelou a turma por não atingir o mínimo de inscritos (regra interna de 25 alunos).', cursos: [cp('5', 3200, 15, '2026-09-14')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
-    historico: [reg('2026-07-01T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-07-20T10:00:00Z', 'Proposta aceita pelo SENAI-PE'), reg('2026-09-04T16:45:00Z', 'Proposta cancelada: a DR não fechou a turma')] },
+      historico: [reg('2026-07-01T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-07-20T10:00:00Z', 'Proposta aceita pelo SENAI-PE'), reg('2026-09-04T16:45:00Z', 'Proposta cancelada: a DR não fechou a turma')] },
+  // Contratante SESI (instrumento: Contrato CT-001/2026)
+  { id: '6', numero: 'PC-MG-006/2026', edital: 'ED-005/2026', status: 'Em negociação', drOfertante: 'MG', drContratante: 'SESI-SP', cnpj: '03.439.316/0001-06', faturamento: 'DR', cursos: [cp('9', 2400, 30, '2026-11-16')], vigenciaInicio: '01/05/2026', vigenciaFim: '30/04/2027', cadastradoEm: '2026-09-15T10:00:00Z',
+    historico: [reg('2026-09-15T10:00:00Z', 'Proposta registrada (Em negociação)')] },
 ]
-export const useProdutos = () => useCollection<Produto>('produtos-v15', propostas)
+export const useProdutos = () => useCollection<Produto>('produtos-v16', propostas)
 // Alerta de prazo: proposta ainda não aceita com turma prevista para começar em até 15 dias.
 export const PRAZO_ALERTA_DIAS = 15
 export const inicioPrevisto = (p: Pick<Produto, 'cursos'>) => p.cursos.map((c) => c.inicioPrevisto).filter((x): x is string => !!x).sort()[0]
@@ -448,12 +451,12 @@ export const useUsuarios = () => useCollection<Usuario>('usuarios-v5', usuarios)
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
   { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/dashboard', '/editais'] },
-  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
-  { id: 'DR solicitante', perfil: 'DR solicitante', telas: ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'] },
-  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
-  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/meus-taas', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
+  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
+  { id: 'DR solicitante', perfil: 'DR solicitante', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
+  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
+  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v8', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v9', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [

@@ -4,7 +4,6 @@ import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSigna
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
 import Produtos from '@/pages/produtos'
-import MeusTaas from '@/pages/meus-taas'
 import GestaoProposta from '@/pages/gestao-proposta'
 import GestaoProdutos from '@/pages/gestao-produtos'
 import GestaoDrs from '@/pages/gestao-drs'
@@ -44,7 +43,7 @@ export const screens: Screen[] = [
   { path: '/painel-dn', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelDn, profiles: ['DN'], data: ['contratos', 'editais', 'drs'] },
   { path: '/drs', title: 'Gestão de DRs', group: 'Telas', icon: Building2, component: GestaoDrs, profiles: ['DN', 'Super admin'], data: ['drs'] },
   { path: '/drs/novo', title: 'Nova DR credenciada', group: 'Telas', icon: Building2, component: GestaoDrs, hidden: true, data: ['drs'] },
-  { path: '/dashboard', title: 'Gestão de TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, profiles: ['DN', 'Super admin'], data: ['contratos'] },
+  { path: '/dashboard', title: 'TAAs com CTMs', group: 'Telas', icon: FileSignature, component: Dashboard, profiles: ['DN', 'DR solicitante', 'Super admin'], data: ['contratos'] },
   { path: '/dashboard/novo-ta', title: 'Novo TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, hidden: true, data: ['contratos'] },
   { path: '/dashboard/:id', title: 'Detalhes do TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, hidden: true, data: ['contratos'] },
   { path: '/editais', title: 'Gestão de Editais', group: 'Telas', icon: FileSpreadsheet, component: Editais, profiles: ['DN', 'Super admin'], data: ['editais'] },
@@ -52,7 +51,6 @@ export const screens: Screen[] = [
   { path: '/editais/:id/sucesso', title: 'Edital criado', group: 'Telas', icon: FileSpreadsheet, component: Editais, hidden: true, data: ['editais'] },
   { path: '/painel-ctm', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelSupervisor, profiles: ['CTM: Supervisor'], data: ['produtos', 'turmas', 'taas-dr'] },
   { path: '/painel-comercial', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelComercial, profiles: ['CTM: Comercial'], data: ['produtos', 'cursos-dr'] },
-  { path: '/meus-taas', title: 'Gestão de TAAs', group: 'Telas', icon: FileSignature, component: MeusTaas, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['taas-dr'] },
   { path: '/gestao-produtos', title: 'Gestão de Portfólio', group: 'Telas', icon: Boxes, component: GestaoProdutos, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['cursos-dr'] },
   { path: '/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['produtos'] },
   { path: '/gestao-produtos/novo', title: 'Novo produto', group: 'Telas', icon: Boxes, component: GestaoProdutos, hidden: true, data: ['cursos-dr'] },
@@ -78,8 +76,5 @@ export const screens: Screen[] = [
   { path: '/oferta/proposta/:pid/nova', title: 'Nova oferta', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/:id/sucesso', title: 'Oferta criada', group: 'Telas', icon: GraduationCap, component: Oferta, hidden: true, data: ['turmas'] },
   { path: '/oferta/:id', title: 'Detalhes da oferta', group: 'Telas', icon: GraduationCap, component: OfertaDetalhe, hidden: true, data: ['turmas', 'calendario', 'equipe'] },
-  { path: '/meus-taas/novo', title: 'Novo TAA', group: 'Telas', icon: FileSignature, component: MeusTaas, hidden: true, data: ['taas-dr'] },
-  { path: '/meus-taas/:taaId/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
-  { path: '/meus-taas/:taaId/produtos/novo', title: 'Nova proposta', group: 'Telas', icon: Package, component: Produtos, hidden: true, data: ['produtos'] },
   { path: '/componentes', title: 'Componentes', group: 'Sistema', icon: Palette, component: Components, hidden: true },
 ]
