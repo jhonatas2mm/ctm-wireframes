@@ -333,10 +333,11 @@ html.ds-senai [data-slot="tabs-list"][data-variant="default"] [data-slot="tabs-t
 html.ds-senai [data-slot="input"], html.ds-senai [data-slot="textarea"], html.ds-senai [data-slot="select-trigger"] { background-color: #FFFFFF; }
 
 /* Coluna de Ações (célula fixa à direita): todos os botões iguais — contorno neutro, ícone e texto na cor principal */
-html.ds-senai [data-acoes] [data-slot="button"],
-html.ds-senai [data-slot="table-cell"].sticky [data-slot="button"] { border-color: #D9DEE0; background: #FFFFFF; color: #E84910; border-radius: 0.625rem; }
-html.ds-senai [data-acoes] [data-slot="button"]:hover,
-html.ds-senai [data-slot="table-cell"].sticky [data-slot="button"]:hover { background: #FFF6ED; color: #C23C0D; }
+/* (seletor por button/a: o tooltip troca o data-slot dos botões habilitados) */
+html.ds-senai [data-acoes] :is(button, a),
+html.ds-senai [data-slot="table-cell"].sticky :is(button, a) { border-color: #D9DEE0; background: #FFFFFF; color: #E84910; border-radius: 0.625rem; }
+html.ds-senai [data-acoes] :is(button, a):hover,
+html.ds-senai [data-slot="table-cell"].sticky :is(button, a):hover { background: #FFF6ED; color: #C23C0D; }
 
 /* Identificadores em badge (nº de proposta, turma, TAA, versão…): sempre neutros, nunca azul */
 html.ds-senai span.bg-secondary:not([data-tone]) { background-color: #F0F1F2; color: #3D4448; border-color: transparent; }

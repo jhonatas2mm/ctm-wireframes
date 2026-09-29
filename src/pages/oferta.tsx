@@ -399,7 +399,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
           </p>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!proposta || !cursos.length || excedidos.length > 0} motivo={!proposta ? 'Escolha a proposta' : !cursos.length ? 'Selecione ao menos um curso' : 'Há cursos acima das vagas da proposta'} onClick={salvar}>Salvar oferta</Button>
+            <Button disabled={!proposta || !cursos.length || excedidos.length > 0} motivo={!proposta ? 'Escolha a proposta' : !cursos.length ? 'Selecione ao menos um curso' : 'Há cursos com CH acima do produto na proposta'} onClick={salvar}>Salvar oferta</Button>
           </div>
         </SheetFooter>
       </SheetContent>
