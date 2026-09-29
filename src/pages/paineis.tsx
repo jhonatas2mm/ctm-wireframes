@@ -7,6 +7,8 @@ import {
   BadgeCheck, Boxes, Building2, CalendarClock, CircleDollarSign, Clock, FileSignature, FileSpreadsheet, Handshake, Percent, Send, Video,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { semestresDisponiveis } from '@/lib/matriculas'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/wf'
 import { BarList, Bloco, BlocoTitulo, Kpi, Linha, brl, brlCurto, isoDeBr } from '@/components/wf/dash'
@@ -108,6 +110,17 @@ export function PainelDn() {
         </TabsList>
         {aba !== 'geral' && <FiltrosPeriodo f={filtro} onChange={setFiltro} compacto />}
         </div>
+        {/* Filtro rápido por semestre, logo acima do conteúdo */}
+        {aba !== 'geral' && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-3">
+            {['todos', ...semestresDisponiveis].map((sem) => (
+              <button key={sem} type="button" aria-pressed={filtro.periodo === sem} onClick={() => setFiltro({ ...filtro, periodo: sem })}
+                className={cn('rounded-full border bg-card px-3 py-1 text-sm transition-colors', filtro.periodo === sem ? 'border-primary bg-accent font-semibold text-accent-foreground' : 'hover:bg-muted')}>
+                {sem === 'todos' ? 'Todo o período' : `${sem.replace('/', ' · ')}º semestre`}
+              </button>
+            ))}
+          </div>
+        )}
         <TabsContent value="geral" className="pt-4"><VisaoGeralDn /></TabsContent>
         <TabsContent value="operacional" className="pt-4"><VisaoOperacional f={filtro} onChange={setFiltro} /></TabsContent>
         <TabsContent value="relatorio" className="pt-4"><VisaoRelatorio f={filtro} onChange={setFiltro} /></TabsContent>
