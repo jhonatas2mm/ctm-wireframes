@@ -138,7 +138,7 @@ export function AppShell() {
           <div id="topbar-slot" className="min-w-0 flex-1" />
           <Notificacoes />
         </header>
-        <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 p-4 md:p-6">
+        <div className="w-full min-w-0 space-y-6 p-4 md:p-6">
           <Outlet />
         </div>
       </SidebarInset>
