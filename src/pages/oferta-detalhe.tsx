@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { Ban, CalendarClock, CalendarPlus, CheckCircle2, ChevronDown, Layers, Merge, Pencil, Plus, Send, Trash2, X } from 'lucide-react'
+import { Ban, CalendarClock, CalendarPlus, CheckCircle2, Layers, Merge, Pencil, Plus, Send, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
@@ -102,14 +101,9 @@ export default function OfertaDetalhe() {
                 <CheckCircle2 /> Confirmar turma
               </Button>
             )}
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="outline" />}>Mais ações <ChevronDown /></DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuItem disabled={status === 'Em andamento' || status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('prorrogar', inicio)}><CalendarClock /> Prorrogar início</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(`/oferta/proposta/${t.propostaId}/nova`)}><Plus /> Adicionar oferta</DropdownMenuItem>
-                <DropdownMenuItem disabled={status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('cancelar')}><Ban /> Cancelar turma</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button variant="outline" disabled={status === 'Em andamento' || status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('prorrogar', inicio)}><CalendarClock /> Prorrogar início</Button>
+            <Button variant="outline" onClick={() => navigate(`/oferta/proposta/${t.propostaId}/nova`)}><Plus /> Adicionar oferta</Button>
+            <Button variant="outline" disabled={status === 'Finalizada' || status === 'Cancelada'} onClick={() => abrir('cancelar')}><Ban /> Cancelar turma</Button>
           </>
         }
       />
