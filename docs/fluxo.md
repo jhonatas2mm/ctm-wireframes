@@ -8,6 +8,7 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 0a. **Gestão de usuários** (Super admin) — Gestão de usuários → Novo usuário → Editar usuário.
 0b. **Perfis e permissões** (Super admin) — Perfis e permissões → Permissões do perfil.
 0c. **Auditoria** (Super admin) — trilha de ações, somente leitura.
+0c1. **Feriados nacionais** (Super admin) — Feriados nacionais → Novo feriado.
 0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): ações dos usuários na plataforma (login, visualizou, criou, editou com antes/depois, excluiu, aceitou/recusou, exportou, anexou).
 0d. **Supervisão das áreas** (Super admin) — Gestão de DRs → Editais → Propostas → Oferta.
 1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciadas → Nova DR credenciada. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
@@ -16,12 +17,12 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 4. **Contratação da CTM (TAA)** (DR solicitante) — o mesmo fluxo, com a DR solicitante como contratante.
 5. **Criação de portfólio** (Supervisor) — Gestão de Portfólio → Novo produto (produtos de um edital).
 6. **Criação de proposta** (Supervisor) — Gestão de propostas → Nova proposta (Em negociação) → aceitar/recusar na listagem (cancelar/duplicar depois).
-7. **Criação de oferta** (Supervisor) — Calendário → Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
+7. **Criação de oferta** (Supervisor) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
 7a. **Gestão da execução** (Supervisor) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
 7b. **Acompanhamento pedagógico** (Supervisor) — Tratativas pedagógicas → Nova tratativa.
 7c. **Financeiro** (Supervisor) — situação de cobrança por aluno e formalizações.
 4a. **Contratação da CTM (contrato)** (DR solicitante: SESI) — Contratos com CTMs → Novo contrato → Contrato em elaboração → Contrato vigente.
-7d. **Alocação de tutores** (CTM: PCP) — Calendário → Equipe → Turma em Buscar tutor (aba Execução).
+7d. **Alocação de tutores** (CTM: PCP) — Equipe → Turma em Buscar tutor (aba Execução).
 7e. **Validação e acompanhamento** (CTM: Pedagógico) — Validação pedagógica → Tratativas → Nova tratativa.
 7f. **Minhas UCs** (CTM: Tutor, em avaliação) e **Salas e tratativas** (CTM: Monitor, em avaliação).
 8. **Acompanhamento da execução** (DR solicitante: SENAI; também SESI) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
@@ -34,7 +35,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **DN** — cria e gerencia editais (com a CTM aprovada por produto) e faz a gestão de DRs. **Não gerencia os TAAs da rede**: só cria/acompanha os TAAs em que ele mesmo contrata uma CTM.
 - **CTM** (SENAI-MG) — caixas:
   - **Comercial** — mesmas telas do Supervisor; propostas e portfólio. Não gerencia TAAs.
-  - **PCP** — Gestão da oferta (aba Execução: tutor e ação por UC, aulas ao vivo), Equipe e Calendário.
+  - **PCP** — Gestão da oferta (aba Execução: tutor e ação por UC, aulas ao vivo), e Equipe.
   - **Supervisor** — portfólio, propostas, oferta/cronograma, equipe da turma, tratativas e financeiro. Não gerencia TAAs.
   - **Pedagógico** — Gestão da oferta (validação pedagógica) e Tratativas pedagógicas.
   - **Tutor** e **Monitor** — **em avaliação** (caixa tracejada com "?"): Tutor vê a oferta; Monitor vê a oferta e as tratativas.
@@ -95,8 +96,8 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Detalhes da oferta em abas (`?aba=cronograma|execucao|integracao|historico`); toda mudança entra no **Histórico** da turma.
 
 ### Cronograma (gerado pelo sistema)
-- Substitui o script da planilha. Parâmetros na Nova oferta: **início da turma** (vem do início previsto do curso na proposta), **horas por semana** (padrão 20), **ambientação** (junto com a 1ª UC ou semana própria), **intervalo entre módulos** (5/7/10/15 dias), **UC termina na sexta**, **pode iniciar módulo em dezembro** (se não, empurra para depois do recesso).
-- Regra: UCs em sequência; semanas da UC = CH da UC ÷ horas por semana (arredonda para cima); conta **só dias úteis** e pula **feriados nacionais, recessos e férias** do Calendário. Cada curso começa na data de início.
+- Substitui o script da planilha. Parâmetros na Nova oferta: **início da turma** (vem do início previsto do curso na proposta), **horas por semana** (padrão 20), **ambientação** (junto com a 1ª UC ou semana própria), **intervalo entre módulos** (5/7/10/15 dias), **UC termina na sexta**, **pode iniciar módulo em dezembro** (se não, empurra para o início de janeiro).
+- Regra: UCs em sequência; semanas da UC = CH da UC ÷ horas por semana (arredonda para cima); conta **só dias úteis** e pula os **feriados nacionais** (cadastro do Super admin). Cada curso começa na data de início.
 - Por UC o sistema calcula **semanas de estudo**, **encontros presenciais** (1 a cada 4 h presenciais) e **aulas ao vivo previstas** (CH a distância ÷ 20). As fórmulas de encontros/aulas são hipótese a validar com a CTM.
 - As datas podem ser ajustadas à mão antes de salvar; avisos aparecem quando o sistema move uma data (dia não útil, módulo em dezembro).
 - **Agrupamento**: UC com o mesmo nome em outra turma (não cancelada) começando na mesma semana aparece como **Agrupável** (versão simples; a análise com troca de ordem das UCs fica para depois).
@@ -120,8 +121,9 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **Dados de integração para a DR**: código CTM por escola (`<turma>-<ESCOLA>`) + ID da sala de cada UC + início + semestre, com "Copiar tabela" para a DR parametrizar no SGE.
 - **Situação da integração** por escola (integrados × alunos): Integrada / Parcial / Não integrada; alerta quando faltam 5 dias ou menos para o início e a DR ainda não integrou. "Consultar AVA" simula o serviço do AVA.
 
-## Calendário (CTM)
-- Feriados nacionais são fixos (não se excluem). A CTM cadastra **recessos e férias coletivas** (Novo período). O gerador de cronograma pula todos.
+## Feriados nacionais (Super admin)
+- Tela **Feriados nacionais** (`/admin/feriados`, só Super admin): novo, editar e excluir (com confirmação).
+- Serve só para o gerador de cronograma **pular as datas de feriado nacional**. Por enquanto **não há feriados, recessos ou férias por DR ou por CTM**.
 
 ## Equipe (CTM)
 - Pessoas com função, **e-mail corporativo único** (não cadastra duas vezes), competências (UCs) e dias disponíveis. Inativar pede confirmação e tira a pessoa da alocação.
@@ -306,3 +308,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Edital define a CTM por produto**: a CTM aprovada é a de menor custo (novo campo no Novo edital; destaque nos detalhes). **TAA tem produtos**: no Novo TAA o contratante escolhe edital e produtos e a CTM vem da aprovação (produtos de outra CTM = outro TAA). Portfólio da CTM só com produtos em que ela é a aprovada. Nova proposta só com os produtos do TAA/contrato do contratante. Catálogo ganhou Mecânico de Manutenção de Máquinas e Desenhista de Produtos Gráficos.
 - 2026-09-29 — **Perfis em três grupos com caixas**: DN, CTM (Comercial, PCP, Supervisor, Pedagógico; Tutor e Monitor em avaliação) e DR solicitante (SENAI, SESI), mais o Super admin. Casca: grupos e caixas vêm de profiles.ts (grupo/caixa) e aparecem nas abas de subperfil ao lado do selo (Tutor/Monitor tracejados, em avaliação). "DR solicitante" virou "DR solicitante: SENAI"; novo "DR solicitante: SESI" cria **contrato** (resolve quem registra o contrato do SESI). Menus por caixa; menu "Contratação de CTM" com título conforme o perfil. Jornadas novas: Contratação da CTM (contrato) e acompanhamento do SESI, Alocação de tutores (PCP), Validação e acompanhamento (Pedagógico), Tutor e Monitor (em avaliação).
 - 2026-09-29 — **Portfólio com aprovação do DN**: novo produto e nova versão viram solicitações (*Aguardando aprovação*); DN aprova/reprova (motivo) em **Aprovação de portfólio**; o aprovado aparece no **Portfólio das CTMs** para todas as DRs e vai para a oferta. Produto ganhou vínculo com o **itinerário** (botão, sem integração ainda) e **documentos/materiais** (links). Gestão de Portfólio reescrita por produto (sem as linhas derivadas das propostas). Jornadas: Aprovação de portfólio (DN) e Portfólio das CTMs (DR solicitante). Casca: grupos/caixas de profiles.ts nas abas de subperfil do Jhonatas.
+- 2026-09-29 — **Calendário → Feriados nacionais**, só do Super admin (`/admin/feriados`, novo/editar/excluir). Serve apenas para o cronograma pular feriados nacionais; saíram os recessos/férias da CTM e o Calendário dos menus da CTM (Supervisor, Comercial, PCP). Jornada nova: Feriados nacionais (Super admin).

@@ -1,6 +1,6 @@
 // Gerador de cronograma da oferta (substitui o script em planilha da CTM). Regras em docs/fluxo.md.
 // Entrada: matriz (módulos → UCs com CH) + parâmetros; saída: início/término, semanas, encontros presenciais e
-// aulas ao vivo previstas por UC. Só dias úteis; pula feriados nacionais, recessos e férias do calendário da CTM.
+// aulas ao vivo previstas por UC. Só dias úteis; pula os feriados nacionais (cadastro do Super admin).
 import { chUc, type DataCalendario, type Turma } from './mock'
 
 export type ParametrosCronograma = {
@@ -8,7 +8,7 @@ export type ParametrosCronograma = {
   chSemanal: number // horas de estudo por semana (padrão 20)
   ambientacao: 'Concomitante' | 'Semana própria' // semana de ambientação junto com a 1ª UC ou antes dela
   intervaloModulos: number // dias corridos entre módulos (rematrícula)
-  iniciarModuloDezembro: boolean // alguns DRs não iniciam módulo em dezembro: empurra para depois do recesso
+  iniciarModuloDezembro: boolean // alguns DRs não iniciam módulo em dezembro: empurra para o início de janeiro
   terminarNaSexta: boolean // UC sempre termina na sexta-feira
 }
 

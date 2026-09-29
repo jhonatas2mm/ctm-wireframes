@@ -333,7 +333,7 @@ function NovaTurmaSheet({ open, onOpenChange, onSaved, propostaFixa }: { open: b
               </div>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={params.terminarNaSexta} onChange={(e) => setP({ terminarNaSexta: e.target.checked })} /> UC termina na sexta-feira</label>
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={params.iniciarModuloDezembro} onChange={(e) => setP({ iniciarModuloDezembro: e.target.checked })} /> Pode iniciar módulo em dezembro</label>
-              <p className="text-xs text-muted-foreground">Só dias úteis; pula feriados nacionais, recessos e férias do Calendário.</p>
+              <p className="text-xs text-muted-foreground">Só dias úteis; pula os feriados nacionais.</p>
               <Button type="button" variant="outline" disabled={!modulos.length} onClick={() => setModulos(gerar(modulos))}><CalendarCog /> Gerar cronograma</Button>
             </div>
           </section>

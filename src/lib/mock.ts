@@ -418,9 +418,10 @@ export const useTurmas = () => useCollection<Turma>('turmas-v8', turmas)
 export const agrupaveis = (todas: Turma[], t: Turma, uc: UcTurma) =>
   todas.filter((o) => o.id !== t.id && o.fase !== 'Cancelada' && o.modulos.some((m) => m.unidades.some((u) => u.nome === uc.nome && u.inicio && uc.inicio && Math.abs(diasEntre(u.inicio, uc.inicio)) <= 7)))
 
-// Calendário da CTM: feriados nacionais (fixos) e recessos/férias coletivas (cadastrados pela CTM).
+// Feriados nacionais, mantidos pelo Super admin: o gerador de cronograma só pula estes dias.
+// Por enquanto não há feriados/recessos por DR ou por CTM.
 // O gerador de cronograma pula esses dias. Datas ISO; fim só em períodos.
-export type TipoData = 'Feriado nacional' | 'Recesso' | 'Férias coletivas'
+export type TipoData = 'Feriado nacional'
 export type DataCalendario = { id: string; nome: string; tipo: TipoData; inicio: string; fim?: string }
 const calendario: DataCalendario[] = [
   ...([
@@ -428,10 +429,8 @@ const calendario: DataCalendario[] = [
     ['2026-12-25', 'Natal'], ['2027-01-01', 'Confraternização Universal'], ['2027-02-08', 'Carnaval'], ['2027-02-09', 'Carnaval'], ['2027-03-26', 'Sexta-feira Santa'],
     ['2027-04-21', 'Tiradentes'], ['2027-05-01', 'Dia do Trabalho'], ['2027-05-27', 'Corpus Christi'], ['2027-09-07', 'Independência do Brasil'],
   ] as const).map(([inicio, nome], i): DataCalendario => ({ id: `f${i + 1}`, nome, tipo: 'Feriado nacional', inicio })),
-  { id: 'r1', nome: 'Férias coletivas de fim de ano', tipo: 'Férias coletivas', inicio: '2026-12-21', fim: '2027-01-15' },
-  { id: 'r2', nome: 'Recesso de julho', tipo: 'Recesso', inicio: '2027-07-12', fim: '2027-07-23' },
 ]
-export const useCalendario = () => useCollection<DataCalendario>('calendario-v1', calendario)
+export const useCalendario = () => useCollection<DataCalendario>('calendario-v2', calendario)
 
 // Equipe da CTM (gestão da execução): quem pode ser alocado nas turmas. Funções configuráveis por CTM.
 export type FuncaoEquipe = 'Tutor' | 'Monitor front' | 'Monitor back' | 'Pedagógico' | 'Interlocutor' | 'Analista' | 'Supervisor'
@@ -518,17 +517,17 @@ export const useUsuarios = () => useCollection<Usuario>('usuarios-v6', usuarios)
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
   { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/dashboard', '/editais', '/portfolio/aprovacoes', '/portfolio'] },
-  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
+  { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
   { id: 'DR solicitante: SESI', perfil: 'DR solicitante: SESI', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
-  { id: 'CTM: PCP', perfil: 'CTM: PCP', telas: ['/oferta', '/equipe', '/calendario'] },
+  { id: 'CTM: PCP', perfil: 'CTM: PCP', telas: ['/oferta', '/equipe'] },
   { id: 'CTM: Pedagógico', perfil: 'CTM: Pedagógico', telas: ['/oferta', '/tratativas'] },
   { id: 'CTM: Tutor', perfil: 'CTM: Tutor', telas: ['/oferta'] },
   { id: 'CTM: Monitor', perfil: 'CTM: Monitor', telas: ['/oferta', '/tratativas'] },
   { id: 'DR solicitante: SENAI', perfil: 'DR solicitante: SENAI', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
-  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
-  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/portfolio/aprovacoes', '/portfolio', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
+  { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro'] },
+  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/portfolio/aprovacoes', '/portfolio', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs', '/admin/feriados'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v11', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v12', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [

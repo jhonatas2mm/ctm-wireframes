@@ -49,6 +49,15 @@ export const journeys: Journey[] = [
     ],
   },
   {
+    id: 'admin-feriados',
+    title: 'Feriados nacionais',
+    profile: 'Super admin',
+    steps: [
+      { title: 'Feriados nacionais', path: '/admin/feriados', profile: 'Super admin', note: 'Única base de datas do sistema: o cronograma da oferta só pula estes dias. Não há feriados por DR ou CTM por enquanto.' },
+      { title: 'Novo feriado', path: '/admin/feriados/novo', profile: 'Super admin', note: 'Nome e data. Editar e excluir (com confirmação) pela listagem.' },
+    ],
+  },
+  {
     id: 'admin-visao-geral',
     title: 'Supervisão das áreas',
     profile: 'Super admin',
@@ -158,9 +167,8 @@ export const journeys: Journey[] = [
     title: 'Criação de oferta',
     profile: 'CTM: Supervisor',
     steps: [
-      { title: 'Calendário', path: '/calendario', profile: 'CTM: Supervisor', note: 'Feriados nacionais (fixos) e recessos/férias da CTM: o gerador de cronograma pula esses dias.' },
       { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'CTM: Supervisor', note: 'Lista de ofertas (uma linha por turma, com a proposta); clica em “Adicionar oferta” na proposta.' },
-      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Supervisor', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pelo Calendário; dá para ajustar à mão.' },
+      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Supervisor', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pulando os feriados nacionais; dá para ajustar à mão.' },
       { title: 'Oferta criada', path: '/oferta/t1/sucesso', profile: 'CTM: Supervisor', note: 'Confirmação: ofertas criadas com o cronograma v1 em rascunho.' },
       { title: 'Validação do cronograma', path: '/oferta/t2', profile: 'CTM: Supervisor', note: 'Registra o envio à DR com prazo; a DR valida ou pede ajuste (nova versão). Sem resposta até o prazo, conta como validado. UCs agrupáveis com outras turmas aparecem marcadas.' },
       { title: 'Turma confirmada', path: '/oferta/t1', profile: 'CTM: Supervisor', note: 'Com o cronograma validado e a DR confirmando a turma, “Confirmar turma” muda o status para Buscar tutor (libera o PCP e a criação de salas). Também: prorrogar início e cancelar turma.' },
@@ -183,7 +191,6 @@ export const journeys: Journey[] = [
     title: 'Alocação de tutores',
     profile: 'CTM: PCP',
     steps: [
-      { title: 'Calendário', path: '/calendario', profile: 'CTM: PCP', note: 'Feriados e recessos considerados no cronograma e nas aulas ao vivo.' },
       { title: 'Equipe', path: '/equipe', profile: 'CTM: PCP', note: 'Tutores com competências (UCs) e dias disponíveis.' },
       { title: 'Turma em Buscar tutor', path: '/oferta/t1?aba=execucao', profile: 'CTM: PCP', note: 'O PCP aloca o tutor de cada UC (competência primeiro), define a ação (Planejamento, Replanejamento ou Apropriação) e o dia das aulas ao vivo, olhando o curso inteiro.' },
     ],
@@ -260,7 +267,7 @@ export const journeys: Journey[] = [
     profile: 'CTM: Comercial',
     steps: [
       { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'CTM: Comercial', note: 'Lista de ofertas (uma linha por turma, com a proposta); clica em “Adicionar oferta” na proposta.' },
-      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Comercial', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pelo Calendário; dá para ajustar à mão.' },
+      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'CTM: Comercial', note: 'Escolhe a proposta aceita, os cursos, supervisor e analista. O sistema gera o cronograma (datas, semanas, encontros e aulas ao vivo por UC) pelos parâmetros e pulando os feriados nacionais; dá para ajustar à mão.' },
       { title: 'Oferta criada', path: '/oferta/t1/sucesso', profile: 'CTM: Comercial', note: 'Confirmação: ofertas criadas com o cronograma v1 em rascunho.' },
       { title: 'Validação do cronograma', path: '/oferta/t2', profile: 'CTM: Comercial', note: 'Registra o envio à DR com prazo; a DR valida ou pede ajuste (nova versão). Sem resposta até o prazo, conta como validado. UCs agrupáveis com outras turmas aparecem marcadas.' },
       { title: 'Turma confirmada', path: '/oferta/t1', profile: 'CTM: Comercial', note: 'Com o cronograma validado e a DR confirmando a turma, “Confirmar turma” muda o status para Buscar tutor (libera o PCP e a criação de salas). Também: prorrogar início e cancelar turma.' },

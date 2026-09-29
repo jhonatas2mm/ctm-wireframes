@@ -71,7 +71,7 @@ export const nos: No[] = [
   { id: 'aceite', tipo: 'tarefa', raia: 'comercial', col: 10, rotulo: 'Registrar aceite', fase: 'proposta', tela: '/produtos', descricao: 'Marca a proposta como Aceita (ou Recusada, com feedback). Aceita ainda pode ser cancelada.' },
 
   // Oferta
-  { id: 'nova-oferta', tipo: 'tarefa', raia: 'supervisor', col: 11, rotulo: 'Nova oferta + cronograma', fase: 'oferta', tela: '/oferta/proposta/2/nova', descricao: 'Escolhe a proposta aceita e os cursos; o sistema gera o cronograma por UC.', regras: ['Só dias úteis; pula feriados, recessos e férias do Calendário.', 'Semanas = CH ÷ horas por semana; UC termina na sexta.', 'UCs agrupáveis com outras turmas ficam marcadas.'] },
+  { id: 'nova-oferta', tipo: 'tarefa', raia: 'supervisor', col: 11, rotulo: 'Nova oferta + cronograma', fase: 'oferta', tela: '/oferta/proposta/2/nova', descricao: 'Escolhe a proposta aceita e os cursos; o sistema gera o cronograma por UC.', regras: ['Só dias úteis; pula os feriados nacionais (Super admin).', 'Semanas = CH ÷ horas por semana; UC termina na sexta.', 'UCs agrupáveis com outras turmas ficam marcadas.'] },
   { id: 'enviar-cron', tipo: 'tarefa', raia: 'supervisor', col: 12, rotulo: 'Enviar cronograma à DR', fase: 'oferta', tela: '/oferta/t2', descricao: 'Registra o envio (e-mail) com prazo de validação.' },
   { id: 'valida', tipo: 'decisao', raia: 'dr', col: 13, rotulo: 'Valida?', fase: 'oferta', fora: true, descricao: 'A DR valida ou pede ajuste. Sem resposta até o prazo, conta como validado.' },
   { id: 'ajuste', tipo: 'tarefa', raia: 'supervisor', col: 14, rotulo: 'Nova versão do cronograma', fase: 'oferta', tela: '/oferta/t2', descricao: 'Gera a versão seguinte com o que a DR pediu.' },
