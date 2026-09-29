@@ -57,7 +57,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
   const mudar = (i: number, k: number, patch: Partial<UcTurma>, texto: string) => {
     const modulos = comUc(t, i, k, patch)
     const todas = modulos.every((m) => m.unidades.every((u) => etapaDe(u) === 'Pronta'))
-    if (todas && !t.emailDrEm) registrar({ modulos, emailDrEm: agora() }, `${texto}. Estrutura pronta: e-mail à DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os estudantes no Moodle`)
+    if (todas && !t.emailDrEm) registrar({ modulos, emailDrEm: agora() }, `${texto}. Estrutura pronta: e-mail ao DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os estudantes no Moodle`)
     else registrar({ modulos }, texto)
   }
   const uc = (x: { i: number; k: number } | null) => (x ? t.modulos[x.i]?.unidades[x.k] : undefined)
@@ -90,8 +90,8 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
       {pronta && (
         <div className="flex flex-wrap items-center gap-3 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
           <CheckCircle2 className="size-5 shrink-0" />
-          <p className="min-w-0 flex-1">Estrutura pronta. {t.emailDrEm ? `E-mail enviado ao SENAI-${t.drContratante} em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os estudantes no Moodle.` : 'Falta avisar a DR.'}</p>
-          <Button size="sm" variant="outline" onClick={() => setEmailDr(true)}><Mail /> Ver e-mail à DR</Button>
+          <p className="min-w-0 flex-1">Estrutura pronta. {t.emailDrEm ? `E-mail enviado ao SENAI-${t.drContratante} em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os estudantes no Moodle.` : 'Falta avisar o DR.'}</p>
+          <Button size="sm" variant="outline" onClick={() => setEmailDr(true)}><Mail /> Ver e-mail ao DR</Button>
         </div>
       )}
 
@@ -215,7 +215,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
       <Dialog open={emailDr} onOpenChange={setEmailDr}>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle>E-mail à DR solicitante</DialogTitle>
+            <DialogTitle>E-mail ao DR solicitante</DialogTitle>
             <DialogDescription>Disparado quando todas as UCs ficam prontas.</DialogDescription>
           </DialogHeader>
           <Textarea readOnly rows={10} className="font-mono text-xs" value={[
@@ -230,7 +230,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
           ].join('\n')} />
           <DialogFooter>
             <Button variant="outline" onClick={() => setEmailDr(false)}>Fechar</Button>
-            {!t.emailDrEm && <Button onClick={() => (registrar({ emailDrEm: agora() }, `E-mail à DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os estudantes`), setEmailDr(false))}><Send /> Enviar agora</Button>}
+            {!t.emailDrEm && <Button onClick={() => (registrar({ emailDrEm: agora() }, `E-mail ao DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os estudantes`), setEmailDr(false))}><Send /> Enviar agora</Button>}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -256,15 +256,15 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
         {pronta ? <CheckCircle2 className="size-5" /> : <AlertTriangle className="size-5 text-muted-foreground" />}
         <p className="min-w-0 flex-1">
           {pronta
-            ? (t.emailDrEm ? `Estrutura pronta. E-mail à DR enviado em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os estudantes.` : 'Estrutura pronta: falta o e-mail à DR (aba UCs).')
-            : `Estrutura em preparação: ${ucs.filter((u) => etapaDe(u) === 'Pronta').length} de ${ucs.length} UCs prontas. A DR é avisada quando todas estiverem prontas.`}
+            ? (t.emailDrEm ? `Estrutura pronta. E-mail ao DR enviado em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os estudantes.` : 'Estrutura pronta: falta o e-mail ao DR (aba UCs).')
+            : `Estrutura em preparação: ${ucs.filter((u) => etapaDe(u) === 'Pronta').length} de ${ucs.length} UCs prontas. O DR é avisado quando todas estiverem prontas.`}
         </p>
       </section>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h3 className="font-semibold">Dados de integração para a DR</h3>
+            <h3 className="font-semibold">Dados de integração para o DR</h3>
             <p className="text-sm text-muted-foreground">Código CTM por escola + ID da sala de cada UC, para o SENAI-{t.drContratante} parametrizar no SGN/SGE. A integração roda 5 dias antes do início.</p>
           </div>
           <Button variant="outline" disabled={!pronta || !linhas.length} motivo="Disponível quando todas as UCs estiverem prontas" onClick={() => void navigator.clipboard.writeText([['Código CTM', 'UC', 'ID da sala', 'Início', 'Semestre'], ...linhas].map((l) => l.join('\t')).join('\n')).catch(() => {})}><Copy /> Copiar tabela</Button>
@@ -299,7 +299,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{e.nome} <span className="font-normal text-muted-foreground">· {e.cidade}</span></p>
                   <p className="text-xs text-muted-foreground tabular-nums">{integ} de {e.alunos} estudantes integrados no Moodle · código {codigoCtm(e.nome)}</p>
-                  {atraso && <p className="mt-1 flex items-center gap-1 text-xs font-medium text-amber-900"><AlertTriangle className="size-3.5" /> Faltam {Math.max(faltam, 0)} dia(s) para o início e a DR ainda não integrou todos os estudantes.</p>}
+                  {atraso && <p className="mt-1 flex items-center gap-1 text-xs font-medium text-amber-900"><AlertTriangle className="size-3.5" /> Faltam {Math.max(faltam, 0)} dia(s) para o início e o DR ainda não integrou todos os estudantes.</p>}
                 </div>
                 <Badge variant="secondary" className={cn(sit === 'Integrada' ? 'bg-emerald-100 text-emerald-800' : sit === 'Parcial' ? 'bg-amber-100 text-amber-800' : 'bg-muted text-muted-foreground')}>{sit}</Badge>
                 {/* Protótipo: simula a consulta ao serviço do Moodle (matriculados × integrados) */}

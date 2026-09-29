@@ -24,7 +24,7 @@ const ACOES: [string, string, string][] = [
   ['/oferta/nova', 'Nova oferta', '/oferta'],
   ['/gestao-produtos/novo', 'Novo produto', '/gestao-produtos'],
   ['/editais/novo', 'Novo edital', '/editais'],
-  ['/drs/novo', 'Nova DR credenciada', '/drs'],
+  ['/drs/novo', 'Novo DR credenciado', '/drs'],
   ['/equipe/nova', 'Nova pessoa', '/equipe'],
   ['/tratativas/nova', 'Nova tratativa', '/tratativas'],
   ['/admin/usuarios/novo', 'Novo usuário', '/admin/usuarios'],

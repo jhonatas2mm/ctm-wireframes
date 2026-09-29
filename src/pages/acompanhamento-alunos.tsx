@@ -54,7 +54,7 @@ export function AcompanhamentoAlunos() {
         return (
           <span className="block min-w-36">
             <span className={cn('block text-sm', tomSituacao[s.situacao])}>{s.situacao}{s.desde && ` · ${curto(s.desde)}`}</span>
-            {aguardandoDr(m) && <span className="block text-xs font-medium text-amber-700">Aguardando confirmação da DR</span>}
+            {aguardandoDr(m) && <span className="block text-xs font-medium text-amber-700">Aguardando confirmação do DR</span>}
             {m.contestada && <span className="block text-xs text-muted-foreground">DR contestou a desistência (falha de integração)</span>}
             <span className={cn('text-xs font-semibold', f ? 'text-emerald-700' : 'text-muted-foreground')}>{f ? (s.situacao === 'Desistente' || s.situacao === 'Trancado' ? 'Fatura (sai no próximo ciclo da UC)' : 'Fatura') : 'Não fatura'}</span>
           </span>
@@ -79,9 +79,9 @@ export function AcompanhamentoAlunos() {
         <div className="grid gap-1.5">
           <Label>DR solicitante</Label>
           <Select value={dr || 'todas'} onValueChange={(v) => set('dr', v === 'todas' ? '' : (v as string))}>
-            <SelectTrigger className="w-full"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Todas as DRs')}</SelectValue></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Todas os DRs')}</SelectValue></SelectTrigger>
             <SelectContent>
-              <SelectItem value="todas">Todas as DRs</SelectItem>
+              <SelectItem value="todas">Todas os DRs</SelectItem>
               {drs.map((d) => <SelectItem key={d} value={d}>SENAI-{d}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -110,8 +110,8 @@ export function AcompanhamentoAlunos() {
         <StatCard quebra label="Estudantes" value={String(alunos.length)} hint={`${alunos.filter((a) => a.integrado).length} integrados no AVA`} />
         <StatCard quebra label="Faturamentos no ciclo" value={String(faturas)} hint={`estudante × UC · ${ucs.length} UC(s) no ciclo`} />
         <StatCard quebra label="Estudantes com desistência ou trancamento" value={String(alunos.filter((a) => a.ucs.some((m) => m.status !== 'Matriculado')).length)} hint="Em ao menos uma UC; nas outras segue matriculado" />
-        <StatCard quebra label="Desistências aguardando a DR" value={String(alunos.reduce((n, a) => n + a.ucs.filter(aguardandoDr).length, 0))} hint="Estudante × UC; seguem faturando até a DR confirmar" />
-        <StatCard quebra label="Suspensos sem formalização" value={String(suspensos)} hint="Seguem faturando: cobrar a formalização da DR" />
+        <StatCard quebra label="Desistências aguardando o DR" value={String(alunos.reduce((n, a) => n + a.ucs.filter(aguardandoDr).length, 0))} hint="Estudante × UC; seguem faturando até o DR confirmar" />
+        <StatCard quebra label="Suspensos sem formalização" value={String(suspensos)} hint="Seguem faturando: cobrar a formalização do DR" />
       </div>
 
       <DataTable rows={alunos} columns={colunas} searchPlaceholder="Buscar estudante ou CPF…" />

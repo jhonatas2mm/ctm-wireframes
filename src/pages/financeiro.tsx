@@ -137,7 +137,7 @@ function SituacaoAlunos() {
         const x = formDe(a)
         return x
           ? <span className="text-sm text-muted-foreground">Para a partir de {dataBr(proximaCobranca(x.data))}</span>
-          : <span className="flex items-center gap-1.5 text-sm">Cobrado {divergente(a) && <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900" title="Suspenso no AVA sem formalização da DR"><AlertTriangle className="size-3" /> Sem formalização</Badge>}</span>
+          : <span className="flex items-center gap-1.5 text-sm">Cobrado {divergente(a) && <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900" title="Suspenso no AVA sem formalização do DR"><AlertTriangle className="size-3" /> Sem formalização</Badge>}</span>
       },
     },
   ]
@@ -170,7 +170,7 @@ function SituacaoAlunos() {
             <div className="flex shrink-0 gap-2">
               <Button variant="outline" onClick={() => ir('estudantes', d)}><Users className="text-primary" /> Ver estudantes</Button>
               <Button variant="outline" onClick={() => ir('acompanhamento', d)}><ClipboardList className="text-primary" /> Acompanhamento</Button>
-              <Button variant="outline" disabled={!relatorio} motivo="Nenhuma proposta aprovada com turmas para esta DR" onClick={() => relatorio && navigate(`/financeiro/cobranca/${relatorio.id}`)}><ReceiptText className="text-primary" /> Relatório de cobrança</Button>
+              <Button variant="outline" disabled={!relatorio} motivo="Nenhuma proposta aprovada com turmas para este DR" onClick={() => relatorio && navigate(`/financeiro/cobranca/${relatorio.id}`)}><ReceiptText className="text-primary" /> Relatório de cobrança</Button>
             </div>
           </div>
         )
@@ -182,7 +182,7 @@ function SituacaoAlunos() {
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} tom="blue" label="Estudantes cobrados" value={String(cobrados.length)} hint={`de ${alunos.length} matriculados`} />
         <StatCard icon={FileCheck2} tom="green" label="Saídas formalizadas" value={String(alunos.length - cobrados.length)} />
-        <StatCard icon={AlertTriangle} tom="amber" label="Suspensos no AVA sem formalização" value={String(alunos.filter(divergente).length)} hint="Cobrar formalização da DR" />
+        <StatCard icon={AlertTriangle} tom="amber" label="Suspensos no AVA sem formalização" value={String(alunos.filter(divergente).length)} hint="Cobrar formalização do DR" />
         <StatCard icon={CalendarClock} tom="gray" label="Formalizações de hoje entram em" value={dataBr(proximaCobranca(HOJE))} hint="Corte no dia 20; cobrança no dia 5" />
       </div>
       <div className="mb-6 flex flex-wrap gap-2">

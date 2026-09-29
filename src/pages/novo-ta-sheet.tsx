@@ -158,7 +158,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
                         </span>
                         <span className="shrink-0 text-right text-xs">
                           <span className="block font-medium">SENAI-{ctm}</span>
-                          <span className="block text-muted-foreground">{propria ? 'é a própria DR' : ja ? `já tem o TAA ${ja.numero} neste edital` : outra ? 'outra CTM: outro TAA' : 'aprovada no edital'}</span>
+                          <span className="block text-muted-foreground">{propria ? 'é a próprio DR' : ja ? `já tem o TAA ${ja.numero} neste edital` : outra ? 'outra CTM: outro TAA' : 'aprovada no edital'}</span>
                         </span>
                       </label>
                     </li>

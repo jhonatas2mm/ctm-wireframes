@@ -43,7 +43,7 @@ export default function TaaCtm() {
   const aberto = all.find((c) => c.id === ver) ?? null
   return (
     <>
-      <PageHeader title="TAAs com as DRs" actions={ctm && <Button onClick={() => navigate('/taas-ctm/novo')}><Send /> Novo TAA</Button>} />
+      <PageHeader title="TAAs com os DRs" actions={ctm && <Button onClick={() => navigate('/taas-ctm/novo')}><Send /> Novo TAA</Button>} />
       <DataTable
         rows={rows}
         columns={colunas}
@@ -148,7 +148,7 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
             <Label>DR destinatária <Req /></Label>
             {/* Um TAA por DR: escolhe uma só (as que já têm TAA desses produtos com esta CTM ficam indisponíveis) */}
             <Select value={destinos[0] ?? ''} onValueChange={(v) => v && setDestinos([String(v)])}>
-              <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v ? `SENAI-${v}` : 'Escolha a DR')}</SelectValue></SelectTrigger>
+              <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v ? `SENAI-${v}` : 'Escolha o DR')}</SelectValue></SelectTrigger>
               <SelectContent>
                 {drs.map((d) => {
                   const ja = jaTem(d.uf)
@@ -166,10 +166,10 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
           </div>
         </div>
         <SheetFooter className="flex-row items-center justify-between gap-4 border-t px-6 py-3">
-          <span className="text-sm text-muted-foreground">{destinos.length ? `Nº ${numeros.join(', ')}` : 'Escolha a DR'}</span>
+          <span className="text-sm text-muted-foreground">{destinos.length ? `Nº ${numeros.join(', ')}` : 'Escolha o DR'}</span>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!destinos.length || !escolhidos.length} motivo={!escolhidos.length ? 'Selecione ao menos um produto' : 'Escolha a DR destinatária'} onClick={enviar}><Send /> Salvar e enviar TAA</Button>
+            <Button disabled={!destinos.length || !escolhidos.length} motivo={!escolhidos.length ? 'Selecione ao menos um produto' : 'Escolha o DR destinatária'} onClick={enviar}><Send /> Salvar e enviar TAA</Button>
           </div>
         </SheetFooter>
       </SheetContent>

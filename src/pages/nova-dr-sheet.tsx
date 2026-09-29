@@ -28,7 +28,7 @@ export function NovaDrSheet({ open, onOpenChange }: { open: boolean; onOpenChang
     <Sheet open={open} onOpenChange={(v) => (v || reset(), onOpenChange(v))}>
       <SheetContent className="w-full gap-0 p-0 sm:max-w-2xl">
         <SheetHeader className="border-b px-6 py-4">
-          <SheetTitle className="text-lg">Nova DR credenciada</SheetTitle>
+          <SheetTitle className="text-lg">Novo DR credenciado</SheetTitle>
           <SheetDescription className="sr-only">Credenciar um Departamento Regional</SheetDescription>
         </SheetHeader>
         <form
@@ -48,7 +48,7 @@ export function NovaDrSheet({ open, onOpenChange }: { open: boolean; onOpenChang
               <Label>DR <Req /></Label>
               <Select value={uf} onValueChange={(v) => setUf(v as string)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue>{(v: string | null) => (v ? `SENAI-${v} · ${regioes[v]}` : 'Selecione a DR')}</SelectValue>
+                  <SelectValue>{(v: string | null) => (v ? `SENAI-${v} · ${regioes[v]}` : 'Selecione o DR')}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {livres.map((u) => <SelectItem key={u} value={u}>SENAI-{u} · {regioes[u]}</SelectItem>)}
@@ -74,7 +74,7 @@ export function NovaDrSheet({ open, onOpenChange }: { open: boolean; onOpenChang
         </form>
         <SheetFooter className="flex-row justify-end gap-2 border-t px-6 py-3">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button type="submit" form="nova-dr" disabled={!uf} motivo="Escolha o estado">Salvar DR credenciada</Button>
+          <Button type="submit" form="nova-dr" disabled={!uf} motivo="Escolha o estado">Salvar DR credenciado</Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>

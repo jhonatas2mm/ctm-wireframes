@@ -92,7 +92,7 @@ export default function GestaoProposta() {
     ['Estudantes', alunosProposta(p)],
     ['Valor (parametrizado pelo edital)', <span className="font-semibold">{brl(totalProposta(p))}</span>],
     ['CNPJ do contratante', p.cnpj ?? '—'],
-    ['Faturamento', p.faturamento === 'Escola' ? `Por escola: ${(p.escolas ?? []).join(', ') || '—'}` : 'Para a DR'],
+    ['Faturamento', p.faturamento === 'Escola' ? `Por escola: ${(p.escolas ?? []).join(', ') || '—'}` : 'Para o DR'],
     ['Nº no CRM', p.crm ?? '—'],
   ]
   const vincular = () => {

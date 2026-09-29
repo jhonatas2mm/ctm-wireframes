@@ -54,7 +54,7 @@ export default function Desistencias() {
     <>
       <PageHeader title="Confirmação de desistências" description={escolas ? `Escolas: ${escolas.join(', ')}` : undefined} />
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <StatCard icon={Hourglass} tom="amber" label="Aguardando confirmação" value={String(n('Aguardando'))} hint="O estudante segue faturando até a DR confirmar" />
+        <StatCard icon={Hourglass} tom="amber" label="Aguardando confirmação" value={String(n('Aguardando'))} hint="O estudante segue faturando até o DR confirmar" />
         <StatCard icon={CheckCircle2} tom="green" label="Confirmadas" value={String(n('Confirmada'))} />
         <StatCard icon={ShieldAlert} tom="gray" label="Contestadas" value={String(n('Contestada'))} hint="Falha de integração com o Moodle" />
       </div>

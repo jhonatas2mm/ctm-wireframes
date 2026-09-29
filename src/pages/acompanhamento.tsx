@@ -217,7 +217,7 @@ export function Painel() {
         actions={
           <Select value={contrato} onValueChange={(v) => setContrato(String(v))}>
             <SelectTrigger className="min-w-56 bg-card">
-              <SelectValue>{(v: string) => (v === 'todos' ? (d.global ? 'Todas as DRs e contratos' : 'Todos os contratos') : d.contratos.find((c) => c.id === v)?.empresa)}</SelectValue>
+              <SelectValue>{(v: string) => (v === 'todos' ? (d.global ? 'Todas os DRs e contratos' : 'Todos os contratos') : d.contratos.find((c) => c.id === v)?.empresa)}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos os contratos</SelectItem>

@@ -9,10 +9,10 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 0c1. **Feriados nacionais** (Super admin) — Feriados nacionais → Novo feriado.
 0c2. **Logs do sistema** (Super admin) — Logs do sistema → Detalhe do log (side nav): ações dos usuários na plataforma (login, visualizou, criou, editou com antes/depois, excluiu, aceitou/recusou, exportou, anexou).
 0d. **Supervisão das áreas** (Super admin) — Gestão de DRs → Editais → Propostas → Oferta.
-1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciadas → Nova DR credenciada. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
+1. **Cadastro de DRs** (DN) — início do sistema: Gestão de DRs credenciados → Novo DR credenciado. DR nasce Ativa; ações Editar e Inativar/Ativar na listagem.
 2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Coordenador EAD).
-3. **Envio de TAA às DRs** (CTM: Gestor EAD) — TAAs com as DRs → Novo TAA (um por DR) → Gestor da DR analisa → retorno para a CTM.
-4. **TAAs com CTMs** (DR solicitante: Gestor EAD) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado → TAA aceito (saldo).
+3. **Envio de TAA aos DRs** (CTM: Gestor EAD) — TAAs com os DRs → Novo TAA (um por DR) → Gestor do DR analisa → retorno para a CTM.
+4. **TAAs com CTMs** (DR solicitante: Gestor EAD) — lista → TAA recebido (analisar) → Novo TAA (o DR também cria) → Retornado → TAA aceito (saldo).
 5. **Criação de portfólio** (CTM: Coordenador EAD) — Gestão de Portfólio → Novo produto (produtos de um edital).
 5a. **Aprovação de portfólio** (DN) — Aprovação de portfólio → Portfólio das CTMs.
 5b. **Portfólio das CTMs** (DR solicitante: Gestor EAD) — consulta do portfólio aprovado.
@@ -34,15 +34,15 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **Super admin** (provisório) — administra usuários, perfis/permissões, auditoria, logs e feriados; vê todas as telas e **os dados de toda a plataforma**.
 - **DN** — cria e gerencia editais (com a CTM aprovada por produto), aprova o portfólio e faz a gestão de DRs. **Não contrata CTM** e não gerencia TAAs.
 - **CTM** (SENAI-MG) — caixas:
-  - **Gestor EAD** (antes Gestor EAD) — responsável por TAAs com as DRs, propostas (responsável na proposta), aditivos, financeiro e relatório de cobrança.
+  - **Gestor EAD** (antes Gestor EAD) — responsável por TAAs com os DRs, propostas (responsável na proposta), aditivos, financeiro e relatório de cobrança.
   - **Coordenador EAD** (antes Coordenador EAD + PCP) — portfólio, oferta/turmas, cronograma, equipe e alocação por UC (PCP), tratativas.
   - **Coordenador Pedagógico** (antes Pedagógico) — planejamento das UCs e tratativas pedagógicas.
   - **Tutor** — avalia o planejamento das UCs. **Monitor** — cria as salas no Moodle e parametriza as avaliações.
   - Acessos às telas: Gestor EAD e Coordenador EAD mantêm o acesso amplo que já tinham (as responsabilidades acima definem quem conduz cada jornada).
 - **DR solicitante** — caixas:
-  - **Gestor EAD** e **Coordenador EAD** — a DR toda: TAAs com CTMs, portfólio, acompanhamento (painel, contratos, turmas, alunos) e confirmação de desistências. O TAA registra o **Gestor solicitante** (nome e cargo).
+  - **Gestor EAD** e **Coordenador EAD** — o DR toda: TAAs com CTMs, portfólio, acompanhamento (painel, contratos, turmas, alunos) e confirmação de desistências. O TAA registra o **Gestor solicitante** (nome e cargo).
   - **Gestor Escolar** e **Coordenador Escolar** — os **mesmos acessos**, porém **vinculados a uma ou mais escolas**: só veem os dados (alunos, desistências) das suas escolas. No protótipo: Gestor Escolar = SENAI Maracanã; Coordenador Escolar = SENAI Maracanã e SENAI Tijuca (SENAI-RJ). Por enquanto o filtro por escola está aplicado na Confirmação de desistências.
-- Uma mesma DR pode ser **CTM** (ofertante) e **DR solicitante** (contratante) — são perfis diferentes.
+- Uma mesmo DR pode ser **CTM** (ofertante) e **DR solicitante** (contratante) — são perfis diferentes.
 
 ## Acompanhamento (DR solicitante)
 - Contrato = DR solicitante ↔ CTM, com empresa cliente, só cursos EAD, vigência, valor, vagas e status (Vigente / Em elaboração / Encerrado).
@@ -51,14 +51,14 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Situação do aluno: **Evadido** (sem acesso há mais de 30 dias), **Em risco** (algum alerta), **Em dia**.
 
 ## TAA (Termo de Acordo Administrativo)
-- **TAA sempre vinculado a um edital**, e **um TAA por edital para cada par CTM × DR solicitante** (cancelado não conta). Com um TAA em andamento, um **novo edital** permite **novo TAA** para a mesma CTM e DR (ex.: SENAI-SP com a CTM SENAI-MG: TAA 006/2026 do ED-001 aceito e TAA 013/2026 do ED-002 em análise). Nas telas de criação (CTM e DR), a DR/CTM que já tem TAA naquele edital fica bloqueada com o nº do TAA existente; produto novo do mesmo edital entra no TAA existente (ajuste), não em outro.
+- **TAA sempre vinculado a um edital**, e **um TAA por edital para cada par CTM × DR solicitante** (cancelado não conta). Com um TAA em andamento, um **novo edital** permite **novo TAA** para a mesma CTM e DR (ex.: SENAI-SP com a CTM SENAI-MG: TAA 006/2026 do ED-001 aceito e TAA 013/2026 do ED-002 em análise). Nas telas de criação (CTM e DR), o DR/CTM que já tem TAA naquele edital fica bloqueada com o nº do TAA existente; produto novo do mesmo edital entra no TAA existente (ajuste), não em outro.
 - **Um TAA para cada DR específica** (não é guarda-chuva), com edital, **produtos**, vigência e valor global. A CTM do TAA é a **aprovada no edital** (menor custo) para esses produtos. Nunca chamar de "TA" ou "Termo de Adesão".
-- **Caminho normal**: a CTM que ganhou o edital **envia** o TAA para cada DR (tela **TAAs com as DRs**, `/taas-ctm`; escolhe **uma DR** por TAA). O **Gestor** da DR solicitante analisa. A DR também pode criar o seu (`/dashboard`), e aí quem analisa é a CTM.
+- **Caminho normal**: a CTM que ganhou o edital **envia** o TAA para cada DR (tela **TAAs com os DRs**, `/taas-ctm`; escolhe **um DR** por TAA). O **Gestor** do DR solicitante analisa. O DR também pode criar o seu (`/dashboard`), e aí quem analisa é a CTM.
 - **TAA é entre SENAI e SENAI**. **SESI não entra na v1** (sem perfil, contrato ou dados do SESI). **O DN não contrata CTM.**
 - **Status**: *Encaminhado* → *Em análise* (quem analisa abriu) → **Aceito**, **Retornado** (com motivo; quem criou ajusta vigência/valor e reencaminha) ou **Cancelado** (recusa, com motivo, ou cancelamento por quem criou antes do aceite). Tudo fica no **histórico** do TAA.
 - **Aceito é burocrático**: destrava a **negociação da oferta**, que dá origem às **propostas** (só contratante com TAA/contrato aceito e vigente entra na Nova proposta). Um TAA aceito pode não gerar nenhuma proposta ou atividade. O termo assinado é anexado depois do aceite ("Anexar assinado").
 - **Saldo** (TAA aceito) = valor global − executado (valor das propostas aceitas entre o contratante e a CTM nos produtos do TAA). Aparece na lista (coluna Saldo) e nos detalhes (barra executado/saldo).
-- No aceite pelo Gestor da DR, ele fica registrado como **Gestor solicitante**.
+- No aceite pelo Gestor do DR, ele fica registrado como **Gestor solicitante**.
 
 ## Edital (DN)
 - **Só o DN faz a gestão de editais** (Gestão de Editais: DN e Super admin). As CTMs **apenas participam** (oferecem o custo, fora do sistema); no sistema só consultam o edital (somente leitura) ao cadastrar produtos e montar TAAs.
@@ -70,12 +70,12 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 ## Portfólio das CTMs
 - Cada CTM registra seus **produtos** (módulos → UCs), com **versões** (v1, v2…; a anterior não muda).
 - **Novo produto** e **nova versão** são **solicitações**: ficam *Aguardando* até o **DN** decidir em **Aprovação de portfólio** (`/portfolio/aprovacoes`): **Aprovar** ou **Reprovar** (com motivo, que a CTM vê). Enquanto houver versão pendente, não se abre outra.
-- Só versões **aprovadas** entram no **Portfólio das CTMs** (`/portfolio`, visível para **todas as DRs**, somente leitura) e são usadas na oferta (matriz = última versão aprovada).
-- Cada versão pode ter **vínculo com o itinerário** (outro sistema; botão "Vincular ao itinerário", feito pela DR/CTM; integração a detalhar) e **documentos/materiais** vinculados (nome, tipo, link — o arquivo fica no repositório/drive). Nova versão copia os vínculos.
+- Só versões **aprovadas** entram no **Portfólio das CTMs** (`/portfolio`, visível para **todas os DRs**, somente leitura) e são usadas na oferta (matriz = última versão aprovada).
+- Cada versão pode ter **vínculo com o itinerário** (outro sistema; botão "Vincular ao itinerário", feito pelo DR/CTM; integração a detalhar) e **documentos/materiais** vinculados (nome, tipo, link — o arquivo fica no repositório/drive). Nova versão copia os vínculos.
 - Na Gestão de Portfólio da CTM, cada linha é um produto: última versão, situação, versão no portfólio, itinerário, nº de documentos e de propostas.
 
 ## Produto (Coordenador EAD)
-- "Novo produto" abre em 3 colunas na mesma tela, sem etapas: **Edital** (escolhe apenas um) → **Produtos** do edital em que a DR é a **CTM aprovada** (um ou mais) → **Módulos e UCs** do produto ativo.
+- "Novo produto" abre em 3 colunas na mesma tela, sem etapas: **Edital** (escolhe apenas um) → **Produtos** do edital em que o DR é a **CTM aprovada** (um ou mais) → **Módulos e UCs** do produto ativo.
 - Trocar o edital limpa a seleção.
 - Salvar exige ao menos um produto marcado (módulos e UCs incompletos não bloqueiam).
 
@@ -103,10 +103,10 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Datas dos encontros presenciais: um por semana no **dia do presencial** da turma (padrão segunda); se a UC tem mais semanas que encontros, a 1ª semana é só a distância; semana com feriado fica sem encontro.
 
 ### Validação do cronograma e status da turma
-- Cronograma tem **versão** e situação: *Rascunho* → *Aguardando* (registra o envio à DR com **prazo**) → *Validado* (DR validou ou **passou o prazo sem resposta**). "DR pediu ajuste" gera a **próxima versão** (novo início + o que a DR pediu) e volta a Rascunho.
-- Status da turma: **A iniciar** → **Buscar tutor** (ação "Confirmar turma", só com cronograma validado: a DR confirmou que a turma vai começar; libera o PCP e a criação de salas) → **Em andamento** (a partir do início) → **Finalizada** (depois do término). **Cancelada** a qualquer momento antes do fim, com motivo (a DR deve avisar com 10 dias).
+- Cronograma tem **versão** e situação: *Rascunho* → *Aguardando* (registra o envio ao DR com **prazo**) → *Validado* (DR validou ou **passou o prazo sem resposta**). "DR pediu ajuste" gera a **próxima versão** (novo início + o que o DR pediu) e volta a Rascunho.
+- Status da turma: **A iniciar** → **Buscar tutor** (ação "Confirmar turma", só com cronograma validado: o DR confirmou que a turma vai começar; libera o PCP e a criação de salas) → **Em andamento** (a partir do início) → **Finalizada** (depois do término). **Cancelada** a qualquer momento antes do fim, com motivo (o DR deve avisar com 10 dias).
 - **Prorrogar início**: nova data + motivo; todas as datas (UCs e aulas ao vivo) andam junto, sem aditivo. Só antes de começar.
-- **Dia do encontro presencial** (informado pela DR) e **escolas da turma** (nome, cidade, alunos) ficam na aba Cronograma.
+- **Dia do encontro presencial** (informado pelo DR) e **escolas da turma** (nome, cidade, alunos) ficam na aba Cronograma.
 - **Aulas ao vivo são por UC** (um dia com horário), definidas pelo PCP na matriz da aba Cronograma.
 
 ### UCs da turma (aba UCs)
@@ -117,11 +117,11 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
   2. **Pedagógico** planeja: **dias das aulas ao vivo (online)** e **atividades presenciais** → envia ao tutor (**Em avaliação do tutor**).
   3. **Tutor** avalia: **aprova** ou **devolve** ao pedagógico com motivo (volta a Em planejamento, com o motivo visível).
   4. Aprovado: **e-mail ao monitor** para **parametrizar as avaliações no Moodle** (**Parametrizar avaliações**); feito isso, a UC fica **Pronta**.
-- Com **todas as UCs prontas** (estrutura pronta), sai o **e-mail à DR solicitante** para ajustar o **SGN/SGE** e integrar os alunos no Moodle.
+- Com **todas as UCs prontas** (estrutura pronta), sai o **e-mail ao DR solicitante** para ajustar o **SGN/SGE** e integrar os alunos no Moodle.
 - Tutor e Monitor deixaram de ser caixas "em avaliação": fazem parte do fluxo.
 
 ### Integração com o Moodle (aba Integração)
-- As salas são criadas por UC (aba UCs). Aqui: aviso de estrutura pronta/e-mail à DR, **dados de integração** (código CTM por escola + ID da sala de cada UC + início + semestre, "Copiar tabela") e **situação da integração** por escola, com alerta quando faltam 5 dias ou menos para o início.
+- As salas são criadas por UC (aba UCs). Aqui: aviso de estrutura pronta/e-mail ao DR, **dados de integração** (código CTM por escola + ID da sala de cada UC + início + semestre, "Copiar tabela") e **situação da integração** por escola, com alerta quando faltam 5 dias ou menos para o início.
 
 ## Feriados nacionais (Super admin)
 - Tela **Feriados nacionais** (`/admin/feriados`, só Super admin): **Novo feriado** (manual), **Buscar feriados**, **Visualizar calendário** e, por linha, **Desconsiderar** (com confirmação) / **Considerar**. Não há editar nem excluir.
@@ -138,31 +138,31 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Indicadores: retornos pendentes até hoje, alunos em alerta de desistência, tratativas sem retorno.
 
 ## Financeiro (CTM)
-- A CTM **cobra o aluno até a DR formalizar a saída** (desistente, trancado, validado, transferido). Status no AVA sem formalização não para a cobrança: vira alerta "Sem formalização".
+- A CTM **cobra o aluno até o DR formalizar a saída** (desistente, trancado, validado, transferido). Status no AVA sem formalização não para a cobrança: vira alerta "Sem formalização".
 - A formalização é registrada no sistema (antes era por e-mail), com data e a partir de quando deixa de cobrar (UC em andamento ou próxima UC).
 - **Corte no dia 20**: formalizações até o dia 20 saem da cobrança do dia 5 do mês seguinte; depois do dia 20, da cobrança do mês subsequente.
 - Resumo de alunos cobrados por escola.
-- **Situação dos alunos** abre com as **DRs solicitantes em cards** (sem select): cada card traz alunos, cobrados, saídas formalizadas e suspensos sem formalização, com as ações **Ver alunos**, **Acompanhamento** (abre a aba já na DR) e **Relatório de cobrança** (proposta aprovada da DR). "Todas as DRs" volta aos cards.
+- **Situação dos alunos** abre com as **DRs solicitantes em cards** (sem select): cada card traz alunos, cobrados, saídas formalizadas e suspensos sem formalização, com as ações **Ver alunos**, **Acompanhamento** (abre a aba já no DR) e **Relatório de cobrança** (proposta aprovada do DR). "Todas os DRs" volta aos cards.
 - Três visões (abas): **Situação dos alunos** (DRs em cards; escolher uma abre os alunos, com breadcrumb Financeiro > SENAI-XX), **Acompanhamento dos alunos** e **Relatório de cobrança**.
 - **Ciclo financeiro** (mês de cobrança) = janela do **dia 21 do mês anterior ao dia 20** do mês (corte no dia 20).
 - **Acompanhamento dos alunos** (relatório geral, no lugar da planilha da CTM): escolhe **turma** e **ciclo**; cada aluno com e-mail, telefone, CPF, escola, **status geral** (Matriculado, Desistente, Trancado), **data de saída** e **monitor**; uma coluna por **UC do ciclo** com a situação (**Ativo**, **Suspenso** desde a data, **Não integrado nesta UC**) e se **fatura**. Indicadores: alunos (integrados), faturamentos aluno × UC, desistentes/trancados e suspensos sem formalização. Exporta planilha; atalho para o relatório de cobrança da proposta.
-  - **Situação do aluno é sempre por UC** (não por turma/curso): o aluno tem uma matrícula em cada UC (Matriculado, **Desistente**, **Trancado**; suspenso no AVA é marcação da UC). Pode estar **matriculado numa UC e desistente/evadido em outra** da mesma turma. A coluna "Situação nas UCs" é só o resumo da linha (ex.: *Desistente em 1 UC · matriculado em 3*); cada coluna de UC mostra a situação naquela UC. A **confirmação da DR** e a **cobrança** também são por aluno × UC (a saída numa UC não tira o aluno das outras).
-  - **Desistência = dupla checagem**: o status Desistente vem do **Moodle** (pode ser falha de integração), então a **DR solicitante confirma** (tela **Confirmação de desistências**, `/desistencias`, menu Execução da DR — uma linha por aluno × UC): **Confirmar** — a saída vale a partir da data do Moodle e o aluno deixa de faturar nas UCs seguintes; **Contestar** (com motivo) — falha de integração, o aluno segue **Matriculado** e faturando. Dá para desfazer (volta a aguardar). Enquanto aguarda a DR, o aluno aparece como *Desistente · aguardando confirmação da DR*, a situação na UC é **Desistente no Moodle** e **continua faturando**. Trancamento já chega formalizado. A CTM recebe uma **notificação** por turma com desistências no Moodle aguardando a DR.
-  - **Fatura** a UC no ciclo: UC em andamento na janela, aluno integrado nela (ativo ou suspenso sem formalização — a CTM cobra até a DR formalizar) e sem saída **confirmada pela DR** (ou trancamento) antes do início da janela. UC que começa depois da saída = não integrado. Aluno não integrado pela DR (SGN/SGE) não fatura.
-- **Ciclo de faturamento é por UC**: cada UC tem o seu dia de **fechamento** (padrão 20; ajustável no detalhe da UC, no cronograma da turma, de 1 a 28). A janela da UC vai do dia seguinte ao fechamento no mês anterior até o fechamento no mês; a cobrança do mês junta, de cada UC, a janela que fecha nele. Evasão/desistência **confirmada pela DR fora do ciclo** da UC (depois do fechamento) só desconta no **próximo ciclo daquela UC**. Relatório de cobrança mostra a coluna **Ciclo da UC**; o acompanhamento mostra a janela no cabeçalho de cada UC. Exemplos: Soldagem MIG/MAG fecha dia 5; Mecânica aplicada, dia 10.
-- **Cobrança é mensal**: cada mês (ciclo) tem a sua quantidade de alunos — pode ter mais (UC nova, aluno integrado) ou menos. **Desistência confirmada pela DR** (ou trancamento) tira o aluno a partir da **cobrança seguinte** à confirmação (corte no dia 20); enquanto só no Moodle, segue cobrada.
-- **Relatório de cobrança** (modelo da planilha da CTM, usado para cobrar a DR solicitante): a CTM escolhe a **proposta aprovada** (com turmas) e abre o relatório (`/financeiro/cobranca/:id`). Cabeçalho com dados do cliente e serviço (instituição, CNPJ, TAA, serviço, e-mails da cobrança) e **ciclo financeiro** (mês).
+  - **Situação do aluno é sempre por UC** (não por turma/curso): o aluno tem uma matrícula em cada UC (Matriculado, **Desistente**, **Trancado**; suspenso no AVA é marcação da UC). Pode estar **matriculado numa UC e desistente/evadido em outra** da mesma turma. A coluna "Situação nas UCs" é só o resumo da linha (ex.: *Desistente em 1 UC · matriculado em 3*); cada coluna de UC mostra a situação naquela UC. A **confirmação do DR** e a **cobrança** também são por aluno × UC (a saída numa UC não tira o aluno das outras).
+  - **Desistência = dupla checagem**: o status Desistente vem do **Moodle** (pode ser falha de integração), então a **DR solicitante confirma** (tela **Confirmação de desistências**, `/desistencias`, menu Execução do DR — uma linha por aluno × UC): **Confirmar** — a saída vale a partir da data do Moodle e o aluno deixa de faturar nas UCs seguintes; **Contestar** (com motivo) — falha de integração, o aluno segue **Matriculado** e faturando. Dá para desfazer (volta a aguardar). Enquanto aguarda o DR, o aluno aparece como *Desistente · aguardando confirmação do DR*, a situação na UC é **Desistente no Moodle** e **continua faturando**. Trancamento já chega formalizado. A CTM recebe uma **notificação** por turma com desistências no Moodle aguardando o DR.
+  - **Fatura** a UC no ciclo: UC em andamento na janela, aluno integrado nela (ativo ou suspenso sem formalização — a CTM cobra até o DR formalizar) e sem saída **confirmada pelo DR** (ou trancamento) antes do início da janela. UC que começa depois da saída = não integrado. Aluno não integrado pelo DR (SGN/SGE) não fatura.
+- **Ciclo de faturamento é por UC**: cada UC tem o seu dia de **fechamento** (padrão 20; ajustável no detalhe da UC, no cronograma da turma, de 1 a 28). A janela da UC vai do dia seguinte ao fechamento no mês anterior até o fechamento no mês; a cobrança do mês junta, de cada UC, a janela que fecha nele. Evasão/desistência **confirmada pelo DR fora do ciclo** da UC (depois do fechamento) só desconta no **próximo ciclo daquela UC**. Relatório de cobrança mostra a coluna **Ciclo da UC**; o acompanhamento mostra a janela no cabeçalho de cada UC. Exemplos: Soldagem MIG/MAG fecha dia 5; Mecânica aplicada, dia 10.
+- **Cobrança é mensal**: cada mês (ciclo) tem a sua quantidade de alunos — pode ter mais (UC nova, aluno integrado) ou menos. **Desistência confirmada pelo DR** (ou trancamento) tira o aluno a partir da **cobrança seguinte** à confirmação (corte no dia 20); enquanto só no Moodle, segue cobrada.
+- **Relatório de cobrança** (modelo da planilha da CTM, usado para cobrar o DR solicitante): a CTM escolhe a **proposta aprovada** (com turmas) e abre o relatório (`/financeiro/cobranca/:id`). Cabeçalho com dados do cliente e serviço (instituição, CNPJ, TAA, serviço, e-mails da cobrança) e **ciclo financeiro** (mês).
   - Uma linha por **turma × escola × UC** em andamento no ciclo: curso/modalidade, escola-município, código da turma, UC, CH total, período, **CH cobrada** (CH da UC proporcional aos dias da UC dentro da janela do ciclo — hipótese a validar), **nº de alunos** (os que **faturam** a UC no ciclo, do Acompanhamento dos alunos), **valor aluno/hora** (valor do aluno no edital ÷ CH do curso) e valor total; link de acesso para conferência.
-  - **Juntar propostas**: o relatório pode agrupar várias propostas aprovadas **da mesma DR e do mesmo TAA** (bloco "Propostas neste relatório", `?propostas=`); a CTM pode ter várias propostas no mesmo TAA. **TAA diferente não entra** (nem aparece como opção). Com mais de uma, a tabela ganha a coluna Proposta; os ajustes das propostas escolhidas entram juntos. Na lista, a coluna "Mesmo TAA" mostra as outras propostas aprovadas do TAA.
+  - **Juntar propostas**: o relatório pode agrupar várias propostas aprovadas **da mesmo DR e do mesmo TAA** (bloco "Propostas neste relatório", `?propostas=`); a CTM pode ter várias propostas no mesmo TAA. **TAA diferente não entra** (nem aparece como opção). Com mais de uma, a tabela ganha a coluna Proposta; os ajustes das propostas escolhidas entram juntos. Na lista, a coluna "Mesmo TAA" mostra as outras propostas aprovadas do TAA.
   - **Ajustes de cobrança**: linhas extras do ciclo (ex.: aluno integrado depois da cobrança anterior), com observação; listadas em Observações.
-  - Navegação mês a mês (anterior/próximo) e bloco **em relação ao mês anterior**: alunos cobrados no mês × mês anterior, quantos entraram e a lista de quem saiu (desistência confirmada pela DR ou trancamento, com a data). Total do ciclo e **vencimento** (dia 28 do mês seguinte — hipótese); exporta planilha (CSV) ou imprime/PDF.
+  - Navegação mês a mês (anterior/próximo) e bloco **em relação ao mês anterior**: alunos cobrados no mês × mês anterior, quantos entraram e a lista de quem saiu (desistência confirmada pelo DR ou trancamento, com a data). Total do ciclo e **vencimento** (dia 28 do mês seguinte — hipótese); exporta planilha (CSV) ou imprime/PDF.
 
 ## Proposta comercial (CTM)
 - A proposta é **sempre criada pela CTM**. A **negociação é fora do sistema**; quando avança, a CTM cria a proposta **vinculada a um TAA/contrato aceito** (Gestão de propostas → Nova proposta).
 - **Responsável**: o **Gestor EAD** (fica registrado na proposta).
 - **Conteúdo**: início e fim; **cursos** = produtos do TAA, cada um com **quantidade de alunos** e início previsto; **matriz curricular** do portfólio (última versão aprovada, só leitura); **valor parametrizado pelo edital** = valor do curso no edital × alunos (não se digita). Também CNPJ, faturamento, nº CRM, link/anexo do documento.
 - O mesmo curso pode entrar em várias propostas do mesmo TAA (ex.: T01, T02).
-- **Status** (quem muda é o Gestor EAD, registrando o retorno da DR solicitante): **Rascunho** → **Em andamento** → **Aguardando** → **Aprovado**; ou **Cancelado** (com motivo). Rascunho pode ser excluído.
+- **Status** (quem muda é o Gestor EAD, registrando o retorno do DR solicitante): **Rascunho** → **Em andamento** → **Aguardando** → **Aprovado**; ou **Cancelado** (com motivo). Rascunho pode ser excluído.
 - **Versões**: a proposta vai e vem — "Nova versão" guarda a atual em *Versões* (com o que mudou) e cria a vN+1; tudo fica no **histórico**.
 - **Saldo do TAA**: propostas **aprovadas** executam o saldo (valor do TAA − propostas aprovadas vinculadas). A Nova proposta mostra o saldo e avisa se passar.
 - **Depois de aprovada**: vincula-se a **equipe técnica** (supervisor e analista) na Gestão da proposta; ela define o **cronograma** e avalia o **agrupamento de UCs** (UCs iguais entre turmas de DRs iguais ou diferentes rodam juntas — aulas ao vivo no Moodle). A proposta aprovada segue para o **processo de turmas** ("Criar turmas" → Nova oferta, já com supervisor e analista).
@@ -171,11 +171,11 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 
 - **Aditivo**: a proposta tem o nº de alunos por curso. Se as salas do Moodle das turmas da proposta (aprovada) tiverem **mais alunos do que a proposta**, a CTM recebe uma **notificação** (sino no topo, à esquerda do avatar, perfis CTM e Super admin) para fazer um **aditivo**. Na Gestão da proposta aparece o aviso com **Fazer aditivo** (também na lista de propostas); o aditivo é uma **nova versão** da proposta (permitida mesmo aprovada) com os alunos do Moodle já preenchidos e o motivo; a versão anterior fica no histórico. Status segue Aprovado (hipótese). Alunos no Moodle = integrados de cada escola da turma.
 ## Pendências (reunião de processos de 28/09/2026)
-- **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (à DR, prazos, integração). Hoje os avisos aparecem só nas telas.
-- **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesma DR.
+- **Avisos do sistema**: a regra "o sistema não envia nada" conflita com os avisos pedidos (ao DR, prazos, integração). Hoje os avisos aparecem só nas telas.
+- **Curso repetido**: "cada curso só em uma proposta" conflita com T01/T02 do mesmo curso para a mesmo DR.
 - **Código da turma**: padrão citado = curso/modalidade + nº sequencial por DR + ano/semestre de início (ex.: T02MS, 2026-1).
 - **CH na Nova oferta**: hoje a soma das CHs acima da CH do produto **bloqueia** o "Salvar oferta", o que conflita com o padrão "nenhum campo bloqueia o protótipo". A definir: manter como regra estrutural ou só avisar (total em vermelho) sem bloquear.
-- Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, perfil Analista, acesso da DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
+- Ainda não feito: modelo de TAA versionado por edital, áreas tecnológicas e saldo do teto no TAA, perfil Analista, acesso do DR contratante para validar cronograma e formalizar saídas, média EAD por DR e devolução de notas, pesquisas do AVA, vitrine das CTMs.
 
 ## Percurso (histórico de decisões)
 - 2026-09-28 — Removidos "Salvar e enviar" e o fluxo de envio/aceite duplo. A proposta só é criada e depois marcada como aceita.
@@ -311,3 +311,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Skeleton animado** de carregamento em todas as telas (título, indicadores e tabela), por ~0,45 s ao entrar numa tela; abrir sheet/detalhe da mesma tela não dispara.
 - 2026-09-29 — Agente inteligente: respostas fixas (mockadas por perfil), sem depender dos dados salvos no navegador.
 - 2026-09-29 — **Agente inteligente removido** (botão no topo, chat e jornada de exemplo).
+- 2026-09-29 — Nomenclatura: **DR no masculino** (Departamento Regional) em todos os textos: botão **Novo DR credenciado**, "o DR", "do DR", "DRs credenciados".

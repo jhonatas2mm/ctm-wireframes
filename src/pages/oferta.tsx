@@ -418,7 +418,7 @@ function OfertaSucesso({ turmas, onClose, onVer }: { turmas: Turma[]; onClose: (
             <CheckCircle2 className="size-14 text-emerald-600" />
             <div className="grid gap-1">
               <DialogTitle className="text-xl">{uma ? 'Oferta criada com sucesso' : `${turmas.length} ofertas criadas com sucesso`}</DialogTitle>
-              <DialogDescription>Proposta {turmas[0].propostaNumero} · SENAI-{turmas[0].drContratante}. Cronograma v1 em rascunho: revise e envie à DR para validação em Ver oferta.</DialogDescription>
+              <DialogDescription>Proposta {turmas[0].propostaNumero} · SENAI-{turmas[0].drContratante}. Cronograma v1 em rascunho: revise e envie ao DR para validação em Ver oferta.</DialogDescription>
             </div>
             <ul className="w-full divide-y rounded-lg border text-left bg-card">
               {turmas.map((t) => (

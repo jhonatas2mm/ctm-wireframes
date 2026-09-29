@@ -97,13 +97,13 @@ export default function OfertaDetalhe() {
             {/* Confirmar turma = a DR confirmou que vai começar: libera o PCP (Buscar tutor) e a criação das salas */}
             {aberta && (
               <Button
-                disabled={sitCron !== 'Validado'} motivo="O cronograma precisa estar validado pela DR"
-                title={sitCron !== 'Validado' ? 'O cronograma precisa estar validado pela DR' : undefined}
+                disabled={sitCron !== 'Validado'} motivo="O cronograma precisa estar validado pelo DR"
+                title={sitCron !== 'Validado' ? 'O cronograma precisa estar validado pelo DR' : undefined}
                 onClick={() => confirmar({
                   titulo: 'Confirmar a turma?',
                   descricao: `O SENAI-${t.drContratante} confirmou que a turma vai começar. O status passa a Buscar tutor e o PCP começa a alocar a equipe.`,
                   acao: 'Confirmar turma',
-                  onConfirmar: () => registrar({ fase: 'Buscar tutor' }, 'Turma confirmada pela DR: status Buscar tutor'),
+                  onConfirmar: () => registrar({ fase: 'Buscar tutor' }, 'Turma confirmada pelo DR: status Buscar tutor'),
                 })}
               >
                 <CheckCircle2 /> Confirmar turma
@@ -146,12 +146,12 @@ export default function OfertaDetalhe() {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">Cronograma v{cron.versao} · {sitCron}</p>
                 <p className="text-sm text-muted-foreground">
-                  {sitCron === 'Rascunho' && 'Revise as datas e envie à DR contratante para validação (o envio é feito fora do sistema).'}
+                  {sitCron === 'Rascunho' && 'Revise as datas e envie ao DR contratante para validação (o envio é feito fora do sistema).'}
                   {sitCron === 'Aguardando' && `Aguardando o SENAI-${t.drContratante} até ${dataBr(cron.prazo)} (faltam ${diasEntre(HOJE, cron.prazo ?? HOJE)} dias). Sem resposta até lá, o cronograma conta como validado.`}
-                  {sitCron === 'Validado' && (cron.situacao === 'Aguardando' ? `Validado por prazo em ${dataBr(cron.prazo)} (a DR não respondeu).` : `Validado pela DR em ${dataBr(cron.validadoEm)}.`)}
+                  {sitCron === 'Validado' && (cron.situacao === 'Aguardando' ? `Validado por prazo em ${dataBr(cron.prazo)} (o DR não respondeu).` : `Validado pelo DR em ${dataBr(cron.validadoEm)}.`)}
                 </p>
               </div>
-              {aberta && sitCron === 'Rascunho' && <Button onClick={() => abrir('enviar', somar(HOJE, 10))}><Send /> Marcar como enviado à DR</Button>}
+              {aberta && sitCron === 'Rascunho' && <Button onClick={() => abrir('enviar', somar(HOJE, 10))}><Send /> Marcar como enviado ao DR</Button>}
               {aberta && sitCron === 'Aguardando' && (
                 <Button onClick={() => registrar({ cronograma: { ...cron, situacao: 'Validado', validadoEm: HOJE } }, `Cronograma v${cron.versao} validado pelo SENAI-${t.drContratante}`)}><CheckCircle2 /> Registrar validação</Button>
               )}
@@ -162,7 +162,7 @@ export default function OfertaDetalhe() {
               <div className="grid content-start gap-1.5">
                 <Label>Dia do encontro presencial</Label>
                 <Select value={t.diaPresencial ?? null} onValueChange={(v) => registrar({ diaPresencial: v as string }, `Dia do presencial: ${v}`)}>
-                  <SelectTrigger className="w-full"><SelectValue>{(v: string | null) => v ?? 'Informado pela DR'}</SelectValue></SelectTrigger>
+                  <SelectTrigger className="w-full"><SelectValue>{(v: string | null) => v ?? 'Informado pelo DR'}</SelectValue></SelectTrigger>
                   <SelectContent>{diasSemana.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">O PCP usa para marcar as aulas ao vivo em outro dia.</p>
@@ -183,7 +183,7 @@ export default function OfertaDetalhe() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">Nenhuma escola. As escolas vêm do cadastro da DR e podem mudar de uma UC para outra.</p>
+                  <p className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground">Nenhuma escola. As escolas vêm do cadastro do DR e podem mudar de uma UC para outra.</p>
                 )}
               </section>
             </div>
@@ -325,13 +325,13 @@ export default function OfertaDetalhe() {
           {modal === 'enviar' && (
             <>
               <DialogHeader>
-                <DialogTitle>Enviar cronograma v{cron.versao} à DR</DialogTitle>
+                <DialogTitle>Enviar cronograma v{cron.versao} ao DR</DialogTitle>
                 <DialogDescription>Registre o envio feito por e-mail. Se o SENAI-{t.drContratante} não responder até o prazo, o cronograma conta como validado.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-1.5"><Label>Prazo para validação <Req /></Label><Input type="date" value={data} onChange={(e) => setData(e.target.value)} /></div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setModal(null)}>Cancelar</Button>
-                <Button onClick={() => (registrar({ cronograma: { ...cron, situacao: 'Aguardando', prazo: data } }, `Cronograma v${cron.versao} enviado à DR para validação (prazo ${dataBr(data)})`), setModal(null))}>Registrar envio</Button>
+                <Button onClick={() => (registrar({ cronograma: { ...cron, situacao: 'Aguardando', prazo: data } }, `Cronograma v${cron.versao} enviado ao DR para validação (prazo ${dataBr(data)})`), setModal(null))}>Registrar envio</Button>
               </DialogFooter>
             </>
           )}
@@ -339,11 +339,11 @@ export default function OfertaDetalhe() {
             <>
               <DialogHeader>
                 <DialogTitle>Nova versão do cronograma (v{cron.versao + 1})</DialogTitle>
-                <DialogDescription>A DR pediu ajuste. O sistema gera o cronograma de novo a partir da data de início; a versão anterior fica no histórico.</DialogDescription>
+                <DialogDescription>O DR pediu ajuste. O sistema gera o cronograma de novo a partir da data de início; a versão anterior fica no histórico.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-3">
                 <div className="grid gap-1.5"><Label>Início da turma <Req /></Label><Input type="date" value={data} onChange={(e) => setData(e.target.value)} /></div>
-                <div className="grid gap-1.5"><Label>O que a DR pediu</Label><Textarea rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ex.: presencial às quintas; começar uma semana depois" /></div>
+                <div className="grid gap-1.5"><Label>O que o DR pediu</Label><Textarea rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ex.: presencial às quintas; começar uma semana depois" /></div>
               </div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setModal(null)}>Cancelar</Button>
@@ -363,7 +363,7 @@ export default function OfertaDetalhe() {
               </DialogHeader>
               <div className="grid gap-3">
                 <div className="grid gap-1.5"><Label>Novo início <Req /></Label><Input type="date" value={data} onChange={(e) => setData(e.target.value)} /></div>
-                <div className="grid gap-1.5"><Label>Motivo</Label><Textarea rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ex.: a DR não fechou a turma a tempo" /></div>
+                <div className="grid gap-1.5"><Label>Motivo</Label><Textarea rows={3} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ex.: o DR não fechou a turma a tempo" /></div>
               </div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setModal(null)}>Cancelar</Button>
@@ -378,9 +378,9 @@ export default function OfertaDetalhe() {
             <>
               <DialogHeader>
                 <DialogTitle>Cancelar a turma {t.codigo}?</DialogTitle>
-                <DialogDescription>A DR deve avisar com 10 dias de antecedência. A turma sai da alocação do PCP.</DialogDescription>
+                <DialogDescription>O DR deve avisar com 10 dias de antecedência. A turma sai da alocação do PCP.</DialogDescription>
               </DialogHeader>
-              <div className="grid gap-1.5"><Label>Motivo <Req /></Label><Textarea rows={4} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ex.: a DR não atingiu o mínimo de inscritos" /></div>
+              <div className="grid gap-1.5"><Label>Motivo <Req /></Label><Textarea rows={4} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ex.: o DR não atingiu o mínimo de inscritos" /></div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setModal(null)}>Voltar</Button>
                 <Button onClick={() => (registrar({ fase: 'Cancelada', motivoCancelamento: texto.trim() }, `Turma cancelada${texto.trim() ? `: ${texto.trim()}` : ''}`), setModal(null))}>Cancelar turma</Button>
@@ -391,7 +391,7 @@ export default function OfertaDetalhe() {
             <>
               <DialogHeader>
                 <DialogTitle>Adicionar escola</DialogTitle>
-                <DialogDescription>Escola da DR contratante que terá estudantes nesta turma.</DialogDescription>
+                <DialogDescription>Escola do DR contratante que terá estudantes nesta turma.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-3">
                 <div className="grid gap-1.5"><Label>Escola <Req /></Label><Input value={escola.nome} onChange={(e) => setEscola({ ...escola, nome: e.target.value })} /></div>

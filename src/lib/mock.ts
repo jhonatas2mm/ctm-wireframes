@@ -149,7 +149,7 @@ const contratos: Contrato[] = [
   // TAAs enviados pelas CTMs, aguardando a avaliação do Gestor da DR
   { ...taa('16', '012/2026', 'MG', 'RJ', ['01/11/2026', '31/10/2027'], 300000, 'Encaminhado', 'ED-001/2026', ['Técnico em Eletrotécnica']), gestor: undefined, origem: 'CTM', enviadoEm: '2026-09-25T10:00:00Z' },
   { ...taa('17', '013/2026', 'PR', 'MG', ['01/11/2026', '31/10/2027'], 500000, 'Em análise', 'ED-001/2026', ['Técnico em Mecatrônica', 'Técnico em Segurança do Trabalho']), origem: 'CTM', enviadoEm: '2026-09-22T10:00:00Z' },
-  { ...taa('18', '014/2026', 'DF', 'MG', ['01/10/2026', '30/09/2027'], 250000, 'Cancelado', 'ED-001/2026', ['Técnico em Mecatrônica']), origem: 'CTM', enviadoEm: '2026-09-01T10:00:00Z', motivo: 'Recusado pelo Gestor: a DR não prevê turmas desse curso em 2027.', historico: [{ quando: '2026-09-01T10:00:00Z', texto: 'Encaminhado à DR', autor: 'Juliana Pereira' }, { quando: '2026-09-08T10:00:00Z', texto: 'Recusado pelo Gestor: a DR não prevê turmas desse curso em 2027.', autor: 'Gestor SENAI-DF' }].reverse() },
+  { ...taa('18', '014/2026', 'DF', 'MG', ['01/10/2026', '30/09/2027'], 250000, 'Cancelado', 'ED-001/2026', ['Técnico em Mecatrônica']), origem: 'CTM', enviadoEm: '2026-09-01T10:00:00Z', motivo: 'Recusado pelo Gestor: o DR não prevê turmas desse curso em 2027.', historico: [{ quando: '2026-09-01T10:00:00Z', texto: 'Encaminhado ao DR', autor: 'Juliana Pereira' }, { quando: '2026-09-08T10:00:00Z', texto: 'Recusado pelo Gestor: o DR não prevê turmas desse curso em 2027.', autor: 'Gestor SENAI-DF' }].reverse() },
 ]
 
 export const useContratos = () => useCollection<Contrato>('contratos-v12', contratos)
@@ -237,9 +237,9 @@ const propostas: Produto[] = [
   // Vai e vem: v1 com 20 alunos; a DR pediu 25 → v2, aguardando o retorno do cliente (turma prevista para daqui a 10 dias: alerta)
   { id: '4', numero: 'PC-MG-004/2026', taaId: '10', edital: 'ED-001/2026', status: 'Aguardando', versao: 2, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'GO', cnpj: '03.769.437/0001-10', crm: 'CRM-2026-0388', faturamento: 'DR', cursos: [cp('6', 25, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z',
     versoes: [{ versao: 1, cursos: [cp('6', 20, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', salvaEm: '2026-08-18T10:00:00Z', motivo: 'Versão inicial' }],
-    historico: [reg('2026-09-02T11:30:00Z', 'Status: Aguardando'), reg('2026-09-02T11:20:00Z', 'Nova versão v2: a DR pediu 25 estudantes (antes 20)'), reg('2026-08-20T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-08-18T10:00:00Z', 'Proposta criada (Rascunho)')] },
-  { id: '5', numero: 'PC-MG-005/2026', taaId: '11', edital: 'ED-001/2026', status: 'Cancelado', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'A DR não fechou a turma (mínimo de 25 inscritos).', cursos: [cp('6', 15, '2026-09-14', 'ED-001/2026')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
-    historico: [reg('2026-09-04T16:45:00Z', 'Status: Cancelado — a DR não fechou a turma'), reg('2026-07-01T10:00:00Z', 'Proposta criada (Rascunho)')] },
+    historico: [reg('2026-09-02T11:30:00Z', 'Status: Aguardando'), reg('2026-09-02T11:20:00Z', 'Nova versão v2: o DR pediu 25 estudantes (antes 20)'), reg('2026-08-20T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-08-18T10:00:00Z', 'Proposta criada (Rascunho)')] },
+  { id: '5', numero: 'PC-MG-005/2026', taaId: '11', edital: 'ED-001/2026', status: 'Cancelado', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'O DR não fechou a turma (mínimo de 25 inscritos).', cursos: [cp('6', 15, '2026-09-14', 'ED-001/2026')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
+    historico: [reg('2026-09-04T16:45:00Z', 'Status: Cancelado — o DR não fechou a turma'), reg('2026-07-01T10:00:00Z', 'Proposta criada (Rascunho)')] },
   { id: '6', numero: 'PC-MG-006/2026', taaId: '8', edital: 'ED-002/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, equipeTecnica: { supervisor: 'Carlos Andrade', analista: 'Renata Guimarães' }, drOfertante: 'MG', drContratante: 'RJ', cnpj: '03.439.316/0001-06', faturamento: 'DR', cursos: [cp('7', 30, '2026-10-13', 'ED-002/2026')], vigenciaInicio: '15/04/2026', vigenciaFim: '14/04/2027', cadastradoEm: '2026-09-15T10:00:00Z',
     historico: [reg('2026-09-25T10:00:00Z', 'Status: Aprovado'), reg('2026-09-16T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-09-15T10:00:00Z', 'Proposta criada (Rascunho)')] },
   // Segunda turma de Mecatrônica no mesmo TAA (curso pode se repetir), ainda em rascunho
@@ -447,10 +447,10 @@ const turmas: Turma[] = [
     ],
     historico: [
       { quando: '2026-08-01T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' },
-      { quando: '2026-08-20T10:00:00Z', texto: 'Cronograma v1 enviado à DR para validação (prazo 30/08/2026)', autor: 'Carlos Andrade' },
+      { quando: '2026-08-20T10:00:00Z', texto: 'Cronograma v1 enviado ao DR para validação (prazo 30/08/2026)', autor: 'Carlos Andrade' },
       { quando: '2026-08-28T10:00:00Z', texto: 'DR pediu ajuste: presencial às quintas. Cronograma v2 gerado e reenviado', autor: 'Carlos Andrade' },
       { quando: '2026-09-10T10:00:00Z', texto: 'Cronograma v2 validado pelo SENAI-RJ', autor: 'Carlos Andrade' },
-      { quando: '2026-09-15T10:00:00Z', texto: 'Turma confirmada pela DR: status Buscar tutor', autor: 'Carlos Andrade' },
+      { quando: '2026-09-15T10:00:00Z', texto: 'Turma confirmada pelo DR: status Buscar tutor', autor: 'Carlos Andrade' },
       { quando: '2026-09-22T10:00:00Z', texto: 'Segurança em soldagem: planejamento aprovado pelo tutor; e-mail ao monitor para parametrizar as avaliações', autor: 'Fabiana Rocha' },
     ],
   },
@@ -465,7 +465,7 @@ const turmas: Turma[] = [
     ],
     historico: [
       { quando: '2026-08-20T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' },
-      { quando: '2026-09-28T09:00:00Z', texto: 'Cronograma v1 enviado à DR para validação (prazo 08/10/2026)', autor: 'Carlos Andrade' },
+      { quando: '2026-09-28T09:00:00Z', texto: 'Cronograma v1 enviado ao DR para validação (prazo 08/10/2026)', autor: 'Carlos Andrade' },
     ],
   },
   // Rascunho: mesma UC e data da TU-MG-002 (sugestão de agrupamento).
@@ -745,7 +745,7 @@ const acoesLog: [AcaoLog, string, string, Alteracao[]][] = [
   ['Excluiu', 'Gestão de Portfólio', 'Produto Soldador (versão 1)', []],
   ['Recusou', 'Gestão de propostas', 'Proposta PC-MG-003/2026', [{ campo: 'Status', antes: 'Em análise', depois: 'Recusada' }, { campo: 'Feedback', antes: '—', depois: 'Valor acima do previsto no edital' }]],
   ['Editou', 'Gestão de usuários', 'Usuário Roberto Lima', [{ campo: 'Status', antes: 'Ativo', depois: 'Inativo' }]],
-  ['Visualizou', 'Painel', 'Painel da DR solicitante', []],
+  ['Visualizou', 'Painel', 'Painel do DR solicitante', []],
   ['Logout', 'Autenticação', '—', []],
 ]
 const logs: LogSistema[] = Array.from({ length: 48 }, (_, i) => {

@@ -152,12 +152,12 @@ export default function RelatorioCobranca() {
                 {mov.saidas.map(({ aluno: a, turma: t, uc, matricula: m }) => (
                   <li key={`${a.id}-${uc}`} className="flex items-center gap-3 px-3 py-2">
                     <span className="min-w-0 flex-1"><span className="font-medium">{a.nome}</span> <span className="text-muted-foreground">· UC {uc} · {t.codigo} · {a.escola}</span></span>
-                    <span className="text-xs text-muted-foreground">{m.status === 'Trancado' ? `Trancado em ${dataBr(m.desde!)}` : `Desistência confirmada pela DR em ${dataBr(m.confirmacaoEm ?? m.desde!)}`}</span>
+                    <span className="text-xs text-muted-foreground">{m.status === 'Trancado' ? `Trancado em ${dataBr(m.desde!)}` : `Desistência confirmada pelo DR em ${dataBr(m.confirmacaoEm ?? m.desde!)}`}</span>
                   </li>
                 ))}
               </ul>
             ) : mov.anterior !== undefined && <p className="text-muted-foreground">Nenhuma saída confirmada para esta cobrança.</p>}
-            <p className="text-xs text-muted-foreground">Cada UC tem o seu ciclo: a saída confirmada pela DR fora do ciclo da UC só desconta no próximo ciclo dela. Desistência só no Moodle, sem confirmação, segue cobrada.</p>
+            <p className="text-xs text-muted-foreground">Cada UC tem o seu ciclo: a saída confirmada pelo DR fora do ciclo da UC só desconta no próximo ciclo dela. Desistência só no Moodle, sem confirmação, segue cobrada.</p>
           </div>
         </section>
 

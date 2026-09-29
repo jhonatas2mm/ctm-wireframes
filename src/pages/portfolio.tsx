@@ -65,7 +65,7 @@ function Aprovacoes() {
     db.update(c.id, { situacao: aprovado ? 'Aprovado' : 'Reprovado', motivo: aprovado ? undefined : mot, decididoEm: new Date().toISOString() })
   const aprovar = (c: CursoDr) => confirmar({
     titulo: `Aprovar ${c.nome} v${c.versao ?? 1} (${ctmDe(c)})?`,
-    descricao: (c.versao ?? 1) > 1 ? 'A nova versão passa a ser a vigente no portfólio; a anterior continua valendo para o que já foi negociado.' : 'O produto entra no Portfólio das CTMs e fica disponível para todas as DRs.',
+    descricao: (c.versao ?? 1) > 1 ? 'A nova versão passa a ser a vigente no portfólio; a anterior continua valendo para o que já foi negociado.' : 'O produto entra no Portfólio das CTMs e fica disponível para todas os DRs.',
     acao: 'Aprovar',
     onConfirmar: () => decidir(c, true),
   })

@@ -56,7 +56,7 @@ export function TaaSheet({ taa, onClose, rodape }: { taa: Contrato | null; onClo
                 {([
                   ['Contratante', nomeParte(taa.contratante)],
                   ['CTM contratada', `SENAI-${taa.dr}`],
-                  ['Origem', taa.origem === 'CTM' ? 'Enviado pela CTM' : 'Criado pela DR'],
+                  ['Origem', taa.origem === 'CTM' ? 'Enviado pela CTM' : 'Criado pelo DR'],
                   ['Gestor solicitante', taa.gestor ? `${taa.gestor.nome} (${taa.gestor.cargo})` : '—'],
                   ['Vigência', `${taa.vigenciaInicio} a ${taa.vigenciaFim}`],
                   ['Valor global', brl(taa.valor)],

@@ -34,7 +34,7 @@ export function PainelDn() {
     <div className="space-y-5">
       <PageHeader title="Painel" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi icon={Building2} tom="blue" rotulo="DRs credenciadas ativas" valor={ativas.length} extra={`${drs.length - ativas.length} inativas`} />
+        <Kpi icon={Building2} tom="blue" rotulo="DRs credenciados ativas" valor={ativas.length} extra={`${drs.length - ativas.length} inativas`} />
         <Kpi icon={Hourglass} tom="amber" rotulo="Solicitações de portfólio" valor={pendentes.length} extra="aguardando aprovação" />
         <Kpi icon={FileSignature} tom="green" rotulo="Produtos no portfólio" valor={noPortfolio.length} extra={`${porCtm.length} CTMs`} />
         <Kpi icon={FileSpreadsheet} tom="orange" rotulo="Editais vigentes" valor={editaisVig.length} extra={`${editaisVig.reduce((n, e) => n + e.cursos.length, 0)} cursos`} />
@@ -80,10 +80,10 @@ export function PainelDn() {
           </div>
         </Bloco>
         <Bloco>
-          <BlocoTitulo titulo="Cobertura das DRs" sub="DRs ativas credenciadas em algum edital" acao={ver('/drs')} />
+          <BlocoTitulo titulo="Cobertura dos DRs" sub="DRs ativos credenciadas em algum edital" acao={ver('/drs')} />
           <div className="mb-4 flex items-end gap-2">
             <span className="text-4xl font-bold tabular-nums">{ativas.length - semEdital.length}</span>
-            <span className="pb-1 text-sm text-muted-foreground">de {ativas.length} DRs ativas</span>
+            <span className="pb-1 text-sm text-muted-foreground">de {ativas.length} DRs ativos</span>
           </div>
           <div className="mb-5 h-2.5 overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full bg-[#00A369]" style={{ width: `${((ativas.length - semEdital.length) / Math.max(1, ativas.length)) * 100}%` }} />
@@ -209,7 +209,7 @@ export function PainelComercial() {
         <Kpi icon={Handshake} tom="amber" rotulo="Em andamento" valor={brlCurto(negociacao)} extra={`${aguardando.length} propostas`} />
         <Kpi icon={CircleDollarSign} tom="green" rotulo="Valor fechado" valor={brlCurto(fechado)} extra={`${aceitas} propostas aprovadas`} />
         <Kpi icon={Percent} tom="blue" rotulo="Taxa de aprovação" valor={`${taxa}%`} extra={`${recusadas} canceladas`} />
-        <Kpi icon={Boxes} tom="orange" rotulo="Produtos no portfólio" valor={portfolio.length} extra="cursos da DR" />
+        <Kpi icon={Boxes} tom="orange" rotulo="Produtos no portfólio" valor={portfolio.length} extra="cursos do DR" />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -228,7 +228,7 @@ export function PainelComercial() {
 
       <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
         <Bloco>
-          <BlocoTitulo titulo="Aguardando resposta" sub="Propostas enviadas às DRs contratantes" acao={ver('/produtos')} />
+          <BlocoTitulo titulo="Aguardando resposta" sub="Propostas enviadas aos DRs contratantes" acao={ver('/produtos')} />
           <div className="divide-y">
             {aguardando.map((p) => (
               <Linha

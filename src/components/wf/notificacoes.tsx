@@ -39,8 +39,8 @@ export function Notificacoes() {
     const estudantes = new Set(pend.map((x) => x.a.id)).size
     return [{
       id: `desist:${t.id}:${pend.map((x) => `${x.a.id}|${x.m.uc}`).join(',')}`, tipo: 'desistencia' as const, to: `/financeiro?aba=acompanhamento&turma=${t.id}`,
-      titulo: `Desistência no Moodle aguardando a DR · ${t.codigo}`,
-      texto: `${estudantes} estudante${estudantes > 1 ? 's' : ''} marcado${estudantes > 1 ? 's' : ''} como desistente${estudantes > 1 ? 's' : ''} no Moodle (${pend.length} UC${pend.length > 1 ? 's' : ''}), aguardando a confirmação do ${nomeParte(t.drContratante)}. Seguem faturando até a DR confirmar.`,
+      titulo: `Desistência no Moodle aguardando o DR · ${t.codigo}`,
+      texto: `${estudantes} estudante${estudantes > 1 ? 's' : ''} marcado${estudantes > 1 ? 's' : ''} como desistente${estudantes > 1 ? 's' : ''} no Moodle (${pend.length} UC${pend.length > 1 ? 's' : ''}), aguardando a confirmação do ${nomeParte(t.drContratante)}. Seguem faturando até o DR confirmar.`,
     }]
   })
   const todas = [...aditivos, ...desistencias]

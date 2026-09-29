@@ -138,7 +138,7 @@ export default function Produtos() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Status da proposta {mudar?.numero}</DialogTitle>
-            <DialogDescription>Atual: {mudar?.status ?? 'Rascunho'}. Registre o andamento combinado com a DR contratante.</DialogDescription>
+            <DialogDescription>Atual: {mudar?.status ?? 'Rascunho'}. Registre o andamento combinado com o DR contratante.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-3">
             <div className="grid gap-1.5">
@@ -226,7 +226,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
       setFaturamento(base.faturamento ?? 'DR')
       setEscolas((base.escolas ?? []).join(', '))
       setDocs(base.documentos ?? [])
-      setMotivoVersao(excedentes.length ? `Aditivo: ${excedentes.map((e) => `${e.curso} de ${e.proposta} para ${e.moodle} estudantes (Moodle)`).join('; ')}.` : 'A DR pediu ajuste na quantidade de estudantes.')
+      setMotivoVersao(excedentes.length ? `Aditivo: ${excedentes.map((e) => `${e.curso} de ${e.proposta} para ${e.moodle} estudantes (Moodle)`).join('; ')}.` : 'O DR pediu ajuste na quantidade de estudantes.')
       return
     }
     const t = taas.find((x) => x.contratante === 'BA') ?? taas[0]
@@ -337,8 +337,8 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
             <label className="grid gap-1 text-xs">
               <span className="text-muted-foreground">Faturamento <Req /></span>
               <Select value={faturamento} onValueChange={(v) => setFaturamento(v as 'DR' | 'Escola')}>
-                <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v === 'Escola' ? 'Por escola' : 'Para a DR')}</SelectValue></SelectTrigger>
-                <SelectContent><SelectItem value="DR">Para a DR</SelectItem><SelectItem value="Escola">Por escola</SelectItem></SelectContent>
+                <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v === 'Escola' ? 'Por escola' : 'Para o DR')}</SelectValue></SelectTrigger>
+                <SelectContent><SelectItem value="DR">Para o DR</SelectItem><SelectItem value="Escola">Por escola</SelectItem></SelectContent>
               </Select>
             </label>
             {faturamento === 'Escola' && <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Escolas faturadas <Req /></span><Input placeholder="Separe por vírgula" value={escolas} onChange={(e) => setEscolas(e.target.value)} /></label>}
