@@ -355,3 +355,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Equipe: funções Monitor front e Monitor back unificadas em **Monitor** (Nova pessoa e alocação). Dados da equipe reiniciados (equipe-v3).
 - 2026-09-29 — Visualização em cards: botões de ação com o mesmo padrão da coluna Ações (contorno neutro, ícone na cor principal).
 - 2026-09-29 — Menu lateral: badge com a identificação do perfil (caixa) ao lado do nome do usuário. Casca: lista de etapas e selects da jornada não saem mais da caixa.
+- 2026-09-29 — Casca: botão **Abrir protótipo** (antes "Abrir protótipo livre") abre em nova aba no perfil e na tela atuais (`?frame=1&perfil=…#/tela`): mesmo menu, avatar/badge, DR e navegação da casca.

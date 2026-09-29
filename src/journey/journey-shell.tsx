@@ -341,8 +341,8 @@ export function JourneyShell() {
               <Button size="sm" variant="ghost" className={cn(guia && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
                 <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
               </Button>
-              <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
-                <ExternalLink /> Abrir protótipo livre
+              <Button size="sm" variant="ghost" title="Abre o protótipo em nova aba, no perfil e na tela atuais" render={<a href={`./?frame=1&perfil=${encodeURIComponent(profile)}#${shownPath}`} target="_blank" rel="noreferrer" />} nativeButton={false}>
+                <ExternalLink /> Abrir protótipo
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger render={<Button size="sm" variant="ghost" title="Resolução considerada para o protótipo (a tela é reduzida por inteiro para caber)" />}>

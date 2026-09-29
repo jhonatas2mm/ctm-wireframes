@@ -24,7 +24,7 @@ const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', curren
 const periodo = (i: string, f: string) => `${dataBr(i)} a ${dataBr(f)}`
 const corSituacao: Record<SituacaoAluno, 'default' | 'secondary' | 'outline'> = { 'Em dia': 'secondary', 'Em risco': 'outline', Evadido: 'default' }
 
-// Escopo dos dados: a DR solicitante vê só a própria DR; o Super admin (e o protótipo livre) vê a plataforma toda.
+// Escopo dos dados: a DR solicitante vê só a própria DR; o Super admin (e o protótipo aberto sem perfil) vê a plataforma toda.
 function useDados() {
   const perfil = useProfile()
   const uf = perfil.startsWith('DR solicitante') ? profileOf(perfil).dr?.sigla.replace('SENAI-', '') : undefined

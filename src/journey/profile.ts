@@ -2,7 +2,8 @@ import { useSyncExternalStore } from 'react'
 
 // Perfil ativo dentro do protótipo, enviado pela casca. Use nas telas:
 //   const perfil = useProfile(); if (perfil === 'CTM: Gestor de oferta') …
-let current = ''
+// Fora da casca (aba aberta por "Abrir protótipo"), o perfil vem da URL (?perfil=).
+let current = new URLSearchParams(location.search).get('perfil') ?? ''
 const subs = new Set<() => void>()
 
 addEventListener('message', (e: MessageEvent) => {
