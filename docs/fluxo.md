@@ -343,5 +343,8 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Selects (todos): a lista abre abaixo do campo com altura de até 24rem (ou o espaço da tela), só o necessário quando há poucas opções — antes abria sobre o campo e ficava curta.
 - 2026-09-29 — Badges de identificador (proposta, turma, TAA, versão etc.) em cor neutra (cinza), não mais azul.
 - 2026-09-29 — **Editais só do DN**: a CTM não faz gestão de editais, apenas participa (oferece o custo, fora do sistema) e consulta o edital em modo leitura. Regra explícita no fluxo e no mapa do processo; telas já restritas ao DN.
+- 2026-09-29 — Tabelas com barra de execução: o percentual fica logo ao lado da barra.
 - 2026-09-29 — **Sem SESI na v1**: saem o perfil DR solicitante: SESI, as jornadas "Contratos com CTMs" e "Acompanhamento" do SESI, os contratos `CT-…` (seeds, coluna Instrumento, título/número de contrato no Novo TAA) e o contrato/turma EAD do SESI-MG. Tudo é TAA entre SENAI e SENAI.
 - 2026-09-29 — **Cronograma em linha do tempo**: a aba Cronograma da turma troca a planilha por um Gantt semanal (módulos, UCs, encontros presenciais, aulas ao vivo, feriados, hoje) com detalhe da UC em side nav; a tabela vira visão alternativa.
+- 2026-09-29 — Filtros: Curso/Produto/UC também viram campo de busca com vários valores (multiselect) em todas as tabelas.
+- 2026-09-29 — Casca: barra Análise/Design e painel de jornada viram uma **coluna à esquerda** do protótipo (ferramentas empilhadas; Perfil e Jornada em selects; etapas em lista vertical; Anterior/Próxima). A coluna **recolhe** para uma faixa estreita (expandir, cor do perfil, etapa anterior/próxima); começa recolhida e o navegador lembra.
