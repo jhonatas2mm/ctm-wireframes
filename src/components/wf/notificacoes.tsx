@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Bell, CheckCheck, FilePlus2, RotateCcw, Trash2, X } from 'lucide-react'
+import { Bell, CheckCheck, FilePlus2, RotateCcw, Trash2, UserX, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Popover } from '@base-ui/react/popover'
 import { useProfile } from '@/journey/profile'
 import { useCollection } from '@/lib/db'
-import { useProdutos, useTurmas } from '@/lib/mock'
+import { nomeParte, useConfirmacoesDesistencia, useProdutos, useTurmas } from '@/lib/mock'
+import { aguardandoDr, alunosDaTurma } from '@/lib/alunos-turma'
 import { excedentesProposta } from '@/lib/cobranca'
 import { cn } from '@/lib/utils'
 
@@ -13,19 +14,36 @@ import { cn } from '@/lib/utils'
 type EstadoNotificacao = { id: string; lida?: boolean; dispensada?: boolean }
 
 // Notificações da CTM (sino à direita da logo, no topo do menu): hoje, proposta com mais alunos nas salas do Moodle do
-// que o contratado → fazer aditivo. Funções: filtrar não lidas, marcar como lida (uma ou todas), dispensar (uma ou
+// que o contratado → fazer aditivo; e estudante desistente no Moodle aguardando a confirmação da DR (por turma). Funções: filtrar não lidas, marcar como lida (uma ou todas), dispensar (uma ou
 // todas = "Limpar todas") e restaurar as dispensadas. Abrir uma notificação a marca como lida.
 export function Notificacoes() {
   const perfil = useProfile()
   const navigate = useNavigate()
   const propostas = useProdutos().all
   const turmas = useTurmas().all
+  const conf = useConfirmacoesDesistencia().all
   const estado = useCollection<EstadoNotificacao>('notificacoes-v1', [])
   const [aberto, setAberto] = useState(false)
   const [filtro, setFiltro] = useState<'todas' | 'nao-lidas'>('todas')
   if (!perfil.startsWith('CTM:') && perfil !== 'Super admin') return null
 
-  const todas = propostas.flatMap((p) => excedentesProposta(p, turmas).map((e) => ({ id: `${p.id}:${e.curso}:${e.moodle}`, p, e })))
+  type Item = { id: string; tipo: 'aditivo' | 'desistencia'; titulo: string; texto: string; to: string }
+  const aditivos: Item[] = propostas.flatMap((p) => excedentesProposta(p, turmas).map((e) => ({
+    id: `${p.id}:${e.curso}:${e.moodle}`, tipo: 'aditivo' as const, titulo: `Aditivo na proposta ${p.numero}`, to: `/produtos/${p.id}`,
+    texto: `${e.curso}: ${e.moodle} estudantes nas salas do Moodle, ${e.proposta} na proposta (+${e.moodle - e.proposta}).`,
+  })))
+  // Desistência no Moodle aguardando a dupla checagem da DR: uma notificação por turma (estudante × UC pendentes)
+  const desistencias: Item[] = turmas.filter((t) => t.fase !== 'Cancelada').flatMap((t) => {
+    const pend = alunosDaTurma(t, conf).flatMap((a) => a.ucs.filter(aguardandoDr).map((m) => ({ a, m })))
+    if (!pend.length) return []
+    const estudantes = new Set(pend.map((x) => x.a.id)).size
+    return [{
+      id: `desist:${t.id}:${pend.map((x) => `${x.a.id}|${x.m.uc}`).join(',')}`, tipo: 'desistencia' as const, to: `/financeiro?aba=acompanhamento&turma=${t.id}`,
+      titulo: `Desistência no Moodle aguardando a DR · ${t.codigo}`,
+      texto: `${estudantes} estudante${estudantes > 1 ? 's' : ''} marcado${estudantes > 1 ? 's' : ''} como desistente${estudantes > 1 ? 's' : ''} no Moodle (${pend.length} UC${pend.length > 1 ? 's' : ''}), aguardando a confirmação do ${nomeParte(t.drContratante)}. Seguem faturando até a DR confirmar.`,
+    }]
+  })
+  const todas = [...aditivos, ...desistencias]
   const de = (id: string) => estado.get(id)
   const marcar = (id: string, patch: Omit<EstadoNotificacao, 'id'>) => (de(id) ? estado.update(id, patch) : estado.add({ id, ...patch }))
   const ativas = todas.filter((n) => !de(n.id)?.dispensada)
@@ -62,14 +80,14 @@ export function Notificacoes() {
           ))}
         </div>
         <div className="max-h-96 overflow-y-auto">
-          {lista.length ? lista.map(({ id, p, e }) => {
+          {lista.length ? lista.map(({ id, tipo, titulo, texto, to }) => {
             const lida = !!de(id)?.lida
             return (
               <div key={id} className={cn('group flex items-start gap-3 border-b px-4 py-3 last:border-b-0', !lida && 'bg-[#FFF6ED]/60')}>
                 <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', lida ? 'bg-transparent' : 'bg-primary')} aria-hidden />
-                <button type="button" className="min-w-0 flex-1 text-left" onClick={() => (marcar(id, { lida: true }), setAberto(false), navigate(`/produtos/${p.id}`))}>
-                  <span className="flex items-center gap-1.5 text-sm font-medium"><FilePlus2 className="size-4 shrink-0 text-amber-600" /> Aditivo na proposta {p.numero}</span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">{e.curso}: {e.moodle} estudantes nas salas do Moodle, {e.proposta} na proposta (+{e.moodle - e.proposta}).</span>
+                <button type="button" className="min-w-0 flex-1 text-left" onClick={() => (marcar(id, { lida: true }), setAberto(false), navigate(to))}>
+                  <span className="flex items-center gap-1.5 text-sm font-medium">{tipo === 'aditivo' ? <FilePlus2 className="size-4 shrink-0 text-amber-600" /> : <UserX className="size-4 shrink-0 text-amber-600" />} {titulo}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">{texto}</span>
                 </button>
                 <div className="flex shrink-0 gap-0.5">
                   <Button size="icon-xs" variant="ghost" className="text-neutral-500" aria-label={lida ? 'Marcar como não lida' : 'Marcar como lida'} onClick={() => marcar(id, { lida: !lida })}>
