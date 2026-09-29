@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, CheckCircle2, Copy, Mail, MonitorPlay, RefreshCw, Star } from 'lucide-react'
+import { AlertTriangle, CalendarPlus, Check, CheckCircle2, ClipboardCheck, Copy, Mail, MonitorPlay, Plus, RefreshCw, RotateCcw, Send, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -8,239 +8,266 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
-import { EmptyState } from '@/components/wf'
-import { HOJE, acaoSugerida, dataBr, diasEntre, execucoesAnteriores, statusTurma, useEquipe, type AcaoTutor, type EquipeTurma, type LinksUc, type Turma, type UcTurma } from '@/lib/mock'
+import { EmptyState, Req } from '@/components/wf'
+import { HOJE, dataBr, diasEntre, estruturaPronta, etapaDe, etapasUc, statusTurma, useEquipe, type AtividadePresencial, type AulaAoVivo, type EtapaUc, type Turma, type UcTurma } from '@/lib/mock'
 import { cn } from '@/lib/utils'
 
 type Registrar = (patch: Partial<Turma>, texto: string) => void
-const acoes: AcaoTutor[] = ['Planejamento', 'Replanejamento', 'Apropriação']
 const d = (iso?: string) => (iso ? dataBr(iso) : '—')
 // Atualiza uma UC (módulo i, UC k) devolvendo os módulos novos.
 const comUc = (t: Turma, i: number, k: number, patch: Partial<UcTurma>) =>
   t.modulos.map((m, j) => (j !== i ? m : { ...m, unidades: m.unidades.map((u, l) => (l === k ? { ...u, ...patch } : u)) }))
 
-// Situação da UC na gestão da execução.
-const situacaoUc = (u: UcTurma) =>
-  !u.tutor ? 'Sem tutor' : !u.tutorConfirmado ? 'Aguardando e-mail' : (u.acao ?? acaoSugerida(u.nome)) !== 'Apropriação' && !u.validacaoPedagogica ? 'Em planejamento' : 'Tutor confirmado'
-const corSituacao: Record<ReturnType<typeof situacaoUc>, string> = {
-  'Sem tutor': 'bg-muted text-muted-foreground',
-  'Aguardando e-mail': 'bg-amber-100 text-amber-800',
+const corEtapa: Record<EtapaUc, string> = {
+  'Aguardando sala': 'bg-muted text-muted-foreground',
   'Em planejamento': 'bg-sky-100 text-sky-800',
-  'Tutor confirmado': 'bg-emerald-100 text-emerald-800',
+  'Em avaliação do tutor': 'bg-amber-100 text-amber-800',
+  'Parametrizar avaliações': 'bg-violet-100 text-violet-800',
+  Pronta: 'bg-emerald-100 text-emerald-800',
+}
+// Quem age em cada etapa
+const vezDe: Record<EtapaUc, string> = {
+  'Aguardando sala': 'Monitor',
+  'Em planejamento': 'Pedagógico',
+  'Em avaliação do tutor': 'Tutor',
+  'Parametrizar avaliações': 'Monitor',
+  Pronta: '—',
 }
 
-// Gestão da execução: equipe da turma (supervisão) + tutor e tipo de ação por UC (PCP) + e-mail ao tutor (analista).
+// UCs da turma: cada UC tem a sua equipe técnica (pedagógico, tutor e monitor) e segue o fluxo
+// sala no Moodle (monitor) → planejamento (pedagógico: aulas ao vivo online + atividades presenciais) → avaliação (tutor)
+// → e-mail ao monitor para parametrizar as avaliações → Pronta. Com todas prontas, e-mail à DR solicitante (SGN/SGE).
 export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar }) {
   const equipe = useEquipe().all.filter((p) => p.status === 'Ativo')
-  const [email, setEmail] = useState<{ i: number; k: number } | null>(null)
+  const [planejar, setPlanejar] = useState<{ i: number; k: number } | null>(null)
+  const [avaliar, setAvaliar] = useState<{ i: number; k: number } | null>(null)
+  const [devolucao, setDevolucao] = useState('')
+  const [aulas, setAulas] = useState<AulaAoVivo[]>([])
+  const [atividades, setAtividades] = useState<AtividadePresencial[]>([])
+  const [emailDr, setEmailDr] = useState(false)
   const status = statusTurma(t)
   if (status === 'A iniciar' || status === 'Cancelada')
-    return <EmptyState title={status === 'Cancelada' ? 'Turma cancelada' : 'A alocação da equipe começa quando a turma é confirmada'} description={status === 'Cancelada' ? undefined : 'Com o cronograma validado, use “Confirmar turma”: o status passa a Buscar tutor e o PCP começa a alocação.'} />
+    return <EmptyState title={status === 'Cancelada' ? 'Turma cancelada' : 'As UCs começam quando a turma é confirmada'} description={status === 'Cancelada' ? undefined : 'Com o cronograma validado, “Confirmar turma” libera o fluxo das UCs (sala no Moodle → planejamento → avaliação do tutor).'} />
   const pessoas = (funcao: string) => equipe.filter((p) => p.funcao === funcao)
-  const tutores = pessoas('Tutor')
-  const setEquipe = (patch: EquipeTurma) => registrar({ equipe: { ...t.equipe, ...patch } }, `Equipe da turma: ${Object.entries(patch).map(([k, v]) => `${rotulos[k as keyof EquipeTurma]} ${v}`).join(', ')}`)
-  const rotulos: Record<keyof EquipeTurma, string> = { monitorFront: 'Monitor front', monitorBack: 'Monitor back', pedagogico: 'Pedagógico', interlocutor: 'Interlocutor' }
   const ucs = t.modulos.flatMap((m, i) => m.unidades.map((u, k) => ({ u, i, k })))
-  const confirmados = ucs.filter(({ u }) => u.tutorConfirmado).length
+  const prontas = ucs.filter(({ u }) => etapaDe(u) === 'Pronta').length
+  const pronta = estruturaPronta(t)
+  const agora = () => new Date().toISOString()
+  // Mudança numa UC; quando a última fica pronta, dispara o e-mail à DR solicitante (SGN/SGE).
+  const mudar = (i: number, k: number, patch: Partial<UcTurma>, texto: string) => {
+    const modulos = comUc(t, i, k, patch)
+    const todas = modulos.every((m) => m.unidades.every((u) => etapaDe(u) === 'Pronta'))
+    if (todas && !t.emailDrEm) registrar({ modulos, emailDrEm: agora() }, `${texto}. Estrutura pronta: e-mail à DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os alunos no Moodle`)
+    else registrar({ modulos }, texto)
+  }
+  const uc = (x: { i: number; k: number } | null) => (x ? t.modulos[x.i]?.unidades[x.k] : undefined)
+  const abrirPlanejar = (i: number, k: number) => {
+    const u = t.modulos[i].unidades[k]
+    setAulas(u.aoVivo.length ? u.aoVivo : [{ data: u.inicio, inicio: '19:00', fim: '21:00' }])
+    setAtividades(u.atividades?.length ? u.atividades : [{ data: u.inicio, descricao: 'Atividade prática presencial' }])
+    setPlanejar({ i, k })
+  }
+  const criarSalas = () => {
+    let n = 90000 + Number(t.codigo.replace(/\D/g, '').slice(0, 5)) * 10
+    registrar({ modulos: t.modulos.map((m) => ({ ...m, unidades: m.unidades.map((u) => (u.sala === 'Criada' || u.sala === 'Em criação' ? u : { ...u, sala: 'Em criação' as const, salaAva: u.salaAva ?? `AVA-${n++}` })) })) }, 'Monitor solicitou a criação das salas no Moodle (integração): Em criação')
+  }
   return (
     <div className="space-y-6">
-      <section className="space-y-3">
-        <h3 className="font-semibold">Equipe da turma</h3>
-        <div className="grid grid-cols-2 gap-3 rounded-lg border p-4 lg:grid-cols-4 bg-card">
-          {(Object.keys(rotulos) as (keyof EquipeTurma)[]).map((k) => (
-            <div key={k} className="grid gap-1.5">
-              <Label>{rotulos[k]}</Label>
-              <Select value={t.equipe?.[k] ?? null} onValueChange={(v) => setEquipe({ [k]: v as string })}>
-                <SelectTrigger className="w-full"><SelectValue>{(v: string | null) => v ?? 'Não alocado'}</SelectValue></SelectTrigger>
-                <SelectContent>{pessoas(rotulos[k]).map((p) => <SelectItem key={p.id} value={p.nome}>{p.nome}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-          ))}
+      <div className="grid gap-3 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+        <div>
+          <p className="text-sm font-semibold">{prontas} de {ucs.length} UCs prontas</p>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {etapasUc.map((e) => {
+              const n = ucs.filter(({ u }) => etapaDe(u) === e).length
+              return n ? <Badge key={e} variant="secondary" className={corEtapa[e]}>{e}: {n}</Badge> : null
+            })}
+          </div>
         </div>
-      </section>
+        <Button variant="outline" disabled={!ucs.some(({ u }) => !u.sala || u.sala === 'Não criada')} motivo="Todas as salas já foram criadas ou estão em criação" onClick={criarSalas}><MonitorPlay /> Criar salas no Moodle (todas)</Button>
+      </div>
 
-      <section className="space-y-3">
-        <div className="flex items-end justify-between gap-3">
-          <h3 className="font-semibold">Tutoria por UC</h3>
-          <span className="text-sm text-muted-foreground tabular-nums">{confirmados} de {ucs.length} tutores confirmados</span>
+      {/* E-mail à DR solicitante: quando todas as UCs estão prontas */}
+      {pronta && (
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+          <CheckCircle2 className="size-5 shrink-0" />
+          <p className="min-w-0 flex-1">Estrutura pronta. {t.emailDrEm ? `E-mail enviado ao SENAI-${t.drContratante} em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os alunos no Moodle.` : 'Falta avisar a DR.'}</p>
+          <Button size="sm" variant="outline" onClick={() => setEmailDr(true)}><Mail /> Ver e-mail à DR</Button>
         </div>
-        <div className="overflow-hidden rounded-lg border bg-card">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Unidade curricular</TableHead>
-                <TableHead>Período</TableHead>
-                <TableHead className="w-56">Tutor (PCP)</TableHead>
-                <TableHead className="w-44">Ação</TableHead>
-                <TableHead>Situação</TableHead>
-                <TableHead className="text-right">E-mail</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {ucs.map(({ u, i, k }) => {
-                const acao = u.acao ?? acaoSugerida(u.nome)
-                const vezes = u.tutor ? execucoesAnteriores.filter((e) => e.uc === u.nome && e.tutor === u.tutor).length : 0
-                const sit = situacaoUc(u)
-                return (
-                  <TableRow key={`${i}-${k}`}>
-                    <TableCell className="font-medium">{i + 1}.{k + 1} {u.nome}</TableCell>
-                    <TableCell className="text-muted-foreground tabular-nums">{d(u.inicio)} a {d(u.fim)}</TableCell>
-                    <TableCell>
-                      <Select value={u.tutor ?? null} onValueChange={(v) => registrar({ modulos: comUc(t, i, k, { tutor: v as string, tutorConfirmado: false, acao }) }, `Tutor de ${u.nome}: ${v}`)}>
-                        <SelectTrigger className="h-8 w-full"><SelectValue>{(v: string | null) => v ?? 'Alocar tutor'}</SelectValue></SelectTrigger>
-                        <SelectContent>
-                          {/* Quem tem a competência na UC aparece primeiro, com estrela */}
-                          {[...tutores].sort((a, b) => Number(b.competencias.includes(u.nome)) - Number(a.competencias.includes(u.nome))).map((p) => (
-                            <SelectItem key={p.id} value={p.nome}>
-                              <span className="flex items-center gap-1.5">{p.competencias.includes(u.nome) && <Star className="size-3 fill-amber-400 text-amber-500" />}{p.nome}<span className="text-xs text-muted-foreground">· {p.disponibilidade.map((x) => x.slice(0, 3)).join(', ')}</span></span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {u.tutor && <p className="mt-1 text-xs text-muted-foreground">{vezes ? `Já deu esta UC ${vezes}×` : 'Primeira vez nesta UC'}</p>}
-                    </TableCell>
-                    <TableCell>
-                      <Select value={acao} onValueChange={(v) => registrar({ modulos: comUc(t, i, k, { acao: v as AcaoTutor, validacaoPedagogica: false }) }, `Ação de ${u.nome}: ${v}`)}>
-                        <SelectTrigger className="h-8 w-full"><SelectValue /></SelectTrigger>
-                        <SelectContent>{acoes.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
-                      </Select>
-                      {!u.acao && <p className="mt-1 text-xs text-muted-foreground">Sugerida pelo histórico</p>}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className={corSituacao[sit]}>{sit}</Badge>
-                      {/* Planejamento/replanejamento: o pedagógico valida o material antes do monitor back subir no AVA */}
-                      {u.tutorConfirmado && acao !== 'Apropriação' && (
-                        <label className="mt-1.5 flex items-center gap-1.5 text-xs">
-                          <input type="checkbox" checked={!!u.validacaoPedagogica} onChange={(e) => registrar({ modulos: comUc(t, i, k, { validacaoPedagogica: e.target.checked }) }, `${u.nome}: validação pedagógica ${e.target.checked ? 'concluída' : 'desfeita'}`)} />
-                          Validado pelo pedagógico
-                        </label>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="outline" className="h-7" disabled={!u.tutor} motivo="Aloque um tutor na unidade" onClick={() => setEmail({ i, k })}><Mail /> {u.tutorConfirmado ? 'Ver' : 'Gerar'}</Button>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </section>
-      {email && <EmailTutor t={t} i={email.i} k={email.k} onClose={() => setEmail(null)} registrar={registrar} />}
+      )}
+
+      <div className="overflow-hidden rounded-lg border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Unidade curricular</TableHead>
+              <TableHead className="w-44">Pedagógico</TableHead>
+              <TableHead className="w-44">Tutor</TableHead>
+              <TableHead className="w-44">Monitor</TableHead>
+              <TableHead>Sala no Moodle</TableHead>
+              <TableHead>Etapa</TableHead>
+              <TableHead className="text-right">Ação</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {ucs.map(({ u, i, k }) => {
+              const etapa = etapaDe(u)
+              const escolha = (campo: 'pedagogico' | 'tutor' | 'monitor', funcao: string) => (
+                <Select value={u[campo] ?? null} onValueChange={(v) => registrar({ modulos: comUc(t, i, k, { [campo]: v as string }) }, `${u.nome}: ${funcao} ${v}`)}>
+                  <SelectTrigger className="h-8 w-full"><SelectValue>{(v: string | null) => v ?? 'Vincular'}</SelectValue></SelectTrigger>
+                  <SelectContent>{pessoas(funcao).map((p) => <SelectItem key={p.id} value={p.nome}>{p.nome}</SelectItem>)}</SelectContent>
+                </Select>
+              )
+              return (
+                <TableRow key={`${i}-${k}`}>
+                  <TableCell>
+                    <span className="font-medium">{i + 1}.{k + 1} {u.nome}</span>
+                    <span className="block text-xs text-muted-foreground tabular-nums">{d(u.inicio)} a {d(u.fim)} · {u.aoVivo.length} ao vivo · {u.atividades?.length ?? 0} presenciais</span>
+                    {etapa === 'Em planejamento' && u.devolucao && <span className="mt-0.5 flex items-center gap-1 text-xs text-orange-700"><RotateCcw className="size-3" /> Devolvido pelo tutor: {u.devolucao}</span>}
+                  </TableCell>
+                  <TableCell>{escolha('pedagogico', 'Pedagógico')}</TableCell>
+                  <TableCell>{escolha('tutor', 'Tutor')}</TableCell>
+                  <TableCell>{escolha('monitor', 'Monitor back')}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className={cn(u.sala === 'Criada' ? 'bg-emerald-100 text-emerald-800' : u.sala === 'Em criação' ? 'bg-amber-100 text-amber-800' : 'bg-muted text-muted-foreground')}>{u.sala ?? 'Não criada'}</Badge>
+                    {u.salaAva && u.sala === 'Criada' && <span className="ml-1.5 font-mono text-xs text-muted-foreground">{u.salaAva}</span>}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className={corEtapa[etapa]}>{etapa}</Badge>
+                    {etapa !== 'Pronta' && <span className="mt-0.5 block text-xs text-muted-foreground">Vez: {vezDe[etapa]}{etapa === 'Parametrizar avaliações' && u.emailMonitorEm ? ' · e-mail enviado' : ''}</span>}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {etapa === 'Aguardando sala' && (!u.sala || u.sala === 'Não criada') && (
+                      <Button size="sm" variant="outline" onClick={() => mudar(i, k, { sala: 'Em criação', salaAva: u.salaAva ?? `AVA-${90000 + i * 10 + k}` }, `${u.nome}: monitor solicitou a sala no Moodle (Em criação)`)}><MonitorPlay /> Criar sala</Button>
+                    )}
+                    {etapa === 'Aguardando sala' && u.sala === 'Em criação' && (
+                      // Protótipo: simula o retorno da integração com o Moodle
+                      <Button size="sm" variant="outline" onClick={() => mudar(i, k, { sala: 'Criada', etapa: 'Em planejamento' }, `${u.nome}: sala criada no Moodle (${u.salaAva}); UC em planejamento`)}><RefreshCw /> Consultar Moodle</Button>
+                    )}
+                    {etapa === 'Em planejamento' && <Button size="sm" variant="outline" onClick={() => abrirPlanejar(i, k)}><CalendarPlus /> Planejar</Button>}
+                    {etapa === 'Em avaliação do tutor' && <Button size="sm" variant="outline" onClick={() => (setDevolucao(''), setAvaliar({ i, k }))}><ClipboardCheck /> Avaliar</Button>}
+                    {etapa === 'Parametrizar avaliações' && <Button size="sm" variant="outline" onClick={() => mudar(i, k, { etapa: 'Pronta' }, `${u.nome}: avaliações parametrizadas no Moodle pelo monitor; UC pronta`)}><Check /> Avaliações parametrizadas</Button>}
+                    {etapa === 'Pronta' && <CheckCircle2 className="ml-auto size-5 text-emerald-600" />}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Planejamento (pedagógico): dias das aulas ao vivo online e atividades presenciais */}
+      <Dialog open={!!planejar} onOpenChange={(v) => !v && setPlanejar(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Planejar UC · {uc(planejar)?.nome}</DialogTitle>
+            <DialogDescription>Período {d(uc(planejar)?.inicio)} a {d(uc(planejar)?.fim)}. Depois de enviado, o tutor avalia o planejamento.</DialogDescription>
+          </DialogHeader>
+          {uc(planejar)?.devolucao && <p className="rounded-md border border-orange-200 bg-orange-50 p-2 text-xs text-orange-900">Devolvido pelo tutor: {uc(planejar)?.devolucao}</p>}
+          <section className="grid gap-2">
+            <div className="flex items-center justify-between"><Label>Aulas ao vivo (online) <Req /></Label><Button size="sm" variant="outline" onClick={() => setAulas([...aulas, { ...(aulas.at(-1) ?? { data: uc(planejar)?.inicio ?? HOJE, inicio: '19:00', fim: '21:00' }) }])}><Plus /> Adicionar</Button></div>
+            {aulas.map((a, n) => (
+              <div key={n} className="grid grid-cols-[1fr_7rem_7rem_auto] gap-2">
+                <Input type="date" min={uc(planejar)?.inicio} max={uc(planejar)?.fim} value={a.data} onChange={(e) => setAulas(aulas.map((x, j) => (j === n ? { ...x, data: e.target.value } : x)))} />
+                <Input type="time" value={a.inicio} onChange={(e) => setAulas(aulas.map((x, j) => (j === n ? { ...x, inicio: e.target.value } : x)))} />
+                <Input type="time" value={a.fim} onChange={(e) => setAulas(aulas.map((x, j) => (j === n ? { ...x, fim: e.target.value } : x)))} />
+                <Button size="icon-sm" variant="ghost" aria-label="Remover aula" onClick={() => setAulas(aulas.filter((_, j) => j !== n))}><Trash2 /></Button>
+              </div>
+            ))}
+          </section>
+          <section className="grid gap-2">
+            <div className="flex items-center justify-between"><Label>Atividades presenciais <Req /></Label><Button size="sm" variant="outline" onClick={() => setAtividades([...atividades, { data: atividades.at(-1)?.data ?? uc(planejar)?.inicio ?? HOJE, descricao: '' }])}><Plus /> Adicionar</Button></div>
+            {atividades.map((a, n) => (
+              <div key={n} className="grid grid-cols-[10rem_1fr_auto] gap-2">
+                <Input type="date" min={uc(planejar)?.inicio} max={uc(planejar)?.fim} value={a.data} onChange={(e) => setAtividades(atividades.map((x, j) => (j === n ? { ...x, data: e.target.value } : x)))} />
+                <Input placeholder="Descrição da atividade" value={a.descricao} onChange={(e) => setAtividades(atividades.map((x, j) => (j === n ? { ...x, descricao: e.target.value } : x)))} />
+                <Button size="icon-sm" variant="ghost" aria-label="Remover atividade" onClick={() => setAtividades(atividades.filter((_, j) => j !== n))}><Trash2 /></Button>
+              </div>
+            ))}
+          </section>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPlanejar(null)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => (planejar && registrar({ modulos: comUc(t, planejar.i, planejar.k, { aoVivo: aulas, atividades }) }, `${uc(planejar)?.nome}: planejamento salvo (rascunho)`), setPlanejar(null))}>Salvar rascunho</Button>
+            <Button onClick={() => (planejar && mudar(planejar.i, planejar.k, { aoVivo: aulas, atividades, etapa: 'Em avaliação do tutor', devolucao: undefined }, `${uc(planejar)?.nome}: planejamento enviado ao tutor (${aulas.length} ao vivo, ${atividades.length} presenciais)`), setPlanejar(null))}><Send /> Enviar ao tutor</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Avaliação (tutor): aprova (e-mail ao monitor para parametrizar as avaliações) ou devolve ao pedagógico */}
+      <Dialog open={!!avaliar} onOpenChange={(v) => !v && setAvaliar(null)}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Avaliar planejamento · {uc(avaliar)?.nome}</DialogTitle>
+            <DialogDescription>Planejado por {uc(avaliar)?.pedagogico ?? 'pedagógico'}. Aprovado, sai o e-mail para {uc(avaliar)?.monitor ?? 'o monitor'} parametrizar as avaliações no Moodle.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 text-sm">
+            <div><p className="mb-1 text-xs font-medium text-muted-foreground">Aulas ao vivo (online)</p><ul className="grid gap-0.5">{(uc(avaliar)?.aoVivo ?? []).map((a, n) => <li key={n} className="tabular-nums">{d(a.data)} · {a.inicio}–{a.fim}</li>)}</ul></div>
+            <div><p className="mb-1 text-xs font-medium text-muted-foreground">Atividades presenciais</p><ul className="grid gap-0.5">{(uc(avaliar)?.atividades ?? []).map((a, n) => <li key={n}><span className="tabular-nums">{d(a.data)}</span> · {a.descricao}</li>)}</ul></div>
+            <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Motivo (se devolver)</span><Textarea rows={3} value={devolucao} onChange={(e) => setDevolucao(e.target.value)} placeholder="O que o pedagógico precisa ajustar?" /></label>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAvaliar(null)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => (avaliar && mudar(avaliar.i, avaliar.k, { etapa: 'Em planejamento', devolucao: devolucao.trim() || 'Ajustar o planejamento.' }, `${uc(avaliar)?.nome}: tutor devolveu o planejamento${devolucao.trim() ? `: ${devolucao.trim()}` : ''}`), setAvaliar(null))}><RotateCcw /> Devolver ao pedagógico</Button>
+            <Button onClick={() => (avaliar && mudar(avaliar.i, avaliar.k, { etapa: 'Parametrizar avaliações', emailMonitorEm: agora(), devolucao: undefined }, `${uc(avaliar)?.nome}: planejamento aprovado pelo tutor; e-mail a ${uc(avaliar)?.monitor ?? 'o monitor'} para parametrizar as avaliações no Moodle`), setAvaliar(null))}><Check /> Aprovar planejamento</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={emailDr} onOpenChange={setEmailDr}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>E-mail à DR solicitante</DialogTitle>
+            <DialogDescription>Disparado quando todas as UCs ficam prontas.</DialogDescription>
+          </DialogHeader>
+          <Textarea readOnly rows={10} className="font-mono text-xs" value={[
+            `Para: SENAI-${t.drContratante} (gestor e secretaria escolar)`,
+            `Assunto: Turma ${t.codigo} pronta — ajustar SGN/SGE para integrar os alunos no Moodle`,
+            '',
+            `A estrutura da turma ${t.codigo} (${t.cursos[0]}) está pronta no Moodle AVA.`,
+            'Ajuste o SGN/SGE com os códigos abaixo para integrar os alunos:',
+            ...ucs.map(({ u }) => `• ${u.nome}: sala ${u.salaAva ?? '—'} · início ${d(u.inicio)}`),
+            '',
+            'A integração roda 5 dias antes do início de cada UC.',
+          ].join('\n')} />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEmailDr(false)}>Fechar</Button>
+            {!t.emailDrEm && <Button onClick={() => (registrar({ emailDrEm: agora() }, `E-mail à DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os alunos`), setEmailDr(false))}><Send /> Enviar agora</Button>}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
 
-// E-mail ao tutor: o sistema monta o texto com os dados da turma e os links cadastrados; o envio é feito fora (copiar).
-function EmailTutor({ t, i, k, onClose, registrar }: { t: Turma; i: number; k: number; onClose: () => void; registrar: Registrar }) {
-  const u = t.modulos[i].unidades[k]
-  const [links, setLinks] = useState<LinksUc>(u.links ?? {})
-  const acao = u.acao ?? acaoSugerida(u.nome)
-  const assunto = `[${acao}] ${u.nome} · ${t.cursos[0]} · ${t.codigo}`
-  const corpo = [
-    `Olá, ${u.tutor}!`,
-    '',
-    `Você foi alocado(a) na unidade curricular ${u.nome}, do curso ${t.cursos[0]} (turma ${t.codigo}, SENAI-${t.drContratante}).`,
-    `Ação: ${acao}${acao === 'Apropriação' ? ' (a sala vem da sala modelo; informe as datas das avaliações ao monitor).' : ' (o material passa pela validação pedagógica antes de subir no AVA).'}`,
-    '',
-    `Período: ${d(u.inicio)} a ${d(u.fim)} · ${u.semanas ?? '—'} semana(s)`,
-    `Encontros presenciais: ${u.encontros ?? '—'}${t.diaPresencial ? ` (${t.diaPresencial.toLowerCase()})` : ''} · Aulas ao vivo: ${u.aulasPrevistas ?? '—'}`,
-    '',
-    'Equipe:',
-    `• Supervisor: ${t.supervisor ?? '—'} · Analista: ${t.analista ?? '—'}`,
-    `• Monitor front: ${t.equipe?.monitorFront ?? '—'} · Monitor back: ${t.equipe?.monitorBack ?? '—'}`,
-    `• Pedagógico: ${t.equipe?.pedagogico ?? '—'} · Interlocutor: ${t.equipe?.interlocutor ?? '—'}`,
-    '',
-    'Links:',
-    `• Plano de curso: ${links.planoCurso || '—'}`,
-    `• Plano de ensino: ${links.planoEnsino || '—'}`,
-    `• Pasta da UC: ${links.pasta || '—'}`,
-    `• Sala no AVA: ${u.salaAva ?? 'ainda não criada'}`,
-  ].join('\n')
-  const salvarLinks = () => registrar({ modulos: comUc(t, i, k, { links }) }, `Links de ${u.nome} atualizados`)
-  return (
-    <Dialog open onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>E-mail ao tutor</DialogTitle>
-          <DialogDescription>O sistema monta o e-mail com os dados da turma; copie e envie pelo seu e-mail. Os documentos continuam no drive: aqui ficam só os links.</DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-3">
-          <div className="grid grid-cols-3 gap-3">
-            {([['planoCurso', 'Plano de curso'], ['planoEnsino', 'Plano de ensino'], ['pasta', 'Pasta da UC']] as const).map(([k2, rot]) => (
-              <div key={k2} className="grid gap-1.5">
-                <Label>{rot}</Label>
-                <Input placeholder="https://…" value={links[k2] ?? ''} onChange={(e) => setLinks({ ...links, [k2]: e.target.value })} onBlur={salvarLinks} />
-              </div>
-            ))}
-          </div>
-          <div className="grid gap-1.5">
-            <Label>Assunto</Label>
-            <Input readOnly value={assunto} />
-          </div>
-          <div className="grid gap-1.5">
-            <Label>Mensagem</Label>
-            <Textarea readOnly rows={14} value={corpo} className="font-mono text-xs" />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>Fechar</Button>
-          <Button variant="outline" onClick={() => void navigator.clipboard.writeText(`${assunto}\n\n${corpo}`).catch(() => {})}><Copy /> Copiar e-mail</Button>
-          {!u.tutorConfirmado && (
-            <Button onClick={() => (registrar({ modulos: comUc(t, i, k, { links, tutorConfirmado: true, acao }) }, `E-mail enviado a ${u.tutor} (${u.nome}): tutor confirmado`), onClose())}>
-              <CheckCircle2 /> Marcar tutor confirmado
-            </Button>
-          )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-// Integração com o AVA: criar salas (botão no MVP), dados que a DR usa no SGE e situação da integração por escola.
+// Integração com o AVA: depois que a estrutura está pronta (todas as UCs), a DR ajusta o SGN/SGE com os códigos CTM por
+// escola + IDs das salas; aqui ficam esses dados e a situação da integração por escola.
 export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registrar }) {
-  const status = statusTurma(t)
-  const liberada = status === 'Buscar tutor' || status === 'Em andamento'
   const escolas = t.escolas ?? []
   const ucs = t.modulos.flatMap((m) => m.unidades)
+  const pronta = estruturaPronta(t)
   const { inicio } = { inicio: ucs.map((u) => u.inicio).filter(Boolean).sort()[0] ?? '' }
   const faltam = inicio ? diasEntre(HOJE, inicio) : 999
   const sigla = (nome: string) => nome.replace(/^SENAI\s+/i, '').normalize('NFD').replace(/[^A-Za-z]/g, '').slice(0, 8).toUpperCase()
   const codigoCtm = (escola: string) => `${t.codigo.replace('/', '-')}-${sigla(escola)}`
   const semestre = (iso: string) => (iso ? `${iso.slice(0, 4)}-${Number(iso.slice(5, 7)) <= 6 ? 1 : 2}` : '—')
-  const criarSalas = () => {
-    let n = 90000 + Number(t.codigo.replace(/\D/g, '').slice(0, 5)) * 10
-    registrar({ salasCriadas: true, modulos: t.modulos.map((m) => ({ ...m, unidades: m.unidades.map((u) => ({ ...u, salaAva: u.salaAva ?? `AVA-${n++}` })) })) }, `Salas criadas no AVA (${ucs.length} UCs)`)
-  }
-  const linhas = escolas.flatMap((e) => ucs.map((u) => [codigoCtm(e.nome), u.nome, u.salaAva ?? '—', d(u.inicio), semestre(u.inicio)]))
+  const linhas = escolas.flatMap((e) => ucs.map((u) => [codigoCtm(e.nome), u.nome, u.sala === 'Criada' ? u.salaAva ?? '—' : '—', d(u.inicio), semestre(u.inicio)]))
   return (
     <div className="space-y-6">
-      <section className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="font-semibold">Salas no AVA</h3>
-          {!t.salasCriadas && <Button disabled={!liberada} motivo="Aguardando a turma ser confirmada" title={liberada ? undefined : 'Disponível depois de confirmar a turma'} onClick={criarSalas}><MonitorPlay /> Criar salas no AVA</Button>}
-        </div>
-        {t.salasCriadas ? (
-          <ul className="grid gap-1.5 sm:grid-cols-2">
-            {ucs.map((u) => (
-              <li key={u.nome} className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm bg-card">
-                <CheckCircle2 className="size-4 text-emerald-600" /> <span className="min-w-0 flex-1 truncate">{u.nome}</span>
-                <Badge variant="secondary" className="font-mono">{u.salaAva}</Badge>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted-foreground">{liberada ? 'As salas ainda não foram criadas.' : 'As salas são criadas depois que a turma é confirmada (Buscar tutor).'}</p>
-        )}
+      <section className={cn('flex flex-wrap items-center gap-3 rounded-lg border p-4 text-sm', pronta ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'bg-card')}>
+        {pronta ? <CheckCircle2 className="size-5" /> : <AlertTriangle className="size-5 text-muted-foreground" />}
+        <p className="min-w-0 flex-1">
+          {pronta
+            ? (t.emailDrEm ? `Estrutura pronta. E-mail à DR enviado em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os alunos.` : 'Estrutura pronta: falta o e-mail à DR (aba UCs).')
+            : `Estrutura em preparação: ${ucs.filter((u) => etapaDe(u) === 'Pronta').length} de ${ucs.length} UCs prontas. A DR é avisada quando todas estiverem prontas.`}
+        </p>
       </section>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="font-semibold">Dados de integração para a DR</h3>
-            <p className="text-sm text-muted-foreground">Código CTM por escola + ID da sala de cada UC, para o SENAI-{t.drContratante} parametrizar no SGE. A integração roda 5 dias antes do início.</p>
+            <p className="text-sm text-muted-foreground">Código CTM por escola + ID da sala de cada UC, para o SENAI-{t.drContratante} parametrizar no SGN/SGE. A integração roda 5 dias antes do início.</p>
           </div>
-          <Button variant="outline" disabled={!t.salasCriadas || !linhas.length} motivo="Crie as salas no AVA primeiro" onClick={() => void navigator.clipboard.writeText([['Código CTM', 'UC', 'ID da sala', 'Início', 'Semestre'], ...linhas].map((l) => l.join('\t')).join('\n')).catch(() => {})}><Copy /> Copiar tabela</Button>
+          <Button variant="outline" disabled={!pronta || !linhas.length} motivo="Disponível quando todas as UCs estiverem prontas" onClick={() => void navigator.clipboard.writeText([['Código CTM', 'UC', 'ID da sala', 'Início', 'Semestre'], ...linhas].map((l) => l.join('\t')).join('\n')).catch(() => {})}><Copy /> Copiar tabela</Button>
         </div>
         {!escolas.length ? (
           <EmptyState title="Nenhuma escola na turma" description="Cadastre as escolas na aba Cronograma." />
@@ -265,19 +292,19 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
         <ul className="grid gap-2">
           {escolas.map((e, n) => {
             const integ = e.integrados ?? 0
-            const sit = !t.salasCriadas ? 'Sem salas' : integ >= e.alunos ? 'Integrada' : integ > 0 ? 'Parcial' : 'Não integrada'
-            const atraso = t.salasCriadas && integ < e.alunos && faltam <= 5
+            const sit = !pronta ? 'Aguardando estrutura' : integ >= e.alunos ? 'Integrada' : integ > 0 ? 'Parcial' : 'Não integrada'
+            const atraso = pronta && integ < e.alunos && faltam <= 5
             return (
-              <li key={e.nome} className={cn('flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3 bg-card', atraso && 'border-amber-300 bg-amber-50')}>
+              <li key={e.nome} className={cn('flex flex-wrap items-center gap-3 rounded-lg border bg-card px-4 py-3', atraso && 'border-amber-300 bg-amber-50')}>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{e.nome} <span className="font-normal text-muted-foreground">· {e.cidade}</span></p>
-                  <p className="text-xs text-muted-foreground tabular-nums">{integ} de {e.alunos} alunos integrados no AVA · código {codigoCtm(e.nome)}</p>
+                  <p className="text-xs text-muted-foreground tabular-nums">{integ} de {e.alunos} alunos integrados no Moodle · código {codigoCtm(e.nome)}</p>
                   {atraso && <p className="mt-1 flex items-center gap-1 text-xs font-medium text-amber-900"><AlertTriangle className="size-3.5" /> Faltam {Math.max(faltam, 0)} dia(s) para o início e a DR ainda não integrou todos os alunos.</p>}
                 </div>
                 <Badge variant="secondary" className={cn(sit === 'Integrada' ? 'bg-emerald-100 text-emerald-800' : sit === 'Parcial' ? 'bg-amber-100 text-amber-800' : 'bg-muted text-muted-foreground')}>{sit}</Badge>
-                {/* Protótipo: simula a consulta ao serviço do AVA (matriculados × integrados) */}
-                {t.salasCriadas && integ < e.alunos && (
-                  <Button size="sm" variant="outline" onClick={() => registrar({ escolas: escolas.map((x, j) => (j === n ? { ...x, integrados: x.alunos } : x)) }, `Integração consultada no AVA: ${e.nome} com ${e.alunos} alunos integrados`)}><RefreshCw /> Consultar AVA</Button>
+                {/* Protótipo: simula a consulta ao serviço do Moodle (matriculados × integrados) */}
+                {pronta && integ < e.alunos && (
+                  <Button size="sm" variant="outline" onClick={() => registrar({ escolas: escolas.map((x, j) => (j === n ? { ...x, integrados: x.alunos } : x)) }, `Integração consultada no Moodle: ${e.nome} com ${e.alunos} alunos integrados`)}><RefreshCw /> Consultar Moodle</Button>
                 )}
               </li>
             )

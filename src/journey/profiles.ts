@@ -16,8 +16,8 @@ export const profiles: ProfileDef[] = [
   { name: 'CTM: PCP', grupo: 'CTM', caixa: 'PCP', color: '#7c3aed', user: { nome: 'Eduardo Lima', email: 'eduardo.lima@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Gestor de oferta', grupo: 'CTM', caixa: 'Gestor de oferta', color: '#ea580c', user: { nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Pedagógico', grupo: 'CTM', caixa: 'Pedagógico', color: '#db2777', user: { nome: 'Sônia Prado', email: 'sonia.prado@senaimg.org.br' }, dr: MG },
-  { name: 'CTM: Tutor', grupo: 'CTM', caixa: 'Tutor', avaliacao: true, color: '#0d9488', user: { nome: 'Fabiana Rocha', email: 'fabiana.rocha@senaimg.org.br' }, dr: MG },
-  { name: 'CTM: Monitor', grupo: 'CTM', caixa: 'Monitor', avaliacao: true, color: '#4f46e5', user: { nome: 'Lívia Campos', email: 'livia.campos@senaimg.org.br' }, dr: MG },
+  { name: 'CTM: Tutor', grupo: 'CTM', caixa: 'Tutor', color: '#0d9488', user: { nome: 'Fabiana Rocha', email: 'fabiana.rocha@senaimg.org.br' }, dr: MG },
+  { name: 'CTM: Monitor', grupo: 'CTM', caixa: 'Monitor', color: '#4f46e5', user: { nome: 'Lívia Campos', email: 'livia.campos@senaimg.org.br' }, dr: MG },
   // DR solicitante: quem pede a contratação da CTM é o Gestor (coordenador, interlocutor…). SENAI registra TAA; SESI, contrato.
   { name: 'DR solicitante: SENAI', grupo: 'DR solicitante', caixa: 'Gestor SENAI', color: '#ca8a04', user: { nome: 'Paulo Mendes', email: 'paulo.mendes@senaimg.org.br', cargo: 'Coordenador' }, dr: MG },
   { name: 'DR solicitante: SESI', grupo: 'DR solicitante', caixa: 'Gestor SESI', color: '#16a34a', user: { nome: 'Renata Souza', email: 'renata.souza@sesimg.org.br', cargo: 'Interlocutor' }, dr: { sigla: 'SESI-MG', nome: 'SESI Minas Gerais' } },
