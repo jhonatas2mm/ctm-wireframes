@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 // Estado de cada notificação (lida / dispensada), guardado como as demais coleções do protótipo.
 type EstadoNotificacao = { id: string; lida?: boolean; dispensada?: boolean }
 
-// Notificações da CTM (sino no canto superior direito, depois do avatar): hoje, proposta com mais alunos nas salas do Moodle do
+// Notificações da CTM (sino no topo, à esquerda do avatar): hoje, proposta com mais alunos nas salas do Moodle do
 // que o contratado → fazer aditivo; e estudante desistente no Moodle aguardando a confirmação da DR (por turma). Funções: filtrar não lidas, marcar como lida (uma ou todas), dispensar (uma ou
 // todas = "Limpar todas") e restaurar as dispensadas. Abrir uma notificação a marca como lida.
 export function Notificacoes() {

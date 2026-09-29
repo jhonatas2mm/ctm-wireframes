@@ -141,6 +141,8 @@ export function AppShell() {
           {/* PageHeader renderiza o breadcrumb aqui via portal */}
           <div id="topbar-slot" className="min-w-0 flex-1" />
           <BarreiraErro fallback={null}><AgenteBotao aberto={agente} onClick={() => setAgente(!agente)} /></BarreiraErro>
+          {/* Sino de notificações: à esquerda do avatar (só nos perfis da CTM e no Super admin) */}
+          <BarreiraErro fallback={null}><Notificacoes /></BarreiraErro>
           {/* Usuário logado (fictício): só o avatar no canto superior direito; nome e perfil ficam no dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger render={<button type="button" aria-label={`Conta de ${user.nome}`} className="shrink-0 rounded-full ring-offset-2 hover:ring-2 hover:ring-[#E4E8E9]" />}>
@@ -163,8 +165,6 @@ export function AppShell() {
               <DropdownMenuItem render={<Link to={noMenu[0]?.path ?? '/'} />}><LogOut /> Sair</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          {/* Sino de notificações: canto direito, depois do avatar (só nos perfis da CTM e no Super admin) */}
-          <BarreiraErro fallback={null}><Notificacoes /></BarreiraErro>
         </header>
         <div className="w-full min-w-0 space-y-6 p-4 md:p-6">
           {/* Skeleton de carregamento ao entrar numa tela; a página já monta por baixo (estado preservado) */}
