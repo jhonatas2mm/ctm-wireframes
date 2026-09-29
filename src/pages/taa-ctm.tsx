@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { DataTable, PageHeader, Req, RowAction, type Column } from '@/components/wf'
-import { aprovadaDe, contratoAtivo, emTramitacao, instrumentoDe, nomeParte, useContratos, useDrs, useEditais, type Contrato } from '@/lib/mock'
+import { aprovadaDe, contratoAtivo, emTramitacao, nomeParte, useContratos, useDrs, useEditais, type Contrato } from '@/lib/mock'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { cn } from '@/lib/utils'
@@ -35,7 +35,6 @@ export default function TaaCtm() {
     { header: 'Nº', value: (c) => c.numero, search: true, className: 'font-mono' },
     ...(!ctm ? [{ header: 'CTM', value: (c: Contrato) => `SENAI-${c.dr}`, filter: true }] : []),
     { header: 'DR', value: (c) => nomeParte(c.contratante), search: true, filter: true },
-    { header: 'Instrumento', value: (c) => instrumentoDe(c.contratante), filter: true },
     { header: 'Origem', value: (c) => (c.origem === 'CTM' ? 'Enviado pela CTM' : 'Criado pela DR'), filter: true },
     { header: 'Produtos', value: (c) => (c.produtos ?? []).map((p) => p.nome).join(', ') || '—', search: true, cell: (c) => <span className="line-clamp-2 max-w-64 text-sm">{(c.produtos ?? []).map((p) => p.nome).join(', ') || '—'}</span> },
     { header: 'Saldo', value: (c) => (c.status === 'Aceito' ? 'sim' : '—'), className: 'text-right', cell: (c) => (c.status === 'Aceito' ? <SaldoTaa c={c} compacto /> : '—') },
@@ -93,7 +92,7 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
   const valorNum = Number(valor.replace(/\D/g, '')) / 100
   const ano = new Date().getFullYear()
-  const seq = db.all.filter((c) => !c.numero.startsWith('CT-') && c.numero.endsWith(`/${ano}`)).length + 1
+  const seq = db.all.filter((c) => c.numero.endsWith(`/${ano}`)).length + 1
   const numeros = destinos.map((_, i) => `${String(seq + i).padStart(3, '0')}/${ano}`)
   const escolhidos = produtos.filter((c) => nomes.includes(c.nome)).map(({ nome, area, modalidade, cargaHoraria, valor: v }) => ({ nome, area, modalidade, cargaHoraria, valor: v }))
   const enviar = () => {

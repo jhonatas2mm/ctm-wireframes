@@ -15,7 +15,6 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 2. **Criação de edital** — Gestão de Editais → Novo edital → Edital criado (sucesso) (DN) → Gestão de Portfólio → Novo produto (Gestor de oferta).
 3. **Envio de TAA às DRs** (CTM: Gestor de contrato) — TAAs com as DRs → Novo TAA (um por DR) → Gestor da DR analisa → retorno para a CTM.
 4. **TAAs com CTMs** (DR solicitante: SENAI) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado para ajuste → TAA aceito (saldo).
-4a. **Contratos com CTMs** (DR solicitante: SESI) — Contratos com CTMs → Novo contrato → encaminhado → aceito.
 5. **Criação de portfólio** (Gestor de oferta) — Gestão de Portfólio → Novo produto (produtos de um edital).
 6. **Criação de proposta** (CTM: Gestor de oferta e Gestor de contrato) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
 7. **Criação de oferta** (Gestor de oferta) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
@@ -25,7 +24,7 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 7d. **Equipe das UCs** (CTM: PCP) — Equipe → equipe de cada UC.
 7e. **Planejamento das UCs** (CTM: Pedagógico) — UC em planejamento (aulas ao vivo + presenciais) → Tratativas.
 7f. **Avaliação do planejamento** (CTM: Tutor) e **Salas e avaliações no Moodle** (CTM: Monitor).
-8. **Acompanhamento da execução** (DR solicitante: SENAI; também SESI) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
+8. **Acompanhamento da execução** (DR solicitante: SENAI) — Painel → Gestão de Contratos → Detalhes do contrato → Detalhes da turma → Detalhes do aluno.
 
 Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem em `src/journeys.ts`).
 
@@ -40,11 +39,10 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
   - **Pedagógico** — Gestão da oferta (validação pedagógica) e Tratativas pedagógicas.
   - **Tutor** — avalia o planejamento das UCs. **Monitor** — cria as salas no Moodle e parametriza as avaliações.
 - **DR solicitante** (MG) — caixas:
-  - Quem pede a contratação é o **Gestor** (pode ser o coordenador, o interlocutor etc.). O TAA/contrato registra o **Gestor solicitante** (nome e cargo).
+  - Quem pede a contratação é o **Gestor** (pode ser o coordenador, o interlocutor etc.). O TAA registra o **Gestor solicitante** (nome e cargo).
   - **Gestor SENAI** (SENAI-MG) — contrata a CTM por **TAA** e acompanha a execução (Painel, Gestão de Contratos, Turmas, Alunos).
-  - **Gestor SESI** (SESI-MG) — contrata a CTM por **contrato** (não é TAA) e acompanha a execução.
 - Uma mesma DR pode ser **CTM** (ofertante) e **DR solicitante** (contratante) — são perfis diferentes.
-- Menu "Contratação de CTM" (`/dashboard`): título da tela conforme o perfil — *TAAs com CTMs* (DN, SENAI), *Contratos com CTMs* (SESI), *TAAs e contratos com CTMs* (Super admin).
+- Menu "Contratação de CTM" (`/dashboard`): título *TAAs com CTMs*.
 
 ## Acompanhamento (DR solicitante)
 - Contrato = DR solicitante ↔ CTM, com empresa cliente, só cursos EAD, vigência, valor, vagas e status (Vigente / Em elaboração / Encerrado).
@@ -52,10 +50,10 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Aluno **requer atenção** (turma não finalizada) se: sem acesso há mais de 7 dias, média < 6, atividade não entregue, ou progresso mais de 10 p.p. abaixo do esperado pelo calendário.
 - Situação do aluno: **Evadido** (sem acesso há mais de 30 dias), **Em risco** (algum alerta), **Em dia**.
 
-## TAA (Termo de Acordo Administrativo) e contrato
+## TAA (Termo de Acordo Administrativo)
 - **Um TAA para cada DR específica** (não é guarda-chuva), com edital, **produtos**, vigência e valor global. A CTM do TAA é a **aprovada no edital** (menor custo) para esses produtos. Nunca chamar de "TA" ou "Termo de Adesão".
 - **Caminho normal**: a CTM que ganhou o edital **envia** o TAA para cada DR (tela **TAAs com as DRs**, `/taas-ctm`; pode marcar várias DRs e sai um TAA por DR). O **Gestor** da DR solicitante analisa. A DR também pode criar o seu (`/dashboard`), e aí quem analisa é a CTM.
-- **TAA é só entre SENAI e SENAI**; **SESI-XX ↔ SENAI é contrato** (`CT-<seq>/<ano>`), com os mesmos status. **O DN não contrata CTM.**
+- **TAA é entre SENAI e SENAI**. **SESI não entra na v1** (sem perfil, contrato ou dados do SESI). **O DN não contrata CTM.**
 - **Status**: *Encaminhado* → *Em análise* (quem analisa abriu) → **Aceito**, **Retornado para ajuste** (com motivo; quem criou ajusta vigência/valor e reencaminha) ou **Cancelado** (recusa, com motivo, ou cancelamento por quem criou antes do aceite). Tudo fica no **histórico** do TAA.
 - **Aceito é burocrático**: destrava a **negociação da oferta**, que dá origem às **propostas** (só contratante com TAA/contrato aceito e vigente entra na Nova proposta). Um TAA aceito pode não gerar nenhuma proposta ou atividade. O termo assinado é anexado depois do aceite ("Anexar assinado").
 - **Saldo** (TAA aceito) = valor global − executado (valor das propostas aceitas entre o contratante e a CTM nos produtos do TAA). Aparece na lista (coluna Saldo) e nos detalhes (barra executado/saldo).
@@ -344,3 +342,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Badges de identificador (proposta, turma, TAA, versão etc.) em cor neutra (cinza), não mais azul.
 - 2026-09-29 — **Editais só do DN**: a CTM não faz gestão de editais, apenas participa (oferece o custo, fora do sistema) e consulta o edital em modo leitura. Regra explícita no fluxo e no mapa do processo; telas já restritas ao DN.
 - 2026-09-29 — Tabelas com barra de execução: o percentual fica logo ao lado da barra.
+- 2026-09-29 — **Sem SESI na v1**: saem o perfil DR solicitante: SESI, as jornadas "Contratos com CTMs" e "Acompanhamento" do SESI, os contratos `CT-…` (seeds, coluna Instrumento, título/número de contrato no Novo TAA) e o contrato/turma EAD do SESI-MG. Tudo é TAA entre SENAI e SENAI.

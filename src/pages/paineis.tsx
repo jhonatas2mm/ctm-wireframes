@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/wf'
 import { BarList, Bloco, BlocoTitulo, Kpi, Linha, brl, brlCurto, isoDeBr } from '@/components/wf/dash'
 import {
   HOJE, aprovadosAtuais, diasEntre, situacaoDe, statusTurma,
-  instrumentoDe, nomeParte, useContratos, useCursosDr, useDrs, useEditais, useProdutos, useTurmas,
+  nomeParte, useContratos, useCursosDr, useDrs, useEditais, useProdutos, useTurmas,
   type StatusProposta,
 } from '@/lib/mock'
 
@@ -104,7 +104,7 @@ export function PainelSupervisor() {
   const navigate = useNavigate()
   const propostas = useProdutos().all
   const turmas = useTurmas().all
-  // Quem contratou esta CTM (TAA com SENAI, contrato com SESI); a CTM só consulta.
+  // Quem contratou esta CTM (TAA); a CTM só consulta.
   const taas = useContratos().all.filter((c) => c.dr === 'MG')
   const conta = (s: StatusProposta) => propostas.filter((p) => (p.status ?? 'Rascunho') === s).length
   const ativas = turmas.filter((t) => !['Finalizada', 'Cancelada'].includes(statusTurma(t)))
@@ -174,10 +174,10 @@ export function PainelSupervisor() {
           </div>
         </Bloco>
         <Bloco>
-          <BlocoTitulo titulo="Contratantes" sub="TAA (SENAI) ou contrato (SESI) com esta CTM" />
+          <BlocoTitulo titulo="Contratantes" sub="TAAs com esta CTM" />
           <div className="divide-y">
             {taas.map((t) => (
-              <Linha key={t.id} inicial={t.contratante.replace('SESI-', '')} titulo={`${instrumentoDe(t.contratante)} ${t.numero} · ${nomeParte(t.contratante)}`} sub={t.vigenciaInicio === '—' ? 'Sem vigência definida' : `${t.vigenciaInicio} a ${t.vigenciaFim}`} direita={<Badge>{t.status}</Badge>} />
+              <Linha key={t.id} inicial={t.contratante} titulo={`TAA ${t.numero} · ${nomeParte(t.contratante)}`} sub={t.vigenciaInicio === '—' ? 'Sem vigência definida' : `${t.vigenciaInicio} a ${t.vigenciaFim}`} direita={<Badge>{t.status}</Badge>} />
             ))}
           </div>
         </Bloco>

@@ -115,17 +115,6 @@ export const journeys: Journey[] = [
     ],
   },
   {
-    id: 'sesi-contratacao',
-    title: 'Contratos com CTMs',
-    profile: 'DR solicitante: SESI',
-    steps: [
-      { title: 'Contratos com CTMs', path: '/dashboard', focus: 'text=Novo contrato', profile: 'DR solicitante: SESI', note: 'SESI com SENAI não é TAA: é contrato. Mesmos status (Encaminhado, Em análise, Retornado para ajuste, Aceito, Cancelado).' },
-      { title: 'Novo contrato', path: '/dashboard/novo-ta', profile: 'DR solicitante: SESI', note: 'O Gestor do SESI escolhe edital e produtos (a CTM é a aprovada), vigência e valor; vai Encaminhado para a CTM analisar.' },
-      { title: 'Contrato encaminhado', path: '/dashboard/14', profile: 'DR solicitante: SESI', note: 'Aguardando a análise da CTM SENAI-MG.' },
-      { title: 'Contrato aceito', path: '/dashboard/15', profile: 'DR solicitante: SESI', note: 'Aceito com a CTM SENAI-SC, com saldo.' },
-    ],
-  },
-  {
     id: 'criacao-portfolio',
     title: 'Criação de portfólio',
     profile: 'CTM: Gestor de oferta',
@@ -287,16 +276,6 @@ export const journeys: Journey[] = [
       { title: 'Detalhes do contrato', path: '/contratos/c1', profile: 'DR solicitante: SENAI', note: 'Side nav com os dados do contrato, vagas ocupadas e as turmas que o CTM opera para a empresa.' },
       { title: 'Detalhes da turma', path: '/turmas-ead/t1', profile: 'DR solicitante: SENAI', note: 'Execução do calendário, progresso e média dos alunos, tutor do CTM e lista de alunos.' },
       { title: 'Detalhes do aluno', path: '/alunos/a2', profile: 'DR solicitante: SENAI', note: 'Motivos que pedem atitude, notas das atividades e histórico de acessos ao AVA e ao Portal do aluno.' },
-    ],
-  },
-  {
-    id: 'sesi-acompanhamento',
-    title: 'Acompanhamento da execução',
-    profile: 'DR solicitante: SESI',
-    steps: [
-      { title: 'Painel', path: '/acompanhamento', profile: 'DR solicitante: SESI', note: 'Dashboard do SESI-MG: turmas que a CTM opera para ele e alunos que requerem atenção.' },
-      { title: 'Detalhes do contrato', path: '/contratos/c7', profile: 'DR solicitante: SESI', note: 'Contrato do SESI-MG com a CTM (empresa cliente, vagas, turmas).' },
-      { title: 'Detalhes da turma', path: '/turmas-ead/t9', profile: 'DR solicitante: SESI', note: 'Execução e alunos da turma.' },
     ],
   },
 ]

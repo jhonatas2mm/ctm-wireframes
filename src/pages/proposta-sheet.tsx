@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { EmptyState } from '@/components/wf'
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
-import { alunosProposta, aoVivoTurma, instrumentoDe, nomeParte, totalProposta, useContratos, useTurmas, type Produto } from '@/lib/mock'
+import { alunosProposta, aoVivoTurma, nomeParte, totalProposta, useContratos, useTurmas, type Produto } from '@/lib/mock'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const dataBr = (iso?: string) => (iso ? iso.split('-').reverse().join('/') : '—')
@@ -36,7 +36,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
               <dl className="grid grid-cols-2 gap-4">
                 {([
                   ['Contratante', nomeParte(p.drContratante)],
-                  [taa ? instrumentoDe(taa.contratante) : 'TAA', taa ? <span className="font-mono">{taa.numero}</span> : '—'],
+                  ['TAA', taa ? <span className="font-mono">{taa.numero}</span> : '—'],
                   ['Edital', <span className="font-mono">{p.edital ?? '—'}</span>],
                   ['Responsável', p.responsavel ? `${p.responsavel.nome} (${p.responsavel.cargo})` : '—'],
                   ['Início e fim', p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'],

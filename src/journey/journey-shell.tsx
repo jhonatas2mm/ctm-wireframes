@@ -23,7 +23,7 @@ const journeysOf = (_profile: Profile) => journeys
 // Perfil sem jornadas: navega livre a partir da tela inicial.
 const FREE: Journey = { id: '', title: 'Sem jornada', profile: '', steps: [{ title: 'Início', path: '/dashboard' }] }
 
-// Perfis agrupados (grupo/caixa em profiles.ts): CTM → Gestor de contrato, PCP, Supervisor, Pedagógico, Tutor, Monitor; DR solicitante → SENAI, SESI.
+// Perfis agrupados (grupo/caixa em profiles.ts): CTM → Gestor de contrato, PCP, Supervisor, Pedagógico, Tutor, Monitor; DR solicitante → SENAI.
 const grupoDe = (nome: string) => profileOf(nome).grupo ?? nome
 const subDe = (nome: string) => profileOf(nome).caixa ?? null
 const grupos = [...new Set(profiles.map((p) => grupoDe(p.name)))]
