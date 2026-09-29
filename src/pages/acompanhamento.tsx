@@ -287,8 +287,7 @@ export function Painel() {
             {turmas.map((t) => {
               const n = d.alunosDa(t), exec = progressoEsperado(t), risco = n.filter((a) => alertasAluno(a, t).length).length
               return (
-                <button key={t.id} type="button" onClick={() => navigate(`/turmas-ead/${t.id}`)} className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 py-3.5 text-left sm:grid-cols-[auto_2fr_1fr_1.3fr]">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-[#EEF7FF] text-sm font-bold text-[#164194]">{d.contratoDe(t)?.empresa[0]}</div>
+                <button key={t.id} type="button" onClick={() => navigate(`/turmas-ead/${t.id}`)} className="grid w-full grid-cols-[1fr_auto] items-center gap-3 py-3.5 text-left sm:grid-cols-[2fr_1fr_1.3fr]">
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{t.curso}</div>
                     <div className="truncate text-xs text-muted-foreground">{d.contratoDe(t)?.empresa} · <span className="font-mono">{t.codigo}</span></div>
@@ -315,7 +314,6 @@ export function Painel() {
           <div className="max-h-[26rem] space-y-4 overflow-y-auto pr-1">
             {atencao.slice(0, 8).map(({ a, m }) => (
               <button key={a.id} type="button" onClick={() => setAberto(a.id)} className="flex w-full gap-3 text-left">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#FFF6ED] text-sm font-bold text-[#C23C0D]">{a.nome.split(' ').map((x) => x[0]).slice(0, 2).join('')}</div>
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="truncate font-semibold">{a.nome}</span>
