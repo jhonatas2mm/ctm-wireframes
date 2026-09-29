@@ -295,7 +295,7 @@ export function DataTable<T extends { id: string }>({
                     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 font-semibold">
                       {columns.slice(0, 2).map((c) => <span key={c.header}>{c.cell ? c.cell(r) : c.value(r)}</span>)}
                     </div>
-                    {actions && <div className="flex shrink-0 gap-1" onClick={(e) => e.stopPropagation()}>{actions(r)}</div>}
+                    {actions && <div data-acoes className="flex shrink-0 gap-1" onClick={(e) => e.stopPropagation()}>{actions(r)}</div>}
                   </div>
                   <dl className="mt-3 grid grid-cols-4 gap-x-6 gap-y-3">
                     {columns.slice(2).map((c) => (
