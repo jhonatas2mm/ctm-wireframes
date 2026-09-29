@@ -35,7 +35,7 @@ export function Notificacoes() {
 
   return (
     <Popover.Root open={aberto} onOpenChange={setAberto}>
-      <Popover.Trigger render={<Button variant="outline" size="icon" className="relative shrink-0" aria-label={`Notificações (${naoLidas.length} não lidas)`} />}>
+      <Popover.Trigger render={<Button variant="outline" size="icon" className="relative shrink-0 bg-transparent hover:bg-white/60 dark:bg-transparent" aria-label={`Notificações (${naoLidas.length} não lidas)`} />}>
         <Bell />
         {naoLidas.length > 0 && <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] leading-none font-semibold text-white tabular-nums ring-2 ring-white">{naoLidas.length}</span>}
       </Popover.Trigger>
