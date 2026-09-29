@@ -35,7 +35,7 @@ export const raias: Raia[] = [
   { id: 'tutor', nome: 'Tutor', pool: 'ctm', perfil: 'CTM: Tutor' },
   { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm', perfil: 'CTM: Pedagógico' },
   { id: 'financeiro', nome: 'Financeiro', pool: 'ctm' },
-  { id: 'dr', nome: 'DR solicitante (SENAI/SESI) ou DN', pool: 'dr', perfil: 'DR solicitante: SENAI' },
+  { id: 'dr', nome: 'Gestor da DR solicitante (SENAI/SESI) ou DN', pool: 'dr', perfil: 'DR solicitante: SENAI' },
   { id: 'ava', nome: 'AVA / SGE', pool: 'sis' },
 ]
 
@@ -59,7 +59,7 @@ export const nos: No[] = [
 
   { id: 'aprova-portfolio', tipo: 'decisao', raia: 'dn', col: 4, rotulo: 'DN aprova?', fase: 'credenciamento', tela: '/portfolio/aprovacoes', descricao: 'O DN aprova (entra no Portfólio das CTMs, visível para todas as DRs) ou reprova com motivo (a CTM ajusta e envia nova versão).' },
   // Contrato
-  { id: 'taa', tipo: 'tarefa', raia: 'dr', col: 4, rotulo: 'Criar TAA / contrato com a CTM', fase: 'contrato', tela: '/dashboard/novo-ta', descricao: 'Quem contrata escolhe o edital e os produtos; a CTM é a aprovada no edital para eles. Vigência e valor global (teto).', regras: ['SENAI ↔ SENAI (DR solicitante SENAI-XX ou o DN): TAA, no modelo do DN.', 'SESI-XX ↔ SENAI: contrato (não é TAA).', 'Produtos de CTMs diferentes = TAAs diferentes.', 'A CTM não gerencia TAAs, só propostas.', 'Passar do teto exige aditivo.'] },
+  { id: 'taa', tipo: 'tarefa', raia: 'dr', col: 4, rotulo: 'Criar TAA / contrato com a CTM', fase: 'contrato', tela: '/dashboard/novo-ta', descricao: 'O Gestor da DR solicitante (coordenador, interlocutor…) ou o DN registra o TAA (SENAI) ou contrato (SESI): edital e produtos (a CTM é a aprovada no edital para eles), vigência e valor global (teto).', regras: ['SENAI ↔ SENAI (DR solicitante SENAI-XX ou o DN): TAA, no modelo do DN.', 'SESI-XX ↔ SENAI: contrato (não é TAA).', 'Produtos de CTMs diferentes = TAAs diferentes.', 'A CTM não gerencia TAAs, só propostas.', 'Passar do teto exige aditivo.'] },
   { id: 'assinar-taa', tipo: 'tarefa', raia: 'comercial', col: 5, rotulo: 'CTM assina', fase: 'contrato', fora: true, descricao: 'Assinaturas fora do sistema (assinatura digital).' },
   { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Anexar assinado (Vigente)', fase: 'contrato', tela: '/dashboard', descricao: 'Quem contratou anexa o termo assinado; o TAA/contrato fica Vigente e a CTM passa a vê-lo nas propostas.' },
 

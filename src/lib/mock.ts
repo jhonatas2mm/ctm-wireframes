@@ -94,6 +94,7 @@ export type Contrato = {
   vigenciaFim: string
   valor: number // valor global (R$)
   edital?: string // nº do edital dos produtos
+  gestor?: { nome: string; cargo: string } // Gestor que solicitou a contratação (coordenador, interlocutor…)
   produtos?: ProdutoTaa[]
   signatarios?: { parte: string; nome: string; cargo: string }[]
   anexoAssinado?: string // TAA assinado fora do sistema (anexado)
@@ -105,10 +106,15 @@ export const nomeParte = (x: string) => (x === 'DN' ? 'SENAI DN' : x.startsWith(
 export type Instrumento = 'TAA' | 'Contrato'
 export const instrumentoDe = (contratante: string): Instrumento => (contratante.startsWith('SESI-') ? 'Contrato' : 'TAA')
 
+// Gestor solicitante de exemplo por contratante.
+const gestores: Record<string, { nome: string; cargo: string }> = {
+  DN: { nome: 'Maria Silva', cargo: 'Gestor DN' }, MG: { nome: 'Paulo Mendes', cargo: 'Coordenador' }, 'SESI-MG': { nome: 'Renata Souza', cargo: 'Interlocutor' }, 'SESI-SP': { nome: 'Tânia Ribeiro', cargo: 'Coordenador' },
+  SP: { nome: 'Ricardo Alves', cargo: 'Coordenador' }, RJ: { nome: 'Beatriz Nunes', cargo: 'Interlocutor' }, ES: { nome: 'Marcelo Dias', cargo: 'Coordenador' }, GO: { nome: 'Luana Castro', cargo: 'Interlocutor' }, PE: { nome: 'Sérgio Moura', cargo: 'Coordenador' }, BA: { nome: 'Adriana Lopes', cargo: 'Interlocutor' },
+}
 const taa = (id: string, numero: string, contratante: string, dr: string, vig: [string, string], valor: number, status: StatusContrato, edital?: string, nomes: string[] = []): Contrato => {
   const e = editais.find((x) => x.numero === edital)
   const produtos = nomes.map((n) => e?.cursos.find((c) => c.nome === n)).filter((c): c is CursoEdital => !!c).map(({ nome, area, modalidade, cargaHoraria, valor }) => ({ nome, area, modalidade, cargaHoraria, valor }))
-  return { id, numero, contratante, dr, vigenciaInicio: vig[0], vigenciaFim: vig[1], valor, status, edital, produtos }
+  return { id, numero, contratante, dr, vigenciaInicio: vig[0], vigenciaFim: vig[1], valor, status, edital, produtos, gestor: gestores[contratante] }
 }
 const contratos: Contrato[] = [
   // DN contratando CTMs
@@ -132,7 +138,7 @@ const contratos: Contrato[] = [
   taa('15', 'CT-003/2026', 'SESI-MG', 'SC', ['01/04/2026', '31/03/2027'], 260000, 'Vigente', 'ED-003/2026', ['Mecânico de Usinagem']),
 ]
 
-export const useContratos = () => useCollection<Contrato>('contratos-v5', contratos)
+export const useContratos = () => useCollection<Contrato>('contratos-v6', contratos)
 // TAA ou contrato (não encerrado) entre um contratante e uma CTM.
 export const taaEntre = (todos: Contrato[], contratante: string, ctm: string) => todos.find((c) => c.contratante === contratante && c.dr === ctm && c.status !== 'Encerrado')
 // Produtos contratados (todos os TAAs/contratos não encerrados entre o contratante e a CTM).

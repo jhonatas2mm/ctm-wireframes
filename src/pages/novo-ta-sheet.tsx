@@ -9,6 +9,8 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Badge } from '@/components/ui/badge'
 import { Check, Download, FileText, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useProfile } from '@/journey/profile'
+import { profileOf } from '@/journey/profiles'
 import { aprovadaDe, instrumentoDe, nomeParte, useContratos, useEditais, type ProdutoTaa } from '@/lib/mock'
 
 const fmtData = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '____/____/______')
@@ -63,6 +65,11 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
   }
 
   const field = 'grid gap-1.5'
+  // Gestor solicitante (quem pede a contratação): vem do usuário logado; o cargo pode ser ajustado.
+  const eu = profileOf(useProfile()).user
+  const [gestor, setGestor] = useState('')
+  const [cargo, setCargo] = useState('Coordenador')
+  useEffect(() => { if (open) (setGestor(eu?.nome ?? ''), setCargo(eu?.cargo ?? 'Coordenador')) }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <Sheet open={open} onOpenChange={(v) => (v || reset(), onOpenChange(v))}>
       <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-4xl">
@@ -116,7 +123,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
             onSubmit={(e) => {
               e.preventDefault()
               if (!dr || !escolhidos.length) return
-              db.add({ numero, contratante, dr, edital: editalNum ?? undefined, produtos: escolhidos, vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim), valor: valorNum, status: 'Em elaboração' })
+              db.add({ numero, contratante, dr, edital: editalNum ?? undefined, produtos: escolhidos, gestor: { nome: gestor.trim(), cargo }, vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim), valor: valorNum, status: 'Em elaboração' })
               setSalvo({ numero, dr: dr ?? '—', inicio, fim, valor: brl(valorNum) })
             }}
           >
@@ -168,7 +175,23 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
               </div>
             </Group>
 
-            <Group n={2} title="Vigência e valor">
+            <Group n={2} title={<>Gestor solicitante <Req /></>}>
+              <div className="grid grid-cols-2 gap-3">
+                <div className={field}>
+                  <Label htmlFor="gestor">Nome</Label>
+                  <Input id="gestor" value={gestor} onChange={(e) => setGestor(e.target.value)} />
+                </div>
+                <div className={field}>
+                  <Label>Cargo</Label>
+                  <Select value={cargo} onValueChange={(v) => setCargo(v as string)}>
+                    <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                    <SelectContent>{['Coordenador', 'Interlocutor', 'Gestor DN', 'Outro'].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </Group>
+
+            <Group n={3} title="Vigência e valor">
               <div className="grid grid-cols-3 gap-3">
                 <div className={field}>
                   <Label htmlFor="inicio">Início <Req /></Label>

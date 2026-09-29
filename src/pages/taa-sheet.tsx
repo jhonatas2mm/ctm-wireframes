@@ -33,6 +33,7 @@ export function TaaSheet({ taa, onClose, onAnexar }: { taa: Contrato | null; onC
                   ['Status', <Badge variant={statusVariant[taa.status]}>{taa.status}</Badge>],
                   ['Contratante', nomeParte(taa.contratante)],
                   ['CTM contratada', `SENAI-${taa.dr}`],
+                  ['Gestor solicitante', taa.gestor ? `${taa.gestor.nome} (${taa.gestor.cargo})` : '—'],
                   ['Valor global', brl(taa.valor)],
                   ['Vigência', `${taa.vigenciaInicio} a ${taa.vigenciaFim}`],
                 ] as [string, React.ReactNode][]).map(([k, v]) => (

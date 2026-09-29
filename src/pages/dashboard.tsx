@@ -19,6 +19,7 @@ const colunas = (todos: boolean): Column<Contrato>[] => [
     { header: 'Instrumento', value: (c: Contrato) => instrumentoDe(c.contratante), filter: true },
   ] : []),
   { header: 'CTM contratada', value: (c) => `SENAI-${c.dr}`, search: true, filter: true },
+  { header: 'Gestor solicitante', value: (c) => (c.gestor ? `${c.gestor.nome} · ${c.gestor.cargo}` : '—'), search: true },
   { header: 'Produtos', value: (c) => (c.produtos ?? []).map((p) => p.nome).join(', ') || '—', search: true, cell: (c) => <span className="line-clamp-2 max-w-72 text-sm">{(c.produtos ?? []).map((p) => p.nome).join(', ') || '—'}</span> },
   { header: 'Valor global', value: (c) => brl(c.valor), className: 'text-right tabular-nums' },
   {

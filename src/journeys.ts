@@ -107,8 +107,8 @@ export const journeys: Journey[] = [
     title: 'Contratação da CTM (TAA)',
     profile: 'DR solicitante: SENAI',
     steps: [
-      { title: 'TAAs com CTMs', path: '/dashboard', focus: 'text=Novo TAA', profile: 'DR solicitante: SENAI', note: 'A DR solicitante (SENAI-MG) contrata outra CTM. SENAI com SENAI é TAA; se o solicitante for SESI, o instrumento é contrato.' },
-      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DR solicitante: SENAI', note: 'Contratante fixo (a própria DR); escolhe o edital e os produtos. A CTM é a aprovada no edital para esses produtos (não dá para escolher outra). Vigência e valor global; baixa o termo.' },
+      { title: 'TAAs com CTMs', path: '/dashboard', focus: 'text=Novo TAA', profile: 'DR solicitante: SENAI', note: 'O Gestor da DR solicitante (coordenador, interlocutor…) pede a contratação de uma CTM. SENAI com SENAI é TAA; se o solicitante for SESI, o instrumento é contrato.' },
+      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DR solicitante: SENAI', note: 'Contratante fixo (a própria DR); escolhe o edital e os produtos (a CTM é a aprovada no edital para eles); Gestor solicitante (nome e cargo); vigência e valor global; baixa o termo.' },
       { title: 'TAA em elaboração', path: '/dashboard/5', profile: 'DR solicitante: SENAI', note: 'Assinaturas fora do sistema. Ao voltar, “Anexar TAA assinado”.' },
       { title: 'TAA vigente', path: '/dashboard/4', profile: 'DR solicitante: SENAI', note: 'Vigente: a CTM contratada registra as propostas para esta DR.' },
     ],
@@ -118,7 +118,7 @@ export const journeys: Journey[] = [
     title: 'Contratação da CTM (contrato)',
     profile: 'DR solicitante: SESI',
     steps: [
-      { title: 'Contratos com CTMs', path: '/dashboard', focus: 'text=Novo contrato', profile: 'DR solicitante: SESI', note: 'O SESI-MG contrata uma CTM do SENAI. SESI com SENAI não é TAA: o instrumento é contrato.' },
+      { title: 'Contratos com CTMs', path: '/dashboard', focus: 'text=Novo contrato', profile: 'DR solicitante: SESI', note: 'O Gestor do SESI-MG (interlocutor) pede a contratação de uma CTM do SENAI. SESI com SENAI não é TAA: o instrumento é contrato.' },
       { title: 'Novo contrato', path: '/dashboard/novo-ta', profile: 'DR solicitante: SESI', note: 'Contratante fixo (SESI-MG); escolhe o edital e os produtos; a CTM é a aprovada no edital para eles. Vigência e valor global; baixa o contrato.' },
       { title: 'Contrato em elaboração', path: '/dashboard/14', profile: 'DR solicitante: SESI', note: 'Assinaturas fora do sistema. Ao voltar, anexa o contrato assinado.' },
       { title: 'Contrato vigente', path: '/dashboard/15', profile: 'DR solicitante: SESI', note: 'Vigente: a CTM contratada (SENAI-SC) registra as propostas para o SESI-MG.' },

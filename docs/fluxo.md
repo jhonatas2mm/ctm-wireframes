@@ -40,8 +40,9 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
   - **Pedagógico** — Gestão da oferta (validação pedagógica) e Tratativas pedagógicas.
   - **Tutor** e **Monitor** — **em avaliação** (caixa tracejada com "?"): Tutor vê a oferta; Monitor vê a oferta e as tratativas.
 - **DR solicitante** (MG) — caixas:
-  - **SENAI** (SENAI-MG) — contrata a CTM por **TAA** e acompanha a execução (Painel, Gestão de Contratos, Turmas, Alunos).
-  - **SESI** (SESI-MG) — contrata a CTM por **contrato** (não é TAA) e acompanha a execução.
+  - Quem pede a contratação é o **Gestor** (pode ser o coordenador, o interlocutor etc.). O TAA/contrato registra o **Gestor solicitante** (nome e cargo).
+  - **Gestor SENAI** (SENAI-MG) — contrata a CTM por **TAA** e acompanha a execução (Painel, Gestão de Contratos, Turmas, Alunos).
+  - **Gestor SESI** (SESI-MG) — contrata a CTM por **contrato** (não é TAA) e acompanha a execução.
 - Uma mesma DR pode ser **CTM** (ofertante) e **DR solicitante** (contratante) — são perfis diferentes.
 - Menu "Contratação de CTM" (`/dashboard`): título da tela conforme o perfil — *TAAs com CTMs* (DN, SENAI), *Contratos com CTMs* (SESI), *TAAs e contratos com CTMs* (Super admin).
 
@@ -309,3 +310,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Perfis em três grupos com caixas**: DN, CTM (Comercial, PCP, Supervisor, Pedagógico; Tutor e Monitor em avaliação) e DR solicitante (SENAI, SESI), mais o Super admin. Casca: grupos e caixas vêm de profiles.ts (grupo/caixa) e aparecem nas abas de subperfil ao lado do selo (Tutor/Monitor tracejados, em avaliação). "DR solicitante" virou "DR solicitante: SENAI"; novo "DR solicitante: SESI" cria **contrato** (resolve quem registra o contrato do SESI). Menus por caixa; menu "Contratação de CTM" com título conforme o perfil. Jornadas novas: Contratação da CTM (contrato) e acompanhamento do SESI, Alocação de tutores (PCP), Validação e acompanhamento (Pedagógico), Tutor e Monitor (em avaliação).
 - 2026-09-29 — **Portfólio com aprovação do DN**: novo produto e nova versão viram solicitações (*Aguardando aprovação*); DN aprova/reprova (motivo) em **Aprovação de portfólio**; o aprovado aparece no **Portfólio das CTMs** para todas as DRs e vai para a oferta. Produto ganhou vínculo com o **itinerário** (botão, sem integração ainda) e **documentos/materiais** (links). Gestão de Portfólio reescrita por produto (sem as linhas derivadas das propostas). Jornadas: Aprovação de portfólio (DN) e Portfólio das CTMs (DR solicitante). Casca: grupos/caixas de profiles.ts nas abas de subperfil do Jhonatas.
 - 2026-09-29 — **Calendário → Feriados nacionais**, só do Super admin (`/admin/feriados`, novo/editar/excluir). Serve apenas para o cronograma pular feriados nacionais; saíram os recessos/férias da CTM e o Calendário dos menus da CTM (Supervisor, Comercial, PCP). Jornada nova: Feriados nacionais (Super admin).
+- 2026-09-29 — **Gestor**: na DR solicitante, quem pede a contratação da CTM é o Gestor (coordenador, interlocutor…). Caixas viraram **Gestor SENAI** e **Gestor SESI**; o Novo TAA/contrato tem o grupo **Gestor solicitante** (nome do usuário + cargo), mostrado nos detalhes e na lista.
