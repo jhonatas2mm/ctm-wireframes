@@ -42,8 +42,9 @@ function readHash() {
 // Domínio fictício exibido na barra do navegador simulada.
 const APP_HOST = 'ctm.com.br'
 
-// Desktop é renderizado numa largura fixa e reduzido para caber (telas pequenas não espremem o layout).
-const DESKTOP_WIDTH = 1440
+// Desktop é renderizado numa largura fixa (padrão de tela) e reduzido por inteiro para caber, mantendo as proporções.
+// Em telas maiores, a moldura para nessa largura (centralizada) em vez de esticar.
+const DESKTOP_WIDTH = 1600
 
 function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; src: string; scaled: boolean }) {
   const box = useRef<HTMLDivElement>(null)
@@ -436,7 +437,7 @@ export function JourneyShell() {
 
         <div className="flex min-h-0 flex-1">
           <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'px-4 pb-4')}>
-            <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width }}>
+            <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width, maxWidth: DESKTOP_WIDTH + 8 }}>
             {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
             <div className="flex items-end gap-2">
               {/* Troca de perfil: abre a 1ª jornada iniciada por ele, na 1ª etapa */}
