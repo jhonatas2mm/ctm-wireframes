@@ -6,12 +6,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { AttachField, Req, useConfirmar } from '@/components/wf'
+import { AttachField, Req, RowAction, useConfirmar } from '@/components/wf'
 import { analisaDe, nomeParte, useContratos, vigenciaEncerrada, type Contrato, type Registro, type StatusContrato } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
-import { cn } from '@/lib/utils'
 
 // Fluxo do TAA/contrato (status Encaminhado → Em análise → Retornado / Aceito / Cancelado), usado pela
 // lista do contratante (Gestor da DR) e pela da CTM. Quem criou encaminha, ajusta e reencaminha ou cancela; a outra
@@ -74,16 +73,12 @@ export function useFluxoTaa(papel: Papel) {
     return a
   }
 
-  // Botões: na linha da tabela (compactos) ou no rodapé dos detalhes.
+  // Botões: na linha da tabela só ícones (RowAction, com tooltip); no rodapé dos detalhes, com texto.
   const botoes = (c: Contrato, onde: 'linha' | 'rodape' = 'linha', depois?: () => void): ReactNode =>
-    acoes(c).map((x) => (
-      <Button
-        key={x.rotulo}
-        size="sm"
-        variant={onde === 'rodape' && x.principal ? 'default' : 'outline'}
-        className={cn(onde === 'linha' && 'h-7 px-2 text-xs')}
-        onClick={() => (x.fazer(), depois?.())}
-      >
+    acoes(c).map((x) => onde === 'linha' ? (
+      <RowAction key={x.rotulo} label={x.rotulo} icon={x.icone} onClick={() => (x.fazer(), depois?.())} />
+    ) : (
+      <Button key={x.rotulo} size="sm" variant={x.principal ? 'default' : 'outline'} onClick={() => (x.fazer(), depois?.())}>
         <x.icone /> {x.rotulo}
       </Button>
     ))
