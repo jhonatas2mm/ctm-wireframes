@@ -83,13 +83,13 @@ export function AppShell() {
   return (
     <SidebarProvider style={{ '--sidebar-width': '15rem' } as React.CSSProperties}>
       <Sidebar variant="floating">
-        <SidebarHeader className="flex-row items-center justify-between pt-3 pb-4 pr-2 pl-3">
+        <SidebarHeader className="flex-row items-center justify-between pt-0.5 pb-4 pr-2 pl-3">
           {/* Logo do protótipo: marca laranja + nome */}
           <div className="flex items-center gap-2.5">
             <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5631A] to-[#BF340F] text-white shadow-sm">
               <GraduationCap className="size-5" />
             </div>
-            <div className="text-lg font-bold tracking-tight">CTM</div>
+            <div className="leading-tight"><div className="text-lg font-bold tracking-tight">CTM</div><div className="text-xs text-muted-foreground">Gestão de CTM</div></div>
           </div>
         </SidebarHeader>
         {dr && (
@@ -137,7 +137,7 @@ export function AppShell() {
       </Sidebar>
       <SidebarInset className="min-w-0">
         {/* Some quando não há breadcrumb nem botão de reabrir o menu */}
-        <header className="flex h-12 items-center gap-2 px-4 md:px-6 ">
+        <header className="flex h-[4.5rem] items-center gap-2 px-4 md:px-6">
           {/* PageHeader renderiza o breadcrumb aqui via portal */}
           <div id="topbar-slot" className="min-w-0 flex-1" />
           <BarreiraErro fallback={null}><AgenteBotao aberto={agente} onClick={() => setAgente(!agente)} /></BarreiraErro>
