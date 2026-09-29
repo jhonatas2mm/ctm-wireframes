@@ -15,7 +15,7 @@ import {
   type AjusteCobranca,
 } from '@/lib/mock'
 import { cn } from '@/lib/utils'
-import { cicloBr as mesBr, ciclosDe, janelaCiclo } from '@/lib/alunos-turma'
+import { cicloBr as mesBr, ciclosDe } from '@/lib/alunos-turma'
 import { brl, linhasCobranca, movimentacao } from '@/lib/cobranca'
 
 // Relatório de cobrança (CTM → DR solicitante), no modelo da planilha da CTM: por proposta e ciclo financeiro (mês),
@@ -54,10 +54,10 @@ export default function RelatorioCobranca() {
 
   // Planilha (CSV) com as mesmas colunas do relatório
   const exportar = () => {
-    const cab = ['Proposta', 'Modalidade', 'Curso', 'Escola-Município', 'Turma', 'Unidade Curricular', 'CH Total', 'Início', 'Final', 'Ciclo', 'CH Cobrada', 'Nº alunos', 'Valor aluno/hora', 'Valor total']
+    const cab = ['Proposta', 'Modalidade', 'Curso', 'Escola-Município', 'Turma', 'Unidade Curricular', 'CH Total', 'Início', 'Final', 'Ciclo', 'Ciclo da UC', 'CH Cobrada', 'Nº alunos', 'Valor aluno/hora', 'Valor total']
     const rows = [
-      ...linhas.map((l) => [p.numero, l.modalidade, l.curso, `${l.escola} - ${l.cidade}`, l.codigo, l.uc, l.chTotal, dataBr(l.inicio), dataBr(l.fim), mesBr(ciclo), horas(l.chCobrada), l.alunos, l.valorHora.toFixed(2), l.valor.toFixed(2)]),
-      ...ajustes.map((a, n) => [p.numero, '', '', a.turma, '', `Ajuste de cobrança ${n + 1} - ${a.uc}`, '', '', '', mesBr(ciclo), horas(a.ch), a.alunos, a.valorHora.toFixed(2), (a.ch * a.alunos * a.valorHora).toFixed(2)]),
+      ...linhas.map((l) => [p.numero, l.modalidade, l.curso, `${l.escola} - ${l.cidade}`, l.codigo, l.uc, l.chTotal, dataBr(l.inicio), dataBr(l.fim), mesBr(ciclo), `${dataBr(l.cicloIni)} a ${dataBr(l.cicloFim)}`, horas(l.chCobrada), l.alunos, l.valorHora.toFixed(2), l.valor.toFixed(2)]),
+      ...ajustes.map((a, n) => [p.numero, '', '', a.turma, '', `Ajuste de cobrança ${n + 1} - ${a.uc}`, '', '', '', mesBr(ciclo), '', horas(a.ch), a.alunos, a.valorHora.toFixed(2), (a.ch * a.alunos * a.valorHora).toFixed(2)]),
     ]
     const csv = [cab, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n')
     const url = URL.createObjectURL(new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' }))
@@ -80,7 +80,7 @@ export default function RelatorioCobranca() {
       <div className="space-y-6">
         <div className="flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
           <div className="grid gap-1.5">
-            <Label>Ciclo financeiro <span className="font-normal text-muted-foreground">({dataBr(janelaCiclo(ciclo).ini)} a {dataBr(janelaCiclo(ciclo).fim)})</span></Label>
+            <Label>Cobrança do mês <span className="font-normal text-muted-foreground">(cada UC no seu ciclo)</span></Label>
             <div className="flex items-center gap-1">
             <Button size="icon" variant="outline" aria-label="Mês anterior" disabled={!anterior} motivo="Primeiro mês de cobrança" onClick={() => irPara(anterior)}><ChevronLeft /></Button>
             <Select value={ciclo} onValueChange={(v) => setParams({ ciclo: v as string }, { replace: true })}>
@@ -124,7 +124,7 @@ export default function RelatorioCobranca() {
                 ))}
               </ul>
             ) : mov.anterior !== undefined && <p className="text-muted-foreground">Nenhuma saída confirmada para esta cobrança.</p>}
-            <p className="text-xs text-muted-foreground">A saída confirmada pela DR tira o aluno da cobrança seguinte (corte no dia 20). Desistência só no Moodle, sem confirmação, segue cobrada.</p>
+            <p className="text-xs text-muted-foreground">Cada UC tem o seu ciclo: a saída confirmada pela DR fora do ciclo da UC só desconta no próximo ciclo dela. Desistência só no Moodle, sem confirmação, segue cobrada.</p>
           </div>
         </section>
 
@@ -160,6 +160,7 @@ export default function RelatorioCobranca() {
                     <TableHead>Unidade curricular</TableHead>
                     <TableHead className="text-right">CH total</TableHead>
                     <TableHead>Período</TableHead>
+                    <TableHead>Ciclo da UC</TableHead>
                     <TableHead className="text-right">CH cobrada</TableHead>
                     <TableHead className="text-right">Alunos</TableHead>
                     <TableHead className="text-right">Aluno/hora</TableHead>
@@ -176,6 +177,7 @@ export default function RelatorioCobranca() {
                       <TableCell>{l.uc}</TableCell>
                       <TableCell className="text-right tabular-nums">{l.chTotal}</TableCell>
                       <TableCell className="whitespace-nowrap tabular-nums">{dataBr(l.inicio)} a {dataBr(l.fim)}</TableCell>
+                      <TableCell className="whitespace-nowrap text-xs tabular-nums text-muted-foreground">{dataBr(l.cicloIni)} a {dataBr(l.cicloFim)}</TableCell>
                       <TableCell className="text-right tabular-nums">{horas(l.chCobrada)}</TableCell>
                       <TableCell className="text-right tabular-nums">{l.alunos}</TableCell>
                       <TableCell className="text-right tabular-nums">{brl(l.valorHora)}</TableCell>
@@ -187,7 +189,7 @@ export default function RelatorioCobranca() {
                     <TableRow key={a.id} className="bg-amber-50/60">
                       <TableCell colSpan={3}><Badge variant="outline">Ajuste de cobrança {n + 1}</Badge> <span className="text-sm">{a.turma}</span></TableCell>
                       <TableCell><span className="block">{a.uc}</span><span className="text-xs text-muted-foreground">{a.observacao}</span></TableCell>
-                      <TableCell /><TableCell />
+                      <TableCell /><TableCell /><TableCell />
                       <TableCell className="text-right tabular-nums">{horas(a.ch)}</TableCell>
                       <TableCell className="text-right tabular-nums">{a.alunos}</TableCell>
                       <TableCell className="text-right tabular-nums">{brl(a.valorHora)}</TableCell>
@@ -200,7 +202,7 @@ export default function RelatorioCobranca() {
                 </TableBody>
                 <TableFooter>
                   <TableRow>
-                    <TableCell colSpan={9} className="text-right font-semibold">Total · vencimento {dataBr(vencimento)}</TableCell>
+                    <TableCell colSpan={10} className="text-right font-semibold">Total · vencimento {dataBr(vencimento)}</TableCell>
                     <TableCell className="text-right text-base font-semibold tabular-nums">{brl(total)}</TableCell>
                     <TableCell />
                   </TableRow>

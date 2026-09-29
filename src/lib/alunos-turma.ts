@@ -72,30 +72,34 @@ export function situacaoNaUc(a: AlunoTurma, u: UcTurma): { situacao: SituacaoUcA
   return { situacao: 'Ativo' }
 }
 
-// Ciclo financeiro (mês de cobrança): janela do dia 21 do mês anterior ao dia 20 do mês (corte no dia 20).
+// Ciclo de faturamento é POR UC: cada UC tem o seu dia de fechamento (corteCiclo, padrão 20). A cobrança do mês c junta,
+// de cada UC, a janela que fecha em c: do dia seguinte ao fechamento no mês anterior até o fechamento em c.
 const mesAnt = (c: string) => new Date(Date.UTC(Number(c.slice(0, 4)), Number(c.slice(5)) - 2, 1)).toISOString().slice(0, 7)
 const proxMes = (c: string) => new Date(Date.UTC(Number(c.slice(0, 4)), Number(c.slice(5)), 1)).toISOString().slice(0, 7)
-export const janelaCiclo = (c: string) => ({ ini: `${mesAnt(c)}-21`, fim: `${c}-20` })
+const dd = (n: number) => String(n).padStart(2, '0')
+export const CORTE_PADRAO = 20
+export const corteUc = (u: UcTurma) => Math.min(28, Math.max(1, u.corteCiclo ?? CORTE_PADRAO))
+export const janelaUc = (u: UcTurma, c: string) => { const k = corteUc(u); return { ini: `${mesAnt(c)}-${dd(k + 1)}`, fim: `${c}-${dd(k)}` } }
+export const janelaCiclo = (c: string) => ({ ini: `${mesAnt(c)}-${dd(CORTE_PADRAO + 1)}`, fim: `${c}-${dd(CORTE_PADRAO)}` }) // ciclo padrão
 export const cicloBr = (c: string) => `${Number(c.slice(5))}/${c.slice(0, 4)}`
-export const ucNoCiclo = (u: UcTurma, c: string) => { const j = janelaCiclo(c); return !!u.inicio && !!u.fim && u.inicio <= j.fim && u.fim >= j.ini }
+export const ucNoCiclo = (u: UcTurma, c: string) => { const j = janelaUc(u, c); return !!u.inicio && !!u.fim && u.inicio <= j.fim && u.fim >= j.ini }
 
-// Ciclos em que alguma UC das turmas está em andamento.
+// Ciclos (meses de cobrança) em que alguma UC das turmas tem janela em andamento.
 export function ciclosDe(turmas: Turma[]) {
   const ucs = turmas.flatMap((t) => t.modulos.flatMap((m) => m.unidades)).filter((u) => u.inicio && u.fim)
-  if (!ucs.length) return []
-  const cicloDe = (d: string) => (Number(d.slice(8)) > 20 ? proxMes(d.slice(0, 7)) : d.slice(0, 7))
-  const out: string[] = []
-  for (let c = cicloDe(ucs.map((u) => u.inicio).sort()[0]); c <= cicloDe(ucs.map((u) => u.fim).sort().at(-1)!); c = proxMes(c)) out.push(c)
-  return out
+  const out = new Set<string>()
+  for (const u of ucs) for (let c = u.inicio.slice(0, 7); c <= proxMes(u.fim.slice(0, 7)); c = proxMes(c)) if (ucNoCiclo(u, c)) out.add(c)
+  return [...out].sort()
 }
 
 // Fatura a UC no ciclo: UC em andamento na janela, aluno integrado pela DR (ativo, suspenso ou desistente no Moodle ainda sem
 // confirmação — a CTM cobra até a DR confirmar/formalizar) e sem saída confirmada antes do início da janela.
-// A cobrança é mensal: a saída só tira o aluno da cobrança SEGUINTE à confirmação da DR (desistência) ou à formalização
-// (trancamento), pelo corte do dia 20 — ex.: confirmada em 10/11 → sai da cobrança de 12; em 25/11 → sai da de 01.
+// A saída (evasão/desistência confirmada pela DR, ou trancamento) só desconta a partir do ciclo DA UC que começa depois da
+// confirmação: confirmada fora do ciclo (depois do fechamento) → desconta só no próximo ciclo daquela UC.
+// Ex.: UC com fechamento dia 20, confirmada em 10/11 → sai da cobrança de 12; em 25/11 → sai da de 01.
 export const corteSaida = (a: AlunoTurma) => (!saidaValida(a) ? undefined : a.status === 'Trancado' ? a.dataSaida : a.confirmacaoEm ?? a.dataSaida)
 export function fatura(a: AlunoTurma, u: UcTurma, c: string) {
   if (!ucNoCiclo(u, c) || !a.integrado) return false
   const corte = corteSaida(a)
-  return !(corte && corte < janelaCiclo(c).ini)
+  return !(corte && corte < janelaUc(u, c).ini)
 }

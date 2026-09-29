@@ -195,6 +195,7 @@ export default function OfertaDetalhe() {
                 <CronogramaLinhaDoTempo
                   t={t} turmas={db.all} calendario={calendario}
                   onEditarAula={(i, k) => { const u = t.modulos[i].unidades[k]; setEditando({ i, k, aula: u.aoVivo[0] ?? { data: u.inicio, inicio: '19:00', fim: '21:00' } }) }}
+                  onCorteCiclo={(i, k, dia) => registrar({ modulos: t.modulos.map((m, j) => (j !== i ? m : { ...m, unidades: m.unidades.map((u, l) => (l === k ? { ...u, corteCiclo: dia } : u)) })) }, `Ciclo de faturamento de ${t.modulos[i].unidades[k].nome}: fecha no dia ${dia}`)}
                   onRemoverAula={(i, k) => confirmar({ titulo: `Remover a aula ao vivo de ${t.modulos[i].unidades[k].nome}?`, onConfirmar: () => salvarAula(i, k, null) })}
                 />
               )}

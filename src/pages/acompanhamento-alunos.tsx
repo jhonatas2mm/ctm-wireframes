@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { DataTable, EmptyState, StatCard, type Column } from '@/components/wf'
 import { HOJE, dataBr, useConfirmacoesDesistencia, useTurmas, type UcTurma } from '@/lib/mock'
-import { alunosDaTurma, cicloBr, ciclosDe, fatura, janelaCiclo, situacaoNaUc, ucNoCiclo, type AlunoTurma } from '@/lib/alunos-turma'
+import { alunosDaTurma, cicloBr, ciclosDe, fatura, janelaUc, situacaoNaUc, ucNoCiclo, type AlunoTurma } from '@/lib/alunos-turma'
 import { cn } from '@/lib/utils'
 
 // Relatório geral de acompanhamento dos alunos (substitui a planilha da CTM): por turma e ciclo financeiro, cada aluno com
@@ -30,7 +30,6 @@ export function AcompanhamentoAlunos() {
 
   const alunos = alunosDaTurma(t, conf)
   const ucs: UcTurma[] = t.modulos.flatMap((m) => m.unidades).filter((u) => ucNoCiclo(u, ciclo))
-  const j = janelaCiclo(ciclo)
   const faturas = alunos.reduce((n, a) => n + ucs.filter((u) => fatura(a, u, ciclo)).length, 0)
   const suspensos = alunos.filter((a) => a.suspensoEm && a.status === 'Matriculado').length
 
@@ -59,7 +58,7 @@ export function AcompanhamentoAlunos() {
     { header: 'Data de saída', value: (a) => (a.dataSaida ? dataBr(a.dataSaida) : ''), cell: (a) => (a.dataSaida ? <span className="font-medium tabular-nums">{dataBr(a.dataSaida)}</span> : '—') },
     { header: 'Monitor', value: (a) => a.monitor ?? '', filter: true, cell: (a) => a.monitor ?? '—' },
     ...ucs.map((u): Column<AlunoTurma> => ({
-      header: `${u.nome} (${curto(u.inicio)} a ${curto(u.fim)})`,
+      header: `${u.nome} · ciclo ${curto(janelaUc(u, ciclo).ini)} a ${curto(janelaUc(u, ciclo).fim)}`,
       value: (a) => `${situacaoNaUc(a, u).situacao} · ${fatura(a, u, ciclo) ? 'fatura' : 'não fatura'}`,
       filter: true,
       cell: (a) => {
@@ -77,7 +76,7 @@ export function AcompanhamentoAlunos() {
 
   // Planilha (CSV) no formato da planilha da CTM
   const exportar = () => {
-    const cab = ['Aluno', 'Grupo', 'CPF', 'E-mail', 'Telefone', 'Status geral', 'Data de saída', 'Monitor', ...ucs.flatMap((u) => [`UC ${u.nome}`, `Faturamento ${u.nome} ${dataBr(j.ini)} a ${dataBr(j.fim)}`])]
+    const cab = ['Aluno', 'Grupo', 'CPF', 'E-mail', 'Telefone', 'Status geral', 'Data de saída', 'Monitor', ...ucs.flatMap((u) => [`UC ${u.nome}`, `Faturamento ${u.nome} ${dataBr(janelaUc(u, ciclo).ini)} a ${dataBr(janelaUc(u, ciclo).fim)}`])]
     const rows = alunos.map((a) => [a.nome, `${t.codigo} - ${a.escola}`, a.cpf, a.email, a.telefone, statusGeral(a), a.dataSaida ? dataBr(a.dataSaida) : '', a.monitor ?? '', ...ucs.flatMap((u) => { const s = situacaoNaUc(a, u); return [`${s.situacao}${s.desde ? ` - ${dataBr(s.desde)}` : ''}`, fatura(a, u, ciclo) ? 'SIM' : 'NÃO'] })])
     const csv = [cab, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n')
     const url = URL.createObjectURL(new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' }))
@@ -96,7 +95,7 @@ export function AcompanhamentoAlunos() {
           </Select>
         </div>
         <div className="grid gap-1.5">
-          <Label>Ciclo financeiro <span className="font-normal text-muted-foreground">({dataBr(j.ini)} a {dataBr(j.fim)})</span></Label>
+          <Label>Cobrança do mês <span className="font-normal text-muted-foreground">(cada UC no seu ciclo)</span></Label>
           <Select value={ciclo} onValueChange={(v) => set('ciclo', v as string)}>
             <SelectTrigger className="w-44"><SelectValue>{(v: string | null) => (v ? cicloBr(v) : '—')}</SelectValue></SelectTrigger>
             <SelectContent>{ciclos.map((c) => <SelectItem key={c} value={c}>{cicloBr(c)}</SelectItem>)}</SelectContent>

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { HOJE, agrupaveis, chUc, dataBr, diasEntre, type DataCalendario, type Turma, type UcTurma } from '@/lib/mock'
 import { datasEncontros, diaCurto } from '@/lib/cronograma'
+import { CORTE_PADRAO } from '@/lib/alunos-turma'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 // Cronograma da turma como linha do tempo (substitui a planilha de cronograma da CTM): semanas no topo, módulos agrupando
@@ -29,9 +31,10 @@ type Props = {
   calendario: DataCalendario[]
   onEditarAula: (i: number, k: number) => void
   onRemoverAula: (i: number, k: number) => void
+  onCorteCiclo: (i: number, k: number, dia: number) => void
 }
 
-export function CronogramaLinhaDoTempo({ t, turmas, calendario, onEditarAula, onRemoverAula }: Props) {
+export function CronogramaLinhaDoTempo({ t, turmas, calendario, onEditarAula, onRemoverAula, onCorteCiclo }: Props) {
   const [aberta, setAberta] = useState<{ i: number; k: number } | null>(null)
   const ucs = t.modulos.flatMap((m) => m.unidades).filter((u) => u.inicio && u.fim)
   if (!ucs.length) return <p className="rounded-[1.25rem] border border-dashed bg-card p-6 text-center text-sm text-muted-foreground">Cronograma ainda não gerado.</p>
@@ -164,16 +167,17 @@ export function CronogramaLinhaDoTempo({ t, turmas, calendario, onEditarAula, on
 
       <DetalheUc
         t={t} uc={ucAberta || null} pos={aberta} turmas={turmas} calendario={calendario}
-        onClose={() => setAberta(null)} onEditarAula={onEditarAula} onRemoverAula={onRemoverAula}
+        onClose={() => setAberta(null)} onEditarAula={onEditarAula} onRemoverAula={onRemoverAula} onCorteCiclo={onCorteCiclo}
       />
     </div>
   )
 }
 
 // Detalhe da UC (side sheet): o que a planilha espalhava em colunas.
-function DetalheUc({ t, uc: u, pos, turmas, calendario, onClose, onEditarAula, onRemoverAula }: {
+function DetalheUc({ t, uc: u, pos, turmas, calendario, onClose, onEditarAula, onRemoverAula, onCorteCiclo }: {
   t: Turma; uc: UcTurma | null; pos: { i: number; k: number } | null; turmas: Turma[]; calendario: DataCalendario[]
   onClose: () => void; onEditarAula: (i: number, k: number) => void; onRemoverAula: (i: number, k: number) => void
+  onCorteCiclo: (i: number, k: number, dia: number) => void
 }) {
   const enc = u ? datasEncontros(u, t.diaPresencial, calendario) : []
   const juntas = u ? agrupaveis(turmas, t, u) : []
@@ -204,6 +208,17 @@ function DetalheUc({ t, uc: u, pos, turmas, calendario, onClose, onEditarAula, o
                   <div key={k}><dt className="text-xs text-muted-foreground">{k}</dt><dd className="text-sm tabular-nums">{v}</dd></div>
                 ))}
               </dl>
+
+              <section className="flex items-center gap-3 rounded-lg border bg-card p-3">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-semibold">Ciclo de faturamento da UC</h3>
+                  <p className="text-xs text-muted-foreground">Fecha no dia {u.corteCiclo ?? CORTE_PADRAO} de cada mês; saída confirmada depois do fechamento desconta no próximo ciclo.</p>
+                </div>
+                <Select value={String(u.corteCiclo ?? CORTE_PADRAO)} onValueChange={(v) => onCorteCiclo(pos.i, pos.k, Number(v))}>
+                  <SelectTrigger className="w-32"><SelectValue>{(v: string | null) => `Dia ${v}`}</SelectValue></SelectTrigger>
+                  <SelectContent>{Array.from({ length: 28 }, (_, n) => n + 1).map((d) => <SelectItem key={d} value={String(d)}>Dia {d}</SelectItem>)}</SelectContent>
+                </Select>
+              </section>
 
               <section className="space-y-2">
                 <h3 className="text-sm font-semibold">Encontros presenciais <span className="font-normal text-muted-foreground">({enc.length})</span></h3>

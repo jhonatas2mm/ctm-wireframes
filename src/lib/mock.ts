@@ -364,6 +364,7 @@ export type UcTurma = {
   atividades?: AtividadePresencial[] // planejadas pelo pedagógico (as aulas ao vivo online ficam em aoVivo)
   devolucao?: string // motivo quando o tutor devolve o planejamento
   emailMonitorEm?: string // e-mail disparado ao monitor para parametrizar as avaliações no Moodle
+  corteCiclo?: number // ciclo de faturamento da UC: dia de fechamento (1 a 28; padrão 20). Cada UC pode ter o seu.
 }
 // Fluxo da UC: o monitor cria a sala no Moodle (Em criação → Criada) → o pedagógico planeja (Em planejamento: dias das aulas
 // ao vivo online e atividades presenciais) → o tutor avalia (aprova ou devolve) → e-mail ao monitor para parametrizar as
@@ -441,7 +442,7 @@ const turmas: Turma[] = [
       ] },
       { curso: 'Soldador', nome: 'Processos', unidades: [
         ucT('Soldagem com eletrodo revestido', 30, 30, '2026-10-19', '2026-11-06', { aoVivo: [], tutor: 'Fabiana Rocha', pedagogico: 'Sônia Prado', monitor: 'Otávio Reis', sala: 'Criada', salaAva: 'AVA-88215', etapa: 'Em planejamento', devolucao: 'Incluir uma atividade presencial de soldagem em chapa por semana.' }),
-        ucT('Soldagem MIG/MAG', 30, 30, '2026-11-09', '2026-11-27', { aoVivo: [], tutor: 'Diego Carvalho', pedagogico: 'Sônia Prado', monitor: 'Otávio Reis', sala: 'Em criação', etapa: 'Aguardando sala' }),
+        ucT('Soldagem MIG/MAG', 30, 30, '2026-11-09', '2026-11-27', { corteCiclo: 5, aoVivo: [], tutor: 'Diego Carvalho', pedagogico: 'Sônia Prado', monitor: 'Otávio Reis', sala: 'Em criação', etapa: 'Aguardando sala' }),
       ] },
     ],
     historico: [
@@ -459,7 +460,7 @@ const turmas: Turma[] = [
     fase: 'A iniciar', cronograma: { versao: 1, situacao: 'Aguardando validação', prazo: '2026-10-08' }, supervisor: 'Carlos Andrade', analista: 'Renata Guimarães',
     escolas: [{ nome: 'SENAI Anchieta', cidade: 'São Paulo', alunos: 25 }, { nome: 'SENAI Campinas', cidade: 'Campinas', alunos: 18 }], // 43 no Moodle × 40 na proposta: aditivo
     modulos: [
-      { curso: 'Técnico em Mecatrônica', nome: 'Básico', unidades: [ucT('Eletricidade aplicada', 60, 60, '2026-11-03', '2026-12-11'), ucT('Mecânica aplicada', 60, 60, '2026-12-14', '2027-02-12')] },
+      { curso: 'Técnico em Mecatrônica', nome: 'Básico', unidades: [ucT('Eletricidade aplicada', 60, 60, '2026-11-03', '2026-12-11'), ucT('Mecânica aplicada', 60, 60, '2026-12-14', '2027-02-12', { corteCiclo: 10 })] },
       { curso: 'Técnico em Mecatrônica', nome: 'Específico', unidades: [ucT('Automação e CLP', 80, 80, '2027-02-15', '2027-04-09'), ucT('Robótica industrial', 80, 80, '2027-04-12', '2027-06-04')] },
     ],
     historico: [
@@ -478,7 +479,7 @@ const turmas: Turma[] = [
     historico: [{ quando: '2026-09-22T10:00:00Z', texto: 'Oferta criada; cronograma v1 gerado', autor: 'Carlos Andrade' }],
   },
 ]
-export const useTurmas = () => useCollection<Turma>('turmas-v10', turmas)
+export const useTurmas = () => useCollection<Turma>('turmas-v11', turmas)
 // Agrupamento: outra turma com a mesma UC começando na mesma semana pode rodar junto (até ~300 alunos).
 export const agrupaveis = (todas: Turma[], t: Turma, uc: UcTurma) =>
   todas.filter((o) => o.id !== t.id && o.fase !== 'Cancelada' && o.modulos.some((m) => m.unidades.some((u) => u.nome === uc.nome && u.inicio && uc.inicio && Math.abs(diasEntre(u.inicio, uc.inicio)) <= 7)))
