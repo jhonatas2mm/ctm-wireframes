@@ -492,8 +492,8 @@ const calendario: DataCalendario[] = [
 export const useCalendario = () => useCollection<DataCalendario>('calendario-v2', calendario)
 
 // Equipe da CTM (gestão da execução): quem pode ser alocado nas turmas. Funções configuráveis por CTM.
-export type FuncaoEquipe = 'Tutor' | 'Monitor front' | 'Monitor back' | 'Pedagógico' | 'Interlocutor' | 'Analista' | 'Supervisor'
-export const funcoesEquipe: FuncaoEquipe[] = ['Tutor', 'Monitor front', 'Monitor back', 'Pedagógico', 'Interlocutor', 'Analista', 'Supervisor']
+export type FuncaoEquipe = 'Tutor' | 'Monitor' | 'Pedagógico' | 'Interlocutor' | 'Analista' | 'Supervisor'
+export const funcoesEquipe: FuncaoEquipe[] = ['Tutor', 'Monitor', 'Pedagógico', 'Interlocutor', 'Analista', 'Supervisor']
 export const diasSemana = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
 export type Pessoa = { id: string; ctm: string; nome: string; email: string; funcao: FuncaoEquipe; competencias: string[]; disponibilidade: string[]; status: 'Ativo' | 'Inativo' }
 const p = (id: string, nome: string, funcao: FuncaoEquipe, competencias: string[] = [], disponibilidade: string[] = diasSemana.slice(0, 5), status: Pessoa['status'] = 'Ativo', ctm = 'SENAI-MG'): Pessoa => ({
@@ -506,8 +506,8 @@ const equipe: Pessoa[] = [
   p('e3', 'Helena Duarte', 'Tutor', ['Eletricidade aplicada', 'Instrumentação industrial', 'Automação e CLP'], ['Terça-feira', 'Quinta-feira']),
   p('e4', 'Rodrigo Mattos', 'Tutor', ['Mecânica aplicada', 'Robótica industrial', 'Controladores Lógicos Programáveis']),
   p('e5', 'Patrícia Nunes', 'Tutor', ['Redes industriais', 'Eletricidade aplicada'], ['Segunda-feira', 'Terça-feira', 'Quarta-feira']),
-  p('e6', 'Lívia Campos', 'Monitor front'),
-  p('e7', 'Otávio Reis', 'Monitor back'),
+  p('e6', 'Lívia Campos', 'Monitor'),
+  p('e7', 'Otávio Reis', 'Monitor'),
   p('e8', 'Sônia Prado', 'Pedagógico'),
   p('e9', 'Marcos Leal', 'Interlocutor'),
   p('e10', 'Renata Guimarães', 'Analista'),
@@ -518,7 +518,7 @@ const equipe: Pessoa[] = [
   p('e14', 'Aline Freitas', 'Supervisor', [], diasSemana.slice(0, 5), 'Ativo', 'SENAI-SP'),
   p('e15', 'Gustavo Lima', 'Tutor', ['Soldagem MIG/MAG'], diasSemana.slice(0, 5), 'Ativo', 'SENAI-SC'),
 ]
-export const useEquipe = () => useCollection<Pessoa>('equipe-v2', equipe)
+export const useEquipe = () => useCollection<Pessoa>('equipe-v3', equipe)
 // Histórico de execuções anteriores de UCs (base para sugerir Planejamento × Apropriação e para o PCP).
 export const execucoesAnteriores: { uc: string; tutor: string; turma: string; acao: AcaoTutor; fim: string }[] = [
   { uc: 'Segurança em soldagem', tutor: 'Fabiana Rocha', turma: 'TU-MG-014/2025', acao: 'Planejamento', fim: '2025-09-12' },

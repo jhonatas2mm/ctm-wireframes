@@ -352,3 +352,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Casca: coluna lateral mais estreita por padrão (256px) e redimensionável arrastando a borda direita, só para diminuir (até 200px; lembrado no navegador). Botões de Análise e Design com rótulo alinhado à esquerda.
 - 2026-09-29 — Filtros: Turma, Modalidade e Área tecnológica também viram campo de busca multiselect em todas as tabelas.
 - 2026-09-29 — Novo TAA (Gestor de contrato): DR destinatária vira um select com **uma DR só** (um TAA por vez). Casca: conteúdo da coluna lateral não extrapola mais a caixa (selects e etapas encolhem; textos longos com reticências).
+- 2026-09-29 — Equipe: funções Monitor front e Monitor back unificadas em **Monitor** (Nova pessoa e alocação). Dados da equipe reiniciados (equipe-v3).

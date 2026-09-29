@@ -126,7 +126,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
                   </TableCell>
                   <TableCell>{escolha('pedagogico', 'Pedagógico')}</TableCell>
                   <TableCell>{escolha('tutor', 'Tutor')}</TableCell>
-                  <TableCell>{escolha('monitor', 'Monitor back')}</TableCell>
+                  <TableCell>{escolha('monitor', 'Monitor')}</TableCell>
                   <TableCell>
                     <Badge variant="secondary" className={cn(u.sala === 'Criada' ? 'bg-emerald-100 text-emerald-800' : u.sala === 'Em criação' ? 'bg-amber-100 text-amber-800' : 'bg-muted text-muted-foreground')}>{u.sala ?? 'Não criada'}</Badge>
                     {u.salaAva && u.sala === 'Criada' && <span className="ml-1.5 font-mono text-xs text-muted-foreground">{u.salaAva}</span>}
