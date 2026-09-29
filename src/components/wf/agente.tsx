@@ -176,6 +176,15 @@ function useConteudo() {
 
 // Painel do chat (lateral direita, empurra o conteúdo).
 export function AgentePainel({ aberto, onClose }: { aberto: boolean; onClose: () => void }) {
+  // Chat só é montado com o painel aberto (fechado, nada roda)
+  return (
+    <aside className={cn('sticky top-0 h-svh shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out', aberto ? 'w-[26rem]' : 'w-0')} aria-hidden={!aberto}>
+      {aberto && <Chat onClose={onClose} />}
+    </aside>
+  )
+}
+
+function Chat({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate()
   const perfil = useProfile()
   const { nome, acoes, roteiro } = useConteudo()
@@ -209,7 +218,6 @@ export function AgentePainel({ aberto, onClose }: { aberto: boolean; onClose: ()
   }
 
   return (
-    <aside className={cn('sticky top-0 h-svh shrink-0 overflow-hidden transition-[width] duration-300 ease-in-out', aberto ? 'w-[26rem]' : 'w-0')} aria-hidden={!aberto}>
       <div className="flex h-full w-[26rem] flex-col p-3 pl-0">
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.25rem] border bg-card">
           <div className="flex items-center gap-2 border-b px-4 py-3">
@@ -270,7 +278,6 @@ export function AgentePainel({ aberto, onClose }: { aberto: boolean; onClose: ()
           </div>
         </div>
       </div>
-    </aside>
   )
 }
 

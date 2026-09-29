@@ -23,6 +23,7 @@ import { BuscaRapida } from '@/components/wf/busca-rapida'
 import { CarregandoTela, useCarregandoTela } from '@/components/wf/carregando'
 import { Notificacoes } from '@/components/wf/notificacoes'
 import { AgenteBotao, AgentePainel } from '@/components/wf/agente'
+import { BarreiraErro } from '@/components/wf/erro'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 import { cn } from '@/lib/utils'
@@ -139,7 +140,7 @@ export function AppShell() {
         <header className="flex h-12 items-center gap-2 px-4 md:px-6 ">
           {/* PageHeader renderiza o breadcrumb aqui via portal */}
           <div id="topbar-slot" className="min-w-0 flex-1" />
-          <AgenteBotao aberto={agente} onClick={() => setAgente(!agente)} />
+          <BarreiraErro fallback={null}><AgenteBotao aberto={agente} onClick={() => setAgente(!agente)} /></BarreiraErro>
           {/* Usuário logado (fictício): só o avatar no canto superior direito; nome e perfil ficam no dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger render={<button type="button" aria-label={`Conta de ${user.nome}`} className="shrink-0 rounded-full ring-offset-2 hover:ring-2 hover:ring-[#E4E8E9]" />}>
@@ -163,15 +164,15 @@ export function AppShell() {
             </DropdownMenuContent>
           </DropdownMenu>
           {/* Sino de notificações: canto direito, depois do avatar (só nos perfis da CTM e no Super admin) */}
-          <Notificacoes />
+          <BarreiraErro fallback={null}><Notificacoes /></BarreiraErro>
         </header>
         <div className="w-full min-w-0 space-y-6 p-4 md:p-6">
           {/* Skeleton de carregamento ao entrar numa tela; a página já monta por baixo (estado preservado) */}
           {carregando && <CarregandoTela />}
-          <div className={carregando ? 'hidden' : 'contents'}><Outlet /></div>
+          <div className={carregando ? 'hidden' : 'contents'}><BarreiraErro chave={pathname}><Outlet /></BarreiraErro></div>
         </div>
       </SidebarInset>
-      <AgentePainel aberto={agente} onClose={() => setAgente(false)} />
+      <BarreiraErro fallback={null}><AgentePainel aberto={agente} onClose={() => setAgente(false)} /></BarreiraErro>
     </SidebarProvider>
   )
 }
