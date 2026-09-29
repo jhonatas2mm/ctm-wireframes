@@ -28,20 +28,20 @@ export const pools: Pool[] = [
 
 export const raias: Raia[] = [
   { id: 'dn', nome: 'DN', pool: 'dn', perfil: 'DN' },
-  { id: 'comercial', nome: 'Comercial', pool: 'ctm', perfil: 'CTM: Comercial' },
+  { id: 'comercial', nome: 'Gestor de contrato', pool: 'ctm', perfil: 'CTM: Gestor de contrato' },
   { id: 'supervisor', nome: 'Supervisão', pool: 'ctm', perfil: 'CTM: Supervisor' },
   { id: 'pcp', nome: 'PCP', pool: 'ctm', perfil: 'CTM: PCP' },
   { id: 'analista', nome: 'Analista', pool: 'ctm' },
   { id: 'tutor', nome: 'Tutor', pool: 'ctm', perfil: 'CTM: Tutor' },
   { id: 'monitoria', nome: 'Monitoria e pedagógico', pool: 'ctm', perfil: 'CTM: Pedagógico' },
   { id: 'financeiro', nome: 'Financeiro', pool: 'ctm' },
-  { id: 'dr', nome: 'Gestor da DR solicitante (SENAI/SESI) ou DN', pool: 'dr', perfil: 'DR solicitante: SENAI' },
+  { id: 'dr', nome: 'Gestor da DR solicitante (SENAI/SESI)', pool: 'dr', perfil: 'DR solicitante: SENAI' },
   { id: 'ava', nome: 'AVA / SGE', pool: 'sis' },
 ]
 
 export const fases: Fase[] = [
   { id: 'credenciamento', nome: 'Credenciamento' },
-  { id: 'contrato', nome: 'Contratação (TAA / contrato)' },
+  { id: 'contrato', nome: 'TAA (um por DR) / contrato' },
   { id: 'proposta', nome: 'Proposta comercial' },
   { id: 'oferta', nome: 'Gestão da oferta' },
   { id: 'execucao', nome: 'Gestão da execução' },
@@ -59,9 +59,9 @@ export const nos: No[] = [
 
   { id: 'aprova-portfolio', tipo: 'decisao', raia: 'dn', col: 4, rotulo: 'DN aprova?', fase: 'credenciamento', tela: '/portfolio/aprovacoes', descricao: 'O DN aprova (entra no Portfólio das CTMs, visível para todas as DRs) ou reprova com motivo (a CTM ajusta e envia nova versão).' },
   // Contrato
-  { id: 'taa', tipo: 'tarefa', raia: 'dr', col: 4, rotulo: 'Criar TAA / contrato com a CTM', fase: 'contrato', tela: '/dashboard/novo-ta', descricao: 'O Gestor da DR solicitante (coordenador, interlocutor…) ou o DN registra o TAA (SENAI) ou contrato (SESI): edital e produtos (a CTM é a aprovada no edital para eles), vigência e valor global (teto).', regras: ['SENAI ↔ SENAI (DR solicitante SENAI-XX ou o DN): TAA, no modelo do DN.', 'SESI-XX ↔ SENAI: contrato (não é TAA).', 'Produtos de CTMs diferentes = TAAs diferentes.', 'A CTM não gerencia TAAs, só propostas.', 'Passar do teto exige aditivo.'] },
-  { id: 'assinar-taa', tipo: 'tarefa', raia: 'comercial', col: 5, rotulo: 'CTM assina', fase: 'contrato', fora: true, descricao: 'Assinaturas fora do sistema (assinatura digital).' },
-  { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Anexar assinado (Vigente)', fase: 'contrato', tela: '/dashboard', descricao: 'Quem contratou anexa o termo assinado; o TAA/contrato fica Vigente e a CTM passa a vê-lo nas propostas.' },
+  { id: 'taa', tipo: 'tarefa', raia: 'comercial', col: 4, rotulo: 'Enviar TAA à DR', fase: 'contrato', tela: '/taas-ctm/novo', descricao: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica (Encaminhado), com os produtos em que é a aprovada. A DR também pode criar o seu (aí a CTM analisa). SESI: contrato.', regras: ['TAA só SENAI ↔ SENAI; SESI ↔ SENAI é contrato.', 'Status: Encaminhado → Em análise → Retornado para ajuste / Aceito / Cancelado.', 'Saldo = valor global − executado.'] },
+  { id: 'assinar-taa', tipo: 'decisao', raia: 'dr', col: 5, rotulo: 'Gestor aceita?', fase: 'contrato', tela: '/dashboard/16', descricao: 'O Gestor da DR analisa: aceita, retorna para ajuste (a CTM ajusta e reencaminha) ou recusa (Cancelado).' },
+  { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Aceito: assinar e anexar', fase: 'contrato', fora: true, tela: '/dashboard/4', descricao: 'Aceito, o termo é assinado fora do sistema e anexado. É burocrático: só destrava a negociação da oferta, que dá origem às propostas — pode não gerar nenhuma. O saldo cai conforme a execução.' },
 
   // Proposta
   { id: 'proposta', tipo: 'tarefa', raia: 'comercial', col: 7, rotulo: 'Registrar proposta', fase: 'proposta', tela: '/produtos/novo', descricao: 'O documento é feito no modelo, fora; no sistema fica o registro mínimo: DR, CNPJ, faturamento, nº CRM, link e cursos com vagas, início previsto e valor.', regras: ['Nasce Em negociação.', 'Cada curso só em uma proposta (pendente de validação).'] },
@@ -112,8 +112,9 @@ export const arestas: Aresta[] = [
   { de: 'produto', para: 'aprova-portfolio', rotulo: 'solicita' },
   { de: 'aprova-portfolio', para: 'taa', rotulo: 'aprovado' },
   { de: 'aprova-portfolio', para: 'produto', rotulo: 'reprovado' },
-  { de: 'taa', para: 'assinar-taa', rotulo: 'envia' },
-  { de: 'assinar-taa', para: 'taa-vigente', rotulo: 'assinado' },
+  { de: 'taa', para: 'assinar-taa', rotulo: 'encaminha' },
+  { de: 'assinar-taa', para: 'taa', rotulo: 'ajuste' },
+  { de: 'assinar-taa', para: 'taa-vigente', rotulo: 'aceito' },
   { de: 'taa-vigente', para: 'proposta', rotulo: 'vigente' },
   { de: 'proposta', para: 'dr-aceita', rotulo: 'negocia' },
   { de: 'proposta', para: 'alerta-prazo' },

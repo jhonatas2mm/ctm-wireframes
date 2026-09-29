@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { AttachField, DataTable, Req, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { cn } from '@/lib/utils'
-import { alertaPrazo, dataBr, inicioPrevisto, instrumentoDe, nomeParte, produtosContratados, taaEntre, useContratos, useCursos, useEditais, useProdutos, type Contrato, type Produto, type Registro } from '@/lib/mock'
+import { alertaPrazo, contratoAtivo, dataBr, inicioPrevisto, instrumentoDe, nomeParte, produtosContratados, taaEntre, useContratos, useCursos, useEditais, useProdutos, type Contrato, type Produto, type Registro } from '@/lib/mock'
 import { useAutor } from '@/lib/autor'
 
 // DR do usuário logado (perfil Supervisor) — é sempre a ofertante.
@@ -64,7 +64,7 @@ const colunas = (abrirEdital: (numero: string) => void, taas: Contrato[]): Colum
     cell: (p) => {
       const t = taaEntre(taas, p.drContratante, p.drOfertante)
       return t
-        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">{instrumentoDe(t.contratante)}</span> <span className="font-mono">{t.numero}</span>{t.status !== 'Vigente' && <Badge variant="outline">{t.status}</Badge>}</span>
+        ? <span className="flex items-center gap-1.5 text-xs"><span className="text-muted-foreground">{instrumentoDe(t.contratante)}</span> <span className="font-mono">{t.numero}</span>{t.status !== 'Aceito' && <Badge variant="outline">{t.status}</Badge>}</span>
         : <Badge variant="outline" className="gap-1 border-amber-300 bg-amber-50 text-amber-900"><AlertTriangle className="size-3" /> Sem {instrumentoDe(p.drContratante)}</Badge>
     },
   },
@@ -93,7 +93,7 @@ const colunas = (abrirEdital: (numero: string) => void, taas: Contrato[]): Colum
   { header: 'CH total', value: (p) => `${p.cursos.reduce((t, c) => t + c.cargaHoraria, 0)} h`, className: 'text-right tabular-nums' },
 ]
 
-// Gestão de propostas (CTM: Supervisor/Comercial): propostas da CTM para os contratantes que têm TAA com ela.
+// Gestão de propostas (CTM: Supervisor/Gestor de contrato): propostas da CTM para os contratantes que têm TAA com ela.
 export default function Produtos() {
   const { confirmar, dialogo } = useConfirmar()
   const navigate = useNavigate()
@@ -220,7 +220,7 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
   const contratante = escolhida
   // Contratantes possíveis: quem tem TAA (não encerrado) com esta CTM — DR solicitante ou o DN.
   const contratos = useContratos().all
-  const comTaa = contratos.filter((c) => c.dr === DR_OFERTANTE && c.status !== 'Encerrado')
+  const comTaa = contratos.filter((c) => c.dr === DR_OFERTANTE && contratoAtivo(c))
   // Só os produtos que o contratante contratou desta CTM (TAA/contrato) podem entrar na proposta.
   const contratados = (quem: string | null) => (quem ? produtosContratados(contratos, quem, DR_OFERTANTE) : [])
   const [docs, setDocs] = useState<string[]>([])
@@ -335,7 +335,7 @@ function NovaPropostaSheet({ open, onOpenChange, origem }: { open: boolean; onOp
                   </SelectTrigger>
                   <SelectContent>
                     {comTaa.map((t) => (
-                      <SelectItem key={t.id} value={t.contratante}>{nomeParte(t.contratante)} <span className="text-xs text-muted-foreground">· {instrumentoDe(t.contratante)} {t.numero}{t.status !== 'Vigente' ? ` (${t.status})` : ''}</span></SelectItem>
+                      <SelectItem key={t.id} value={t.contratante}>{nomeParte(t.contratante)} <span className="text-xs text-muted-foreground">· {instrumentoDe(t.contratante)} {t.numero}{t.status !== 'Aceito' ? ` (${t.status})` : ''}</span></SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

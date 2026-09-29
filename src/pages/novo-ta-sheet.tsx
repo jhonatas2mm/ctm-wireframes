@@ -11,7 +11,7 @@ import { Check, Download, FileText, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
-import { aprovadaDe, instrumentoDe, nomeParte, useContratos, useEditais, type ProdutoTaa } from '@/lib/mock'
+import { aprovadaDe, contratoAtivo, emTramitacao, instrumentoDe, nomeParte, useContratos, useEditais, type ProdutoTaa } from '@/lib/mock'
 
 const fmtData = (iso: string) => (iso ? iso.split('-').reverse().join('/') : '____/____/______')
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -29,7 +29,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
   const dr = produtos.find((c) => nomes.includes(c.nome)) ? aprovadaDe(produtos.find((c) => nomes.includes(c.nome))!) : null
   const escolhidos: ProdutoTaa[] = produtos.filter((c) => nomes.includes(c.nome)).map(({ nome, area, modalidade, cargaHoraria, valor }) => ({ nome, area, modalidade, cargaHoraria, valor }))
   // Produto que o contratante já tem contratado com a CTM aprovada (TAA não encerrado)
-  const jaContratado = (nome: string, ctm: string) => db.all.find((c) => c.contratante === contratante && c.dr === ctm && c.status !== 'Encerrado' && c.produtos?.some((p) => p.nome === nome))
+  const jaContratado = (nome: string, ctm: string) => db.all.find((c) => c.contratante === contratante && c.dr === ctm && (contratoAtivo(c) || emTramitacao(c)) && c.produtos?.some((p) => p.nome === nome))
   const [inicio, setInicio] = useState('')
   const [fim, setFim] = useState('')
   const [valor, setValor] = useState('')
@@ -106,7 +106,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{arquivo}</p>
-                  <p className="text-xs text-muted-foreground">Baixe e envie à CTM para assinatura. Depois, anexe o TAA assinado em TAAs com CTMs.</p>
+                  <p className="text-xs text-muted-foreground">Encaminhado à CTM, que analisa. Depois do aceite, o termo é assinado e anexado em TAAs com CTMs.</p>
                 </div>
                 <Button type="button" size="sm" onClick={() => {}}>
                   <Download /> Baixar TAA
@@ -123,7 +123,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
             onSubmit={(e) => {
               e.preventDefault()
               if (!dr || !escolhidos.length) return
-              db.add({ numero, contratante, dr, edital: editalNum ?? undefined, produtos: escolhidos, gestor: { nome: gestor.trim(), cargo }, vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim), valor: valorNum, status: 'Em elaboração' })
+              db.add({ numero, contratante, dr, edital: editalNum ?? undefined, produtos: escolhidos, gestor: { nome: gestor.trim(), cargo }, vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim), valor: valorNum, status: 'Encaminhado', origem: 'Contratante', enviadoEm: new Date().toISOString(), historico: [{ quando: new Date().toISOString(), texto: `Encaminhado à CTM SENAI-${dr}`, autor: gestor.trim() }] })
               setSalvo({ numero, dr: dr ?? '—', inicio, fim, valor: brl(valorNum) })
             }}
           >
@@ -185,7 +185,7 @@ export function NovoTaSheet({ open, onOpenChange, contratante }: { open: boolean
                   <Label>Cargo</Label>
                   <Select value={cargo} onValueChange={(v) => setCargo(v as string)}>
                     <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
-                    <SelectContent>{['Coordenador', 'Interlocutor', 'Gestor DN', 'Outro'].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                    <SelectContent>{['Coordenador', 'Interlocutor', 'Outro'].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
               </div>

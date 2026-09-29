@@ -24,10 +24,10 @@ import { profileOf } from '@/journey/profiles'
 
 // Setores do menu (na ordem); setor sem telas visíveis não aparece.
 const secoes = ['DN', 'CTM', 'DR solicitante', 'Administração', 'Sistema'] as const
-const secaoDe = (path: string, perfil?: string): (typeof secoes)[number] =>
+const secaoDe = (path: string): (typeof secoes)[number] =>
   path.startsWith('/admin') ? 'Administração'
-  : path.startsWith('/dashboard') && perfil?.startsWith('DR solicitante') ? 'DR solicitante'
-  : ['/painel-dn', '/drs', '/dashboard', '/editais', '/portfolio/aprovacoes'].some((p) => path.startsWith(p)) ? 'DN'
+  : path.startsWith('/dashboard') ? 'DR solicitante'
+  : ['/painel-dn', '/drs', '/editais', '/portfolio/aprovacoes'].some((p) => path.startsWith(p)) ? 'DN'
   : ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'].some((p) => path.startsWith(p)) ? 'DR solicitante'
   : path.startsWith('/componentes') ? 'Sistema'
   : 'CTM'
@@ -69,7 +69,7 @@ export function AppShell() {
         </div>
         <SidebarContent>
           {secoes
-            .map((sec) => ({ sec, itens: noMenu.filter((s) => secaoDe(s.path, perfil) === sec) }))
+            .map((sec) => ({ sec, itens: noMenu.filter((s) => secaoDe(s.path) === sec) }))
             .filter((x) => x.itens.length)
             .map(({ sec, itens }, _, todas) => (
             <SidebarGroup key={sec}>

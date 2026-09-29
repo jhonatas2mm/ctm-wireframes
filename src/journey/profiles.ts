@@ -10,9 +10,9 @@ export type ProfileDef = { name: string; color: string; grupo?: Grupo; caixa?: s
 
 const MG = { sigla: 'SENAI-MG', nome: 'Departamento Regional de Minas Gerais' }
 export const profiles: ProfileDef[] = [
-  { name: 'DN', grupo: 'DN', color: '#0284c7', user: { nome: 'Maria Silva', email: 'maria.silva@senai.br', cargo: 'Gestor DN' } },
+  { name: 'DN', grupo: 'DN', color: '#0284c7', user: { nome: 'Maria Silva', email: 'maria.silva@senai.br' } },
   // CTM (SENAI-MG), na ordem das caixas
-  { name: 'CTM: Comercial', grupo: 'CTM', caixa: 'Comercial', color: '#059669', user: { nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br' }, dr: MG },
+  { name: 'CTM: Gestor de contrato', grupo: 'CTM', caixa: 'Gestor de contrato', color: '#059669', user: { nome: 'Juliana Pereira', email: 'juliana.pereira@senaimg.org.br' }, dr: MG },
   { name: 'CTM: PCP', grupo: 'CTM', caixa: 'PCP', color: '#7c3aed', user: { nome: 'Eduardo Lima', email: 'eduardo.lima@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Supervisor', grupo: 'CTM', caixa: 'Supervisor', color: '#ea580c', user: { nome: 'Carlos Andrade', email: 'carlos.andrade@senaimg.org.br' }, dr: MG },
   { name: 'CTM: Pedagógico', grupo: 'CTM', caixa: 'Pedagógico', color: '#db2777', user: { nome: 'Sônia Prado', email: 'sonia.prado@senaimg.org.br' }, dr: MG },

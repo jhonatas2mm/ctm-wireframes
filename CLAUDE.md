@@ -17,7 +17,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 ## Estrutura
 - `src/screens.ts` — registro de telas (rota + menu). `hidden` tira do menu; `profiles` limita a quais perfis a tela aparece no menu.
 - `src/journeys.ts` — jornadas/fluxos (etapas `path`/`note`/`focus`, perfil por etapa). `note` vira o texto do Guia; `focus` (seletor CSS ou `text=Texto`) é o que o Guia destaca na tela. **A ordem do array é a ordem dos fluxos** (ordem em que acontecem no sistema; a casca numera dentro de cada perfil inicial); manter igual à lista em `docs/fluxo.md`.
-- `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR, grupo e caixa). Três grupos: **DN**, **CTM** (caixas Comercial, PCP, Supervisor, Pedagógico; Tutor e Monitor em avaliação) e **DR solicitante** (caixas Gestor SENAI → TAA, Gestor SESI → contrato; o Gestor pode ser coordenador, interlocutor…), mais o **Super admin**. Nome do perfil = `Grupo: Caixa` (ex.: `CTM: PCP`). Só o Claude edita, a pedido.
+- `src/journey/profiles.ts` — perfis (nome, cor, usuário do avatar, DR, grupo e caixa). Três grupos: **DN**, **CTM** (caixas Gestor de contrato, PCP, Supervisor, Pedagógico; Tutor e Monitor em avaliação) e **DR solicitante** (caixas Gestor SENAI → TAA, Gestor SESI → contrato; o Gestor pode ser coordenador, interlocutor…), mais o **Super admin**. Nome do perfil = `Grupo: Caixa` (ex.: `CTM: PCP`). Só o Claude edita, a pedido.
 - `src/lib/mock.ts` — seeds + `useCollection` (`src/lib/db.ts`, localStorage). Ao mudar o formato de uma coleção, trocar a chave (ex.: `'editais-v7'`) para descartar dados antigos.
 - `src/components/wf/` — DataTable, PageHeader, RowAction, EmptyState etc.
 - `src/annotations/` — pinos de anotação, salvos no Supabase (projeto `ctm-wireframes`, tabela `pins`: leitura, criação e exclusão públicas; editar só pelo painel).
@@ -42,7 +42,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - Buscas de estado/DR: campo com resultados logo abaixo e escolhidos como etiquetas (`EstadosInput`).
 
 ## Domínio
-- **TAA** = Termo de Acordo Administrativo: quem contrata (DR solicitante SENAI-XX ou o DN) cria escolhendo os **produtos** do edital; a CTM é a aprovada para eles (um TAA por CTM). Só SENAI ↔ SENAI; SESI-XX ↔ SENAI é **contrato**. A CTM não gerencia TAAs, só propostas. Nunca "TA"/"Termo de Adesão".
+- **TAA** = Termo de Acordo Administrativo: **um por DR específica**, com produtos do edital; a CTM é a aprovada para eles. Normalmente a CTM vencedora envia e o **Gestor** da DR solicitante analisa (a DR também pode criar). Status: Encaminhado, Em análise, Retornado para ajuste, Aceito, Cancelado; saldo = valor − executado. Aceito só destrava a negociação/propostas. Só SENAI ↔ SENAI; SESI ↔ SENAI é **contrato**. DN não contrata CTM. Nunca "TA"/"Termo de Adesão".
 - **Edital** (DN): vigência + cursos; cada curso tem valor, DRs credenciados e a **CTM aprovada** (menor custo). Área, modalidade e CH são fixas do catálogo.
 - **Portfólio**: cada CTM registra produtos com versões; novo produto/nova versão = solicitação que o **DN aprova** (Aprovação de portfólio); só o aprovado entra no Portfólio das CTMs (todas as DRs veem) e na oferta. Produto tem vínculo com o itinerário (outro sistema) e documentos/materiais (links).
 - **Proposta comercial** (Supervisor): DR ofertante (própria, fixa) → contratante com TAA/contrato com a CTM; vários cursos, cada um com valor previsto; Nº `PC-<UF>-<seq>/<ano>`. Cada curso só entra uma vez nas propostas.
