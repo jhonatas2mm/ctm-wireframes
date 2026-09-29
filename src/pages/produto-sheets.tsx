@@ -55,17 +55,10 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                 <SheetTitle className="text-lg">{p.nome}</SheetTitle>
                 {!somenteLeitura && <Badge variant="secondary" className="tabular-nums">v{v(p)}</Badge>}
                 {!somenteLeitura && p.id === atual?.id && <Badge variant="outline">Mais recente</Badge>}
-                <SituacaoBadge c={p} />
               </div>
               <SheetDescription className="sr-only">Detalhes e versões do curso</SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-4">
-              {situacaoDe(p) === 'Reprovado' && p.motivo && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900">
-                  <p className="mb-1 text-xs font-medium">Motivo da reprovação (DN)</p>
-                  <p className="whitespace-pre-wrap">{p.motivo}</p>
-                </div>
-              )}
               <dl className="grid grid-cols-2 gap-4">
                 {([
                   ['CTM', p.ctm ? `SENAI-${p.ctm}` : '—'],
@@ -73,9 +66,8 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                   ['CH', `${p.cargaHorariaEdital ?? 0} h`],
                   ['Área tecnológica', p.area ?? '—'],
                   ['Modalidade', p.modalidade ?? '—'],
-                  ['Solicitada em', data(p.criadoEm)],
+                  ['Cadastrado em', data(p.criadoEm)],
                   ...(somenteLeitura ? [] : [['Origem', p.baseadaEm ? `Baseada na v${p.baseadaEm}` : 'Versão original']]),
-                  ['Decisão do DN', p.decididoEm ? `${situacaoDe(p)} em ${data(p.decididoEm)}` : situacaoDe(p) === 'Aguardando' ? 'Pendente' : '—'],
                 ] as [string, ReactNode][]).map(([k, val]) => (
                   <div key={k}>
                     <dt className="text-xs text-muted-foreground">{k}</dt>
@@ -114,7 +106,7 @@ export function ProdutoSheet({ id, onClose, onNovaVersao, somenteLeitura, acoes 
                       >
                         <span className="w-8 tabular-nums">v{v(c)}</span>
                         <span className="text-xs text-muted-foreground">{c.baseadaEm ? `a partir da v${c.baseadaEm}` : 'original'}</span>
-                        <span className="ml-auto flex items-center gap-2"><SituacaoBadge c={c} /><span className="text-xs text-muted-foreground">{data(c.criadoEm)}</span></span>
+                        <span className="ml-auto flex items-center gap-2"><span className="text-xs text-muted-foreground">{data(c.criadoEm)}</span></span>
                       </button>
                     </li>
                   ))}
@@ -191,7 +183,6 @@ export function NovaVersaoSheet({ id, onClose, onSaved }: { id: string | null; o
                 <span className="flex items-center gap-2 rounded-md border-2 border-foreground px-2.5 py-1 text-sm font-semibold tabular-nums">
                   <span className="text-muted-foreground">v{v(p)}</span> → v{proxima}
                 </span>
-                <Badge variant="secondary" className={corSituacao['Aguardando']}>vai para aprovação do DN</Badge>
               </div>
               <SheetDescription className="sr-only">Ajuste módulos e UCs; a v{v(p)} não é alterada</SheetDescription>
               <div className="flex flex-wrap gap-2 pt-1">

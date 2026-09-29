@@ -3,7 +3,7 @@ import { Eye, GitBranchPlus, Info, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover } from '@base-ui/react/popover'
 import { useState } from 'react'
-import { NovaVersaoSheet, ProdutoSheet, SituacaoBadge } from '@/pages/produto-sheets'
+import { NovaVersaoSheet, ProdutoSheet } from '@/pages/produto-sheets'
 import { Button } from '@/components/ui/button'
 import { NovoCursoDialog } from '@/pages/novo-curso-dialog'
 import { cellButton, DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
@@ -57,8 +57,6 @@ const colunas = (todas: boolean): Column<Linha>[] => [
   },
   ...(todas ? [{ header: 'CTM', value: (l: Linha) => (l.atual.ctm ? `SENAI-${l.atual.ctm}` : '—'), filter: true }] : []),
   { header: 'Versão', value: (l) => `v${l.atual.versao ?? 1}`, className: 'tabular-nums' },
-  { header: 'Situação', value: (l) => situacaoDe(l.atual), filter: true, cell: (l) => <SituacaoBadge c={l.atual} /> },
-  { header: 'No portfólio', value: (l) => (l.noPortfolio ? `v${l.noPortfolio.versao ?? 1}` : '—'), className: 'tabular-nums', align: 'center' },
   { header: 'Itinerário', value: (l) => (l.atual.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
   { header: 'Propostas', value: (l) => l.propostas, className: 'text-right tabular-nums' },
 ]

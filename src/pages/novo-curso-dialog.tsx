@@ -72,7 +72,7 @@ export function NovoCursoDialog({ open, onOpenChange }: { open: boolean; onOpenC
   const setModulos = (fn: (ms: Modulo[]) => Modulo[]) => void (atual && setEstrutura((e) => ({ ...e, [atual.nome]: fn(e[atual.nome] ?? []) })))
   const salvar = () => {
     if (!edital) return
-    for (const c of sel) db.add({ nome: c.nome, edital: edital.numero, area: c.area, modalidade: c.modalidade, oferta, cargaHorariaEdital: c.cargaHoraria, modulos: estrutura[c.nome], versao: 1, ctm: DR, situacao: 'Aguardando', criadoEm: new Date().toISOString() }) // solicitação: o DN aprova para entrar no portfólio
+    for (const c of sel) db.add({ nome: c.nome, edital: edital.numero, area: c.area, modalidade: c.modalidade, oferta, cargaHorariaEdital: c.cargaHoraria, modulos: estrutura[c.nome], versao: 1, ctm: DR, criadoEm: new Date().toISOString() }) // entra direto no portfólio (sem aprovação do DN)
     reset()
     onOpenChange(false)
   }

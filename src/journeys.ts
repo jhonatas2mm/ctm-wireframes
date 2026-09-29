@@ -137,11 +137,10 @@ export const journeys: Journey[] = [
   },
   {
     id: 'aprovacao-portfolio',
-    title: 'Aprovação de portfólio',
+    title: 'Portfólio',
     profile: 'DN',
     steps: [
-      { title: 'Aprovação de portfólio', path: '/portfolio/aprovacoes', focus: 'text=Aprovar', profile: 'DN', note: 'Solicitações das CTMs: só cursos novos (o DN não acompanha versões). Visualizar mostra o curso; Aprovar ou Reprovar com motivo.' },
-      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DN', note: 'Aprovado, o curso entra no portfólio, visível para todos os DRs. Reprovado volta para a CTM com o motivo.' },
+      { title: 'Portfólio', path: '/portfolio/aprovacoes', profile: 'DN', note: 'O DN consulta os cursos cadastrados pelas CTMs. Não há aprovação nem reprovação: o curso da CTM entra direto no portfólio.' },
     ],
   },
   {

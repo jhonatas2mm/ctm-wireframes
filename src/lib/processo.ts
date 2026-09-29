@@ -57,7 +57,6 @@ export const nos: No[] = [
   { id: 'edital', tipo: 'tarefa', raia: 'dn', col: 2, rotulo: 'Publicar edital', fase: 'credenciamento', tela: '/editais/novo', descricao: 'Só o DN faz a gestão de editais: cadastro do resultado do edital: por área tecnológica, o DR credenciado e o valor (R$ hora/estudante). As CTMs apenas participam (oferecem o custo, fora do sistema).', regras: ['Área, modalidade e CH vêm do catálogo (fixas).', 'Por produto, a CTM aprovada é a que ofereceu o menor custo.', 'Só se oferta o que está no edital.'] },
   { id: 'produto', tipo: 'tarefa', raia: 'supervisor', col: 3, rotulo: 'Cadastrar curso (matriz)', fase: 'credenciamento', tela: '/gestao-produtos/novo', descricao: 'Cada CTM solicita a inclusão de produtos (módulos e UCs conforme o plano de curso) ou de novas versões; vincula o itinerário e documentos/materiais.', regras: ['Nova versão não altera o que já foi negociado na anterior.', 'Versões podem rodar ao mesmo tempo.'] },
 
-  { id: 'aprova-portfolio', tipo: 'decisao', raia: 'dn', col: 4, rotulo: 'DN aprova?', fase: 'credenciamento', tela: '/portfolio/aprovacoes', descricao: 'O DN aprova (entra no Portfólio das CTMs, visível para todos os DRs) ou reprova com motivo (a CTM ajusta e envia nova versão).' },
   // Contrato
   { id: 'taa', tipo: 'tarefa', raia: 'comercial', col: 4, rotulo: 'Enviar TAA ao DR', fase: 'contrato', tela: '/taas-ctm/novo', descricao: 'Caminho normal: a CTM que ganhou o edital envia um TAA para cada DR específica (Encaminhado), com os produtos em que é a aprovada. O DR também pode criar o seu (aí a CTM analisa).', regras: ['Status: Encaminhado → Em análise → Retornado / Aceito / Cancelado.', 'Saldo = valor global − executado.'] },
   { id: 'assinar-taa', tipo: 'decisao', raia: 'dr', col: 5, rotulo: 'Gestor aceita?', fase: 'contrato', tela: '/dashboard/16', descricao: 'O Gestor do DR analisa: aceita, retorna para ajuste (a CTM ajusta e reencaminha) ou recusa (Cancelado).' },
@@ -105,9 +104,7 @@ export const arestas: Aresta[] = [
   { de: 'inicio', para: 'credenciar' },
   { de: 'credenciar', para: 'edital' },
   { de: 'edital', para: 'produto' },
-  { de: 'produto', para: 'aprova-portfolio', rotulo: 'solicita' },
-  { de: 'aprova-portfolio', para: 'taa', rotulo: 'aprovado' },
-  { de: 'aprova-portfolio', para: 'produto', rotulo: 'reprovado' },
+  { de: 'produto', para: 'taa', rotulo: 'no portfólio' },
   { de: 'taa', para: 'assinar-taa', rotulo: 'encaminha' },
   { de: 'assinar-taa', para: 'taa', rotulo: 'ajuste' },
   { de: 'assinar-taa', para: 'taa-vigente', rotulo: 'aceito' },

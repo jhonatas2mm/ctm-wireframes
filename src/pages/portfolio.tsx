@@ -1,18 +1,15 @@
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Check, ClipboardCheck, Eye, PackageCheck, Route, ThumbsDown, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
-import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, type FilterDef, useConfirmar } from '@/components/wf'
-import { aprovadosAtuais, situacaoDe, useCursosDr, type CursoDr } from '@/lib/mock'
-import { ProdutoSheet, SituacaoBadge } from '@/pages/produto-sheets'
+import { Building, Eye, PackageCheck, Route } from 'lucide-react'
+import { DataTable, PageHeader, RowAction, StatCard, type Column, type FilterDef } from '@/components/wf'
+import { aprovadosAtuais, useCursosDr, type CursoDr } from '@/lib/mock'
+import { ProdutoSheet } from '@/pages/produto-sheets'
 
 const data = (iso: string) => new Date(iso).toLocaleDateString('pt-BR')
 const ctmDe = (c: CursoDr) => (c.ctm ? `SENAI-${c.ctm}` : '—')
 
-// Portfólio das CTMs (/portfolio): o que foi aprovado pelo DN, visível para todas as DRs.
-// Aprovação de portfólio (/portfolio/aprovacoes, DN): só cursos novos (o DN não acompanha versões).
+// Portfólio das CTMs (/portfolio): cursos cadastrados pelas CTMs, visíveis para todos os DRs.
+// Portfólio (/portfolio/aprovacoes, DN): a mesma consulta para o DN; o portfólio não tem aprovação nem reprovação.
 export default function Portfolio() {
   const { pathname } = useLocation()
   return pathname.startsWith('/portfolio/aprovacoes') ? <Aprovacoes /> : <PortfolioPublico />
@@ -44,92 +41,34 @@ function PortfolioPublico() {
   ]
   return (
     <>
-      <PageHeader title="Portfólio das CTMs" description="Cursos aprovados pelo DN." />
+      <PageHeader title="Portfólio das CTMs" description="Cursos cadastrados pelas CTMs." />
       <DataTable rows={rows} columns={colunas} filters={filtrosPortfolio} searchPlaceholder="Buscar curso…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
       <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
     </>
   )
 }
 
+// Portfólio (DN, /portfolio/aprovacoes): consulta dos cursos das CTMs; sem aprovação nem reprovação.
 function Aprovacoes() {
   const db = useCursosDr()
-  const { confirmar, dialogo } = useConfirmar()
   const [ver, setVer] = useState<string | null>(null)
-  const [reprovar, setReprovar] = useState<CursoDr | null>(null)
-  const [motivo, setMotivo] = useState('')
-  // Só cursos novos (v1); novas versões são da CTM e não passam pelo DN
-  const novos = db.all.filter((c) => (c.versao ?? 1) === 1)
-  const pendentes = novos.filter((c) => situacaoDe(c) === 'Aguardando')
-  const decidir = (c: CursoDr, aprovado: boolean, mot?: string) =>
-    db.update(c.id, { situacao: aprovado ? 'Aprovado' : 'Reprovado', motivo: aprovado ? undefined : mot, decididoEm: new Date().toISOString() })
-  const aprovar = (c: CursoDr) => confirmar({
-    titulo: `Aprovar o curso ${c.nome} (${ctmDe(c)})?`,
-    descricao: 'O curso entra no Portfólio das CTMs e fica disponível para todos os DRs.',
-    acao: 'Aprovar',
-    onConfirmar: () => decidir(c, true),
-  })
+  const cursos = aprovadosAtuais(db.all)
   const colunas: Column<CursoDr>[] = [
-    { header: 'Solicitado em', value: (c) => data(c.criadoEm), className: 'tabular-nums' },
+    { header: 'Cadastrado em', value: (c) => data(c.criadoEm), className: 'tabular-nums' },
     { header: 'CTM', value: ctmDe, filter: true },
     { header: 'Modalidade', value: (c) => c.modalidade ?? '—', filter: true },
     { header: 'Curso', value: (c) => c.nome, search: true, className: 'font-medium' },
     { header: 'Itinerário', value: (c) => (c.itinerario ? 'Vinculado' : 'Sem vínculo'), filter: true },
-    { header: 'Situação', value: (c) => situacaoDe(c), filter: true, cell: (c) => <SituacaoBadge c={c} /> },
   ]
-  const historico = novos.filter((c) => c.decididoEm).sort((a, b) => (b.decididoEm ?? '').localeCompare(a.decididoEm ?? ''))
   return (
     <>
-      <PageHeader title="Aprovação de portfólio" />
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <StatCard icon={ClipboardCheck} tom="amber" label="Aguardando aprovação" value={String(pendentes.length)} />
-        <StatCard icon={PackageCheck} tom="green" label="Cursos no portfólio" value={String(aprovadosAtuais(db.all).length)} />
-        <StatCard icon={ThumbsDown} tom="red" label="Reprovados" value={String(novos.filter((c) => situacaoDe(c) === 'Reprovado').length)} />
+      <PageHeader title="Portfólio" />
+      <div className="mb-6 grid gap-3 sm:grid-cols-2">
+        <StatCard icon={PackageCheck} tom="green" label="Cursos no portfólio" value={String(cursos.length)} />
+        <StatCard icon={Building} tom="blue" label="CTMs com cursos" value={String(new Set(cursos.map((c) => c.ctm)).size)} />
       </div>
-      <DataTable
-        rows={[...pendentes, ...historico.filter((c) => !pendentes.includes(c))]}
-        columns={colunas}
-        searchPlaceholder="Buscar curso ou CTM…"
-        actions={(c) => (
-          <>
-            <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />
-            {situacaoDe(c) === 'Aguardando' && (
-              <>
-                <RowAction label="Aprovar" icon={Check} onClick={() => aprovar(c)} />
-                <RowAction label="Reprovar" icon={X} onClick={() => (setMotivo(''), setReprovar(c))} />
-              </>
-            )}
-          </>
-        )}
-      />
-      <ProdutoSheet
-        id={ver}
-        onClose={() => setVer(null)}
-        somenteLeitura
-        acoes={(c) => situacaoDe(c) === 'Aguardando' && (
-          <>
-            <Button variant="outline" onClick={() => (setMotivo(''), setReprovar(c))}><X /> Reprovar</Button>
-            <Button onClick={() => aprovar(c)}><Check /> Aprovar</Button>
-          </>
-        )}
-      />
-      <Dialog open={!!reprovar} onOpenChange={(v) => !v && setReprovar(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Reprovar o curso {reprovar?.nome}?</DialogTitle>
-            <DialogDescription>A CTM vê o motivo, ajusta o curso e envia de novo.</DialogDescription>
-          </DialogHeader>
-          <label className="grid gap-1 text-xs">
-            <span className="text-muted-foreground">Motivo <Req /></span>
-            <Textarea rows={4} value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="O que precisa ser ajustado?" />
-          </label>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setReprovar(null)}>Voltar</Button>
-            <Button onClick={() => (reprovar && decidir(reprovar, false, motivo.trim()), setReprovar(null))}>Reprovar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      {dialogo}
+      <DataTable rows={cursos} columns={colunas} searchPlaceholder="Buscar curso ou CTM…" actions={(c) => <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(c.id)} />} />
+      <ProdutoSheet id={ver} onClose={() => setVer(null)} somenteLeitura />
     </>
   )
 }
-

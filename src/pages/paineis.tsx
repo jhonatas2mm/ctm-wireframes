@@ -1,13 +1,13 @@
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  BadgeCheck, Boxes, Building2, CalendarClock, CircleDollarSign, Clock, FileSignature, FileSpreadsheet, Handshake, Hourglass, Percent, Send, Video,
+  BadgeCheck, Boxes, Building2, CalendarClock, CircleDollarSign, Clock, FileSignature, FileSpreadsheet, Handshake, Percent, Send, Video,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/wf'
 import { BarList, Bloco, BlocoTitulo, Kpi, Linha, brl, brlCurto, isoDeBr } from '@/components/wf/dash'
 import {
-  HOJE, aprovadosAtuais, diasEntre, situacaoDe, statusTurma,
+  HOJE, aprovadosAtuais, diasEntre, statusTurma,
   nomeParte, useContratos, useCursosDr, useDrs, useEditais, useProdutos, useTurmas,
   type StatusProposta,
 } from '@/lib/mock'
@@ -18,11 +18,9 @@ const dataBr = (iso: string) => iso.split('-').reverse().join('/')
 
 // ── DN: DRs credenciadas, portfólio das CTMs (aprovações) e editais ─────────
 export function PainelDn() {
-  const navigate = useNavigate()
   const portfolio = useCursosDr().all
   const editais = useEditais().all
   const drs = useDrs().all
-  const pendentes = portfolio.filter((c) => situacaoDe(c) === 'Aguardando' && (c.versao ?? 1) === 1) // DN só aprova curso novo
   const noPortfolio = aprovadosAtuais(portfolio)
   const porCtm = Object.entries(noPortfolio.reduce<Record<string, number>>((r, c) => ({ ...r, [c.ctm ?? '—']: (r[c.ctm ?? '—'] ?? 0) + 1 }), {})).sort((a, b) => b[1] - a[1])
   const editaisVig = editais.filter((e) => isoDeBr(e.vigenciaInicio) <= HOJE && HOJE <= isoDeBr(e.vigenciaFim))
@@ -33,25 +31,15 @@ export function PainelDn() {
   return (
     <div className="space-y-5">
       <PageHeader title="Painel" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Kpi icon={Building2} tom="blue" rotulo="DRs credenciados ativas" valor={ativas.length} extra={`${drs.length - ativas.length} inativas`} />
-        <Kpi icon={Hourglass} tom="amber" rotulo="Solicitações de portfólio" valor={pendentes.length} extra="aguardando aprovação" />
         <Kpi icon={FileSignature} tom="green" rotulo="Cursos no portfólio" valor={noPortfolio.length} extra={`${porCtm.length} CTMs`} />
         <Kpi icon={FileSpreadsheet} tom="orange" rotulo="Editais vigentes" valor={editaisVig.length} extra={`${editaisVig.reduce((n, e) => n + e.cursos.length, 0)} cursos`} />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
         <Bloco>
-          <BlocoTitulo titulo="Solicitações de portfólio" sub="Novos produtos e novas versões das CTMs" acao={ver('/portfolio/aprovacoes', 'Aprovar')} />
-          <div className="divide-y">
-            {pendentes.map((c) => (
-              <Linha key={c.id} inicial={c.ctm ?? '—'} tom="amber" titulo={`${c.nome} · v${c.versao ?? 1}`} sub={`SENAI-${c.ctm} · ${(c.versao ?? 1) > 1 ? 'nova versão' : 'novo curso'}`} direita={<Badge>Aguardando</Badge>} onClick={() => navigate('/portfolio/aprovacoes')} />
-            ))}
-            {!pendentes.length && <p className="py-6 text-center text-sm text-muted-foreground">Nenhuma solicitação pendente.</p>}
-          </div>
-        </Bloco>
-        <Bloco>
-          <BlocoTitulo titulo="Portfólio por CTM" sub="Produtos aprovados" acao={ver('/portfolio')} />
+          <BlocoTitulo titulo="Portfólio por CTM" sub="Cursos cadastrados" acao={ver('/portfolio/aprovacoes')} />
           <BarList itens={porCtm.map(([uf, n]) => ({ rotulo: `SENAI-${uf}`, valor: n, tom: 'orange' }))} />
         </Bloco>
       </div>

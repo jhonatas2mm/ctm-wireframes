@@ -15,7 +15,7 @@ Registro das regras de negócio do sistema prototipado e do percurso decidido. A
 3. **Envio de TAA aos DRs** (CTM: Gestor EAD) — TAAs com os DRs → Novo TAA (um por DR) → Gestor do DR analisa → retorno para a CTM.
 4. **TAAs com CTMs** (DR solicitante: Gestor EAD) — lista → TAA recebido (analisar) → Novo TAA (o DR também cria) → Retornado → TAA aceito (saldo).
 5. **Criação de portfólio** (CTM: Coordenador EAD) — Gestão de Portfólio → Novo produto (produtos de um edital).
-5a. **Aprovação de portfólio** (DN) — Aprovação de portfólio → Portfólio das CTMs.
+5a. **Portfólio** (DN) — consulta dos cursos das CTMs (sem aprovação).
 5b. **Portfólio das CTMs** (DR solicitante: Gestor EAD) — consulta do portfólio aprovado.
 6. **Criação de proposta** (CTM: Gestor EAD, o responsável; o Coordenador EAD também acessa) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando, Aprovado) → equipe técnica → Criar turmas.
 7. **Criação de oferta** (Coordenador EAD) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
@@ -78,10 +78,9 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 
 ## Portfólio das CTMs
 - Cada CTM registra seus **cursos** (módulos → UCs), com modalidade e **oferta** (EaD Assíncrono, EaD Síncrono (Aprendizagem) ou EaD Personalizado).
-- **Curso novo** é uma **solicitação**: fica *Aguardando* até o **DN** decidir em **Aprovação de portfólio** (`/portfolio/aprovacoes`): **Aprovar** ou **Reprovar** (com motivo, que a CTM vê).
-- **O DN só aprova curso novo e não acompanha versões.** As **versões** (v1, v2…) são controle da CTM: nova versão entra direto, sem aprovação do DN; a anterior não muda. O DN e o Portfólio das CTMs não mostram versões.
-- Só cursos aprovados entram no **Portfólio das CTMs** (`/portfolio`, visível para **todos os DRs**, somente leitura) e na oferta (matriz = última versão).
-- Cada curso pode ter **vínculo com o itinerário** (outro sistema; integração a detalhar). **Sem documentos/materiais** no portfólio.
+- **Sem aprovação nem reprovação**: o curso cadastrado pela CTM entra direto no portfólio. As **versões** (v1, v2…) são controle da CTM (a anterior não muda).
+- **DN**: tela **Portfólio** (`/portfolio/aprovacoes`) só de consulta (cadastrado em, CTM, modalidade, curso, itinerário; visualizar). Demais perfis: **Portfólio das CTMs** (`/portfolio`, somente leitura). Nenhuma das duas mostra versões.
+- Cada curso pode ter **vínculo com o itinerário** (outro sistema; integração a detalhar). Sem documentos/materiais.
 
 ## Produto (Coordenador EAD)
 - "Novo produto" abre em 3 colunas na mesma tela, sem etapas: **Edital** (escolhe apenas um) → **Produtos** do edital em que o DR é a **CTM aprovada** (um ou mais) → **Módulos e UCs** do produto ativo.
@@ -332,3 +331,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Gestão de Portfólio: coluna **Modalidade** antes do curso e coluna **Oferta** (EaD Assíncrono, EaD Síncrono (Aprendizagem) ou EaD Personalizado; padrão Assíncrono). O Novo curso escolhe a oferta.
 - 2026-09-29 — Portfólio: sai toda a parte de **documentos e materiais**; **DN só aprova curso novo** e não vê versões (Aprovação de portfólio sem coluna Tipo; Portfólio das CTMs e detalhes do DN sem versões). Nova versão da CTM não passa pelo DN.
 - 2026-09-29 — Aprovação de portfólio: coluna **Modalidade** à esquerda do curso.
+- 2026-09-29 — **Portfólio sem aprovação nem reprovação**: curso da CTM entra direto; a tela do DN "Aprovação de portfólio" vira **Portfólio** (só consulta, sem Situação/Aprovar/Reprovar); painel do DN sem solicitações; Gestão de Portfólio sem as colunas Situação e No portfólio; mapa do processo sem a decisão do DN.

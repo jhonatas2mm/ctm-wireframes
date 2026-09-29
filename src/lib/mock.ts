@@ -306,7 +306,8 @@ export type CursoDr = { id: string; nome: string; modulos: Modulo[]; criadoEm: s
 }
 
 export const chTotal = (c: { modulos: Modulo[] }) => c.modulos.reduce((t, m) => t + m.unidades.reduce((u, x) => u + x.cargaHoraria, 0), 0)
-export const situacaoDe = (c: CursoDr): SituacaoPortfolio => c.situacao ?? 'Aprovado'
+// Portfólio sem aprovação nem reprovação: todo curso cadastrado pela CTM já está no portfólio (campo situacao ignorado)
+export const situacaoDe = (_c: CursoDr): SituacaoPortfolio => 'Aprovado'
 export const raizDe = (c: CursoDr) => c.origemId ?? c.id
 // Última versão aprovada de cada produto (o que aparece no portfólio e vai para a oferta).
 export const aprovadosAtuais = (todos: CursoDr[]) =>
