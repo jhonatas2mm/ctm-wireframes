@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { AlertTriangle, ArrowLeft, CalendarClock, ClipboardList, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
+import { AlertTriangle,CalendarClock, ClipboardList, FileCheck2, ReceiptText, RotateCcw, Users } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ciclosDe } from '@/lib/alunos-turma'
 import { brl, linhasCobranca } from '@/lib/cobranca'
@@ -35,9 +35,11 @@ const situacoes: SituacaoFormal[] = ['Desistente', 'Trancado', 'Validado', 'Tran
 export default function Financeiro() {
   const [params, setParams] = useSearchParams()
   const aba = (['cobranca', 'acompanhamento'] as const).find((a) => a === params.get('aba')) ?? 'alunos'
+  // Situação dos alunos de uma DR (?dr=): breadcrumb volta para a lista de DRs
+  const dr = aba === 'alunos' ? params.get('dr') : null
   return (
     <>
-      <PageHeader title="Financeiro" />
+      <PageHeader title="Financeiro" breadcrumb={dr ? [{ label: 'Financeiro', to: '/financeiro?aba=alunos' }, { label: `SENAI-${dr}` }] : undefined} />
       <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
         <TabsList>
           <TabsTrigger value="alunos"><Users /> Situação dos alunos</TabsTrigger>
@@ -114,12 +116,6 @@ function SituacaoAlunos() {
   const dr = drs.find((d) => d === params.get('dr')) ?? ''
   const alunos = dr ? todos.filter((a) => drDe(a) === dr) : []
   const ir = (aba: string, d?: string) => setParams((p) => { const n = new URLSearchParams(p); n.set('aba', aba); if (d) n.set('dr', d); else n.delete('dr'); return n }, { replace: true })
-  const filtroDr = (
-    <div className="mb-6 flex items-center gap-3 rounded-[1.25rem] border bg-card p-4">
-      <Button variant="outline" onClick={() => ir('alunos')}><ArrowLeft className="text-primary" /> Todas as DRs</Button>
-      <span className="text-lg font-semibold">SENAI-{dr}</span>
-    </div>
-  )
   const colunas: Column<AlunoEad>[] = [
     { header: 'Aluno', value: (a) => a.nome, search: true, className: 'font-medium' },
     { header: 'Turma', value: (a) => turmaDe(a)?.codigo ?? '—', filter: true, className: 'font-mono text-xs' },
@@ -184,7 +180,6 @@ function SituacaoAlunos() {
   )
   return (
     <>
-      {filtroDr}
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} tom="blue" label="Alunos cobrados" value={String(cobrados.length)} hint={`de ${alunos.length} matriculados`} />
         <StatCard icon={FileCheck2} tom="green" label="Saídas formalizadas" value={String(alunos.length - cobrados.length)} />

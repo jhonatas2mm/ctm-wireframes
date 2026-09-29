@@ -49,7 +49,13 @@ export default function OfertaDetalhe() {
   const [data, setData] = useState('')
   const [texto, setTexto] = useState('')
   const [escola, setEscola] = useState<EscolaTurma>({ nome: '', cidade: '', alunos: 0 })
-  const crumbs = [{ label: 'Gestão da oferta', to: '/oferta' }, { label: t?.codigo ?? 'Oferta' }]
+  // Oferta pertence a uma proposta: Gestão da oferta > proposta > turma.
+  const propostaDa = t && propostas.find((p) => p.id === t.propostaId)
+  const crumbs = [
+    { label: 'Gestão da oferta', to: '/oferta' },
+    ...(propostaDa ? [{ label: propostaDa.numero, to: `/oferta/proposta/${propostaDa.id}` }] : []),
+    { label: t?.codigo ?? 'Oferta' },
+  ]
   if (!t) return (
     <>
       <PageHeader title="Oferta" breadcrumb={crumbs} />
