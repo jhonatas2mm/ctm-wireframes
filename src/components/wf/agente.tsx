@@ -70,6 +70,14 @@ function useConteudo() {
   const turmas = useTurmas().all
   const taas = useContratos().all
   const portfolio = useCursosDr().all
+  // Monta o conteúdo protegido: dado salvo estranho nunca quebra o chat (cai no conteúdo mínimo).
+  try { return montarConteudo(def, propostas, turmas, taas, portfolio) } catch (erro) {
+    console.error('[agente]', erro)
+    return { nome: (def.user?.nome ?? '').split(' ')[0] || 'olá', acoes: [] as Pergunta[], roteiro: [] as Pergunta[] }
+  }
+}
+
+function montarConteudo(def: ReturnType<typeof profileOf>, propostas: ReturnType<typeof useProdutos>['all'], turmas: ReturnType<typeof useTurmas>['all'], taas: ReturnType<typeof useContratos>['all'], portfolio: ReturnType<typeof useCursosDr>['all']) {
   const nome = (def.user?.nome ?? 'Maria Silva').split(' ')[0]
   const uf = def.dr?.sigla.replace('SENAI-', '')
   const grupo = def.grupo ?? 'CTM'
