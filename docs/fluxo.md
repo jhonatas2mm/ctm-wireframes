@@ -305,3 +305,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Financeiro (Situação dos alunos): no lugar do select de DR, listagem das DRs em cards com indicadores e ações (Ver alunos, Acompanhamento, Relatório de cobrança). Acompanhamento dos alunos: filtros (DR, turma, mês) ocupando a largura toda.
 - 2026-09-29 — Financeiro sem abas: DRs em cards na tela inicial; Acompanhamento dos alunos e Relatórios de cobrança viram navegação interna com breadcrumb (Financeiro > …). Detalhe da oferta: breadcrumb Gestão da oferta > proposta > turma.
 - 2026-09-29 — Financeiro volta a ter as três abas (Situação dos alunos, Acompanhamento dos alunos, Relatório de cobrança); a DR escolhida nos cards mantém o breadcrumb.
+- 2026-09-29 — Nomenclatura: **estudante** no lugar de aluno em todos os textos do sistema (telas, jornadas, dados de exemplo); rotas e nomes de código seguem iguais.

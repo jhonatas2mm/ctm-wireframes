@@ -45,7 +45,7 @@ export default function Tratativas() {
     { header: 'Data', value: (t) => dataBr(t.quando.slice(0, 10)), className: 'tabular-nums' },
     { header: 'Turma', value: (t) => turmaDe(t)?.codigo ?? '—', filter: true, className: 'font-mono text-xs', search: true },
     {
-      header: 'Aluno',
+      header: 'Estudante',
       value: (t) => (t.alunoId ? alunoDe(t)?.nome ?? '—' : 'Turma toda'),
       search: true,
       cell: (t) => (t.alunoId ? alunoDe(t)?.nome ?? '—' : <span className="flex items-center gap-1 text-muted-foreground"><Users className="size-3.5" /> Turma toda</span>),
@@ -65,7 +65,7 @@ export default function Tratativas() {
         </DropdownMenu>
       ),
     },
-    { header: 'Retorno do aluno', value: (t) => (t.retorno ? 'Sim' : 'Não'), filter: true, cell: (t) => <Badge variant="secondary" className={corRetorno(t.retorno)}>{t.retorno ? 'Sim' : 'Não'}</Badge> },
+    { header: 'Retorno do estudante', value: (t) => (t.retorno ? 'Sim' : 'Não'), filter: true, cell: (t) => <Badge variant="secondary" className={corRetorno(t.retorno)}>{t.retorno ? 'Sim' : 'Não'}</Badge> },
     { header: 'Desfecho', value: (t) => t.desfecho, filter: true, cell: (t) => <Badge variant="secondary" className={corDesfecho[t.desfecho]}>{t.desfecho}</Badge> },
     {
       header: 'Acompanhar em',
@@ -82,10 +82,10 @@ export default function Tratativas() {
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={ClipboardList} tom="blue" label="Tratativas registradas" value={String(all.length)} />
         <StatCard icon={CalendarClock} tom="amber" label="Retornos pendentes até hoje" value={String(all.filter(pendente).length)} />
-        <StatCard icon={UserX} tom="red" label="Alunos em alerta de desistência" value={String(criticos.size)} />
-        <StatCard icon={AlertTriangle} tom="gray" label="Sem retorno do aluno" value={String(all.filter((t) => !t.retorno).length)} />
+        <StatCard icon={UserX} tom="red" label="Estudantes em alerta de desistência" value={String(criticos.size)} />
+        <StatCard icon={AlertTriangle} tom="gray" label="Sem retorno do estudante" value={String(all.filter((t) => !t.retorno).length)} />
       </div>
-      <DataTable rows={[...all].sort((a, b) => b.quando.localeCompare(a.quando))} columns={colunas} searchPlaceholder="Buscar aluno, turma ou descrição…" />
+      <DataTable rows={[...all].sort((a, b) => b.quando.localeCompare(a.quando))} columns={colunas} searchPlaceholder="Buscar estudante, turma ou descrição…" />
       <NovaTratativaSheet open={pathname === '/tratativas/nova'} onOpenChange={(v) => !v && navigate('/tratativas')} />
     </>
   )
@@ -112,7 +112,7 @@ function NovaTratativaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
     setAlunoId(alunos.find((a) => a.turmaId === t?.id)?.id ?? 'todos')
     setTipo('Ativa')
     setMotivo('Baixo acesso')
-    setDescricao('Mensagem no WhatsApp e e-mail: aluno sem acesso ao AVA há 9 dias.')
+    setDescricao('Mensagem no WhatsApp e e-mail: estudante sem acesso ao AVA há 9 dias.')
     setRetorno(false)
     setDesfecho('Acompanhar novamente')
     setAcompanharEm('2026-10-02')
@@ -140,7 +140,7 @@ function NovaTratativaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
               </Select>
             </div>
             <div className="grid gap-1.5">
-              <Label>Aluno <Req /></Label>
+              <Label>Estudante <Req /></Label>
               <Select value={alunoId} onValueChange={(v) => setAlunoId(v as string)}>
                 <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v === 'todos' ? 'Turma toda' : alunos.find((a) => a.id === v)?.nome ?? 'Selecione')}</SelectValue></SelectTrigger>
                 <SelectContent>
@@ -152,8 +152,8 @@ function NovaTratativaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
             <div className="grid gap-1.5">
               <Label>Tipo <Req /></Label>
               <Select value={tipo} onValueChange={(v) => setTipo(v as Tratativa['tipo'])}>
-                <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v === 'Ativa' ? 'Ativa (a equipe procurou)' : 'Receptiva (o aluno procurou)')}</SelectValue></SelectTrigger>
-                <SelectContent><SelectItem value="Ativa">Ativa (a equipe procurou)</SelectItem><SelectItem value="Receptiva">Receptiva (o aluno procurou)</SelectItem></SelectContent>
+                <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v === 'Ativa' ? 'Ativa (a equipe procurou)' : 'Receptiva (o estudante procurou)')}</SelectValue></SelectTrigger>
+                <SelectContent><SelectItem value="Ativa">Ativa (a equipe procurou)</SelectItem><SelectItem value="Receptiva">Receptiva (o estudante procurou)</SelectItem></SelectContent>
               </Select>
             </div>
             <div className="grid gap-1.5">
@@ -165,7 +165,7 @@ function NovaTratativaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
             </div>
           </div>
           <div className="grid gap-1.5"><Label>O que foi feito <Req /></Label><Textarea rows={4} value={descricao} onChange={(e) => setDescricao(e.target.value)} /></div>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={retorno} onChange={(e) => setRetorno(e.target.checked)} /> O aluno deu retorno</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={retorno} onChange={(e) => setRetorno(e.target.checked)} /> O estudante deu retorno</label>
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-1.5">
               <Label>Desfecho <Req /></Label>

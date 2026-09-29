@@ -237,7 +237,7 @@ const propostas: Produto[] = [
   // Vai e vem: v1 com 20 alunos; a DR pediu 25 → v2, aguardando o retorno do cliente (turma prevista para daqui a 10 dias: alerta)
   { id: '4', numero: 'PC-MG-004/2026', taaId: '10', edital: 'ED-001/2026', status: 'Aguardando', versao: 2, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'GO', cnpj: '03.769.437/0001-10', crm: 'CRM-2026-0388', faturamento: 'DR', cursos: [cp('6', 25, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z',
     versoes: [{ versao: 1, cursos: [cp('6', 20, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', salvaEm: '2026-08-18T10:00:00Z', motivo: 'Versão inicial' }],
-    historico: [reg('2026-09-02T11:30:00Z', 'Status: Aguardando'), reg('2026-09-02T11:20:00Z', 'Nova versão v2: a DR pediu 25 alunos (antes 20)'), reg('2026-08-20T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-08-18T10:00:00Z', 'Proposta criada (Rascunho)')] },
+    historico: [reg('2026-09-02T11:30:00Z', 'Status: Aguardando'), reg('2026-09-02T11:20:00Z', 'Nova versão v2: a DR pediu 25 estudantes (antes 20)'), reg('2026-08-20T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-08-18T10:00:00Z', 'Proposta criada (Rascunho)')] },
   { id: '5', numero: 'PC-MG-005/2026', taaId: '11', edital: 'ED-001/2026', status: 'Cancelado', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'A DR não fechou a turma (mínimo de 25 inscritos).', cursos: [cp('6', 15, '2026-09-14', 'ED-001/2026')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
     historico: [reg('2026-09-04T16:45:00Z', 'Status: Cancelado — a DR não fechou a turma'), reg('2026-07-01T10:00:00Z', 'Proposta criada (Rascunho)')] },
   { id: '6', numero: 'PC-MG-006/2026', taaId: '8', edital: 'ED-002/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, equipeTecnica: { supervisor: 'Carlos Andrade', analista: 'Renata Guimarães' }, drOfertante: 'MG', drContratante: 'RJ', cnpj: '03.439.316/0001-06', faturamento: 'DR', cursos: [cp('7', 30, '2026-10-13', 'ED-002/2026')], vigenciaInicio: '15/04/2026', vigenciaFim: '14/04/2027', cadastradoEm: '2026-09-15T10:00:00Z',
@@ -560,10 +560,10 @@ export const motivosTratativa: MotivoTratativa[] = ['Baixo acesso', 'Baixo desem
 export const desfechosTratativa: DesfechoTratativa[] = ['Resolvido', 'Acompanhar novamente', 'Alerta de desistência', 'Plano de recuperação']
 export type Tratativa = { id: string; quando: string; turmaId: string; alunoId?: string; tipo: 'Ativa' | 'Receptiva'; motivo: MotivoTratativa; descricao: string; retorno: boolean; desfecho: DesfechoTratativa; responsavel: string; acompanharEm?: string } // alunoId vazio = turma toda
 const tratativas: Tratativa[] = [
-  { id: 'tr1', quando: '2026-09-25T14:10:00Z', turmaId: 't1', alunoId: 'a2', tipo: 'Ativa', motivo: 'Baixo acesso', descricao: 'Contato por WhatsApp: aluno sem acesso há 10 dias.', retorno: true, desfecho: 'Acompanhar novamente', responsavel: 'Lívia Campos', acompanharEm: '2026-10-02' },
-  { id: 'tr2', quando: '2026-09-24T10:00:00Z', turmaId: 't1', alunoId: 'a4', tipo: 'Ativa', motivo: 'Saúde', descricao: 'Aluna internada; baixo desempenho não é de conteúdo. Combinado reforço com o tutor.', retorno: true, desfecho: 'Plano de recuperação', responsavel: 'Sônia Prado' },
+  { id: 'tr1', quando: '2026-09-25T14:10:00Z', turmaId: 't1', alunoId: 'a2', tipo: 'Ativa', motivo: 'Baixo acesso', descricao: 'Contato por WhatsApp: estudante sem acesso há 10 dias.', retorno: true, desfecho: 'Acompanhar novamente', responsavel: 'Lívia Campos', acompanharEm: '2026-10-02' },
+  { id: 'tr2', quando: '2026-09-24T10:00:00Z', turmaId: 't1', alunoId: 'a4', tipo: 'Ativa', motivo: 'Saúde', descricao: 'Estudante internada; baixo desempenho não é de conteúdo. Combinado reforço com o tutor.', retorno: true, desfecho: 'Plano de recuperação', responsavel: 'Sônia Prado' },
   { id: 'tr3', quando: '2026-09-22T16:30:00Z', turmaId: 't3', tipo: 'Ativa', motivo: 'Atividade não entregue', descricao: 'Aviso coletivo no AVA e e-mail sobre o prazo da Atividade 2.', retorno: false, desfecho: 'Acompanhar novamente', responsavel: 'Lívia Campos', acompanharEm: '2026-09-29' },
-  { id: 'tr4', quando: '2026-09-20T09:15:00Z', turmaId: 't7', alunoId: 'a36', tipo: 'Receptiva', motivo: 'Trabalho', descricao: 'Aluno mudou de turno na empresa e pediu orientação para reorganizar os estudos.', retorno: true, desfecho: 'Resolvido', responsavel: 'Lívia Campos' },
+  { id: 'tr4', quando: '2026-09-20T09:15:00Z', turmaId: 't7', alunoId: 'a36', tipo: 'Receptiva', motivo: 'Trabalho', descricao: 'Estudante mudou de turno na empresa e pediu orientação para reorganizar os estudos.', retorno: true, desfecho: 'Resolvido', responsavel: 'Lívia Campos' },
   { id: 'tr5', quando: '2026-09-18T11:40:00Z', turmaId: 't1', alunoId: 'a8', tipo: 'Ativa', motivo: 'Baixo acesso', descricao: 'Três tentativas de contato sem resposta.', retorno: false, desfecho: 'Alerta de desistência', responsavel: 'Lívia Campos', acompanharEm: '2026-09-28' },
 ]
 export const useTratativas = () => useCollection<Tratativa>('tratativas-v1', tratativas)
@@ -582,7 +582,7 @@ export const useFormalizacoes = () => useCollection<Formalizacao>('formalizacoes
 // ex.: aluno integrado depois da cobrança anterior. valorHora vem do curso da proposta.
 export type AjusteCobranca = { id: string; propostaId: string; ciclo: string; uc: string; turma: string; ch: number; alunos: number; valorHora: number; observacao: string }
 const ajustesCobranca: AjusteCobranca[] = [
-  { id: 'aj1', propostaId: '2', ciclo: '2026-11', uc: 'Leitura de desenho técnico', turma: 'SENAI Maracanã', ch: 20, alunos: 1, valorHora: 8, observacao: 'Aluna Ana Clara Sousa integrada após a cobrança de 10/2026.' },
+  { id: 'aj1', propostaId: '2', ciclo: '2026-11', uc: 'Leitura de desenho técnico', turma: 'SENAI Maracanã', ch: 20, alunos: 1, valorHora: 8, observacao: 'Estudante Ana Clara Sousa integrada após a cobrança de 10/2026.' },
 ]
 // Dupla checagem da desistência: o Moodle marca o aluno como desistente e a DR solicitante confirma ou contesta
 // (falha de integração). id = id do aluno da turma (alunos-turma.ts).
@@ -671,7 +671,7 @@ export const statusTurmaEad = (t: TurmaEad): StatusTurmaEad => (HOJE < t.inicio 
 // Progresso esperado da turma pelo calendário (0–100).
 export const progressoEsperado = (t: TurmaEad) => Math.max(0, Math.min(100, Math.round((diasEntre(t.inicio, HOJE) / diasEntre(t.inicio, t.fim)) * 100)))
 
-export type Portal = 'AVA' | 'Portal do aluno'
+export type Portal = 'AVA' | 'Portal do estudante'
 export type Acesso = { data: string; portal: Portal; minutos: number }
 export type Atividade = { nome: string; nota: number | null } // null = não entregue
 export type AlunoEad = { id: string; nome: string; email: string; turmaId: string; progresso: number; atividades: Atividade[]; acessos: Acesso[] } // acessos do mais recente ao mais antigo
@@ -688,7 +688,7 @@ const alunosEad: AlunoEad[] = turmasEad.filter((t) => HOJE >= t.inicio).flatMap(
     const ultimo = tipo === 'evadido' ? 35 + (n % 10) : tipo === 'sem-acesso' ? 9 + (n % 5) : n % 3
     const acessos: Acesso[] = Array.from({ length: 24 }, (_, k) => ({
       data: new Date(Date.parse(fim) - (ultimo + k + Math.floor(k / 3) * (n % 2)) * dia).toISOString().slice(0, 10),
-      portal: ((k + n) % 3 === 0 ? 'Portal do aluno' : 'AVA') as Portal,
+      portal: ((k + n) % 3 === 0 ? 'Portal do estudante' : 'AVA') as Portal,
       minutos: 20 + ((n * 7 + k * 13) % 70),
     })).filter((a) => a.data >= t.inicio)
     const base = tipo === 'nota-baixa' ? 4 : tipo === 'evadido' ? 5 : 7
@@ -701,7 +701,7 @@ const alunosEad: AlunoEad[] = turmasEad.filter((t) => HOJE >= t.inicio).flatMap(
     return { id: `a${n + 1}`, nome, email: `${nome.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').replace(/ /g, '.')}@email.com`, turmaId: t.id, progresso, atividades, acessos }
   }),
 )
-export const useAlunosEad = () => useCollection<AlunoEad>('alunos-ead-v4', alunosEad)
+export const useAlunosEad = () => useCollection<AlunoEad>('alunos-ead-v5', alunosEad)
 
 export const mediaAluno = (a: AlunoEad) => {
   const ns = a.atividades.map((x) => x.nota ?? 0)
@@ -738,7 +738,7 @@ const acoesLog: [AcaoLog, string, string, Alteracao[]][] = [
   ['Login', 'Autenticação', '—', []],
   ['Criou', 'Gestão de propostas', 'Proposta PC-MG-004/2026', [{ campo: 'Status', antes: '—', depois: 'Em elaboração' }]],
   ['Editou', 'Gestão de Editais', 'Edital ED-002/2026', [{ campo: 'Vigência (fim)', antes: '31/01/2027', depois: '28/02/2027' }, { campo: 'Valor', antes: 'R$ 8.640,00', depois: 'R$ 9.040,00' }]],
-  ['Visualizou', 'Alunos', 'Aluno Daniel Rocha', []],
+  ['Visualizou', 'Estudantes', 'Estudante Daniel Rocha', []],
   ['Aceitou', 'Gestão de propostas', 'Proposta PC-MG-002/2026', [{ campo: 'Status', antes: 'Em análise', depois: 'Aceita' }]],
   ['Exportou', 'Gestão de Contratos', 'Contratos (4 registros)', []],
   ['Anexou', 'Gestão de TAA', 'TAA 101/2026', [{ campo: 'TAA assinado', antes: '—', depois: 'TAA-101-2026-assinado.pdf' }, { campo: 'Status', antes: 'Em elaboração', depois: 'Vigente' }]],

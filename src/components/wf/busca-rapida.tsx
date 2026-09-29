@@ -79,7 +79,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
         const t = turmaDe(a.turmaId)
         if (!t) return
         const emp = contratosCtm.find((c) => c.id === t.contratoId)?.empresa ?? ''
-        r.push({ grupo: 'Alunos', titulo: a.nome, sub: `${situacaoAluno(a, t)} · ${t.codigo} · ${emp}`, to: `/alunos/${a.id}`, icon: UserRound, chaves: `${a.email} ${t.curso} ${alertasAluno(a, t).join(' ')}` })
+        r.push({ grupo: 'Estudantes', titulo: a.nome, sub: `${situacaoAluno(a, t)} · ${t.codigo} · ${emp}`, to: `/alunos/${a.id}`, icon: UserRound, chaves: `${a.email} ${t.curso} ${alertasAluno(a, t).join(' ')}` })
       })
     if (pode('/turmas-ead'))
       turmas.forEach((t) => {

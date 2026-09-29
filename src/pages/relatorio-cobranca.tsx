@@ -64,7 +64,7 @@ export default function RelatorioCobranca() {
 
   // Planilha (CSV) com as mesmas colunas do relatório
   const exportar = () => {
-    const cab = ['Proposta', 'Modalidade', 'Curso', 'Escola-Município', 'Turma', 'Unidade Curricular', 'CH Total', 'Início', 'Final', 'Ciclo', 'Ciclo da UC', 'CH Cobrada', 'Nº alunos', 'Valor aluno/hora', 'Valor total']
+    const cab = ['Proposta', 'Modalidade', 'Curso', 'Escola-Município', 'Turma', 'Unidade Curricular', 'CH Total', 'Início', 'Final', 'Ciclo', 'Ciclo da UC', 'CH Cobrada', 'Nº estudantes', 'Valor estudante/hora', 'Valor total']
     const rows = [
       ...linhas.map((l) => [l.proposta, l.modalidade, l.curso, `${l.escola} - ${l.cidade}`, l.codigo, l.uc, l.chTotal, dataBr(l.inicio), dataBr(l.fim), mesBr(ciclo), `${dataBr(l.cicloIni)} a ${dataBr(l.cicloFim)}`, horas(l.chCobrada), l.alunos, l.valorHora.toFixed(2), l.valor.toFixed(2)]),
       ...ajustes.map((a, n) => [propostas.find((x) => x.id === a.propostaId)?.numero ?? '', '', '', a.turma, '', `Ajuste de cobrança ${n + 1} - ${a.uc}`, '', '', '', mesBr(ciclo), '', horas(a.ch), a.alunos, a.valorHora.toFixed(2), (a.ch * a.alunos * a.valorHora).toFixed(2)]),
@@ -132,7 +132,7 @@ export default function RelatorioCobranca() {
         {/* Cobrança mensal: cada mês tem a sua quantidade de alunos */}
         <section className="grid gap-4 rounded-[1.25rem] border bg-card p-4 md:grid-cols-[16rem_1fr]">
           <div>
-            <p className="text-xs text-muted-foreground">Alunos cobrados em {mesBr(ciclo)}</p>
+            <p className="text-xs text-muted-foreground">Estudantes cobrados em {mesBr(ciclo)}</p>
             <p className="text-2xl font-semibold tabular-nums">{mov.atual}</p>
             {mov.anterior !== undefined ? (
               <p className={cn('flex items-center gap-1 text-sm tabular-nums', mov.atual < mov.anterior ? 'text-amber-700' : mov.atual > mov.anterior ? 'text-emerald-700' : 'text-muted-foreground')}>
@@ -179,7 +179,7 @@ export default function RelatorioCobranca() {
             <h2 className="text-lg font-semibold">Realizações do ciclo {mesBr(ciclo)} <span className="text-sm font-normal text-muted-foreground">({linhas.length} linhas)</span></h2>
             <Button variant="outline" size="sm" disabled={!ucs.length} motivo="Sem UCs neste ciclo" onClick={() => setNovo({
               propostaId: p.id, ciclo, uc: ucs[0] ?? '', turma: linhas[0]?.escola ?? '', ch: 10, alunos: 1, valorHora: linhas[0]?.valorHora ?? 0,
-              observacao: `Aluno integrado após a cobrança de ${mesBr(ciclos[ciclos.indexOf(ciclo) - 1] ?? ciclo)}.`,
+              observacao: `Estudante integrado após a cobrança de ${mesBr(ciclos[ciclos.indexOf(ciclo) - 1] ?? ciclo)}.`,
             })}><Plus /> Novo ajuste</Button>
           </div>
           {linhas.length || ajustes.length ? (
@@ -196,8 +196,8 @@ export default function RelatorioCobranca() {
                     <TableHead>Período</TableHead>
                     <TableHead>Ciclo da UC</TableHead>
                     <TableHead className="text-right">CH cobrada</TableHead>
-                    <TableHead className="text-right">Alunos</TableHead>
-                    <TableHead className="text-right">Aluno/hora</TableHead>
+                    <TableHead className="text-right">Estudantes</TableHead>
+                    <TableHead className="text-right">Estudante/hora</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                     <TableHead>Conferência</TableHead>
                   </TableRow>
@@ -263,7 +263,7 @@ export default function RelatorioCobranca() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Novo ajuste de cobrança</DialogTitle>
-            <DialogDescription>Linha extra no ciclo {mesBr(ciclo)} (ex.: aluno integrado depois da cobrança anterior).</DialogDescription>
+            <DialogDescription>Linha extra no ciclo {mesBr(ciclo)} (ex.: estudante integrado depois da cobrança anterior).</DialogDescription>
           </DialogHeader>
           {novo && (
             <div className="grid gap-3">
@@ -285,8 +285,8 @@ export default function RelatorioCobranca() {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="grid gap-1.5"><Label>CH cobrada <Req /></Label><Input inputMode="decimal" value={novo.ch || ''} onChange={(e) => setNovo({ ...novo, ch: Number(e.target.value.replace(',', '.')) || 0 })} /></div>
-                <div className="grid gap-1.5"><Label>Nº de alunos <Req /></Label><Input inputMode="numeric" value={novo.alunos || ''} onChange={(e) => setNovo({ ...novo, alunos: Number(e.target.value.replace(/\D/g, '')) })} /></div>
-                <div className="grid gap-1.5"><Label>Aluno/hora</Label><p className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm tabular-nums">{brl(novo.valorHora)}</p></div>
+                <div className="grid gap-1.5"><Label>Nº de estudantes <Req /></Label><Input inputMode="numeric" value={novo.alunos || ''} onChange={(e) => setNovo({ ...novo, alunos: Number(e.target.value.replace(/\D/g, '')) })} /></div>
+                <div className="grid gap-1.5"><Label>Estudante/hora</Label><p className="flex h-9 items-center rounded-md border bg-muted/40 px-3 text-sm tabular-nums">{brl(novo.valorHora)}</p></div>
               </div>
               <div className="grid gap-1.5"><Label>Observação <Req /></Label><Textarea rows={3} value={novo.observacao} onChange={(e) => setNovo({ ...novo, observacao: e.target.value })} /></div>
               <p className="text-right text-sm">Valor do ajuste <span className="text-lg font-semibold tabular-nums">{brl(novo.ch * novo.alunos * novo.valorHora)}</span></p>

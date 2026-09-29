@@ -34,18 +34,18 @@ const situacoes: SituacaoFormal[] = ['Desistente', 'Trancado', 'Validado', 'Tran
 // alunos por turma e ciclo e relatório de cobrança por proposta (aba pela URL: ?aba=acompanhamento | cobranca).
 export default function Financeiro() {
   const [params, setParams] = useSearchParams()
-  const aba = (['cobranca', 'acompanhamento'] as const).find((a) => a === params.get('aba')) ?? 'alunos'
-  const dr = aba === 'alunos' ? params.get('dr') : null
+  const aba = (['cobranca', 'acompanhamento'] as const).find((a) => a === params.get('aba')) ?? 'estudantes'
+  const dr = aba === 'estudantes' ? params.get('dr') : null
   return (
     <>
-      <PageHeader title="Financeiro" breadcrumb={dr ? [{ label: 'Financeiro', to: '/financeiro?aba=alunos' }, { label: `SENAI-${dr}` }] : undefined} />
+      <PageHeader title="Financeiro" breadcrumb={dr ? [{ label: 'Financeiro', to: '/financeiro?aba=estudantes' }, { label: `SENAI-${dr}` }] : undefined} />
       <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
         <TabsList>
-          <TabsTrigger value="alunos"><Users /> Situação dos alunos</TabsTrigger>
-          <TabsTrigger value="acompanhamento"><ClipboardList /> Acompanhamento dos alunos</TabsTrigger>
+          <TabsTrigger value="estudantes"><Users /> Situação dos estudantes</TabsTrigger>
+          <TabsTrigger value="acompanhamento"><ClipboardList /> Acompanhamento dos estudantes</TabsTrigger>
           <TabsTrigger value="cobranca"><ReceiptText /> Relatório de cobrança</TabsTrigger>
         </TabsList>
-        <TabsContent value="alunos" className="pt-4"><SituacaoAlunos /></TabsContent>
+        <TabsContent value="estudantes" className="pt-4"><SituacaoAlunos /></TabsContent>
         <TabsContent value="acompanhamento" className="pt-4"><AcompanhamentoAlunos /></TabsContent>
         <TabsContent value="cobranca" className="pt-4"><CobrancaPropostas /></TabsContent>
       </Tabs>
@@ -116,7 +116,7 @@ function SituacaoAlunos() {
   const alunos = dr ? todos.filter((a) => drDe(a) === dr) : []
   const ir = (aba: string, d?: string) => setParams((p) => { const n = new URLSearchParams(p); n.set('aba', aba); if (d) n.set('dr', d); else n.delete('dr'); return n }, { replace: true })
   const colunas: Column<AlunoEad>[] = [
-    { header: 'Aluno', value: (a) => a.nome, search: true, className: 'font-medium' },
+    { header: 'Estudante', value: (a) => a.nome, search: true, className: 'font-medium' },
     { header: 'Turma', value: (a) => turmaDe(a)?.codigo ?? '—', filter: true, className: 'font-mono text-xs' },
     { header: 'Escola', quebra: true, value: (a) => escolaDe(a), filter: true },
     { header: 'Situação no AVA', value: (a) => avaDe(a), filter: true, cell: (a) => <Badge variant="outline" className={cn(avaDe(a) === 'Suspenso' && 'border-amber-300 bg-amber-50 text-amber-900')}>{avaDe(a)}</Badge> },
@@ -151,7 +151,7 @@ function SituacaoAlunos() {
         const cob = as.filter(cobrado)
         const suspensos = as.filter(divergente).length
         const relatorio = propostasAprovadas.find((p) => p.drContratante === d && turmasCtm.some((t) => t.propostaId === p.id && t.fase !== 'Cancelada'))
-        const numeros: [string, number, boolean?][] = [['Alunos', as.length], ['Cobrados', cob.length], ['Saídas formalizadas', as.length - cob.length], ['Suspensos sem formalização', suspensos, suspensos > 0]]
+        const numeros: [string, number, boolean?][] = [['Estudantes', as.length], ['Cobrados', cob.length], ['Saídas formalizadas', as.length - cob.length], ['Suspensos sem formalização', suspensos, suspensos > 0]]
         return (
           <div key={d} className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-[1.25rem] border bg-card p-4">
             <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#EEF7FF] text-sm font-bold text-[#164194]">{d}</div>
@@ -168,7 +168,7 @@ function SituacaoAlunos() {
               ))}
             </dl>
             <div className="flex shrink-0 gap-2">
-              <Button variant="outline" onClick={() => ir('alunos', d)}><Users className="text-primary" /> Ver alunos</Button>
+              <Button variant="outline" onClick={() => ir('estudantes', d)}><Users className="text-primary" /> Ver estudantes</Button>
               <Button variant="outline" onClick={() => ir('acompanhamento', d)}><ClipboardList className="text-primary" /> Acompanhamento</Button>
               <Button variant="outline" disabled={!relatorio} motivo="Nenhuma proposta aprovada com turmas para esta DR" onClick={() => relatorio && navigate(`/financeiro/cobranca/${relatorio.id}`)}><ReceiptText className="text-primary" /> Relatório de cobrança</Button>
             </div>
@@ -180,7 +180,7 @@ function SituacaoAlunos() {
   return (
     <>
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Users} tom="blue" label="Alunos cobrados" value={String(cobrados.length)} hint={`de ${alunos.length} matriculados`} />
+        <StatCard icon={Users} tom="blue" label="Estudantes cobrados" value={String(cobrados.length)} hint={`de ${alunos.length} matriculados`} />
         <StatCard icon={FileCheck2} tom="green" label="Saídas formalizadas" value={String(alunos.length - cobrados.length)} />
         <StatCard icon={AlertTriangle} tom="amber" label="Suspensos no AVA sem formalização" value={String(alunos.filter(divergente).length)} hint="Cobrar formalização da DR" />
         <StatCard icon={CalendarClock} tom="gray" label="Formalizações de hoje entram em" value={dataBr(proximaCobranca(HOJE))} hint="Corte no dia 20; cobrança no dia 5" />
@@ -191,9 +191,9 @@ function SituacaoAlunos() {
       <DataTable
         rows={alunos}
         columns={colunas}
-        searchPlaceholder="Buscar aluno…"
+        searchPlaceholder="Buscar estudante…"
         actions={(a) => formDe(a) ? (
-          <RowAction label="Desfazer formalização" icon={RotateCcw} onClick={() => confirmar({ titulo: `Desfazer a formalização de ${a.nome}? O aluno volta a ser cobrado.`, acao: 'Desfazer', onConfirmar: () => formal.remove(a.id) })} />
+          <RowAction label="Desfazer formalização" icon={RotateCcw} onClick={() => confirmar({ titulo: `Desfazer a formalização de ${a.nome}? O estudante volta a ser cobrado.`, acao: 'Desfazer', onConfirmar: () => formal.remove(a.id) })} />
         ) : (
           <RowAction label="Registrar formalização" icon={FileCheck2} onClick={() => abrir(a)} />
         )}
@@ -222,7 +222,7 @@ function SituacaoAlunos() {
                 <SelectContent><SelectItem value="Módulo atual">UC em andamento</SelectItem><SelectItem value="Próxima UC">Próxima UC (a atual segue cobrada)</SelectItem></SelectContent>
               </Select>
             </div>
-            <p className="text-xs text-muted-foreground">Cobrança deixa de incluir o aluno em {dataBr(proximaCobranca(f.data || HOJE))}.</p>
+            <p className="text-xs text-muted-foreground">Cobrança deixa de incluir o estudante em {dataBr(proximaCobranca(f.data || HOJE))}.</p>
           </div>
           <SheetFooter className="flex-row justify-end gap-2 border-t px-6 py-3">
             <Button variant="ghost" onClick={() => setAberto(null)}>Cancelar</Button>

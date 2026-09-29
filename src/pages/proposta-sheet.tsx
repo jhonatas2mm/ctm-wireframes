@@ -40,7 +40,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
                   ['Edital', <span className="font-mono">{p.edital ?? '—'}</span>],
                   ['Responsável', p.responsavel ? `${p.responsavel.nome} (${p.responsavel.cargo})` : '—'],
                   ['Início e fim', p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'],
-                  ['Alunos · valor', <span><span className="tabular-nums">{alunosProposta(p)}</span> · <span className="font-semibold tabular-nums">{brl(totalProposta(p))}</span></span>],
+                  ['Estudantes · valor', <span><span className="tabular-nums">{alunosProposta(p)}</span> · <span className="font-semibold tabular-nums">{brl(totalProposta(p))}</span></span>],
                   ['Equipe técnica', p.equipeTecnica ? `${p.equipeTecnica.supervisor} (supervisor) · ${p.equipeTecnica.analista} (analista)` : p.status === 'Aprovado' ? 'A vincular' : '—'],
                   ['CNPJ do contratante', p.cnpj ?? '—'],
                 ] as [string, React.ReactNode][]).map(([k, v]) => (
@@ -66,7 +66,7 @@ export function PropostaSheet({ proposta: p, onClose }: { proposta: Produto | nu
                       <li key={c.nome} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                         <span className="min-w-0 flex-1">
                           <span className="block truncate font-medium">{c.nome}</span>
-                          <span className="block text-xs text-muted-foreground">{c.modalidade} · {c.cargaHoraria} h · {c.vagas ?? 0} alunos × {brl(c.valorAluno)} = {brl(c.valorPrevisto)} · início {dataBr(c.inicioPrevisto)}</span>
+                          <span className="block text-xs text-muted-foreground">{c.modalidade} · {c.cargaHoraria} h · {c.vagas ?? 0} estudantes × {brl(c.valorAluno)} = {brl(c.valorPrevisto)} · início {dataBr(c.inicioPrevisto)}</span>
                         </span>
                         <Badge variant={n ? 'default' : 'outline'} className="shrink-0">{n ? `${n} turma(s)` : 'Sem turma'}</Badge>
                       </li>

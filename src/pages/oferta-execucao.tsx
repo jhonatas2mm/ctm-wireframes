@@ -57,7 +57,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
   const mudar = (i: number, k: number, patch: Partial<UcTurma>, texto: string) => {
     const modulos = comUc(t, i, k, patch)
     const todas = modulos.every((m) => m.unidades.every((u) => etapaDe(u) === 'Pronta'))
-    if (todas && !t.emailDrEm) registrar({ modulos, emailDrEm: agora() }, `${texto}. Estrutura pronta: e-mail à DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os alunos no Moodle`)
+    if (todas && !t.emailDrEm) registrar({ modulos, emailDrEm: agora() }, `${texto}. Estrutura pronta: e-mail à DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os estudantes no Moodle`)
     else registrar({ modulos }, texto)
   }
   const uc = (x: { i: number; k: number } | null) => (x ? t.modulos[x.i]?.unidades[x.k] : undefined)
@@ -90,7 +90,7 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
       {pronta && (
         <div className="flex flex-wrap items-center gap-3 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
           <CheckCircle2 className="size-5 shrink-0" />
-          <p className="min-w-0 flex-1">Estrutura pronta. {t.emailDrEm ? `E-mail enviado ao SENAI-${t.drContratante} em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os alunos no Moodle.` : 'Falta avisar a DR.'}</p>
+          <p className="min-w-0 flex-1">Estrutura pronta. {t.emailDrEm ? `E-mail enviado ao SENAI-${t.drContratante} em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os estudantes no Moodle.` : 'Falta avisar a DR.'}</p>
           <Button size="sm" variant="outline" onClick={() => setEmailDr(true)}><Mail /> Ver e-mail à DR</Button>
         </div>
       )}
@@ -220,17 +220,17 @@ export function ExecucaoTurma({ t, registrar }: { t: Turma; registrar: Registrar
           </DialogHeader>
           <Textarea readOnly rows={10} className="font-mono text-xs" value={[
             `Para: SENAI-${t.drContratante} (gestor e secretaria escolar)`,
-            `Assunto: Turma ${t.codigo} pronta — ajustar SGN/SGE para integrar os alunos no Moodle`,
+            `Assunto: Turma ${t.codigo} pronta — ajustar SGN/SGE para integrar os estudantes no Moodle`,
             '',
             `A estrutura da turma ${t.codigo} (${t.cursos[0]}) está pronta no Moodle AVA.`,
-            'Ajuste o SGN/SGE com os códigos abaixo para integrar os alunos:',
+            'Ajuste o SGN/SGE com os códigos abaixo para integrar os estudantes:',
             ...ucs.map(({ u }) => `• ${u.nome}: sala ${u.salaAva ?? '—'} · início ${d(u.inicio)}`),
             '',
             'A integração roda 5 dias antes do início de cada UC.',
           ].join('\n')} />
           <DialogFooter>
             <Button variant="outline" onClick={() => setEmailDr(false)}>Fechar</Button>
-            {!t.emailDrEm && <Button onClick={() => (registrar({ emailDrEm: agora() }, `E-mail à DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os alunos`), setEmailDr(false))}><Send /> Enviar agora</Button>}
+            {!t.emailDrEm && <Button onClick={() => (registrar({ emailDrEm: agora() }, `E-mail à DR solicitante (SENAI-${t.drContratante}) para ajustar o SGN/SGE e integrar os estudantes`), setEmailDr(false))}><Send /> Enviar agora</Button>}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -256,7 +256,7 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
         {pronta ? <CheckCircle2 className="size-5" /> : <AlertTriangle className="size-5 text-muted-foreground" />}
         <p className="min-w-0 flex-1">
           {pronta
-            ? (t.emailDrEm ? `Estrutura pronta. E-mail à DR enviado em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os alunos.` : 'Estrutura pronta: falta o e-mail à DR (aba UCs).')
+            ? (t.emailDrEm ? `Estrutura pronta. E-mail à DR enviado em ${new Date(t.emailDrEm).toLocaleDateString('pt-BR')} para ajustar o SGN/SGE e integrar os estudantes.` : 'Estrutura pronta: falta o e-mail à DR (aba UCs).')
             : `Estrutura em preparação: ${ucs.filter((u) => etapaDe(u) === 'Pronta').length} de ${ucs.length} UCs prontas. A DR é avisada quando todas estiverem prontas.`}
         </p>
       </section>
@@ -298,13 +298,13 @@ export function IntegracaoTurma({ t, registrar }: { t: Turma; registrar: Registr
               <li key={e.nome} className={cn('flex flex-wrap items-center gap-3 rounded-[1.25rem] border bg-card px-4 py-3', atraso && 'border-amber-300 bg-amber-50')}>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{e.nome} <span className="font-normal text-muted-foreground">· {e.cidade}</span></p>
-                  <p className="text-xs text-muted-foreground tabular-nums">{integ} de {e.alunos} alunos integrados no Moodle · código {codigoCtm(e.nome)}</p>
-                  {atraso && <p className="mt-1 flex items-center gap-1 text-xs font-medium text-amber-900"><AlertTriangle className="size-3.5" /> Faltam {Math.max(faltam, 0)} dia(s) para o início e a DR ainda não integrou todos os alunos.</p>}
+                  <p className="text-xs text-muted-foreground tabular-nums">{integ} de {e.alunos} estudantes integrados no Moodle · código {codigoCtm(e.nome)}</p>
+                  {atraso && <p className="mt-1 flex items-center gap-1 text-xs font-medium text-amber-900"><AlertTriangle className="size-3.5" /> Faltam {Math.max(faltam, 0)} dia(s) para o início e a DR ainda não integrou todos os estudantes.</p>}
                 </div>
                 <Badge variant="secondary" className={cn(sit === 'Integrada' ? 'bg-emerald-100 text-emerald-800' : sit === 'Parcial' ? 'bg-amber-100 text-amber-800' : 'bg-muted text-muted-foreground')}>{sit}</Badge>
                 {/* Protótipo: simula a consulta ao serviço do Moodle (matriculados × integrados) */}
                 {pronta && integ < e.alunos && (
-                  <Button size="sm" variant="outline" onClick={() => registrar({ escolas: escolas.map((x, j) => (j === n ? { ...x, integrados: x.alunos } : x)) }, `Integração consultada no Moodle: ${e.nome} com ${e.alunos} alunos integrados`)}><RefreshCw /> Consultar Moodle</Button>
+                  <Button size="sm" variant="outline" onClick={() => registrar({ escolas: escolas.map((x, j) => (j === n ? { ...x, integrados: x.alunos } : x)) }, `Integração consultada no Moodle: ${e.nome} com ${e.alunos} estudantes integrados`)}><RefreshCw /> Consultar Moodle</Button>
                 )}
               </li>
             )

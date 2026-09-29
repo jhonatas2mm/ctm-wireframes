@@ -61,7 +61,7 @@ function colunasTurma(d: ReturnType<typeof useDados>): Column<TurmaEad>[] {
     { header: 'Curso', value: (t) => t.curso, search: true },
     ...(d.global ? [{ header: 'DR', value: (t: TurmaEad) => `SENAI-${d.contratoDe(t)?.dr ?? ''}`, filter: true } as Column<TurmaEad>] : []),
     { header: 'Empresa', value: (t) => d.contratoDe(t)?.empresa ?? '—', filter: true },
-    { header: 'Alunos', value: (t) => d.alunosDa(t).length, className: 'text-right tabular-nums' },
+    { header: 'Estudantes', value: (t) => d.alunosDa(t).length, className: 'text-right tabular-nums' },
     { header: 'Em risco', value: (t) => d.alunosDa(t).filter((a) => situacaoAluno(a, t) !== 'Em dia').length, className: 'text-right tabular-nums' },
     { header: 'Execução', value: (t) => `${progressoEsperado(t)}%`, cell: (t) => <Barra valor={progressoEsperado(t)} /> },
     { header: 'Situação', value: (t) => statusTurmaEad(t), filter: true, cell: (t) => <Badge variant="outline">{statusTurmaEad(t)}</Badge> },
@@ -70,7 +70,7 @@ function colunasTurma(d: ReturnType<typeof useDados>): Column<TurmaEad>[] {
 
 function colunasAluno(d: ReturnType<typeof useDados>, comTurma = true): Column<AlunoEad>[] {
   return [
-    { header: 'Aluno', value: (a) => a.nome, search: true },
+    { header: 'Estudante', value: (a) => a.nome, search: true },
     ...(comTurma ? [{ header: 'Turma', value: (a: AlunoEad) => d.turmaDe(a).codigo, filter: true, search: true, cell: (a: AlunoEad) => <Button size="xs" variant="outline" nativeButton={false} className={cn(cellButton, 'font-mono')} render={<Link to={`/turmas-ead/${a.turmaId}`} onClick={(e) => e.stopPropagation()} />}>{d.turmaDe(a).codigo}</Button> } as Column<AlunoEad>] : []),
     { header: 'Progresso', value: (a) => `${a.progresso}%`, cell: (a) => <Barra valor={a.progresso} esperado={progressoEsperado(d.turmaDe(a))} /> },
     { header: 'Média', value: (a) => mediaAluno(a).toFixed(1), className: 'text-right tabular-nums' },
@@ -95,15 +95,15 @@ function TurmaCard({ t, d }: { t: TurmaEad; d: ReturnType<typeof useDados> }) {
         </div>
       </div>
       <div className="grid grid-cols-3 divide-x rounded-xl bg-muted/60 py-3 text-center">
-        <Metrica valor={n.length} rotulo="alunos" />
-        <button type="button" disabled={!atencao} onClick={() => navigate(`/turmas-ead/${t.id}?ver=alunos`)} className="enabled:hover:opacity-80">
+        <Metrica valor={n.length} rotulo="estudantes" />
+        <button type="button" disabled={!atencao} onClick={() => navigate(`/turmas-ead/${t.id}?ver=estudantes`)} className="enabled:hover:opacity-80">
           <Metrica valor={atencao} rotulo="atenção" destaque={atencao > 0} />
         </button>
         <Metrica valor={`${exec}%`} rotulo="execução" />
       </div>
       <Progress value={exec} />
-      <Button variant="ghost" size="sm" className="-mb-1 self-end" onClick={() => navigate(`/turmas-ead/${t.id}?ver=alunos`)}>
-        <Users /> Ver alunos
+      <Button variant="ghost" size="sm" className="-mb-1 self-end" onClick={() => navigate(`/turmas-ead/${t.id}?ver=estudantes`)}>
+        <Users /> Ver estudantes
       </Button>
     </div>
   )
@@ -204,7 +204,7 @@ export function Painel() {
   // Acessos por dia (últimos 14 dias) e por portal.
   const dias = Array.from({ length: 14 }, (_, i) => new Date(Date.parse(HOJE) - (13 - i) * 86_400_000).toISOString().slice(0, 10))
   const porDia = (portal?: string) => dias.map((dia) => alunos.reduce((n, a) => n + a.acessos.filter((x) => x.data === dia && (!portal || x.portal === portal)).length, 0))
-  const total = porDia(), ava = porDia('AVA'), portal = porDia('Portal do aluno')
+  const total = porDia(), ava = porDia('AVA'), portal = porDia('Portal do estudante')
   const soma = (v: number[]) => v.reduce((n, x) => n + x, 0)
   const sem7 = soma(total.slice(7)), ant7 = soma(total.slice(0, 7))
   const varAcessos = ant7 ? Math.round(((sem7 - ant7) / ant7) * 100) : 0
@@ -231,8 +231,8 @@ export function Painel() {
         <div className="grid gap-5">
           <Bloco className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-semibold">Alunos ativos</span>
-              <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver alunos</Button>
+              <span className="font-semibold">Estudantes ativos</span>
+              <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver estudantes</Button>
             </div>
             <div className="flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{alunos.length}</span><span className="text-sm text-muted-foreground">em {ativas.length} turmas</span></div>
             <div className="grid grid-cols-[1fr_auto] items-end gap-4">
@@ -245,7 +245,7 @@ export function Painel() {
               <span className="font-semibold">Requer atenção</span>
               <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver detalhes</Button>
             </div>
-            <div className="flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{atencao.length}</span><span className="text-sm text-muted-foreground">alunos · {evadidos} evadidos</span></div>
+            <div className="flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{atencao.length}</span><span className="text-sm text-muted-foreground">estudantes · {evadidos} evadidos</span></div>
             <div className="flex h-2 overflow-hidden rounded-full bg-muted">
               <div className="bg-[#00A369]" style={{ width: `${((alunos.length - atencao.length) / Math.max(1, alunos.length)) * 100}%` }} />
               <div className="bg-[#F8833F]" style={{ width: `${((atencao.length - evadidos) / Math.max(1, alunos.length)) * 100}%` }} />
@@ -268,11 +268,11 @@ export function Painel() {
             </div>
             <div className="flex gap-4 text-sm">
               <span className="flex items-center gap-1.5"><i className="size-2.5 rounded-full bg-[#E84910]" />AVA</span>
-              <span className="flex items-center gap-1.5"><i className="size-2.5 rounded-full bg-[#00A369]" />Portal do aluno</span>
+              <span className="flex items-center gap-1.5"><i className="size-2.5 rounded-full bg-[#00A369]" />Portal do estudante</span>
             </div>
           </div>
           <GraficoLinhas
-            series={[{ nome: 'AVA', cor: '#E84910', v: ava }, { nome: 'Portal do aluno', cor: '#00A369', v: portal }]}
+            series={[{ nome: 'AVA', cor: '#E84910', v: ava }, { nome: 'Portal do estudante', cor: '#00A369', v: portal }]}
             rotulos={dias.filter((_, i) => i % 2 === 1).map((x) => dataBr(x).slice(0, 5))}
           />
         </Bloco>
@@ -294,7 +294,7 @@ export function Painel() {
                     <div className="truncate text-xs text-muted-foreground">{d.contratoDe(t)?.empresa} · <span className="font-mono">{t.codigo}</span></div>
                   </div>
                   <div className="hidden text-sm sm:block">
-                    <div className="text-xs text-muted-foreground">Alunos</div>
+                    <div className="text-xs text-muted-foreground">Estudantes</div>
                     <div className="font-semibold tabular-nums">{n.length}{risco > 0 && <span className="ml-1.5 text-xs font-medium text-[#C23C0D]">· {risco} atenção</span>}</div>
                   </div>
                   <div className="w-28 sm:w-auto">
@@ -325,7 +325,7 @@ export function Painel() {
                 </div>
               </button>
             ))}
-            {atencao.length === 0 && <EmptyState title="Nenhum aluno requer atenção" />}
+            {atencao.length === 0 && <EmptyState title="Nenhum estudante requer atenção" />}
           </div>
         </Bloco>
       </div>
@@ -434,7 +434,7 @@ export function Turmas() {
   return (
     <div className="space-y-6">
       <PageHeader title="Turmas" />
-      <DataTable rows={d.turmas} columns={colunasTurma(d)} searchPlaceholder="Buscar turma ou curso…" onRowClick={(t) => navigate(`/turmas-ead/${t.id}`)} actions={(t) => (<><RowAction label="Visualizar" icon={Eye} onClick={() => navigate(`/turmas-ead/${t.id}`)} /><RowAction label="Ver alunos" icon={Users} onClick={() => navigate(`/turmas-ead/${t.id}?ver=alunos`)} /></>)} />
+      <DataTable rows={d.turmas} columns={colunasTurma(d)} searchPlaceholder="Buscar turma ou curso…" onRowClick={(t) => navigate(`/turmas-ead/${t.id}`)} actions={(t) => (<><RowAction label="Visualizar" icon={Eye} onClick={() => navigate(`/turmas-ead/${t.id}`)} /><RowAction label="Ver estudantes" icon={Users} onClick={() => navigate(`/turmas-ead/${t.id}?ver=estudantes`)} /></>)} />
     </div>
   )
 }
@@ -445,7 +445,7 @@ function TurmaDetalhe({ t, d }: { t: TurmaEad; d: ReturnType<typeof useDados> })
   const alunosRef = useRef<HTMLHeadingElement>(null)
   // ?ver=alunos (ação "Ver alunos" na lista de turmas): rola direto para os alunos da turma.
   useEffect(() => {
-    if (params.get('ver') === 'alunos') alunosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (params.get('ver') === 'estudantes') alunosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [params])
   const c = d.contratoDe(t)
   const alunos = d.alunosDa(t)
@@ -456,19 +456,19 @@ function TurmaDetalhe({ t, d }: { t: TurmaEad; d: ReturnType<typeof useDados> })
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={CalendarRange} tom="blue" label="Situação" value={statusTurmaEad(t)} hint={periodo(t.inicio, t.fim)} />
         <StatCard icon={TrendingUp} tom="orange" label="Execução do calendário" value={`${progressoEsperado(t)}%`} />
-        <StatCard icon={GraduationCap} tom="green" label="Progresso médio dos alunos" value={`${Math.round(media((a) => a.progresso))}%`} />
+        <StatCard icon={GraduationCap} tom="green" label="Progresso médio dos estudantes" value={`${Math.round(media((a) => a.progresso))}%`} />
         <StatCard icon={CheckCircle2} tom="blue" label="Média de notas" value={media(mediaAluno).toFixed(1)} />
       </div>
       <Card>
         <CardContent className="grid gap-2 pt-6 text-sm sm:grid-cols-3">
           <div><span className="text-muted-foreground">Contrato: </span>{c ? <Button size="xs" variant="outline" nativeButton={false} className={cellButton} render={<Link to={`/contratos/${c.id}`} />}>{c.numero} · {c.empresa}</Button> : '—'}</div>
           <div><span className="text-muted-foreground">Tutor (CTM): </span>{t.tutor}</div>
-          <div><span className="text-muted-foreground">Alunos: </span>{alunos.length}</div>
+          <div><span className="text-muted-foreground">Estudantes: </span>{alunos.length}</div>
         </CardContent>
       </Card>
-      <h2 ref={alunosRef} className="scroll-mt-4 text-lg font-semibold">Alunos</h2>
+      <h2 ref={alunosRef} className="scroll-mt-4 text-lg font-semibold">Estudantes</h2>
       {alunos.length ? (
-        <DataTable rows={alunos} columns={colunasAluno(d, false)} searchPlaceholder="Buscar aluno…" onRowClick={(a) => setAberto(a.id)} actions={(a) => <RowAction label="Visualizar" icon={Eye} onClick={() => setAberto(a.id)} />} />
+        <DataTable rows={alunos} columns={colunasAluno(d, false)} searchPlaceholder="Buscar estudante…" onRowClick={(a) => setAberto(a.id)} actions={(a) => <RowAction label="Visualizar" icon={Eye} onClick={() => setAberto(a.id)} />} />
       ) : (
         <EmptyState title="Turma ainda não iniciada" />
       )}
@@ -485,9 +485,9 @@ export function Alunos() {
   const porSituacao = (x: SituacaoAluno) => d.alunos.filter((a) => situacaoAluno(a, d.turmaDe(a)) === x).length
   return (
     <div className="space-y-6">
-      <PageHeader title="Alunos" />
+      <PageHeader title="Estudantes" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard icon={Users} tom="blue" label="Alunos" value={String(d.alunos.length)} />
+        <StatCard icon={Users} tom="blue" label="Estudantes" value={String(d.alunos.length)} />
         <StatCard icon={CheckCircle2} tom="green" label="Em dia" value={String(porSituacao('Em dia'))} />
         <StatCard icon={TriangleAlert} tom="amber" label="Em risco" value={String(porSituacao('Em risco'))} />
         <StatCard icon={UserX} tom="red" label="Evadidos" value={String(porSituacao('Evadido'))} />
@@ -496,7 +496,7 @@ export function Alunos() {
       <DataTable
         rows={d.alunos}
         columns={colunasAluno(d)}
-        searchPlaceholder="Buscar aluno ou turma…"
+        searchPlaceholder="Buscar estudante ou turma…"
         filters={[
           ...(d.global ? [{ label: 'DR', values: (a: AlunoEad) => [`SENAI-${d.contratoDe(d.turmaDe(a))?.dr ?? ''}`] }] : []),
           { label: 'Empresa', values: (a) => [d.contratoDe(d.turmaDe(a))?.empresa ?? '—'] },

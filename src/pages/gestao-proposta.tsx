@@ -30,7 +30,7 @@ function CursosTabela({ cursos }: { cursos: CursoProposta[] }) {
     <div className="overflow-hidden rounded-lg border bg-card">
       <table className="w-full text-sm">
         <thead className="bg-muted/50 text-left text-xs">
-          <tr><th className="px-3 py-2 font-bold">Curso</th><th className="px-3 py-2 font-bold">Início previsto</th><th className="px-3 py-2 text-right font-bold">Alunos</th><th className="px-3 py-2 text-right font-bold">Valor/aluno (edital)</th><th className="px-3 py-2 text-right font-bold">Valor</th></tr>
+          <tr><th className="px-3 py-2 font-bold">Curso</th><th className="px-3 py-2 font-bold">Início previsto</th><th className="px-3 py-2 text-right font-bold">Estudantes</th><th className="px-3 py-2 text-right font-bold">Valor/aluno (edital)</th><th className="px-3 py-2 text-right font-bold">Valor</th></tr>
         </thead>
         <tbody className="divide-y">
           {cursos.map((c) => (
@@ -89,7 +89,7 @@ export default function GestaoProposta() {
     ['Edital', <span className="font-mono">{p.edital ?? '—'}</span>],
     ['Responsável', p.responsavel ? `${p.responsavel.nome} (${p.responsavel.cargo})` : '—'],
     ['Início e fim', p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'],
-    ['Alunos', alunosProposta(p)],
+    ['Estudantes', alunosProposta(p)],
     ['Valor (parametrizado pelo edital)', <span className="font-semibold">{brl(totalProposta(p))}</span>],
     ['CNPJ do contratante', p.cnpj ?? '—'],
     ['Faturamento', p.faturamento === 'Escola' ? `Por escola: ${(p.escolas ?? []).join(', ') || '—'}` : 'Para a DR'],
@@ -129,8 +129,8 @@ export default function GestaoProposta() {
               <div className="flex items-start gap-3 rounded-[1.25rem] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold">Aditivo necessário: mais alunos no Moodle do que na proposta</p>
-                  <ul className="mt-1">{excedentes.map((e) => <li key={e.curso}>{e.curso}: <span className="tabular-nums">{e.moodle}</span> alunos nas salas do Moodle, <span className="tabular-nums">{e.proposta}</span> na proposta (+{e.moodle - e.proposta})</li>)}</ul>
+                  <p className="font-semibold">Aditivo necessário: mais estudantes no Moodle do que na proposta</p>
+                  <ul className="mt-1">{excedentes.map((e) => <li key={e.curso}>{e.curso}: <span className="tabular-nums">{e.moodle}</span> estudantes nas salas do Moodle, <span className="tabular-nums">{e.proposta}</span> na proposta (+{e.moodle - e.proposta})</li>)}</ul>
                 </div>
                 <Button size="sm" onClick={() => navigate(`/produtos/novo?versao=${p.id}&aditivo=1`)}><FilePlus2 /> Fazer aditivo</Button>
               </div>
@@ -197,14 +197,14 @@ export default function GestaoProposta() {
             <ol className="divide-y rounded-lg border bg-card">
               <li className="flex items-center gap-3 px-3 py-2.5 text-sm">
                 <Badge className="tabular-nums">v{p.versao ?? 1}</Badge> <span className="font-medium">Atual</span>
-                <span className="ml-auto text-xs text-muted-foreground tabular-nums">{alunosProposta(p)} alunos · {brl(totalProposta(p))}</span>
+                <span className="ml-auto text-xs text-muted-foreground tabular-nums">{alunosProposta(p)} estudantes · {brl(totalProposta(p))}</span>
               </li>
               {[...(p.versoes ?? [])].reverse().map((v) => (
                 <li key={v.versao} className="text-sm">
                   <button type="button" onClick={() => setVersaoAberta(versaoAberta === v.versao ? null : v.versao)} className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50">
                     <Badge variant="outline" className="tabular-nums">v{v.versao}</Badge>
                     <span className="min-w-0 flex-1 truncate text-muted-foreground">{v.motivo ?? '—'}</span>
-                    <span className="text-xs text-muted-foreground tabular-nums">{v.cursos.reduce((t, c) => t + (c.vagas ?? 0), 0)} alunos · {brl(v.cursos.reduce((t, c) => t + c.valorPrevisto, 0))} · {new Date(v.salvaEm).toLocaleDateString('pt-BR')}</span>
+                    <span className="text-xs text-muted-foreground tabular-nums">{v.cursos.reduce((t, c) => t + (c.vagas ?? 0), 0)} estudantes · {brl(v.cursos.reduce((t, c) => t + c.valorPrevisto, 0))} · {new Date(v.salvaEm).toLocaleDateString('pt-BR')}</span>
                   </button>
                   {versaoAberta === v.versao && <div className="px-3 pb-3"><CursosTabela cursos={v.cursos} /></div>}
                 </li>

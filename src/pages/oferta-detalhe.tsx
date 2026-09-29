@@ -169,7 +169,7 @@ export default function OfertaDetalhe() {
               </div>
               <section className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>Escolas da turma <span className="font-normal text-muted-foreground">({(t.escolas ?? []).reduce((s, e) => s + e.alunos, 0)} alunos)</span></Label>
+                  <Label>Escolas da turma <span className="font-normal text-muted-foreground">({(t.escolas ?? []).reduce((s, e) => s + e.alunos, 0)} estudantes)</span></Label>
                   <Button size="sm" variant="outline" onClick={() => (setEscola({ nome: 'SENAI Tijuca', cidade: 'Rio de Janeiro', alunos: 15 }), setModal('escola'))}><Plus /> Adicionar escola</Button>
                 </div>
                 {(t.escolas ?? []).length ? (
@@ -177,7 +177,7 @@ export default function OfertaDetalhe() {
                     {(t.escolas ?? []).map((e, n) => (
                       <li key={e.nome} className="flex items-center gap-3 px-3 py-2 text-sm">
                         <span className="min-w-0 flex-1"><span className="font-medium">{e.nome}</span> <span className="text-muted-foreground">· {e.cidade}</span></span>
-                        <span className="tabular-nums text-muted-foreground">{e.alunos} alunos</span>
+                        <span className="tabular-nums text-muted-foreground">{e.alunos} estudantes</span>
                         <Button size="icon-sm" variant="ghost" aria-label={`Remover ${e.nome}`} onClick={() => confirmar({ titulo: `Remover ${e.nome} da turma?`, acao: 'Remover', onConfirmar: () => registrar({ escolas: (t.escolas ?? []).filter((_, j) => j !== n) }, `Escola removida: ${e.nome}`) })}><Trash2 /></Button>
                       </li>
                     ))}
@@ -391,18 +391,18 @@ export default function OfertaDetalhe() {
             <>
               <DialogHeader>
                 <DialogTitle>Adicionar escola</DialogTitle>
-                <DialogDescription>Escola da DR contratante que terá alunos nesta turma.</DialogDescription>
+                <DialogDescription>Escola da DR contratante que terá estudantes nesta turma.</DialogDescription>
               </DialogHeader>
               <div className="grid gap-3">
                 <div className="grid gap-1.5"><Label>Escola <Req /></Label><Input value={escola.nome} onChange={(e) => setEscola({ ...escola, nome: e.target.value })} /></div>
                 <div className="grid grid-cols-[1fr_7rem] gap-3">
                   <div className="grid gap-1.5"><Label>Cidade <Req /></Label><Input value={escola.cidade} onChange={(e) => setEscola({ ...escola, cidade: e.target.value })} /></div>
-                  <div className="grid gap-1.5"><Label>Alunos</Label><Input inputMode="numeric" value={escola.alunos || ''} onChange={(e) => setEscola({ ...escola, alunos: Number(e.target.value.replace(/\D/g, '')) })} /></div>
+                  <div className="grid gap-1.5"><Label>Estudantes</Label><Input inputMode="numeric" value={escola.alunos || ''} onChange={(e) => setEscola({ ...escola, alunos: Number(e.target.value.replace(/\D/g, '')) })} /></div>
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="ghost" onClick={() => setModal(null)}>Cancelar</Button>
-                <Button onClick={() => (registrar({ escolas: [...(t.escolas ?? []), escola] }, `Escola adicionada: ${escola.nome} (${escola.alunos} alunos)`), setModal(null))}>Salvar escola</Button>
+                <Button onClick={() => (registrar({ escolas: [...(t.escolas ?? []), escola] }, `Escola adicionada: ${escola.nome} (${escola.alunos} estudantes)`), setModal(null))}>Salvar escola</Button>
               </DialogFooter>
             </>
           )}

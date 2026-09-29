@@ -84,7 +84,7 @@ const colunas = (taas: Contrato[]): Column<Produto>[] => [
     },
   },
   { header: 'Vigência', value: (p) => (p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'), className: 'tabular-nums text-muted-foreground' },
-  { header: 'Alunos', value: (p) => alunosProposta(p), className: 'text-right tabular-nums' },
+  { header: 'Estudantes', value: (p) => alunosProposta(p), className: 'text-right tabular-nums' },
   { header: 'Valor', value: (p) => brl(totalProposta(p)), className: 'text-right tabular-nums' },
   { header: 'Responsável', value: (p) => p.responsavel?.nome ?? '—', filter: true },
 ]
@@ -226,7 +226,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
       setFaturamento(base.faturamento ?? 'DR')
       setEscolas((base.escolas ?? []).join(', '))
       setDocs(base.documentos ?? [])
-      setMotivoVersao(excedentes.length ? `Aditivo: ${excedentes.map((e) => `${e.curso} de ${e.proposta} para ${e.moodle} alunos (Moodle)`).join('; ')}.` : 'A DR pediu ajuste na quantidade de alunos.')
+      setMotivoVersao(excedentes.length ? `Aditivo: ${excedentes.map((e) => `${e.curso} de ${e.proposta} para ${e.moodle} estudantes (Moodle)`).join('; ')}.` : 'A DR pediu ajuste na quantidade de estudantes.')
       return
     }
     const t = taas.find((x) => x.contratante === 'BA') ?? taas[0]
@@ -379,7 +379,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
               ) : (
                 <div className="grid gap-3">
                   <div className="flex items-center justify-end gap-3">
-                    <Button type="button" size="sm" variant="outline" disabled={!marcados.length} motivo="Selecione ao menos um curso" onClick={() => setReplicar(true)}><Copy /> Replicar alunos{marcados.length > 0 && ` (${marcados.length})`}</Button>
+                    <Button type="button" size="sm" variant="outline" disabled={!marcados.length} motivo="Selecione ao menos um curso" onClick={() => setReplicar(true)}><Copy /> Replicar estudantes{marcados.length > 0 && ` (${marcados.length})`}</Button>
                     <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={marcados.length === cursos.length} onChange={(e) => setMarcados(e.target.checked ? cursos.map((c) => c.nome) : [])} /> Selecionar todos</label>
                   </div>
                   {cursos.map((c) => {
@@ -396,7 +396,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
                               ))}
                             </div>
                           </div>
-                          <label className="grid w-24 gap-1 text-xs"><span className="text-muted-foreground">Alunos <Req /></span><Input className="h-8 tabular-nums" inputMode="numeric" value={alunos[c.nome] ?? ''} onChange={(e) => setAlunos((a) => ({ ...a, [c.nome]: e.target.value.replace(/\D/g, '') }))} /></label>
+                          <label className="grid w-24 gap-1 text-xs"><span className="text-muted-foreground">Estudantes <Req /></span><Input className="h-8 tabular-nums" inputMode="numeric" value={alunos[c.nome] ?? ''} onChange={(e) => setAlunos((a) => ({ ...a, [c.nome]: e.target.value.replace(/\D/g, '') }))} /></label>
                           <label className="grid w-36 gap-1 text-xs"><span className="text-muted-foreground">Início previsto <Req /></span><Input className="h-8" type="date" value={inicios[c.nome] ?? ''} onChange={(e) => setInicios((a) => ({ ...a, [c.nome]: e.target.value }))} /></label>
                           <div className="grid w-32 gap-1 text-right text-xs"><span className="text-muted-foreground">Valor</span><span className="h-8 text-sm font-semibold leading-8 tabular-nums">{brl(c.valorPrevisto)}</span></div>
                           <Button type="button" variant="ghost" size="icon-sm" aria-label={`Remover ${c.nome}`} onClick={() => (setNomes((xs) => xs.filter((x) => x !== c.nome)), setMarcados((xs) => xs.filter((x) => x !== c.nome)))}><X /></Button>
@@ -420,7 +420,7 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
             </div>
             <div className="flex items-baseline justify-between gap-3 border-t bg-card px-6 py-4">
               <span className="text-sm text-muted-foreground">
-                {cursos.length} curso(s) · {cursos.reduce((t, c) => t + (c.vagas ?? 0), 0)} alunos
+                {cursos.length} curso(s) · {cursos.reduce((t, c) => t + (c.vagas ?? 0), 0)} estudantes
                 {taa && <span className={cn('block text-xs', total > saldo && 'font-medium text-red-600')}>Saldo do TAA depois desta proposta: {brl(saldo - total)}</span>}
               </span>
               <span className="text-2xl font-bold tabular-nums">{brl(total)}</span>
@@ -435,11 +435,11 @@ function NovaPropostaSheet({ open, onOpenChange, base, aditivo }: { open: boolea
       </SheetContent>
       <Dialog open={replicar} onOpenChange={setReplicar}>
         <DialogContent className="sm:max-w-sm">
-          <DialogHeader><DialogTitle>Replicar alunos em {marcados.length} curso(s)</DialogTitle></DialogHeader>
-          <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Quantidade de alunos</span><Input inputMode="numeric" value={loteAlunos} onChange={(e) => setLoteAlunos(e.target.value.replace(/\D/g, ''))} /></label>
+          <DialogHeader><DialogTitle>Replicar estudantes em {marcados.length} curso(s)</DialogTitle></DialogHeader>
+          <label className="grid gap-1 text-xs"><span className="text-muted-foreground">Quantidade de estudantes</span><Input inputMode="numeric" value={loteAlunos} onChange={(e) => setLoteAlunos(e.target.value.replace(/\D/g, ''))} /></label>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setReplicar(false)}>Cancelar</Button>
-            <Button disabled={!loteAlunos} motivo="Informe a quantidade de alunos" onClick={() => (setAlunos((a) => ({ ...a, ...Object.fromEntries(marcados.map((n) => [n, loteAlunos])) })), setLoteAlunos(''), setReplicar(false))}>Aplicar</Button>
+            <Button disabled={!loteAlunos} motivo="Informe a quantidade de estudantes" onClick={() => (setAlunos((a) => ({ ...a, ...Object.fromEntries(marcados.map((n) => [n, loteAlunos])) })), setLoteAlunos(''), setReplicar(false))}>Aplicar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

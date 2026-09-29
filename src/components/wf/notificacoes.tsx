@@ -69,7 +69,7 @@ export function Notificacoes() {
                 <span className={cn('mt-1.5 size-2 shrink-0 rounded-full', lida ? 'bg-transparent' : 'bg-primary')} aria-hidden />
                 <button type="button" className="min-w-0 flex-1 text-left" onClick={() => (marcar(id, { lida: true }), setAberto(false), navigate(`/produtos/${p.id}`))}>
                   <span className="flex items-center gap-1.5 text-sm font-medium"><FilePlus2 className="size-4 shrink-0 text-amber-600" /> Aditivo na proposta {p.numero}</span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">{e.curso}: {e.moodle} alunos nas salas do Moodle, {e.proposta} na proposta (+{e.moodle - e.proposta}).</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">{e.curso}: {e.moodle} estudantes nas salas do Moodle, {e.proposta} na proposta (+{e.moodle - e.proposta}).</span>
                 </button>
                 <div className="flex shrink-0 gap-0.5">
                   <Button size="icon-xs" variant="ghost" className="text-neutral-500" aria-label={lida ? 'Marcar como não lida' : 'Marcar como lida'} onClick={() => marcar(id, { lida: !lida })}>

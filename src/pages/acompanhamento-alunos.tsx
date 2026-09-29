@@ -36,7 +36,7 @@ export function AcompanhamentoAlunos() {
 
   const colunas: Column<AlunoTurma>[] = [
     {
-      header: 'Aluno', value: (a) => a.nome, search: true,
+      header: 'Estudante', value: (a) => a.nome, search: true,
       cell: (a) => <span className="block min-w-48"><span className="block font-medium">{a.nome}</span><span className="flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground"><CopiaTexto texto={a.email} rotulo="Copiar e-mail" /><CopiaTexto texto={a.telefone} rotulo="Copiar telefone" /></span></span>,
     },
     { header: 'CPF', value: (a) => a.cpf, search: true, className: 'font-mono text-xs' },
@@ -65,7 +65,7 @@ export function AcompanhamentoAlunos() {
 
   // Planilha (CSV) no formato da planilha da CTM
   const exportar = () => {
-    const cab = ['Aluno', 'Grupo', 'CPF', 'E-mail', 'Telefone', 'Situação nas UCs', 'Monitor', ...ucs.flatMap((u) => [`UC ${u.nome}`, `Faturamento ${u.nome} ${dataBr(janelaUc(u, ciclo).ini)} a ${dataBr(janelaUc(u, ciclo).fim)}`])]
+    const cab = ['Estudante', 'Grupo', 'CPF', 'E-mail', 'Telefone', 'Situação nas UCs', 'Monitor', ...ucs.flatMap((u) => [`UC ${u.nome}`, `Faturamento ${u.nome} ${dataBr(janelaUc(u, ciclo).ini)} a ${dataBr(janelaUc(u, ciclo).fim)}`])]
     const rows = alunos.map((a) => [a.nome, `${t.codigo} - ${a.escola}`, a.cpf, a.email, a.telefone, resumoAluno(a, todasUcs), a.monitor ?? '', ...ucs.flatMap((u) => { const s = situacaoNaUc(a, u); return [`${s.situacao}${s.desde ? ` - ${dataBr(s.desde)}` : ''}`, fatura(a, u, ciclo) ? 'SIM' : 'NÃO'] })])
     const csv = [cab, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n')
     const url = URL.createObjectURL(new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' }))
@@ -107,14 +107,14 @@ export function AcompanhamentoAlunos() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard quebra label="Alunos" value={String(alunos.length)} hint={`${alunos.filter((a) => a.integrado).length} integrados no AVA`} />
-        <StatCard quebra label="Faturamentos no ciclo" value={String(faturas)} hint={`aluno × UC · ${ucs.length} UC(s) no ciclo`} />
-        <StatCard quebra label="Alunos com desistência ou trancamento" value={String(alunos.filter((a) => a.ucs.some((m) => m.status !== 'Matriculado')).length)} hint="Em ao menos uma UC; nas outras segue matriculado" />
-        <StatCard quebra label="Desistências aguardando a DR" value={String(alunos.reduce((n, a) => n + a.ucs.filter(aguardandoDr).length, 0))} hint="Aluno × UC; seguem faturando até a DR confirmar" />
+        <StatCard quebra label="Estudantes" value={String(alunos.length)} hint={`${alunos.filter((a) => a.integrado).length} integrados no AVA`} />
+        <StatCard quebra label="Faturamentos no ciclo" value={String(faturas)} hint={`estudante × UC · ${ucs.length} UC(s) no ciclo`} />
+        <StatCard quebra label="Estudantes com desistência ou trancamento" value={String(alunos.filter((a) => a.ucs.some((m) => m.status !== 'Matriculado')).length)} hint="Em ao menos uma UC; nas outras segue matriculado" />
+        <StatCard quebra label="Desistências aguardando a DR" value={String(alunos.reduce((n, a) => n + a.ucs.filter(aguardandoDr).length, 0))} hint="Estudante × UC; seguem faturando até a DR confirmar" />
         <StatCard quebra label="Suspensos sem formalização" value={String(suspensos)} hint="Seguem faturando: cobrar a formalização da DR" />
       </div>
 
-      <DataTable rows={alunos} columns={colunas} searchPlaceholder="Buscar aluno ou CPF…" />
+      <DataTable rows={alunos} columns={colunas} searchPlaceholder="Buscar estudante ou CPF…" />
     </div>
   )
 }

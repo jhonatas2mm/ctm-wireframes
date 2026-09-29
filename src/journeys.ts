@@ -147,7 +147,7 @@ export const journeys: Journey[] = [
     profile: 'CTM: Coordenador EAD',
     steps: [
       { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Coordenador EAD', note: 'A proposta é sempre da CTM. A negociação acontece fora do sistema; quando avança, o Gestor EAD cria a proposta.' },
-      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Coordenador EAD', note: 'Vinculada a um TAA/contrato aceito: produtos do TAA, alunos e início por curso; matriz do portfólio; valor = valor do edital × alunos (fixo); saldo do TAA mostrado. Salva como Rascunho.' },
+      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Coordenador EAD', note: 'Vinculada a um TAA/contrato aceito: produtos do TAA, estudantes e início por curso; matriz do portfólio; valor = valor do edital × estudantes (fixo); saldo do TAA mostrado. Salva como Rascunho.' },
       { title: 'Proposta em rascunho', path: '/produtos/7', profile: 'CTM: Coordenador EAD', note: 'Gestão da proposta: resumo, cursos com a matriz, versões, documentos e histórico. O Gestor EAD é o responsável.' },
       { title: 'Vai e vem: nova versão', path: '/produtos/4', profile: 'CTM: Coordenador EAD', note: 'A DR pediu ajuste: “Nova versão” guarda a v1 no histórico e cria a v2. Status atual: Aguardando.' },
       { title: 'Status da proposta', path: '/produtos', focus: 'text=Status', profile: 'CTM: Coordenador EAD', note: 'O Gestor EAD registra o andamento combinado com a DR: Rascunho → Em andamento → Aguardando → Aprovado, ou Cancelado (motivo).' },
@@ -192,7 +192,7 @@ export const journeys: Journey[] = [
     profile: 'CTM: Coordenador Pedagógico',
     steps: [
       { title: 'UC em planejamento', path: '/oferta/t1?aba=execucao', profile: 'CTM: Coordenador Pedagógico', note: 'Com a sala criada, a UC entra em planejamento: “Planejar” define os dias das aulas ao vivo (online) e as atividades presenciais, e envia ao tutor. Se o tutor devolver, o motivo aparece na UC.' },
-      { title: 'Tratativas pedagógicas', path: '/tratativas', profile: 'CTM: Coordenador Pedagógico', note: 'Durante a execução: tratativas por aluno ou turma.' },
+      { title: 'Tratativas pedagógicas', path: '/tratativas', profile: 'CTM: Coordenador Pedagógico', note: 'Durante a execução: tratativas por estudante ou turma.' },
     ],
   },
   {
@@ -210,7 +210,7 @@ export const journeys: Journey[] = [
     steps: [
       { title: 'Criar salas no Moodle', path: '/oferta/t1?aba=execucao', profile: 'CTM: Monitor', note: 'O monitor começa o processo: cria as salas das UCs via integração (Em criação → Criada).' },
       { title: 'Parametrizar avaliações', path: '/oferta/t1?aba=execucao', profile: 'CTM: Monitor', note: 'Planejamento aprovado pelo tutor: chega o e-mail e o monitor parametriza as avaliações no Moodle; a UC fica Pronta.' },
-      { title: 'Integração dos alunos', path: '/oferta/t1?aba=integracao', profile: 'CTM: Monitor', note: 'Com todas as UCs prontas, a DR é avisada por e-mail para integrar os alunos (SGN/SGE).' },
+      { title: 'Integração dos estudantes', path: '/oferta/t1?aba=integracao', profile: 'CTM: Monitor', note: 'Com todas as UCs prontas, a DR é avisada por e-mail para integrar os estudantes (SGN/SGE).' },
     ],
   },
   {
@@ -218,7 +218,7 @@ export const journeys: Journey[] = [
     title: 'Acompanhamento pedagógico',
     profile: 'CTM: Coordenador EAD',
     steps: [
-      { title: 'Tratativas pedagógicas', path: '/tratativas', profile: 'CTM: Coordenador EAD', note: 'Registros categorizados (tipo, motivo, retorno, desfecho) por aluno ou turma toda; indicadores de retornos pendentes e alertas de desistência.' },
+      { title: 'Tratativas pedagógicas', path: '/tratativas', profile: 'CTM: Coordenador EAD', note: 'Registros categorizados (tipo, motivo, retorno, desfecho) por estudante ou turma toda; indicadores de retornos pendentes e alertas de desistência.' },
       { title: 'Nova tratativa', path: '/tratativas/nova', profile: 'CTM: Coordenador EAD', note: 'Monitoria ou pedagógico registra a tratativa e quando acompanhar de novo.' },
     ],
   },
@@ -227,7 +227,7 @@ export const journeys: Journey[] = [
     title: 'Desistências das escolas',
     profile: 'DR solicitante: Coordenador Escolar',
     steps: [
-      { title: 'Confirmação de desistências', path: '/desistencias', focus: 'text=Confirmar', profile: 'DR solicitante: Coordenador Escolar', note: 'Gestor e Coordenador Escolar têm os mesmos acessos do Gestor EAD da DR, mas vinculados às suas escolas: aqui só aparecem os alunos do SENAI Maracanã e do SENAI Tijuca.' },
+      { title: 'Confirmação de desistências', path: '/desistencias', focus: 'text=Confirmar', profile: 'DR solicitante: Coordenador Escolar', note: 'Gestor e Coordenador Escolar têm os mesmos acessos do Gestor EAD da DR, mas vinculados às suas escolas: aqui só aparecem os estudantes do SENAI Maracanã e do SENAI Tijuca.' },
     ],
   },
   {
@@ -235,13 +235,13 @@ export const journeys: Journey[] = [
     title: 'Financeiro',
     profile: 'CTM: Coordenador EAD',
     steps: [
-      { title: 'Financeiro', path: '/financeiro', profile: 'CTM: Coordenador EAD', note: 'As DRs solicitantes aparecem em cards, com os números de cobrança e as ações; “Ver alunos” abre a situação de cobrança por aluno: cobra até a DR formalizar a saída (corte dia 20, cobrança dia 5). Suspenso no AVA sem formalização vira alerta. Formalização registrada aqui, não por e-mail.' },
-      { title: 'Acompanhamento dos alunos', path: '/financeiro?aba=acompanhamento', profile: 'CTM: Coordenador EAD', note: 'Turma e ciclo: cada aluno com contato, status geral, saída e monitor; por UC do ciclo, a situação (ativo, suspenso, não integrado) e se fatura. Base do nº de alunos da cobrança.' },
-      { title: 'Confirmação de desistências', path: '/desistencias', focus: 'text=Confirmar', profile: 'DR solicitante: Gestor EAD', note: 'Dupla checagem: a desistência vem do Moodle e a DR confirma (a saída vale e o aluno deixa de faturar) ou contesta (falha de integração: segue matriculado).' },
+      { title: 'Financeiro', path: '/financeiro', profile: 'CTM: Coordenador EAD', note: 'As DRs solicitantes aparecem em cards, com os números de cobrança e as ações; “Ver estudantes” abre a situação de cobrança por estudante: cobra até a DR formalizar a saída (corte dia 20, cobrança dia 5). Suspenso no AVA sem formalização vira alerta. Formalização registrada aqui, não por e-mail.' },
+      { title: 'Acompanhamento dos estudantes', path: '/financeiro?aba=acompanhamento', profile: 'CTM: Coordenador EAD', note: 'Turma e ciclo: cada estudante com contato, status geral, saída e monitor; por UC do ciclo, a situação (ativo, suspenso, não integrado) e se fatura. Base do nº de estudantes da cobrança.' },
+      { title: 'Confirmação de desistências', path: '/desistencias', focus: 'text=Confirmar', profile: 'DR solicitante: Gestor EAD', note: 'Dupla checagem: a desistência vem do Moodle e a DR confirma (a saída vale e o estudante deixa de faturar) ou contesta (falha de integração: segue matriculado).' },
       { title: 'Relatório de cobrança', path: '/financeiro?aba=cobranca', focus: 'text=Abrir relatório', profile: 'CTM: Gestor EAD', note: 'A CTM escolhe a proposta aprovada para cobrar da DR solicitante.' },
-      { title: 'Relatório da proposta', path: '/financeiro/cobranca/2?propostas=6', profile: 'CTM: Gestor EAD', note: 'Pode juntar propostas aprovadas do mesmo TAA e da mesma DR (aqui PC-MG-002 + PC-MG-006, TAA 007/2026 do SENAI-RJ); TAA diferente não entra. Por ciclo (mês): uma linha por turma × escola × UC com CH cobrada, alunos integrados e valor aluno/hora; ajustes de cobrança; exporta planilha ou PDF.' },
-      { title: 'Notificação de aditivo', path: '/produtos/1', focus: 'text=Fazer aditivo', profile: 'CTM: Gestor EAD', note: 'O sino avisa: mais alunos nas salas do Moodle do que na proposta (Mecatrônica: 43 × 40). A CTM faz o aditivo.' },
-      { title: 'Aditivo da proposta', path: '/produtos/novo?versao=1&aditivo=1', profile: 'CTM: Gestor EAD', note: 'Nova versão com os alunos do Moodle já preenchidos e o motivo do aditivo; a anterior fica no histórico de versões.' },
+      { title: 'Relatório da proposta', path: '/financeiro/cobranca/2?propostas=6', profile: 'CTM: Gestor EAD', note: 'Pode juntar propostas aprovadas do mesmo TAA e da mesma DR (aqui PC-MG-002 + PC-MG-006, TAA 007/2026 do SENAI-RJ); TAA diferente não entra. Por ciclo (mês): uma linha por turma × escola × UC com CH cobrada, estudantes integrados e valor estudante/hora; ajustes de cobrança; exporta planilha ou PDF.' },
+      { title: 'Notificação de aditivo', path: '/produtos/1', focus: 'text=Fazer aditivo', profile: 'CTM: Gestor EAD', note: 'O sino avisa: mais estudantes nas salas do Moodle do que na proposta (Mecatrônica: 43 × 40). A CTM faz o aditivo.' },
+      { title: 'Aditivo da proposta', path: '/produtos/novo?versao=1&aditivo=1', profile: 'CTM: Gestor EAD', note: 'Nova versão com os estudantes do Moodle já preenchidos e o motivo do aditivo; a anterior fica no histórico de versões.' },
     ],
   },
 
@@ -261,7 +261,7 @@ export const journeys: Journey[] = [
     profile: 'CTM: Gestor EAD',
     steps: [
       { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'CTM: Gestor EAD', note: 'A proposta é sempre da CTM. A negociação acontece fora do sistema; quando avança, o Gestor EAD cria a proposta.' },
-      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Gestor EAD', note: 'Vinculada a um TAA/contrato aceito: produtos do TAA, alunos e início por curso; matriz do portfólio; valor = valor do edital × alunos (fixo); saldo do TAA mostrado. Salva como Rascunho.' },
+      { title: 'Nova proposta', path: '/produtos/novo', profile: 'CTM: Gestor EAD', note: 'Vinculada a um TAA/contrato aceito: produtos do TAA, estudantes e início por curso; matriz do portfólio; valor = valor do edital × estudantes (fixo); saldo do TAA mostrado. Salva como Rascunho.' },
       { title: 'Proposta em rascunho', path: '/produtos/7', profile: 'CTM: Gestor EAD', note: 'Gestão da proposta: resumo, cursos com a matriz, versões, documentos e histórico. O Gestor EAD é o responsável.' },
       { title: 'Vai e vem: nova versão', path: '/produtos/4', profile: 'CTM: Gestor EAD', note: 'A DR pediu ajuste: “Nova versão” guarda a v1 no histórico e cria a v2. Status atual: Aguardando.' },
       { title: 'Status da proposta', path: '/produtos', focus: 'text=Status', profile: 'CTM: Gestor EAD', note: 'O Gestor EAD registra o andamento combinado com a DR: Rascunho → Em andamento → Aguardando → Aprovado, ou Cancelado (motivo).' },
@@ -285,11 +285,11 @@ export const journeys: Journey[] = [
     title: 'Acompanhamento da execução',
     profile: 'DR solicitante: Gestor EAD',
     steps: [
-      { title: 'Painel', path: '/acompanhamento', focus: 'text=Requer atenção', profile: 'DR solicitante: Gestor EAD', note: 'Dashboard da DR solicitante (SENAI-MG): indicadores gerais e, por contrato, as turmas com execução e quantos alunos requerem atenção.' },
+      { title: 'Painel', path: '/acompanhamento', focus: 'text=Requer atenção', profile: 'DR solicitante: Gestor EAD', note: 'Dashboard da DR solicitante (SENAI-MG): indicadores gerais e, por contrato, as turmas com execução e quantos estudantes requerem atenção.' },
       { title: 'Gestão de Contratos', path: '/contratos', focus: '[data-slot="data-table"]', profile: 'DR solicitante: Gestor EAD', note: 'Contratos da DR com o CTM: empresa cliente, cursos EAD, vigência, valor e status.' },
       { title: 'Detalhes do contrato', path: '/contratos/c1', profile: 'DR solicitante: Gestor EAD', note: 'Side nav com os dados do contrato, vagas ocupadas e as turmas que o CTM opera para a empresa.' },
-      { title: 'Detalhes da turma', path: '/turmas-ead/t1', profile: 'DR solicitante: Gestor EAD', note: 'Execução do calendário, progresso e média dos alunos, tutor do CTM e lista de alunos.' },
-      { title: 'Detalhes do aluno', path: '/alunos/a2', profile: 'DR solicitante: Gestor EAD', note: 'Motivos que pedem atitude, notas das atividades e histórico de acessos ao AVA e ao Portal do aluno.' },
+      { title: 'Detalhes da turma', path: '/turmas-ead/t1', profile: 'DR solicitante: Gestor EAD', note: 'Execução do calendário, progresso e média dos estudantes, tutor do CTM e lista de estudantes.' },
+      { title: 'Detalhes do estudante', path: '/alunos/a2', profile: 'DR solicitante: Gestor EAD', note: 'Motivos que pedem atitude, notas das atividades e histórico de acessos ao AVA e ao Portal do estudante.' },
     ],
   },
 ]
