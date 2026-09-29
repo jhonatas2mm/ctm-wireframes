@@ -31,7 +31,7 @@ export function IconeAgente({ className }: { className?: string }) {
 export function AgenteBotao({ aberto, onClick }: { aberto: boolean; onClick: () => void }) {
   const [rotulo, setRotulo] = useState(true)
   useEffect(() => {
-    const t = setTimeout(() => setRotulo(false), 4000)
+    const t = setTimeout(() => setRotulo(false), 1800)
     return () => clearTimeout(t)
   }, [])
   return (
