@@ -17,7 +17,7 @@ const colunas = (todos: boolean, verProdutos: (c: Contrato) => void): Column<Con
   ...(todos ? [
     { header: 'Contratante', value: (c: Contrato) => nomeParte(c.contratante), search: true, filter: true },
     ] : []),
-  { header: 'CTM contratada', value: (c) => `SENAI-${c.dr}`, search: true, filter: true },
+  { header: 'Contratada', value: (c) => `SENAI-${c.dr}`, search: true, filter: true },
   { header: 'Origem', value: (c) => (c.origem === 'CTM' ? 'CTM' : 'DR'), filter: true },
   // Botão que abre a lista de produtos numa side sheet (a coluna guarda os nomes para a busca)
   { header: 'Produtos', value: (c) => (c.produtos ?? []).map((p) => p.nome).join(', ') || '—', search: true, cell: (c) => (c.produtos?.length ? <CellButton onClick={() => verProdutos(c)}><Eye className="size-3" /> Visualizar</CellButton> : '—') },

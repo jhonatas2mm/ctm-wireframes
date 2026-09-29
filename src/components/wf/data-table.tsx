@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { ChevronLeft, ChevronRight, LayoutList, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { ChevronLeft, ChevronRight, LayoutList, Maximize2, Minimize2, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
 import { Popover } from '@base-ui/react/popover'
 import { useLocation } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { useSheetLateralAberta } from '@/components/ui/sheet'
+import { useSidebarOpcional } from '@/components/ui/sidebar'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -137,6 +138,12 @@ export function DataTable<T extends { id: string }>({
   // Linha clicada (ou com ação clicada): fica em foco, como no hover, enquanto o detalhe (sheet lateral) estiver aberto.
   const [foco, setFoco] = useState<string | null>(null)
   const detalheAberto = useSheetLateralAberta()
+  // Expandir tabela: só aparece quando a tabela tem rolagem horizontal (muitas colunas); fecha o menu lateral para dar espaço.
+  const menu = useSidebarOpcional()
+  const areaRef = useRef<HTMLDivElement>(null)
+  const [transborda, setTransborda] = useState(false)
+  const [expandindo, setExpandindo] = useState(false)
+  const expandida = expandindo && !!menu && !menu.open // se o menu for reaberto por outro caminho, volta ao normal
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
 
@@ -194,6 +201,23 @@ export function DataTable<T extends { id: string }>({
   const nAtivos = Object.values(filters).filter(Boolean).length
   const active = q !== '' || nAtivos > 0
   const hasSearch = columns.some((c) => c.search)
+  const semLinhas = visible.length === 0
+  useEffect(() => {
+    const c = areaRef.current?.querySelector('[data-slot="table-container"]')
+    if (!c) { setTransborda(false); return }
+    const medir = () => setTransborda(c.scrollWidth > c.clientWidth + 1)
+    medir()
+    const ro = new ResizeObserver(medir)
+    ro.observe(c)
+    const t = c.querySelector('table')
+    if (t) ro.observe(t)
+    return () => ro.disconnect()
+  }, [emCards, semLinhas])
+  const alternarExpandir = () => {
+    if (!menu) return
+    menu.setOpen(expandida)
+    setExpandindo(!expandida)
+  }
   return (
     <div data-slot="data-table" className="overflow-hidden rounded-lg border bg-card">
       <div className="flex flex-wrap items-center gap-2 border-b p-3">
@@ -302,6 +326,11 @@ export function DataTable<T extends { id: string }>({
             </Popover.Portal>
           </Popover.Root>
         )}
+        {menu && (transborda || expandida) && !emCards && (
+          <Button type="button" variant="outline" size="icon" className="order-last" aria-label={expandida ? 'Recolher tabela' : 'Expandir tabela'} aria-pressed={expandida} title={expandida ? 'Recolher tabela (reabre o menu lateral)' : 'Expandir tabela (fecha o menu lateral)'} onClick={alternarExpandir}>
+            {expandida ? <Minimize2 /> : <Maximize2 />}
+          </Button>
+        )}
         {/* Contador só sem o seletor Cards/Tabela (com ele, ficava solto no meio da barra) */}
         {!cards && (
           <span className="ml-auto text-xs text-muted-foreground tabular-nums">
@@ -331,7 +360,7 @@ export function DataTable<T extends { id: string }>({
       {visible.length === 0 ? (
         <div className="p-6"><EmptyState title="Nenhum resultado" description="Ajuste a busca ou os filtros." /></div>
       ) : (
-        <div>
+        <div ref={areaRef}>
           {emCards ? (
             // Cards: 1ª e 2ª colunas no cabeçalho (título e situação), ações à direita; demais colunas em grade de rótulo/valor.
             <div className="space-y-2 p-3">

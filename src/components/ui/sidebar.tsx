@@ -42,6 +42,11 @@ type SidebarContextProps = {
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
 
+// Versão que não lança fora do SidebarProvider (ex.: tabelas usadas em telas sem menu lateral).
+function useSidebarOpcional() {
+  return React.useContext(SidebarContext)
+}
+
 function useSidebar() {
   const context = React.useContext(SidebarContext)
   if (!context) {
@@ -718,4 +723,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  useSidebarOpcional,
 }
