@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, UserRound, RotateCcw, Lock, Workflow, X, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, UserRound, RotateCcw, Lock, Workflow, X, ChevronUp, Monitor } from 'lucide-react'
 import { MapaProcesso } from '@/pages/processo'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -44,9 +44,11 @@ const APP_HOST = 'ctm.com.br'
 
 // Desktop é renderizado numa largura fixa (padrão de tela) e reduzido por inteiro para caber, mantendo as proporções.
 // Em telas maiores, a moldura para nessa largura (centralizada) em vez de esticar.
-const DESKTOP_WIDTH = 1600
+// A largura (resolução) pode ser trocada na barra Design; fica lembrada no navegador.
+const RESOLUCOES = [1280, 1366, 1440, 1600, 1920, 2560]
+const RESOLUCAO_PADRAO = 1600
 
-function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; src: string; scaled: boolean }) {
+function ScaledFrame({ ref, src, scaled, largura }: { ref: React.Ref<HTMLIFrameElement>; src: string; scaled: boolean; largura: number }) {
   const box = useRef<HTMLDivElement>(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
   useEffect(() => {
@@ -55,7 +57,7 @@ function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; 
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
-  const k = scaled && size.w ? Math.min(1, size.w / DESKTOP_WIDTH) : 1
+  const k = scaled && size.w ? Math.min(1, size.w / largura) : 1
   return (
     <div ref={box} className="relative min-h-0 flex-1 overflow-hidden">
       <iframe
@@ -66,7 +68,7 @@ function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; 
         className="absolute top-0 left-0 origin-top-left"
         style={
           k < 1
-            ? { width: DESKTOP_WIDTH, height: size.h / k, transform: `scale(${k})` }
+            ? { width: largura, height: size.h / k, transform: `scale(${k})` }
             : { width: '100%', height: '100%' }
         }
       />
@@ -135,6 +137,8 @@ export function JourneyShell() {
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
   const [mapa, setMapa] = useState(false)
   // Painel de perfil/jornada minimizável (lembrado no navegador).
+  const [largura, setLarguraState] = useState(() => { try { return Number(localStorage.getItem('resolucao-prototipo')) || RESOLUCAO_PADRAO } catch { return RESOLUCAO_PADRAO } })
+  const setLargura = (v: number) => { setLarguraState(v); try { localStorage.setItem('resolucao-prototipo', String(v)) } catch { /* sem armazenamento */ } }
   const [painelMin, setPainelMinState] = useState(() => { try { return localStorage.getItem('painel-jornada-min') !== '0' } catch { return true } })
   const setPainelMin = (v: boolean) => { setPainelMinState(v); try { localStorage.setItem('painel-jornada-min', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
@@ -314,6 +318,18 @@ export function JourneyShell() {
                 <ExternalLink /> Abrir protótipo livre
               </Button>
               <DropdownMenu>
+                <DropdownMenuTrigger render={<Button size="sm" variant="ghost" title="Resolução considerada para o protótipo (a tela é reduzida por inteiro para caber)" />}>
+                  <Monitor /> <span className="tabular-nums">{largura} px</span> <ChevronDown className="size-3.5 opacity-70" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="dark w-40">
+                  {RESOLUCOES.map((r) => (
+                    <DropdownMenuItem key={r} className={cn('tabular-nums', r === largura && 'font-semibold')} onClick={() => setLargura(r)}>
+                      {r} px{r === RESOLUCAO_PADRAO && <span className="text-muted-foreground ml-auto text-xs font-normal">padrão</span>}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
                 <DropdownMenuTrigger render={<Button size="sm" variant="ghost" />}>
                   <RotateCcw /> Restaurar dados
                 </DropdownMenuTrigger>
@@ -437,7 +453,7 @@ export function JourneyShell() {
 
         <div className="flex min-h-0 flex-1">
           <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'px-4 pb-4')}>
-            <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width, maxWidth: DESKTOP_WIDTH + 8 }}>
+            <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width, maxWidth: largura + 8 }}>
             {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
             <div className="flex items-end gap-2">
               {/* Troca de perfil: abre a 1ª jornada iniciada por ele, na 1ª etapa */}
@@ -518,7 +534,7 @@ export function JourneyShell() {
                   </span>
                 </div>
               </div>
-              <ScaledFrame ref={frame} src={src} scaled={device === 'desktop'} />
+              <ScaledFrame ref={frame} src={src} scaled={device === 'desktop'} largura={largura} />
               </div>
             </div>
             </div>

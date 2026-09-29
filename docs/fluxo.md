@@ -282,3 +282,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-29 — Super admin vê os dados de todos: cada tela mostra de quem é o dado (coluna de origem, com filtro). Equipe: coluna **CTM**; a CTM vê só a própria equipe.
 - 2026-09-29 — Casca: protótipo com a mesma largura das caixas do topo, mais perto do painel de jornada; painel de jornada **fechado por padrão** (lembrado no navegador).
 - 2026-09-29 — Casca: protótipo renderizado em largura padrão de 1600px e reduzido por inteiro (mantém proporções); em telas maiores não estica além disso.
+- 2026-09-29 — Casca: na barra Design, seletor da **resolução** do protótipo (1280 a 2560 px, padrão 1600; lembrado no navegador).
