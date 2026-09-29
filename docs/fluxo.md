@@ -70,8 +70,8 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 
 ## Edital (DN)
 - **Só o DN faz a gestão de editais** (Gestão de Editais: DN e Super admin). As CTMs **apenas participam** (oferecem o custo, fora do sistema); no sistema só consultam o edital (somente leitura) ao cadastrar produtos e montar TAAs.
-- Tem **vigência** e **áreas tecnológicas**; **não tem cursos, valor total nem CH**.
-- Cada área tem o **valor por hora** e **um único DR vinculado** (a CTM daquela área, a de menor custo).
+- O edital é o **cadastro do resultado** do edital de credenciamento: **vigência** e, por **área tecnológica**, só o **DR credenciado** e o **valor (R$ hora/estudante)**. Não se cadastram cursos, valor total, CH nem os demais dados do edital.
+- Um DR credenciado por área (a CTM daquela área). Exemplo cadastrado: resultado 2026-2028, EaD Assíncrono (GO a R$ 0,55; SC a R$ 0,65 e Sistemas de Energia a R$ 0,52).
 - Os cursos de uma área vêm do **catálogo** (área, modalidade e CH fixas). O valor por estudante de um curso = **valor/hora da área × CH do curso** (usado na proposta e na cobrança).
 - Todo TAA de um produto é com o DR vinculado à área dele; produtos do TAA = cursos do catálogo nas áreas do edital em que a CTM é o DR vinculado.
 
@@ -325,3 +325,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Escolas**: o DR solicitante cadastra as escolas (tela Escolas); o DN valida ou recusa com motivo no detalhe do DR (Gestão de DRs, coluna Escolas com pendentes). Só escolas validadas entram nas turmas. Nova jornada "Cadastro e validação de escolas".
 - 2026-09-29 — **Edital por área tecnológica**: o edital deixa de ter cursos, valor e CH; tem áreas tecnológicas, cada uma com valor por hora e um único DR vinculado. Cursos vêm do catálogo pela área; valor por estudante = valor/hora × CH do curso. Novo edital, lista e detalhes refeitos.
 - 2026-09-29 — Portfólio: o item do portfólio é **curso** (não produto) em Gestão de Portfólio, Aprovação de portfólio, Portfólio das CTMs e jornadas ("Novo curso", "Curso criado"). Tabelas do portfólio sem a coluna **Edital**; Aprovação de portfólio sem a coluna **UCs**.
+- 2026-09-29 — Edital = **cadastro do resultado**: só área tecnológica, DR credenciado e valor (R$ hora/estudante); área com campo livre e sugestões. Exemplo ED-007/2026 no formato do resultado 2026-2028 (EaD Assíncrono). Telas do edital sem lista de cursos; rótulo DR credenciado.

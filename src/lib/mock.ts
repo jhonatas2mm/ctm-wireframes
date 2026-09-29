@@ -43,10 +43,10 @@ const cursos: Curso[] = [
 
 export const useCursos = () => useCollection<Curso>('cursos-v2', cursos)
 
-// Editais (DN): vigência + ÁREAS TECNOLÓGICAS. O edital não tem cursos, valor nem CH: cada área tem o VALOR POR HORA e
-// UM único DR vinculado (a CTM daquela área, a de menor custo). Os cursos do edital vêm do catálogo pela área:
+// Editais (DN) = cadastro do RESULTADO do edital de credenciamento: só ÁREA TECNOLÓGICA, DR CREDENCIADO e VALOR
+// (R$ hora/estudante). Um DR por área (a CTM daquela área). Sem cursos, valor total ou CH no edital. Os cursos do edital vêm do catálogo pela área:
 // valor por estudante = valor/hora da área × CH do curso. Dados FICTÍCIOS.
-export type AreaEdital = { area: string; valorHora: number; dr: string } // dr = UF do DR (CTM) vinculado à área
+export type AreaEdital = { area: string; valorHora: number; dr: string } // dr = UF do DR credenciado na área (a CTM); valorHora = R$ hora/estudante
 // Curso do edital (derivado): curso do catálogo numa área do edital; drs/aprovada = o DR vinculado à área.
 export type CursoEdital = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number; valorHora: number; drs: string[]; aprovada?: string }
 export const aprovadaDe = (c: Pick<CursoEdital, 'drs' | 'aprovada'>) => c.aprovada ?? c.drs[0]
@@ -60,7 +60,8 @@ export type Edital = {
   vigenciaInicio: string // dd/mm/aaaa
   vigenciaFim: string
 }
-export const areasTecnologicas = ['Automação', 'Automotiva', 'Construção Civil', 'Eletroeletrônica', 'Gestão', 'Logística', 'Metalmecânica', 'Química', 'Segurança do Trabalho', 'Tecnologia da Informação', 'Tecnologia Gráfica']
+// Sugestões de áreas no cadastro (o DN pode digitar outra)
+export const areasTecnologicas = ['Comercial', 'Comunicação Midiática', 'Construção de Obras', 'Desenvolvimento de Sistemas', 'Design', 'Eletrônica e Automação', 'Gerencial', 'Gestão e Promoção da Saúde e Bem-Estar', 'Gestão e Segurança', 'Infraestrutura de Informação e Comunicação', 'Manufatura', 'Manutenção e Operação', 'Materiais', 'Mineração e Extração', 'Operações de Transporte', 'Operações Financeiras', 'Produção Alimentícia', 'Proteção e Reabilitação de Ecossistemas', 'Sistemas de Energia', 'Têxtil e Vestuário', 'Automação', 'Automotiva', 'Construção Civil', 'Eletroeletrônica', 'Gestão', 'Logística', 'Metalmecânica', 'Química', 'Segurança do Trabalho', 'Tecnologia da Informação', 'Tecnologia Gráfica']
 export const cursosDasAreas = (areas: AreaEdital[]): CursoEdital[] =>
   cursos.flatMap((c) => {
     const a = areas.find((x) => x.area === c.area)
@@ -78,11 +79,17 @@ const editais: Edital[] = [
   edital('4', 'ED-004/2026', [ar('Automação', 9, 'PR')], ['01/08/2026', '31/12/2026']),
   edital('5', 'ED-005/2026', [ar('Tecnologia da Informação', 8.5, 'MG')], ['01/01/2026', '31/12/2026']),
   edital('6', 'ED-006/2026', [ar('Logística', 8, 'BA')], ['15/09/2026', '14/09/2027']),
+  // Exemplo no formato do resultado do edital de credenciamento CTM 2026-2028 (EaD Assíncrono): área, DR credenciado e valor
+  edital('7', 'ED-007/2026', [
+    ...['Comercial', 'Comunicação Midiática', 'Construção de Obras', 'Design', 'Gestão e Promoção da Saúde e Bem-Estar', 'Gestão e Segurança', 'Infraestrutura de Informação e Comunicação', 'Manutenção e Operação', 'Mineração e Extração', 'Operações de Transporte', 'Operações Financeiras', 'Produção Alimentícia', 'Proteção e Reabilitação de Ecossistemas', 'Química', 'Têxtil e Vestuário'].map((a) => ar(a, 0.55, 'GO')),
+    ...['Desenvolvimento de Sistemas', 'Eletrônica e Automação', 'Gerencial', 'Manufatura', 'Materiais', 'Metalmecânica', 'Segurança'].map((a) => ar(a, 0.65, 'SC')),
+    ar('Sistemas de Energia', 0.52, 'SC'),
+  ], ['01/01/2026', '31/12/2028']),
 ]
 
 // Os cursos e DRs do edital são sempre derivados das áreas (também nos editais criados na tela).
 export const useEditais = () => {
-  const db = useCollection<Edital>('editais-v10', editais)
+  const db = useCollection<Edital>('editais-v11', editais)
   const all = useMemo(() => db.all.map(completar), [db.all])
   return { ...db, all, get: (id?: string) => all.find((e) => e.id === id) }
 }

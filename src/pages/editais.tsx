@@ -11,17 +11,17 @@ import { EditalSucesso } from './edital-sucesso'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
-// O edital não tem valor nem CH: tem áreas tecnológicas, cada uma com valor por hora e um DR vinculado.
+// Edital = cadastro do resultado: só área tecnológica, DR credenciado e valor (R$ hora/estudante).
 const colunas: Column<Edital>[] = [
   { header: 'Nº', value: (e) => e.numero, search: true, className: 'font-mono text-xs' },
   { header: 'Vigência', value: (e) => `${e.vigenciaInicio} a ${e.vigenciaFim}`, className: 'tabular-nums' },
-  { header: 'Áreas tecnológicas', value: (e) => e.areas.map((a) => a.area).join(', '), search: true, cell: (e) => <span className="block max-w-96 text-sm">{e.areas.map((a) => `${a.area} (${brl(a.valorHora)}/h · SENAI-${a.dr})`).join(' · ')}</span> },
-  { header: 'DRs vinculados', value: (e) => e.drs.map((uf) => `SENAI-${uf}`).join(', '), search: true },
+  { header: 'Áreas tecnológicas', value: (e) => e.areas.map((a) => a.area).join(', '), search: true, cell: (e) => <span className="block max-w-96 text-sm">{e.areas.map((a) => `${a.area} (SENAI-${a.dr} · ${brl(a.valorHora)}/h)`).join(' · ')}</span> },
+  { header: 'DRs credenciados', value: (e) => e.drs.map((uf) => `SENAI-${uf}`).join(', '), search: true },
 ]
 
 const filtros: FilterDef<Edital>[] = [
   { label: 'Área tecnológica', values: (e) => e.areas.map((a) => a.area) },
-  { label: 'DR vinculado', values: (e) => e.drs.map((uf) => `SENAI-${uf}`) },
+  { label: 'DR credenciado', values: (e) => e.drs.map((uf) => `SENAI-${uf}`) },
 ]
 
 export default function Editais() {

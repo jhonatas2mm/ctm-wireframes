@@ -94,7 +94,7 @@ export const journeys: Journey[] = [
     profile: 'DN',
     steps: [
       { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo edital', profile: 'DN', note: 'DN clica em “Novo edital”.' },
-      { title: 'Novo edital', path: '/editais/novo', profile: 'DN', note: 'Define a vigência e as áreas tecnológicas: cada área com o valor por hora e um único DR vinculado (a CTM daquela área). O edital não tem cursos, valor total nem CH.' },
+      { title: 'Novo edital', path: '/editais/novo', profile: 'DN', note: 'Cadastra o resultado do edital de credenciamento: vigência e, por área tecnológica, o DR credenciado e o valor (R$ hora/estudante). Só isso.' },
       { title: 'Edital criado', path: '/editais/1/sucesso', profile: 'DN', note: 'Tela de sucesso: resumo do edital salvo, com opção de ver o edital ou voltar à gestão.' },
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
       { title: 'Novo curso', path: '/gestao-produtos/novo', profile: 'CTM: Coordenador EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca os cursos e cadastra módulos e UCs. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },

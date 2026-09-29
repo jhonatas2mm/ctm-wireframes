@@ -15,14 +15,14 @@ export function EditalSucesso({ edital, onClose, onVer }: { edital: Edital | nul
             <CheckCircle2 className="size-14 text-emerald-600" />
             <div className="grid gap-1">
               <DialogTitle className="text-xl">Edital criado com sucesso</DialogTitle>
-              <DialogDescription>O edital já está disponível para os DRs vinculados às áreas.</DialogDescription>
+              <DialogDescription>O edital já está disponível para os DRs credenciados.</DialogDescription>
             </div>
             <Badge variant="secondary" className="font-mono text-sm">{edital.numero}</Badge>
             <dl className="grid w-full grid-cols-2 gap-3 rounded-[1.25rem] border p-4 text-left bg-card">
               {([
                 ['Vigência', `${edital.vigenciaInicio} a ${edital.vigenciaFim}`],
                 ['Áreas tecnológicas', edital.areas.length],
-                ['DRs vinculados', edital.drs.map((d) => `SENAI-${d}`).join(', ')],
+                ['DRs credenciados', edital.drs.map((d) => `SENAI-${d}`).join(', ')],
               ] as [string, React.ReactNode][]).map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-xs text-muted-foreground">{k}</dt>
