@@ -32,6 +32,14 @@ const secaoDe = (path: string, perfil?: string): (typeof secoes)[number] =>
   : path.startsWith('/componentes') ? 'Sistema'
   : 'CTM'
 
+// Organizadores dentro de cada setor (menus longos); o Painel fica solto no topo.
+const subgrupos: Record<string, [string, string[]][]> = {
+  DN: [['Credenciamento', ['/drs']], ['Contratação', ['/dashboard', '/editais']]],
+  CTM: [['Comercial', ['/gestao-contratos', '/gestao-produtos', '/produtos']], ['Execução', ['/oferta', '/calendario', '/equipe', '/tratativas']], ['Financeiro', ['/financeiro']]],
+  'DR solicitante': [['Contratos', ['/contratos', '/dashboard']], ['Execução', ['/turmas-ead', '/alunos']]],
+}
+const subgrupoDe = (sec: string, path: string) => subgrupos[sec]?.find(([, ps]) => ps.some((p) => path.startsWith(p)))?.[0] ?? ''
+
 export function AppShell() {
   const { pathname } = useLocation()
   // Menu e avatar seguem o perfil ativo na casca (fora dela, mostra tudo).
@@ -71,21 +79,27 @@ export function AppShell() {
           {secoes
             .map((sec) => ({ sec, itens: noMenu.filter((s) => secaoDe(s.path, perfil) === sec) }))
             .filter((x) => x.itens.length)
-            .map(({ sec, itens }, _, todas) => (
-            <SidebarGroup key={sec}>
-              {/* Rótulo só quando o perfil vê mais de um setor (ex.: Super admin) */}
-              {todas.length > 1 && <SidebarGroupLabel>{sec}</SidebarGroupLabel>}
+            .flatMap(({ sec, itens }, _, todas) => {
+              // Painel solto (sem rótulo) e depois um grupo por organizador; com mais de um setor (Super admin), o rótulo leva o setor.
+              const nomes = ['', ...(subgrupos[sec] ?? []).map(([n]) => n)]
+              return nomes
+                .map((n) => ({ n, lista: itens.filter((s) => subgrupoDe(sec, s.path) === n) }))
+                .filter((g) => g.lista.length)
+                .map((g) => ({ key: `${sec}-${g.n}`, rotulo: todas.length > 1 ? [sec, g.n].filter(Boolean).join(' · ') : g.n, lista: g.lista }))
+            })
+            .map(({ key, rotulo, lista }) => (
+            <SidebarGroup key={key} className="py-1">
+              {rotulo && <SidebarGroupLabel>{rotulo}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {itens
-                    .map((s) => (
-                      <SidebarMenuItem key={s.path}>
-                        <SidebarMenuButton isActive={pathname === s.path || pathname.startsWith(s.path + '/')} render={<Link to={s.path} />}>
-                          <s.icon />
-                          <span>{s.title}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
+                  {lista.map((s) => (
+                    <SidebarMenuItem key={s.path}>
+                      <SidebarMenuButton isActive={pathname === s.path || pathname.startsWith(s.path + '/')} render={<Link to={s.path} />}>
+                        <s.icon />
+                        <span>{s.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

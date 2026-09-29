@@ -288,3 +288,4 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 - 2026-09-29 — Gestão de Portfólio: colunas Modalidade e Área tecnológica saem da tabela; vão para o botão **Detalhes** (ícone ao lado do nome do curso). Continuam como filtros.
 - 2026-09-29 — Menu lateral: mais espaço entre logo, identificação da DR, busca e menus.
 - 2026-09-29 — Casca: Anterior/Próxima saem de cima do protótipo e vão para o canto direito do painel de jornada, só ícones, um em cima do outro (atalhos ← → mantidos; em tela cheia continuam sobre o protótipo).
+- 2026-09-29 — Menu lateral organizado em grupos com rótulo por perfil: DN (Credenciamento, Contratação), CTM (Comercial, Execução, Financeiro), DR solicitante (Contratos, Execução); Painel solto no topo. Super admin: rótulo "Setor · Grupo".
