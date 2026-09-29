@@ -111,15 +111,15 @@ export default function RelatorioCobranca() {
           <div className="space-y-2 text-sm">
             {mov.anterior !== undefined && (
               <p className="text-muted-foreground">
-                <span className="font-medium text-foreground">{mov.entraram}</span> entraram (novas UCs/integrações) · <span className="font-medium text-foreground">{mov.saidas.length}</span> saíram por desistência confirmada ou trancamento{mov.outrasSaidas > 0 && <> · <span className="font-medium text-foreground">{mov.outrasSaidas}</span> sem UC no mês</>}
+                <span className="font-medium text-foreground">{mov.entraram}</span> entraram (novas UCs/integrações) · <span className="font-medium text-foreground">{mov.saidas.length}</span> saídas de UC por desistência confirmada ou trancamento{mov.outrasSaidas > 0 && <> · <span className="font-medium text-foreground">{mov.outrasSaidas}</span> sem UC no mês</>}
               </p>
             )}
             {mov.saidas.length > 0 ? (
               <ul className="divide-y rounded-lg border">
-                {mov.saidas.map(({ aluno: a, turma: t }) => (
-                  <li key={a.id} className="flex items-center gap-3 px-3 py-2">
-                    <span className="min-w-0 flex-1"><span className="font-medium">{a.nome}</span> <span className="text-muted-foreground">· {t.codigo} · {a.escola}</span></span>
-                    <span className="text-xs text-muted-foreground">{a.status === 'Trancado' ? `Trancado em ${dataBr(a.dataSaida!)}` : `Desistência confirmada pela DR em ${dataBr(a.confirmacaoEm ?? a.dataSaida!)}`}</span>
+                {mov.saidas.map(({ aluno: a, turma: t, uc, matricula: m }) => (
+                  <li key={`${a.id}-${uc}`} className="flex items-center gap-3 px-3 py-2">
+                    <span className="min-w-0 flex-1"><span className="font-medium">{a.nome}</span> <span className="text-muted-foreground">· UC {uc} · {t.codigo} · {a.escola}</span></span>
+                    <span className="text-xs text-muted-foreground">{m.status === 'Trancado' ? `Trancado em ${dataBr(m.desde!)}` : `Desistência confirmada pela DR em ${dataBr(m.confirmacaoEm ?? m.desde!)}`}</span>
                   </li>
                 ))}
               </ul>

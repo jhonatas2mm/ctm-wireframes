@@ -7,13 +7,14 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, useConfirmar } from '@/components/wf'
 import { HOJE, dataBr, useConfirmacoesDesistencia, useTurmas, type Turma } from '@/lib/mock'
-import { alunosDaTurma, type AlunoTurma } from '@/lib/alunos-turma'
+import { alunosDaTurma, idConfirmacao, type AlunoTurma, type MatriculaUc } from '@/lib/alunos-turma'
 import { useAutor } from '@/lib/autor'
 
 // Confirmação de desistências (DR solicitante): a desistência chega do Moodle e a DR faz a dupla checagem — confirma
-// (a saída vale e o aluno para de faturar) ou contesta (falha de integração: o aluno segue matriculado e faturando).
-type Linha = AlunoTurma & { turma: Turma }
-const situacao = (a: AlunoTurma) => (a.confirmacao === 'Aguardando DR' ? 'Aguardando confirmação' : a.confirmacao === 'Confirmada' ? 'Confirmada' : 'Contestada')
+// POR UC (a saída vale naquela UC e o aluno para de faturar nela no próximo ciclo da UC) ou contesta (falha de integração:
+// segue matriculado e faturando). O aluno pode estar matriculado numa UC e desistente em outra.
+type Linha = AlunoTurma & { turma: Turma; m: MatriculaUc; key: string }
+const situacao = (a: Linha) => (a.m.confirmacao === 'Aguardando DR' ? 'Aguardando confirmação' : a.m.confirmacao === 'Confirmada' ? 'Confirmada' : 'Contestada')
 
 export default function Desistencias() {
   const autor = useAutor()
@@ -23,22 +24,23 @@ export default function Desistencias() {
   const [contestar, setContestar] = useState<Linha | null>(null)
   const [motivo, setMotivo] = useState('')
   // Desistências vindas do Moodle (inclui as já decididas, para desfazer)
-  const linhas: Linha[] = turmas.flatMap((t) => alunosDaTurma(t, db.all).filter((a) => a.desistenciaMoodle).map((a) => ({ ...a, turma: t })))
+  const linhas: Linha[] = turmas.flatMap((t) => alunosDaTurma(t, db.all).flatMap((a) => a.ucs.filter((m) => m.confirmacao).map((m) => ({ ...a, id: idConfirmacao(a.id, m.uc), turma: t, m, key: idConfirmacao(a.id, m.uc) }))))
   const registrar = (a: Linha, s: 'Confirmada' | 'Contestada', m?: string) => {
-    db.remove(a.id)
-    db.add({ id: a.id, situacao: s, em: HOJE, por: autor, motivo: m })
+    db.remove(a.key)
+    db.add({ id: a.key, situacao: s, em: HOJE, por: autor, motivo: m })
   }
   const colunas: Column<Linha>[] = [
     { header: 'Aluno', value: (a) => a.nome, search: true, cell: (a) => <span><span className="block font-medium">{a.nome}</span><span className="text-xs text-muted-foreground">CPF {a.cpf}</span></span> },
     { header: 'Turma', value: (a) => a.turma.codigo, filter: true, cell: (a) => <span><Badge variant="secondary" className="font-mono">{a.turma.codigo}</Badge><span className="mt-0.5 block text-xs text-muted-foreground">{a.turma.cursos.join(', ')} · CTM SENAI-MG</span></span> },
     { header: 'Escola', value: (a) => a.escola, filter: true },
-    { header: 'Desistência no Moodle', value: (a) => dataBr(a.desistenciaMoodle!), className: 'tabular-nums' },
+    { header: 'UC', value: (a) => a.m.uc, filter: true, className: 'font-medium' },
+    { header: 'Desistência no Moodle', value: (a) => dataBr(a.m.desde!), className: 'tabular-nums' },
     {
       header: 'Situação', value: situacao, filter: true,
       cell: (a) => (
         <span className="block">
           <Badge variant="outline">{situacao(a)}</Badge>
-          {a.confirmacao !== 'Aguardando DR' && <span className="mt-0.5 block text-xs text-muted-foreground">{a.confirmacaoEm && dataBr(a.confirmacaoEm)}{a.confirmacaoPor && ` · ${a.confirmacaoPor}`}{a.motivoContestacao && ` · ${a.motivoContestacao}`}</span>}
+          {a.m.confirmacao !== 'Aguardando DR' && <span className="mt-0.5 block text-xs text-muted-foreground">{a.m.confirmacaoEm && dataBr(a.m.confirmacaoEm)}{a.m.confirmacaoPor && ` · ${a.m.confirmacaoPor}`}{a.m.motivoContestacao && ` · ${a.m.motivoContestacao}`}</span>}
         </span>
       ),
     },
@@ -56,25 +58,25 @@ export default function Desistencias() {
         rows={linhas}
         columns={colunas}
         searchPlaceholder="Buscar aluno ou CPF…"
-        actions={(a) => a.confirmacao === 'Aguardando DR' ? (
+        actions={(a) => a.m.confirmacao === 'Aguardando DR' ? (
           <>
             <RowAction label="Confirmar" icon={CheckCircle2} onClick={() => confirmar({
-              titulo: `Confirmar a desistência de ${a.nome}?`,
-              descricao: `A saída vale a partir de ${dataBr(a.desistenciaMoodle!)}: o aluno deixa de faturar nas UCs seguintes.`,
+              titulo: `Confirmar a desistência de ${a.nome} na UC ${a.m.uc}?`,
+              descricao: `Vale só para esta UC, a partir de ${dataBr(a.m.desde!)}: o aluno deixa de faturar nela a partir do próximo ciclo da UC. Nas outras UCs segue como está.`,
               acao: 'Confirmar desistência',
               onConfirmar: () => registrar(a, 'Confirmada'),
             })} />
             <RowAction label="Contestar" icon={XCircle} onClick={() => (setMotivo('O aluno segue frequentando: falha de integração com o Moodle.'), setContestar(a))} />
           </>
         ) : (
-          <RowAction label="Desfazer" icon={RotateCcw} onClick={() => confirmar({ titulo: `Desfazer a decisão sobre ${a.nome}? Volta a aguardar confirmação.`, acao: 'Desfazer', onConfirmar: () => db.remove(a.id) })} />
+          <RowAction label="Desfazer" icon={RotateCcw} onClick={() => confirmar({ titulo: `Desfazer a decisão sobre ${a.nome}? Volta a aguardar confirmação.`, acao: 'Desfazer', onConfirmar: () => db.remove(a.key) })} />
         )}
       />
       <Dialog open={!!contestar} onOpenChange={(v) => !v && setContestar(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Contestar a desistência</DialogTitle>
-            <DialogDescription>{contestar?.nome} · {contestar?.turma.codigo}. O aluno segue matriculado e a CTM verifica a integração com o Moodle.</DialogDescription>
+            <DialogDescription>{contestar?.nome} · UC {contestar?.m.uc} · {contestar?.turma.codigo}. O aluno segue matriculado e a CTM verifica a integração com o Moodle.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-1.5"><Label>Motivo <Req /></Label><Textarea rows={3} value={motivo} onChange={(e) => setMotivo(e.target.value)} /></div>
           <DialogFooter>

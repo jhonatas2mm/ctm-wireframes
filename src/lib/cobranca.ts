@@ -1,6 +1,6 @@
 // Cálculo do Relatório de cobrança (CTM → DR solicitante): por proposta e ciclo financeiro. Regras em docs/fluxo.md.
 import type { ConfirmacaoDesistencia, Produto, Turma } from './mock'
-import { alunosDaTurma, corteSaida, fatura, janelaUc, ucNoCiclo, type AlunoTurma } from './alunos-turma'
+import { alunosDaTurma, fatura, janelaUc, matriculaNa, saidaValida, ucNoCiclo, type AlunoTurma, type MatriculaUc } from './alunos-turma'
 
 export const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const dias = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5) + 1
@@ -42,18 +42,27 @@ export function faturadosNoCiclo(turmas: Turma[], ciclo: string, conf: Confirmac
   return m
 }
 
-// Movimentação da cobrança de um mês para o outro: quem saiu (saída confirmada) e quantos entraram/saíram por outros motivos
-// (UC nova, fim de UC). Cada mês pode ter mais ou menos alunos.
+// Movimentação da cobrança de um mês para o outro: alunos cobrados, quantos entraram e as saídas POR UC (desistência
+// confirmada pela DR ou trancamento naquela UC). Cada mês pode ter mais ou menos alunos.
 export function movimentacao(turmas: Turma[], ciclo: string, anterior: string | undefined, conf: ConfirmacaoDesistencia[] = []) {
   const atual = faturadosNoCiclo(turmas, ciclo, conf)
   const antes = anterior ? faturadosNoCiclo(turmas, anterior, conf) : new Map<string, { aluno: AlunoTurma; turma: Turma }>()
-  const sairam = [...antes.values()].filter((x) => !atual.has(x.aluno.id))
+  // Saídas por UC: aluno × UC que faturou no mês anterior e não fatura mais, com saída válida naquela UC
+  const saidas: { aluno: AlunoTurma; turma: Turma; uc: string; matricula: MatriculaUc }[] = []
+  if (anterior) for (const t of turmas) {
+    const ucs = t.modulos.flatMap((x) => x.unidades)
+    for (const a of alunosDaTurma(t, conf)) for (const u of ucs) {
+      const m = matriculaNa(a, u)
+      if (saidaValida(m) && fatura(a, u, anterior) && ucNoCiclo(u, ciclo) && !fatura(a, u, ciclo)) saidas.push({ aluno: a, turma: t, uc: u.nome, matricula: m })
+    }
+  }
+  const sairam = [...antes.keys()].filter((id) => !atual.has(id))
   return {
     atual: atual.size,
     anterior: anterior ? antes.size : undefined,
     entraram: [...atual.keys()].filter((id) => !antes.has(id)).length,
-    saidas: sairam.filter((x) => corteSaida(x.aluno)),
-    outrasSaidas: sairam.filter((x) => !corteSaida(x.aluno)).length,
+    saidas,
+    outrasSaidas: sairam.filter((id) => !saidas.some((x) => x.aluno.id === id)).length,
   }
 }
 
