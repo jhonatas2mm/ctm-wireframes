@@ -31,7 +31,7 @@ Novos fluxos entram nesta lista na posição em que acontecem (e na mesma ordem 
 
 ## Perfis
 Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Super admin**. CTM e DR solicitante têm **caixas** (subperfis). Nome do perfil = `Grupo: Caixa` (ex.: `CTM: PCP`).
-- **Super admin** (provisório) — administra usuários, perfis/permissões, auditoria e logs do sistema; vê todas as telas do menu e **os dados de toda a plataforma** (ex.: no acompanhamento, contratos/turmas/alunos de todas as DRs, com coluna/filtro de DR). Menu setorizado (DN, CTM, DR solicitante, Administração).
+- **Super admin** (provisório) — administra usuários, perfis/permissões, auditoria e logs do sistema; vê todas as telas do menu e **os dados de toda a plataforma** (ex.: no acompanhamento, contratos/turmas/alunos de todas as DRs, com coluna/filtro de DR). Menu setorizado (DN, CTM, DR solicitante, Administração), com seções recolhíveis (por padrão só a primeira, e a da tela atual, abertas).
 - **DN** — cria e gerencia editais (com a CTM aprovada por produto), aprova o portfólio e faz a gestão de DRs. **Não contrata CTM** e não gerencia TAAs.
 - **CTM** (SENAI-MG) — caixas:
   - **Gestor de contrato** (antes "Comercial"; pode ser um supervisor, um gestor…) — envia TAAs às DRs (TAAs com as DRs), propostas e portfólio.
@@ -291,3 +291,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Portfólio das CTMs: área tecnológica e modalidade passam para baixo do nome do produto (seguem como filtros). TAAs com as DRs: coluna Origem virou **Criado por** (CTM/DR) e a coluna Produtos saiu (produtos ficam nos detalhes). Sheets laterais sem overlay escuro, com a linha clicada em foco. Menu: só um item ativo (Aprovação de portfólio não marca mais Portfólio das CTMs).
 - 2026-09-29 — Tratativas pedagógicas (tabela): Tipo e Retorno do aluno em badges; Descrição virou botão **Visualizar** que abre um dropdown com o texto.
 - 2026-09-29 — Acompanhamento dos alunos (financeiro): cards de indicadores sem ícone, com texto quebrando linha em vez de cortar.
+- 2026-09-29 — Super admin: seções do menu lateral recolhíveis (só a primeira aberta por padrão). TAAs com CTMs: coluna Origem com valores CTM/DR. Acompanhamento dos alunos: botões Exportar planilha e Relatório de cobrança alinhados à esquerda.

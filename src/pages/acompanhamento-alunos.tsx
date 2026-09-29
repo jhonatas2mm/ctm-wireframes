@@ -100,7 +100,7 @@ export function AcompanhamentoAlunos() {
             <SelectContent>{ciclos.map((c) => <SelectItem key={c} value={c}>{cicloBr(c)}</SelectItem>)}</SelectContent>
           </Select>
         </div>
-        <div className="ml-auto flex gap-2">
+        <div className="flex w-full gap-2">
           <Button variant="outline" onClick={exportar}><FileDown /> Exportar planilha</Button>
           <Button variant="outline" nativeButton={false} render={<a href={`#/financeiro/cobranca/${t.propostaId}?ciclo=${ciclo}`} />}><ReceiptText /> Relatório de cobrança</Button>
         </div>

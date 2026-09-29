@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import {
@@ -17,12 +18,13 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { screens } from '@/screens'
-import { GraduationCap, LogOut, UserRound } from 'lucide-react'
+import { ChevronDown, GraduationCap, LogOut, UserRound } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { BuscaRapida } from '@/components/wf/busca-rapida'
 import { Notificacoes } from '@/components/wf/notificacoes'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
+import { cn } from '@/lib/utils'
 
 // Setores do menu (na ordem); setor sem telas visíveis não aparece.
 const secoes = ['DN', 'CTM', 'DR solicitante', 'Administração', 'Sistema'] as const
@@ -57,6 +59,18 @@ export function AppShell() {
   // Só um item ativo: o de caminho mais longo (ex.: /portfolio/aprovacoes não marca também /portfolio)
   const casa = (path: string) => pathname === path || pathname.startsWith(path + '/')
   const ativo = noMenu.filter((s) => casa(s.path)).sort((a, b) => b.path.length - a.path.length)[0]?.path
+  // Grupos do menu: Painel solto (sem rótulo) e um por organizador; com mais de um setor (Super admin), o rótulo leva o setor.
+  const setores = secoes
+    .map((sec) => ({ sec, itens: noMenu.filter((s) => secaoDe(s.path, perfil) === sec) }))
+    .filter((x) => x.itens.length)
+  const grupos = setores.flatMap(({ sec, itens }) =>
+    ['', ...(subgrupos[sec] ?? []).map(([n]) => n)]
+      .map((n) => ({ n, lista: itens.filter((s) => subgrupoDe(sec, s.path) === n) }))
+      .filter((g) => g.lista.length)
+      .map((g) => ({ key: `${sec}-${g.n}`, rotulo: setores.length > 1 ? [sec, g.n].filter(Boolean).join(' · ') : g.n, lista: g.lista })),
+  )
+  const colapsavel = setores.length > 1
+  const [abertos, setAbertos] = useState<Record<string, boolean>>({})
   const iniciais = user.nome.split(' ').map((p) => p[0]).slice(0, 2).join('')
 
   return (
@@ -83,34 +97,34 @@ export function AppShell() {
           <BuscaRapida telas={noMenu.map((s) => s.path)} />
         </div>
         <SidebarContent>
-          {secoes
-            .map((sec) => ({ sec, itens: noMenu.filter((s) => secaoDe(s.path, perfil) === sec) }))
-            .filter((x) => x.itens.length)
-            .flatMap(({ sec, itens }, _, todas) => {
-              // Painel solto (sem rótulo) e depois um grupo por organizador; com mais de um setor (Super admin), o rótulo leva o setor.
-              const nomes = ['', ...(subgrupos[sec] ?? []).map(([n]) => n)]
-              return nomes
-                .map((n) => ({ n, lista: itens.filter((s) => subgrupoDe(sec, s.path) === n) }))
-                .filter((g) => g.lista.length)
-                .map((g) => ({ key: `${sec}-${g.n}`, rotulo: todas.length > 1 ? [sec, g.n].filter(Boolean).join(' · ') : g.n, lista: g.lista }))
-            })
-            .map(({ key, rotulo, lista }) => (
-            <SidebarGroup key={key} className="py-1">
-              {rotulo && <SidebarGroupLabel>{rotulo}</SidebarGroupLabel>}
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {lista.map((s) => (
-                    <SidebarMenuItem key={s.path}>
-                      <SidebarMenuButton isActive={s.path === ativo} render={<Link to={s.path} />}>
-                        <s.icon />
-                        <span>{s.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          ))}
+          {grupos.map(({ key, rotulo, lista }, i) => {
+            // Super admin (vários setores): seções recolhíveis; por padrão só a primeira (e a da tela atual) abertas.
+            const aberto = !colapsavel || !rotulo || (abertos[key] ?? (i === 0 || lista.some((s) => s.path === ativo)))
+            return (
+              <SidebarGroup key={key} className="py-1">
+                {rotulo && (colapsavel ? (
+                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="w-full cursor-pointer justify-between hover:text-sidebar-foreground" />}>
+                    {rotulo}
+                    <ChevronDown className={cn('size-4 transition-transform', !aberto && '-rotate-90')} />
+                  </SidebarGroupLabel>
+                ) : <SidebarGroupLabel>{rotulo}</SidebarGroupLabel>)}
+                {aberto && (
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {lista.map((s) => (
+                        <SidebarMenuItem key={s.path}>
+                          <SidebarMenuButton isActive={s.path === ativo} render={<Link to={s.path} />}>
+                            <s.icon />
+                            <span>{s.title}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                )}
+              </SidebarGroup>
+            )
+          })}
         </SidebarContent>
         {/* Usuário logado (fictício) */}
         <SidebarFooter className="flex-row items-center gap-1 border-t">
