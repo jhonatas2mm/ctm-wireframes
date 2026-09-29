@@ -321,7 +321,7 @@ export function JourneyShell() {
             <span className="text-muted-foreground">·</span>
             <span className="truncate">{journey.id ? `${numero(journey.id)}. ${journey.title}` : 'Sem jornada'}</span>
             {journey.id && <span className="text-muted-foreground">· Etapa {step + 1} de {journey.steps.length}: {current.title}</span>}
-            <Button size="icon-xs" variant="ghost" className="ml-auto" aria-label="Expandir painel" title="Expandir painel" onClick={() => setPainelMin(false)}>
+            <Button size="icon-xs" variant="outline" className="ml-auto" aria-label="Expandir painel" title="Expandir painel" onClick={() => setPainelMin(false)}>
               <ChevronDown />
             </Button>
           </div>
@@ -409,7 +409,7 @@ export function JourneyShell() {
               })}
             </div>
           </div>
-          <Button size="icon-xs" variant="ghost" className="self-start" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}>
+          <Button size="icon-xs" variant="outline" className="self-start" aria-label="Minimizar painel" title="Minimizar painel" onClick={() => setPainelMin(true)}>
             <Minus />
           </Button>
         </div>
