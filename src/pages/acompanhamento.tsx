@@ -3,7 +3,7 @@ import { profileOf } from '@/journey/profiles'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import type * as React from 'react'
-import { CalendarRange, CheckCircle2, Eye, GraduationCap, MonitorSmartphone, TrendingUp, TriangleAlert, UserX, Users, type LucideIcon } from 'lucide-react'
+import { CalendarRange, CheckCircle2, Eye, GraduationCap, MonitorSmartphone, TrendingUp, TriangleAlert, UserX, Users } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -183,9 +183,6 @@ const tons = {
   red: 'bg-[#FBE6E5] text-[#C11414]', amber: 'bg-[#FDF0E6] text-[#C23C0D]', gray: 'bg-[#F0F1F2] text-[#536167]',
 }
 export type Tom = keyof typeof tons
-function IconBox({ icon: Icon, tom }: { icon: LucideIcon; tom: Tom }) {
-  return <div className={cn('flex size-10 shrink-0 items-center justify-center rounded-xl', tons[tom])}><Icon className="size-5" /></div>
-}
 
 const Bloco = ({ className, ...p }: React.ComponentProps<'section'>) => <section className={cn('rounded-[1.25rem] bg-card p-5', className)} {...p} />
 
@@ -236,7 +233,7 @@ export function Painel() {
               <span className="font-semibold">Alunos ativos</span>
               <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver alunos</Button>
             </div>
-            <div className="flex items-center gap-3"><IconBox icon={Users} tom="orange" /><span className="text-3xl font-bold tabular-nums">{alunos.length}</span><span className="text-sm text-muted-foreground">em {ativas.length} turmas</span></div>
+            <div className="flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{alunos.length}</span><span className="text-sm text-muted-foreground">em {ativas.length} turmas</span></div>
             <div className="grid grid-cols-[1fr_auto] items-end gap-4">
               <Sparkline v={total} cor="#E84910" />
               <p className="w-32 text-xs text-muted-foreground"><b className="text-foreground">{ativos7}</b> acessaram o portal nos últimos 7 dias</p>
@@ -247,7 +244,7 @@ export function Painel() {
               <span className="font-semibold">Requer atenção</span>
               <Button variant="outline" size="sm" render={<Link to="/alunos" />} nativeButton={false}>Ver detalhes</Button>
             </div>
-            <div className="flex items-center gap-3"><IconBox icon={TriangleAlert} tom="amber" /><span className="text-3xl font-bold tabular-nums">{atencao.length}</span><span className="text-sm text-muted-foreground">alunos · {evadidos} evadidos</span></div>
+            <div className="flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{atencao.length}</span><span className="text-sm text-muted-foreground">alunos · {evadidos} evadidos</span></div>
             <div className="flex h-2 overflow-hidden rounded-full bg-muted">
               <div className="bg-[#00A369]" style={{ width: `${((alunos.length - atencao.length) / Math.max(1, alunos.length)) * 100}%` }} />
               <div className="bg-[#F8833F]" style={{ width: `${((atencao.length - evadidos) / Math.max(1, alunos.length)) * 100}%` }} />
@@ -266,7 +263,7 @@ export function Painel() {
             <div>
               <div className="text-lg font-bold">Acessos ao portal</div>
               <div className="mt-1 text-xs text-muted-foreground">Últimos 7 dias</div>
-              <div className="mt-1 flex items-center gap-3"><IconBox icon={MonitorSmartphone} tom="green" /><span className="text-3xl font-bold tabular-nums">{sem7}</span><Variacao pct={varAcessos} /></div>
+              <div className="mt-1 flex items-center gap-3"><span className="text-3xl font-bold tabular-nums">{sem7}</span><Variacao pct={varAcessos} /></div>
             </div>
             <div className="flex gap-4 text-sm">
               <span className="flex items-center gap-1.5"><i className="size-2.5 rounded-full bg-[#E84910]" />AVA</span>
@@ -290,8 +287,7 @@ export function Painel() {
             {turmas.map((t) => {
               const n = d.alunosDa(t), exec = progressoEsperado(t), risco = n.filter((a) => alertasAluno(a, t).length).length
               return (
-                <button key={t.id} type="button" onClick={() => navigate(`/turmas-ead/${t.id}`)} className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-3 py-3.5 text-left sm:grid-cols-[auto_2fr_1fr_1.3fr]">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-[#EEF7FF] text-sm font-bold text-[#164194]">{d.contratoDe(t)?.empresa[0]}</div>
+                <button key={t.id} type="button" onClick={() => navigate(`/turmas-ead/${t.id}`)} className="grid w-full grid-cols-[1fr_auto] items-center gap-3 py-3.5 text-left sm:grid-cols-[2fr_1fr_1.3fr]">
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{t.curso}</div>
                     <div className="truncate text-xs text-muted-foreground">{d.contratoDe(t)?.empresa} · <span className="font-mono">{t.codigo}</span></div>
@@ -318,7 +314,6 @@ export function Painel() {
           <div className="max-h-[26rem] space-y-4 overflow-y-auto pr-1">
             {atencao.slice(0, 8).map(({ a, m }) => (
               <button key={a.id} type="button" onClick={() => setAberto(a.id)} className="flex w-full gap-3 text-left">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#FFF6ED] text-sm font-bold text-[#C23C0D]">{a.nome.split(' ').map((x) => x[0]).slice(0, 2).join('')}</div>
                 <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-baseline justify-between gap-2">
                     <span className="truncate font-semibold">{a.nome}</span>
