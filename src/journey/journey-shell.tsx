@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight, ExternalLink, Maximize, MapPinPlus, MessageSquareText, Minimize, Sparkles, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -112,6 +112,20 @@ export function JourneyShell() {
   // src fixo: trocar de etapa muda só o hash do iframe, sem recarregar.
   const [src] = useState(() => `./?frame=1#${current.path}`)
 
+  // Tela cheia: esconde topo e mapa da jornada (fica só perfil, Anterior/Próxima e o protótipo) e pede tela cheia ao navegador.
+  const [cheia, setCheia] = useState(false)
+  const alternarTelaCheia = () => {
+    if (document.fullscreenElement) document.exitFullscreen()
+    else if (cheia) setCheia(false)
+    // Sem permissão para tela cheia do navegador (ex.: embutido), só esconde a casca.
+    else document.documentElement.requestFullscreen().then(() => setCheia(true), () => setCheia(true))
+  }
+  useEffect(() => {
+    const onChange = () => setCheia(!!document.fullscreenElement)
+    addEventListener('fullscreenchange', onChange)
+    return () => removeEventListener('fullscreenchange', onChange)
+  }, [])
+
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
   // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
   const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') !== '0' } catch { return true } })
@@ -127,7 +141,7 @@ export function JourneyShell() {
     setRestaurar(null)
   }
 
-  // Atalhos: ← etapa anterior, → próxima (ignora quando o foco está num campo de texto).
+  // Atalhos: ← etapa anterior, → próxima, F tela cheia (ignora quando o foco está num campo de texto).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
@@ -135,6 +149,8 @@ export function JourneyShell() {
       if (el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))) return
       if (e.key === 'ArrowLeft' && step > 0) go(jid, step - 1)
       else if (e.key === 'ArrowRight' && step < journey.steps.length - 1) go(jid, step + 1)
+      else if (e.key === 'f' || e.key === 'F') alternarTelaCheia()
+      else if (e.key === 'Escape' && cheia && !document.fullscreenElement) setCheia(false)
       else return
       e.preventDefault()
     }
@@ -243,6 +259,7 @@ export function JourneyShell() {
   return (
     <div className="shell-canvas dark flex h-svh text-foreground">
       <main className="flex min-w-0 flex-1 flex-col">
+        {!cheia && (<>
         <header className="flex flex-wrap items-center gap-3 px-4 py-2">
           <div className="ml-auto flex items-center gap-1">
             {canEdit && (
@@ -284,6 +301,9 @@ export function JourneyShell() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Button size="sm" variant="ghost" onClick={alternarTelaCheia}>
+              <Maximize /> Tela cheia <kbd className="ml-1 rounded border border-current px-1 font-mono text-[10px] leading-4 opacity-70">F</kbd>
+            </Button>
             <span className="mx-1 h-4 w-px bg-border" />
             {devices.map((d) => (
               <Button
@@ -385,9 +405,10 @@ export function JourneyShell() {
             </div>
           </div>
         </div>
+        </>)}
 
         <div className="flex min-h-0 flex-1">
-          <div className="flex min-h-0 flex-1 justify-center overflow-auto p-6">
+          <div className={cn('flex min-h-0 flex-1 justify-center overflow-auto', cheia ? 'px-2 pt-1 pb-2' : 'p-6')}>
             <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width }}>
             {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
             <div className="flex items-end gap-2">
@@ -414,11 +435,19 @@ export function JourneyShell() {
               </DropdownMenu>
               {/* Navegação entre etapas, com atalhos ← e → */}
               <div className="ml-auto flex items-center gap-2 pb-1.5">
+                {cheia && (
+                  <span className="mr-1 text-xs text-muted-foreground">
+                    {journey.title} · <span className="tabular-nums">{step + 1}/{journey.steps.length}</span> {current.title}
+                  </span>
+                )}
                 <Button variant="outline" size="sm" style={{ borderColor: profileDef.color, color: profileDef.color }} disabled={step === 0} onClick={() => go(jid, step - 1)}>
                   <ChevronLeft /> Anterior <kbd className="ml-1 rounded border border-current px-1 font-mono text-[10px] leading-4 opacity-70">←</kbd>
                 </Button>
                 <Button size="sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}>
                   Próxima <kbd className="ml-1 rounded border border-white/60 px-1 font-mono text-[10px] leading-4">→</kbd> <ChevronRight />
+                </Button>
+                <Button size="icon-sm" variant="ghost" aria-label={cheia ? 'Sair da tela cheia' : 'Tela cheia'} title={cheia ? 'Sair da tela cheia (F)' : 'Tela cheia (F)'} onClick={alternarTelaCheia}>
+                  {cheia ? <Minimize /> : <Maximize />}
                 </Button>
               </div>
             </div>
