@@ -155,11 +155,12 @@ const contratos: Contrato[] = [
 ]
 
 export const useContratos = () => useCollection<Contrato>('contratos-v9', contratos)
-// Saldo do TAA: valor global menos o executado — propostas aceitas entre o contratante e a CTM, nos produtos do TAA.
+// Saldo do TAA: valor global menos o executado — propostas ASSINADAS vinculadas ao TAA (ou, sem vínculo, entre o
+// contratante e a CTM nos produtos do TAA).
 export const saldoTaa = (c: Contrato, propostas: Produto[]) => {
   const nomes = new Set((c.produtos ?? []).map((p) => p.nome))
-  const executado = propostas.filter((p) => p.status === 'Aceita' && p.drContratante === c.contratante && p.drOfertante === c.dr)
-    .reduce((t, p) => t + p.cursos.filter((x) => nomes.has(x.nome)).reduce((u, x) => u + x.valorPrevisto, 0), 0)
+  const executado = propostas.filter((p) => p.status === 'Aprovado' && (p.taaId ? p.taaId === c.id : p.drContratante === c.contratante && p.drOfertante === c.dr))
+    .reduce((t, p) => t + p.cursos.filter((x) => p.taaId || nomes.has(x.nome)).reduce((u, x) => u + x.valorPrevisto, 0), 0)
   return { executado, saldo: c.valor - executado, pct: c.valor ? Math.round((executado / c.valor) * 100) : 0 }
 }
 // TAA ou contrato (não encerrado) entre um contratante e uma CTM.
@@ -189,52 +190,71 @@ export const ucsDoCurso: Record<string, UC[]> = {
   '15': [{ nome: 'Arquitetura de CLPs', cargaHoraria: 20 }, { nome: 'Programação Ladder', cargaHoraria: 40 }],
 }
 
-// Propostas da DR ofertante para uma DR contratante: cursos importados do Itinerário Nacional (cada curso só uma vez),
-// com valor previsto por curso.
-export type CursoProposta = { cursoId: string; codigo: string; nome: string; modalidade: string; area: string; cargaHoraria: number; valorPrevisto: number; vagas?: number; inicioPrevisto?: string } // inicioPrevisto ISO (aaaa-mm-dd)
-// Fluxo (reunião de processos 28/09): Salvar → Em negociação; o resultado é registrado depois (Aceita / Recusada);
-// proposta aceita ainda pode ser Cancelada. Em elaboração / Em análise / Aceita pelo contratante ficam por compatibilidade.
-export type StatusProposta = 'Em elaboração' | 'Em negociação' | 'Em análise' | 'Aceita pelo contratante' | 'Aceita' | 'Recusada' | 'Cancelada'
+// Proposta comercial: criada SEMPRE pela CTM (o Gestor de contrato é o responsável), vinculada a um TAA/contrato aceito,
+// depois que a negociação (fora do sistema) avança. Cursos = produtos do TAA, com a matriz do portfólio (versão aprovada).
+// Valor parametrizado pelo edital: valor do curso (por aluno) × quantidade de alunos — não se digita.
+// Status (quem muda é o Gestor de contrato, conforme o retorno da DR solicitante): Rascunho, Em andamento,
+// Aguardando retorno do cliente, Aprovado, Cancelado. Versões vão e vêm (v1, v2…), com todo o histórico.
+// Propostas aprovadas executam o saldo do TAA. Aprovada, vincula-se a equipe técnica (supervisor e analista), que define o
+// cronograma das turmas (com agrupamento de UCs); a proposta aprovada segue para o processo de turmas (oferta).
+// Hierarquia: proposta → cursos → turmas → UCs → alunos (com situação).
+export type CursoProposta = { cursoId: string; codigo: string; nome: string; modalidade: string; area: string; cargaHoraria: number; valorAluno: number; valorPrevisto: number; vagas?: number; inicioPrevisto?: string } // vagas = quantidade de alunos; valorPrevisto = valorAluno × alunos; inicioPrevisto ISO
+export type StatusProposta = 'Rascunho' | 'Em andamento' | 'Aguardando retorno do cliente' | 'Aprovado' | 'Cancelado'
+export const statusProposta: StatusProposta[] = ['Rascunho', 'Em andamento', 'Aguardando retorno do cliente', 'Aprovado', 'Cancelado']
 export type Registro = { quando: string; texto: string; autor?: string } // histórico (quando ISO)
+export type VersaoProposta = { versao: number; cursos: CursoProposta[]; vigenciaInicio?: string; vigenciaFim?: string; salvaEm: string; motivo?: string }
 export type Produto = {
-  id: string; numero: string; drOfertante: string; drContratante: string; cursos: CursoProposta[]; cadastradoEm: string; status?: StatusProposta; documentos?: string[]; feedback?: string; edital?: string; vigenciaInicio?: string; vigenciaFim?: string; criadoPor?: string // vigência dd/mm/aaaa; edital = nº do edital a que a proposta pertence; criadoPor = perfil que abriu
+  id: string; numero: string; drOfertante: string; drContratante: string; cursos: CursoProposta[]; cadastradoEm: string; status?: StatusProposta; documentos?: string[]; edital?: string; vigenciaInicio?: string; vigenciaFim?: string // vigência dd/mm/aaaa (início e fim)
+  taaId?: string // TAA (SENAI) ou contrato (SESI) aceito ao qual a proposta está vinculada
+  responsavel?: { nome: string; cargo: string } // Gestor de contrato da CTM
+  equipeTecnica?: { supervisor: string; analista: string } // vinculada depois da aprovação; define o cronograma das turmas
+  versao?: number // versão atual (1 = original)
+  versoes?: VersaoProposta[] // versões anteriores (a proposta vai e vem)
   cnpj?: string // CNPJ do contratante (faturamento)
   crm?: string // nº da proposta no CRM ou sistema externo (opcional)
   link?: string // link do documento da proposta (o sistema não gera nem guarda o documento)
   faturamento?: 'DR' | 'Escola' // para quem se fatura
   escolas?: string[] // escolas faturadas (quando faturamento = Escola)
   motivoCancelamento?: string
-  duplicadaDe?: string // nº da proposta de origem (rodada de negociação)
   historico?: Registro[]
 }
-const cp = (cursoId: string, valorPrevisto: number, vagas?: number, inicioPrevisto?: string): CursoProposta => {
+// Valor do curso no edital (por aluno).
+export const valorNoEdital = (edital: string | undefined, curso: string) => editais.find((e) => e.numero === edital)?.cursos.find((c) => c.nome === curso)?.valor ?? 0
+export const totalProposta = (p: Pick<Produto, 'cursos'>) => p.cursos.reduce((t, c) => t + c.valorPrevisto, 0)
+export const alunosProposta = (p: Pick<Produto, 'cursos'>) => p.cursos.reduce((t, c) => t + (c.vagas ?? 0), 0)
+const cp = (cursoId: string, alunos: number, inicioPrevisto: string, edital: string): CursoProposta => {
   const c = cursos.find((x) => x.id === cursoId)!
-  return { cursoId, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorPrevisto, vagas, inicioPrevisto }
+  const valorAluno = valorNoEdital(edital, c.nome)
+  return { cursoId, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, valorAluno, vagas: alunos, valorPrevisto: valorAluno * alunos, inicioPrevisto }
 }
 const reg = (quando: string, texto: string, autor = 'Juliana Pereira'): Registro => ({ quando, texto, autor })
+const gestorContrato = { nome: 'Juliana Pereira', cargo: 'Gestor de contrato' }
 const propostas: Produto[] = [
-  { id: '1', numero: 'PC-MG-001/2026', edital: 'ED-001/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'SP', cnpj: '03.774.819/0001-02', crm: 'CRM-2026-0142', link: 'https://drive.senaimg.org.br/propostas/PC-MG-001-2026.pdf', faturamento: 'DR', cursos: [cp('2', 9600, 40, '2026-11-03'), cp('3', 9600, 35, '2026-11-03')], vigenciaInicio: '01/04/2026', vigenciaFim: '31/03/2027', cadastradoEm: '2026-03-10T10:00:00Z',
-    historico: [reg('2026-03-10T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-03-24T15:30:00Z', 'Proposta aceita pelo SENAI-SP')] },
-  { id: '2', numero: 'PC-MG-002/2026', edital: 'ED-002/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'RJ', cnpj: '03.851.105/0001-42', link: 'https://drive.senaimg.org.br/propostas/PC-MG-002-2026.pdf', faturamento: 'Escola', escolas: ['SENAI Maracanã', 'SENAI Benfica'], cursos: [cp('8', 1280, 30, '2026-10-05'), cp('7', 1600, 25, '2027-02-01')], vigenciaInicio: '01/05/2026', vigenciaFim: '30/04/2027', cadastradoEm: '2026-04-22T10:00:00Z',
-    historico: [reg('2026-04-22T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-05-06T09:10:00Z', 'Proposta aceita pelo SENAI-RJ')] },
-  { id: '3', numero: 'PC-MG-003/2026', edital: 'ED-001/2026', status: 'Aceita', drOfertante: 'MG', drContratante: 'ES', cnpj: '03.785.466/0001-78', faturamento: 'DR', cursos: [cp('4', 10200, 30, '2027-02-08')], vigenciaInicio: '01/07/2026', vigenciaFim: '30/06/2027', cadastradoEm: '2026-06-05T10:00:00Z',
-    historico: [reg('2026-06-05T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-06-19T14:00:00Z', 'Proposta aceita pelo SENAI-ES')] },
-  // Em negociação com turma prevista para daqui a 10 dias: aparece com alerta de prazo.
-  { id: '4', numero: 'PC-MG-004/2026', edital: 'ED-005/2026', status: 'Em negociação', drOfertante: 'MG', drContratante: 'GO', cnpj: '03.769.437/0001-10', crm: 'CRM-2026-0388', faturamento: 'DR', cursos: [cp('6', 5600, 25, '2026-10-08')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z',
-    historico: [reg('2026-08-18T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-09-02T11:20:00Z', 'Nova rodada: vagas de Segurança do Trabalho de 20 para 25')] },
-  { id: '5', numero: 'PC-MG-005/2026', edital: 'ED-001/2026', status: 'Cancelada', drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'A DR cancelou a turma por não atingir o mínimo de inscritos (regra interna de 25 alunos).', cursos: [cp('6', 3200, 15, '2026-09-14')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
-      historico: [reg('2026-07-01T10:00:00Z', 'Proposta registrada (Em negociação)'), reg('2026-07-20T10:00:00Z', 'Proposta aceita pelo SENAI-PE'), reg('2026-09-04T16:45:00Z', 'Proposta cancelada: a DR não fechou a turma')] },
-  // Contratante SESI (instrumento: Contrato CT-001/2026)
-  { id: '6', numero: 'PC-MG-006/2026', edital: 'ED-005/2026', status: 'Em negociação', drOfertante: 'MG', drContratante: 'SESI-SP', cnpj: '03.439.316/0001-06', faturamento: 'DR', cursos: [cp('12', 2400, 30, '2026-11-16')], vigenciaInicio: '01/05/2026', vigenciaFim: '30/04/2027', cadastradoEm: '2026-09-15T10:00:00Z',
-    historico: [reg('2026-09-15T10:00:00Z', 'Proposta registrada (Em negociação)')] },
+  { id: '1', numero: 'PC-MG-001/2026', taaId: '7', edital: 'ED-001/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, equipeTecnica: { supervisor: 'Carlos Andrade', analista: 'Renata Guimarães' }, drOfertante: 'MG', drContratante: 'SP', cnpj: '03.774.819/0001-02', crm: 'CRM-2026-0142', link: 'https://drive.senaimg.org.br/propostas/PC-MG-001-2026.pdf', faturamento: 'DR', cursos: [cp('2', 40, '2026-11-03', 'ED-001/2026'), cp('3', 35, '2026-11-03', 'ED-001/2026')], vigenciaInicio: '01/04/2026', vigenciaFim: '31/03/2027', cadastradoEm: '2026-03-10T10:00:00Z',
+    historico: [reg('2026-03-24T15:30:00Z', 'Status: Aprovado (SENAI-SP aprovou)'), reg('2026-03-12T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-03-10T10:00:00Z', 'Proposta criada (Rascunho)')] },
+  { id: '2', numero: 'PC-MG-002/2026', taaId: '8', edital: 'ED-002/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, equipeTecnica: { supervisor: 'Carlos Andrade', analista: 'Renata Guimarães' }, drOfertante: 'MG', drContratante: 'RJ', cnpj: '03.851.105/0001-42', link: 'https://drive.senaimg.org.br/propostas/PC-MG-002-2026.pdf', faturamento: 'Escola', escolas: ['SENAI Maracanã', 'SENAI Benfica'], cursos: [cp('8', 30, '2026-10-05', 'ED-002/2026'), cp('7', 25, '2027-02-01', 'ED-002/2026')], vigenciaInicio: '01/05/2026', vigenciaFim: '30/04/2027', cadastradoEm: '2026-04-22T10:00:00Z',
+    historico: [reg('2026-05-06T09:10:00Z', 'Status: Aprovado (SENAI-RJ aprovou)'), reg('2026-04-22T10:00:00Z', 'Proposta criada (Rascunho)')] },
+  { id: '3', numero: 'PC-MG-003/2026', taaId: '9', edital: 'ED-005/2026', status: 'Aprovado', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'ES', cnpj: '03.785.466/0001-78', faturamento: 'DR', cursos: [cp('4', 30, '2027-02-08', 'ED-005/2026')], vigenciaInicio: '01/07/2026', vigenciaFim: '30/06/2027', cadastradoEm: '2026-06-05T10:00:00Z',
+    historico: [reg('2026-06-19T14:00:00Z', 'Status: Aprovado (SENAI-ES aprovou)'), reg('2026-06-05T10:00:00Z', 'Proposta criada (Rascunho)')] },
+  // Vai e vem: v1 com 20 alunos; a DR pediu 25 → v2, aguardando o retorno do cliente (turma prevista para daqui a 10 dias: alerta)
+  { id: '4', numero: 'PC-MG-004/2026', taaId: '10', edital: 'ED-001/2026', status: 'Aguardando retorno do cliente', versao: 2, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'GO', cnpj: '03.769.437/0001-10', crm: 'CRM-2026-0388', faturamento: 'DR', cursos: [cp('6', 25, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', cadastradoEm: '2026-08-18T10:00:00Z',
+    versoes: [{ versao: 1, cursos: [cp('6', 20, '2026-10-08', 'ED-001/2026')], vigenciaInicio: '01/10/2026', vigenciaFim: '30/09/2027', salvaEm: '2026-08-18T10:00:00Z', motivo: 'Versão inicial' }],
+    historico: [reg('2026-09-02T11:30:00Z', 'Status: Aguardando retorno do cliente'), reg('2026-09-02T11:20:00Z', 'Nova versão v2: a DR pediu 25 alunos (antes 20)'), reg('2026-08-20T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-08-18T10:00:00Z', 'Proposta criada (Rascunho)')] },
+  { id: '5', numero: 'PC-MG-005/2026', taaId: '11', edital: 'ED-001/2026', status: 'Cancelado', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'PE', cnpj: '03.787.402/0001-39', faturamento: 'DR', motivoCancelamento: 'A DR não fechou a turma (mínimo de 25 inscritos).', cursos: [cp('6', 15, '2026-09-14', 'ED-001/2026')], vigenciaInicio: '01/08/2026', vigenciaFim: '31/07/2027', cadastradoEm: '2026-07-01T10:00:00Z',
+    historico: [reg('2026-09-04T16:45:00Z', 'Status: Cancelado — a DR não fechou a turma'), reg('2026-07-01T10:00:00Z', 'Proposta criada (Rascunho)')] },
+  { id: '6', numero: 'PC-MG-006/2026', taaId: '13', edital: 'ED-002/2026', status: 'Em andamento', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'SESI-SP', cnpj: '03.439.316/0001-06', faturamento: 'DR', cursos: [cp('12', 30, '2026-11-16', 'ED-002/2026')], vigenciaInicio: '01/05/2026', vigenciaFim: '30/04/2027', cadastradoEm: '2026-09-15T10:00:00Z',
+    historico: [reg('2026-09-16T10:00:00Z', 'Status: Em andamento (enviada ao cliente)'), reg('2026-09-15T10:00:00Z', 'Proposta criada (Rascunho)')] },
+  // Segunda turma de Mecatrônica no mesmo TAA (curso pode se repetir), ainda em rascunho
+  { id: '7', numero: 'PC-MG-007/2026', taaId: '7', edital: 'ED-001/2026', status: 'Rascunho', versao: 1, responsavel: gestorContrato, drOfertante: 'MG', drContratante: 'SP', cnpj: '03.774.819/0001-02', faturamento: 'DR', cursos: [cp('2', 20, '2027-03-01', 'ED-001/2026')], vigenciaInicio: '01/03/2027', vigenciaFim: '28/02/2028', cadastradoEm: '2026-09-27T10:00:00Z',
+    historico: [reg('2026-09-27T10:00:00Z', 'Proposta criada (Rascunho)')] },
 ]
-export const useProdutos = () => useCollection<Produto>('produtos-v17', propostas)
-// Alerta de prazo: proposta ainda não aceita com turma prevista para começar em até 15 dias.
+export const useProdutos = () => useCollection<Produto>('produtos-v19', propostas)
+// Alerta de prazo: proposta ainda não assinada com turma prevista para começar em até 15 dias.
 export const PRAZO_ALERTA_DIAS = 15
 export const inicioPrevisto = (p: Pick<Produto, 'cursos'>) => p.cursos.map((c) => c.inicioPrevisto).filter((x): x is string => !!x).sort()[0]
 export const alertaPrazo = (p: Produto) => {
   const ini = inicioPrevisto(p)
-  if (!ini || !['Em negociação', 'Em elaboração', 'Em análise'].includes(p.status ?? 'Em elaboração')) return null
+  if (!ini || !['Rascunho', 'Em andamento', 'Aguardando retorno do cliente'].includes(p.status ?? 'Rascunho')) return null
   const d = diasEntre(HOJE, ini)
   return d <= PRAZO_ALERTA_DIAS ? d : null
 }

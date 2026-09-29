@@ -91,7 +91,7 @@ export function BuscaRapida({ telas }: { telas: string[] }) {
     if (pode('/editais'))
       editais.forEach((e) => r.push({ grupo: 'Editais', titulo: e.numero, sub: `${e.cursos.length} cursos · ${e.vigenciaInicio} a ${e.vigenciaFim}`, to: '/editais', icon: FileSpreadsheet, chaves: `${e.cursos.map((c) => c.nome).join(' ')} ${e.drs.join(' ')}` }))
     if (pode('/produtos'))
-      propostas.forEach((p) => r.push({ grupo: 'Propostas', titulo: p.numero, sub: `SENAI-${p.drContratante} · ${p.status ?? 'Em elaboração'}`, to: `/produtos/${p.id}`, icon: Package, chaves: p.cursos.map((c) => c.nome).join(' '), atencao: p.status === 'Em negociação' || p.status === 'Em análise' }))
+      propostas.forEach((p) => r.push({ grupo: 'Propostas', titulo: p.numero, sub: `SENAI-${p.drContratante} · ${p.status ?? 'Rascunho'}`, to: `/produtos/${p.id}`, icon: Package, chaves: p.cursos.map((c) => c.nome).join(' '), atencao: p.status === 'Aguardando retorno do cliente' }))
     if (pode('/dashboard') || pode('/taas-ctm'))
       taas.forEach((t) => r.push({ grupo: 'TAAs e contratos', titulo: `${instrumentoDe(t.contratante)} ${t.numero}`, sub: `${nomeParte(t.contratante)} → CTM SENAI-${t.dr} · ${t.status}`, to: pode('/dashboard') ? `/dashboard/${t.id}` : '/taas-ctm', icon: FileSignature, atencao: t.status === 'Encaminhado' || t.status === 'Em análise' || t.status === 'Retornado para ajuste' }))
     if (pode('/drs'))

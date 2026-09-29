@@ -17,7 +17,7 @@ Na casca há **dois selects**: **Perfil** (com a contagem de jornadas) e **Jorna
 4. **TAAs com CTMs** (DR solicitante: SENAI) — lista → TAA recebido (analisar) → Novo TAA (a DR também cria) → Retornado para ajuste → TAA aceito (saldo).
 4a. **Contratos com CTMs** (DR solicitante: SESI) — Contratos com CTMs → Novo contrato → encaminhado → aceito.
 5. **Criação de portfólio** (Supervisor) — Gestão de Portfólio → Novo produto (produtos de um edital).
-6. **Criação de proposta** (Supervisor) — Gestão de propostas → Nova proposta (Em negociação) → aceitar/recusar na listagem (cancelar/duplicar depois).
+6. **Criação de proposta** (CTM: Supervisor e Gestor de contrato) — Gestão de propostas → Nova proposta (TAA aceito, Rascunho) → nova versão (vai e vem) → status (Em andamento, Aguardando retorno do cliente, Aprovado) → equipe técnica → Criar turmas.
 7. **Criação de oferta** (Supervisor) — Gestão da oferta → Nova oferta (cronograma gerado) → Oferta criada → Validação do cronograma → Turma confirmada.
 7a. **Gestão da execução** (Supervisor) — Equipe → Alocação da equipe → E-mail ao tutor → Integração com o AVA → Histórico da turma.
 7b. **Acompanhamento pedagógico** (Supervisor) — Tratativas pedagógicas → Nova tratativa.
@@ -136,25 +136,17 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - **Corte no dia 20**: formalizações até o dia 20 saem da cobrança do dia 5 do mês seguinte; depois do dia 20, da cobrança do mês subsequente.
 - Resumo de alunos cobrados por escola.
 
-## Proposta comercial (Supervisor)
-- DR ofertante (a própria, fixa) → DR contratante.
-- Pode ter vários cursos, cada um com **vagas, início previsto e valor previsto**.
-- Cada curso só pode entrar em uma proposta (cursos de propostas recusadas/canceladas voltam a ficar livres).
-- Só entram na proposta os **produtos contratados** pelo contratante com esta CTM (TAAs/contratos não encerrados).
-- Registro mínimo (o documento é feito fora, no modelo): edital, DR contratante, **CNPJ do contratante**, **faturamento** (para a DR ou por escola, com as escolas), **nº no CRM** (opcional), **link do documento** e anexo.
-- Número: `PC-<UF>-<seq>/<ano>`.
-- **O sistema não envia nada para ninguém.** O acordo é fechado fora do sistema.
-- Criação: "Nova proposta" → "Salvar proposta" (status **Em negociação**).
-- **Duplicar** (listagem): nova rodada de negociação — abre a Nova proposta com os dados da original e registra de qual proposta veio.
-- **Alerta de prazo**: proposta ainda não aceita com turma prevista para começar em até 15 dias aparece com "Faltam N dias" / "Prazo vencido" na coluna Início previsto.
-- Proposta **aceita pode ser cancelada** (ação na listagem, com motivo) → status *Cancelada*.
-- Histórico da proposta (registro, rodadas, aceite, recusa, cancelamento) na Gestão da proposta.
-- Depois de criada, o perfil registra o resultado na Gestão da proposta: **Aprovada** (status *Aceita*) ou **Recusada** (status *Recusada*).
-- Aceitar/recusar também direto no menu de ações da listagem de propostas (enquanto não decidida).
-- **Visualizar** (olho) abre side sheet com dados, cursos (quantas ofertas cada um tem) e **ofertas vinculadas**.
-- Proposta **aceita não pode ser excluída** (lixeira desabilitada).
-- Recusar pede **feedback** (motivo), que aparece no Resumo da proposta.
-- Depois de aprovada ou recusada, os botões somem.
+## Proposta comercial (CTM)
+- A proposta é **sempre criada pela CTM**. A **negociação é fora do sistema**; quando avança, a CTM cria a proposta **vinculada a um TAA/contrato aceito** (Gestão de propostas → Nova proposta).
+- **Responsável**: o **Gestor de contrato** (fica registrado na proposta).
+- **Conteúdo**: início e fim; **cursos** = produtos do TAA, cada um com **quantidade de alunos** e início previsto; **matriz curricular** do portfólio (última versão aprovada, só leitura); **valor parametrizado pelo edital** = valor do curso no edital × alunos (não se digita). Também CNPJ, faturamento, nº CRM, link/anexo do documento.
+- O mesmo curso pode entrar em várias propostas do mesmo TAA (ex.: T01, T02).
+- **Status** (quem muda é o Gestor de contrato, registrando o retorno da DR solicitante): **Rascunho** → **Em andamento** → **Aguardando retorno do cliente** → **Aprovado**; ou **Cancelado** (com motivo). Rascunho pode ser excluído.
+- **Versões**: a proposta vai e vem — "Nova versão" guarda a atual em *Versões* (com o que mudou) e cria a vN+1; tudo fica no **histórico**.
+- **Saldo do TAA**: propostas **aprovadas** executam o saldo (valor do TAA − propostas aprovadas vinculadas). A Nova proposta mostra o saldo e avisa se passar.
+- **Depois de aprovada**: vincula-se a **equipe técnica** (supervisor e analista) na Gestão da proposta; ela define o **cronograma** e avalia o **agrupamento de UCs** (UCs iguais entre turmas de DRs iguais ou diferentes rodam juntas — aulas ao vivo no Moodle). A proposta aprovada segue para o **processo de turmas** ("Criar turmas" → Nova oferta, já com supervisor e analista).
+- Hierarquia: **proposta → cursos → turmas → UCs → alunos** (cada um com situação).
+- Alerta de prazo: proposta ainda não aprovada com turma prevista para começar em até 15 dias.
 
 ## Mapa do processo (painel da casca)
 - Visão BPMN de ponta a ponta, para todos os perfis (menu Sistema): pools (DN, CTM, DR contratante, Sistemas) e raias por ator (DN, Comercial, Supervisão, PCP, Analista, Tutor, Monitoria e pedagógico, Financeiro, DR contratante, AVA/SGE); fases no topo; tarefas, decisões, paralelos, eventos de prazo; sequência (linha cheia) e mensagem entre organizações (tracejada).
@@ -315,6 +307,7 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Gestor**: na DR solicitante, quem pede a contratação da CTM é o Gestor (coordenador, interlocutor…). Caixas viraram **Gestor SENAI** e **Gestor SESI**; o Novo TAA/contrato tem o grupo **Gestor solicitante** (nome do usuário + cargo), mostrado nos detalhes e na lista.
 - 2026-09-29 — **TAA por DR, enviado pela CTM**: a CTM vencedora envia um TAA para cada DR (tela TAAs com as DRs, `/taas-ctm`); o Gestor da DR analisa. Novos status **Encaminhado, Em análise, Retornado para ajuste, Aceito, Cancelado** (saem Em elaboração/Vigente/Encerrado), com histórico, ajuste e reencaminhamento. **Saldo** do TAA (valor − executado). TAA aceito é burocrático: destrava a negociação/propostas e pode não gerar nada. **DN não contrata mais CTM** (sai da tela de TAAs; painel do DN mostra solicitações de portfólio). **Comercial → Gestor de contrato** (pode ser supervisor, gestor…).
 - 2026-09-29 — Merge da branch processos-reuniao (Douglas): a tela Gestão de contratos (/gestao-contratos) sai, substituída por **TAAs com as DRs** (/taas-ctm). Portfólio reescrito mantém o botão **Detalhes** (modalidade, área, CH) e os filtros. Menu: grupos atualizados para as telas novas (Portfólio das CTMs no setor do perfil; Administração com Usuários e acesso, Registros, Configurações).
+- 2026-09-29 — **Proposta reformulada**: sempre da CTM, vinculada a um TAA/contrato aceito; responsável = Gestor de contrato; cursos do TAA com alunos e início, matriz do portfólio e valor do edital × alunos; status **Rascunho, Em andamento, Aguardando retorno do cliente, Aprovado, Cancelado** (o Gestor de contrato muda); **versões** (vai e vem) com histórico; aprovadas executam o **saldo do TAA**. Depois de aprovada, **equipe técnica** (supervisor e analista) define o cronograma/agrupamento e segue para as turmas. Saíram aceitar/recusar, duplicar e a regra de curso único.
 - 2026-09-29 — Padrão: toda caixa com borda (blocos de informação, grupos de campos, listas) tem fundo (bg-card), para facilitar a leitura. Aplicado em todas as telas.
 - 2026-09-29 — Detalhes da turma: sai o menu "Mais ações"; Prorrogar início, Adicionar oferta e Cancelar turma viram botões no topo.
 - 2026-09-29 — Hierarquia de botões: 3º nível = só outline e cor neutra. Botões com texto dentro das tabelas (ex.: Anexar assinado, Detalhes) deixam o laranja e ficam neutros; ícones de ação continuam como estão.

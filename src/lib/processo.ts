@@ -64,14 +64,14 @@ export const nos: No[] = [
   { id: 'taa-vigente', tipo: 'tarefa', raia: 'dr', col: 6, rotulo: 'Aceito: assinar e anexar', fase: 'contrato', fora: true, tela: '/dashboard/4', descricao: 'Aceito, o termo é assinado fora do sistema e anexado. É burocrático: só destrava a negociação da oferta, que dá origem às propostas — pode não gerar nenhuma. O saldo cai conforme a execução.' },
 
   // Proposta
-  { id: 'proposta', tipo: 'tarefa', raia: 'comercial', col: 7, rotulo: 'Registrar proposta', fase: 'proposta', tela: '/produtos/novo', descricao: 'O documento é feito no modelo, fora; no sistema fica o registro mínimo: DR, CNPJ, faturamento, nº CRM, link e cursos com vagas, início previsto e valor.', regras: ['Nasce Em negociação.', 'Cada curso só em uma proposta (pendente de validação).'] },
+  { id: 'proposta', tipo: 'tarefa', raia: 'comercial', col: 7, rotulo: 'Criar proposta (Rascunho)', fase: 'proposta', tela: '/produtos/novo', descricao: 'A negociação é fora do sistema; quando avança, a CTM (Gestor de contrato, responsável) cria a proposta vinculada ao TAA aceito: produtos do TAA, alunos, início e fim; matriz do portfólio; valor = valor do edital × alunos.', regras: ['Status: Rascunho, Em andamento, Aguardando retorno do cliente, Aprovado, Cancelado.', 'Quem muda o status é o Gestor de contrato.', 'Curso pode se repetir em propostas do mesmo TAA.'] },
   { id: 'alerta-prazo', tipo: 'tempo', raia: 'comercial', col: 8, rotulo: 'Início em ≤ 15 dias', fase: 'proposta', tela: '/produtos', descricao: 'Proposta ainda não aceita com turma prevista para começar em até 15 dias aparece com alerta.' },
-  { id: 'dr-aceita', tipo: 'decisao', raia: 'dr', col: 8, rotulo: 'Aceita?', fase: 'proposta', fora: true, descricao: 'A negociação acontece fora do sistema (rodadas de reunião).' },
-  { id: 'nova-rodada', tipo: 'tarefa', raia: 'comercial', col: 9, rotulo: 'Duplicar (nova rodada)', fase: 'proposta', tela: '/produtos', descricao: 'Copia a proposta para ajustes; registra de qual proposta veio.' },
-  { id: 'aceite', tipo: 'tarefa', raia: 'comercial', col: 10, rotulo: 'Registrar aceite', fase: 'proposta', tela: '/produtos', descricao: 'Marca a proposta como Aceita (ou Recusada, com feedback). Aceita ainda pode ser cancelada.' },
+  { id: 'dr-aceita', tipo: 'decisao', raia: 'dr', col: 8, rotulo: 'Aprova?', fase: 'proposta', fora: true, descricao: 'A DR solicitante avalia fora do sistema; o Gestor de contrato registra o retorno (Aguardando retorno do cliente, Aprovado ou Cancelado).' },
+  { id: 'nova-rodada', tipo: 'tarefa', raia: 'comercial', col: 9, rotulo: 'Nova versão (vai e vem)', fase: 'proposta', tela: '/produtos/4', descricao: 'A DR pede ajuste: nova versão (v2, v3…) com a anterior guardada no histórico.' },
+  { id: 'aceite', tipo: 'tarefa', raia: 'supervisor', col: 10, rotulo: 'Vincular equipe técnica', fase: 'proposta', tela: '/produtos/1', descricao: 'Proposta aprovada (executa o saldo do TAA): vincula-se a equipe técnica (supervisor e analista), que define o cronograma das turmas.' },
 
   // Oferta
-  { id: 'nova-oferta', tipo: 'tarefa', raia: 'supervisor', col: 11, rotulo: 'Nova oferta + cronograma', fase: 'oferta', tela: '/oferta/proposta/2/nova', descricao: 'Escolhe a proposta aceita e os cursos; o sistema gera o cronograma por UC.', regras: ['Só dias úteis; pula os feriados nacionais (Super admin).', 'Semanas = CH ÷ horas por semana; UC termina na sexta.', 'UCs agrupáveis com outras turmas ficam marcadas.'] },
+  { id: 'nova-oferta', tipo: 'tarefa', raia: 'supervisor', col: 11, rotulo: 'Turmas + cronograma', fase: 'oferta', tela: '/oferta/proposta/2/nova', descricao: 'A equipe técnica cria as turmas da proposta aprovada (um curso tem várias turmas; a turma tem UCs; a UC tem alunos) e define o cronograma, avaliando o agrupamento de UCs iguais entre turmas de DRs iguais ou diferentes (aulas ao vivo no Moodle).', regras: ['Só dias úteis; pula os feriados nacionais (Super admin).', 'Semanas = CH ÷ horas por semana; UC termina na sexta.', 'UCs agrupáveis com outras turmas ficam marcadas.'] },
   { id: 'enviar-cron', tipo: 'tarefa', raia: 'supervisor', col: 12, rotulo: 'Enviar cronograma à DR', fase: 'oferta', tela: '/oferta/t2', descricao: 'Registra o envio (e-mail) com prazo de validação.' },
   { id: 'valida', tipo: 'decisao', raia: 'dr', col: 13, rotulo: 'Valida?', fase: 'oferta', fora: true, descricao: 'A DR valida ou pede ajuste. Sem resposta até o prazo, conta como validado.' },
   { id: 'ajuste', tipo: 'tarefa', raia: 'supervisor', col: 14, rotulo: 'Nova versão do cronograma', fase: 'oferta', tela: '/oferta/t2', descricao: 'Gera a versão seguinte com o que a DR pediu.' },
@@ -120,7 +120,7 @@ export const arestas: Aresta[] = [
   { de: 'proposta', para: 'alerta-prazo' },
   { de: 'dr-aceita', para: 'nova-rodada', rotulo: 'ajustar' },
   { de: 'nova-rodada', para: 'proposta' },
-  { de: 'dr-aceita', para: 'aceite', rotulo: 'sim' },
+  { de: 'dr-aceita', para: 'aceite', rotulo: 'aprovada' },
   { de: 'aceite', para: 'nova-oferta' },
   { de: 'nova-oferta', para: 'enviar-cron' },
   { de: 'enviar-cron', para: 'valida', rotulo: 'e-mail' },
