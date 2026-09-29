@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { FileText, GitBranchPlus, GraduationCap, History, Info, Layers, Plus, Users, GitCompare } from 'lucide-react'
+import { AlertTriangle, FilePlus2, FileText, GitBranchPlus, GraduationCap, History, Info, Layers, Plus, Users, GitCompare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
 import { EmptyState, PageHeader, Req } from '@/components/wf'
-import { alunosProposta, aprovadosAtuais, nomeParte, totalProposta, useContratos, useCursosDr, useEquipe, useProdutos, type CursoProposta } from '@/lib/mock'
+import { alunosProposta, aprovadosAtuais, nomeParte, totalProposta, useContratos, useCursosDr, useEquipe, useProdutos, useTurmas, type CursoProposta } from '@/lib/mock'
+import { excedentesProposta } from '@/lib/cobranca'
 import { useAutor } from '@/lib/autor'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -55,6 +56,7 @@ export default function GestaoProposta() {
   const db = useProdutos()
   const autor = useAutor()
   const p = db.get(id)
+  const turmasTodas = useTurmas().all
   const taa = useContratos().all.find((t) => t.id === p?.taaId)
   const portfolio = aprovadosAtuais(useCursosDr().all)
   const equipe = useEquipe().all.filter((x) => x.status === 'Ativo')
@@ -77,6 +79,7 @@ export default function GestaoProposta() {
     </>
   )
   const aprovada = p.status === 'Aprovado'
+  const excedentes = excedentesProposta(p, turmasTodas)
   const fechada = aprovada || p.status === 'Cancelado'
   const info: [string, React.ReactNode][] = [
     ['Código da proposta', <span className="font-mono">{p.numero}</span>],
@@ -104,6 +107,7 @@ export default function GestaoProposta() {
         actions={
           <>
             {!fechada && <Button variant="outline" onClick={() => navigate(`/produtos/novo?versao=${p.id}`)}><GitBranchPlus /> Nova versão</Button>}
+            {excedentes.length > 0 && <Button variant="outline" onClick={() => navigate(`/produtos/novo?versao=${p.id}&aditivo=1`)}><FilePlus2 /> Fazer aditivo</Button>}
             {aprovada && p.equipeTecnica && <Button onClick={() => navigate(`/oferta/proposta/${p.id}/nova`)}><Plus /> Criar turmas</Button>}
           </>
         }
@@ -121,6 +125,16 @@ export default function GestaoProposta() {
         <div className="min-w-0 flex-1 space-y-8">
           <section id="sec-resumo" className="scroll-mt-4 space-y-3">
             <h2 className="text-lg font-semibold">Resumo</h2>
+            {excedentes.length > 0 && (
+              <div className="flex items-start gap-3 rounded-[1.25rem] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold">Aditivo necessário: mais alunos no Moodle do que na proposta</p>
+                  <ul className="mt-1">{excedentes.map((e) => <li key={e.curso}>{e.curso}: <span className="tabular-nums">{e.moodle}</span> alunos nas salas do Moodle, <span className="tabular-nums">{e.proposta}</span> na proposta (+{e.moodle - e.proposta})</li>)}</ul>
+                </div>
+                <Button size="sm" onClick={() => navigate(`/produtos/novo?versao=${p.id}&aditivo=1`)}><FilePlus2 /> Fazer aditivo</Button>
+              </div>
+            )}
             <dl className="grid grid-cols-2 gap-4 rounded-[1.25rem] border p-4 sm:grid-cols-3 bg-card">
               {info.map(([k, v]) => <div key={k}><dt className="text-xs text-muted-foreground">{k}</dt><dd className="text-sm">{v}</dd></div>)}
             </dl>

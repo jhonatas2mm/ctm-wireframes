@@ -1,6 +1,6 @@
 // Cálculo do Relatório de cobrança (CTM → DR solicitante): por proposta e ciclo financeiro. Regras em docs/fluxo.md.
 import type { ConfirmacaoDesistencia, Produto, Turma } from './mock'
-import { alunosDaTurma, fatura, janelaCiclo } from './alunos-turma'
+import { alunosDaTurma, corteSaida, fatura, janelaCiclo, type AlunoTurma } from './alunos-turma'
 
 export const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const dias = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5) + 1
@@ -29,4 +29,40 @@ export function linhasCobranca(p: Produto, turmas: Turma[], ciclo: string, conf:
       }
     })
   })) })
+}
+
+// Alunos que faturam ao menos uma UC no ciclo (id → aluno e turma).
+export function faturadosNoCiclo(turmas: Turma[], ciclo: string, conf: ConfirmacaoDesistencia[] = []) {
+  const m = new Map<string, { aluno: AlunoTurma; turma: Turma }>()
+  for (const t of turmas) {
+    const ucs = t.modulos.flatMap((x) => x.unidades)
+    for (const a of alunosDaTurma(t, conf)) if (ucs.some((u) => fatura(a, u, ciclo))) m.set(a.id, { aluno: a, turma: t })
+  }
+  return m
+}
+
+// Movimentação da cobrança de um mês para o outro: quem saiu (saída confirmada) e quantos entraram/saíram por outros motivos
+// (UC nova, fim de UC). Cada mês pode ter mais ou menos alunos.
+export function movimentacao(turmas: Turma[], ciclo: string, anterior: string | undefined, conf: ConfirmacaoDesistencia[] = []) {
+  const atual = faturadosNoCiclo(turmas, ciclo, conf)
+  const antes = anterior ? faturadosNoCiclo(turmas, anterior, conf) : new Map<string, { aluno: AlunoTurma; turma: Turma }>()
+  const sairam = [...antes.values()].filter((x) => !atual.has(x.aluno.id))
+  return {
+    atual: atual.size,
+    anterior: anterior ? antes.size : undefined,
+    entraram: [...atual.keys()].filter((id) => !antes.has(id)).length,
+    saidas: sairam.filter((x) => corteSaida(x.aluno)),
+    outrasSaidas: sairam.filter((x) => !corteSaida(x.aluno)).length,
+  }
+}
+
+// Aditivo: alunos nas salas do Moodle (turmas da proposta, por curso) acima do contratado na proposta → a CTM é notificada
+// para fazer um aditivo (nova versão da proposta com mais alunos).
+export const alunosNoMoodle = (t: Turma) => (t.escolas ?? []).reduce((n, e) => n + (e.integrados ?? e.alunos), 0)
+export function excedentesProposta(p: Produto, turmas: Turma[]) {
+  if (p.status !== 'Aprovado') return []
+  const ts = turmas.filter((t) => t.propostaId === p.id && t.fase !== 'Cancelada')
+  return p.cursos
+    .map((c) => ({ curso: c.nome, proposta: c.vagas ?? 0, moodle: ts.filter((t) => t.cursos.includes(c.nome)).reduce((n, t) => n + alunosNoMoodle(t), 0) }))
+    .filter((x) => x.moodle > x.proposta)
 }

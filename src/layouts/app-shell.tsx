@@ -20,6 +20,7 @@ import { screens } from '@/screens'
 import { GraduationCap, LogOut, UserRound } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { BuscaRapida } from '@/components/wf/busca-rapida'
+import { Notificacoes } from '@/components/wf/notificacoes'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 
@@ -135,6 +136,7 @@ export function AppShell() {
         <header className="flex h-12 items-center gap-2 px-4 md:px-6 [&:has(#topbar-slot:empty):not(:has(button))]:hidden">
           {/* PageHeader renderiza o breadcrumb aqui via portal */}
           <div id="topbar-slot" className="min-w-0 flex-1" />
+          <Notificacoes />
         </header>
         <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 p-4 md:p-6">
           <Outlet />

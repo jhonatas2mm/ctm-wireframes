@@ -232,6 +232,8 @@ export const journeys: Journey[] = [
       { title: 'Confirmação de desistências', path: '/desistencias', focus: 'text=Confirmar', profile: 'DR solicitante: SENAI', note: 'Dupla checagem: a desistência vem do Moodle e a DR confirma (a saída vale e o aluno deixa de faturar) ou contesta (falha de integração: segue matriculado).' },
       { title: 'Relatório de cobrança', path: '/financeiro?aba=cobranca', focus: 'text=Abrir relatório', profile: 'CTM: Gestor de contrato', note: 'A CTM escolhe a proposta aprovada para cobrar da DR solicitante.' },
       { title: 'Relatório da proposta', path: '/financeiro/cobranca/2', profile: 'CTM: Gestor de contrato', note: 'Por ciclo (mês): uma linha por turma × escola × UC com CH cobrada, alunos integrados e valor aluno/hora; ajustes de cobrança; exporta planilha ou PDF.' },
+      { title: 'Notificação de aditivo', path: '/produtos/1', focus: 'text=Fazer aditivo', profile: 'CTM: Gestor de contrato', note: 'O sino avisa: mais alunos nas salas do Moodle do que na proposta (Mecatrônica: 43 × 40). A CTM faz o aditivo.' },
+      { title: 'Aditivo da proposta', path: '/produtos/novo?versao=1&aditivo=1', profile: 'CTM: Gestor de contrato', note: 'Nova versão com os alunos do Moodle já preenchidos e o motivo do aditivo; a anterior fica no histórico de versões.' },
     ],
   },
 

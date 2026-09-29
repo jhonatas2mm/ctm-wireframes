@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
-import { ExternalLink, FileDown, Plus, Printer, Trash2 } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, ChevronLeft, ChevronRight, ExternalLink, FileDown, Plus, Printer, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -16,7 +16,7 @@ import {
 } from '@/lib/mock'
 import { cn } from '@/lib/utils'
 import { cicloBr as mesBr, ciclosDe, janelaCiclo } from '@/lib/alunos-turma'
-import { brl, linhasCobranca } from '@/lib/cobranca'
+import { brl, linhasCobranca, movimentacao } from '@/lib/cobranca'
 
 // Relatório de cobrança (CTM → DR solicitante), no modelo da planilha da CTM: por proposta e ciclo financeiro (mês),
 // uma linha por turma × escola × UC com a CH cobrada no ciclo, nº de alunos que faturam e valor aluno/hora.
@@ -41,6 +41,10 @@ export default function RelatorioCobranca() {
   const ciclos = ciclosDe(turmas)
   const ciclo = ciclos.find((c) => c === params.get('ciclo')) ?? ciclos.find((c) => c >= HOJE.slice(0, 7)) ?? ciclos[0] ?? HOJE.slice(0, 7)
   const linhas = linhasCobranca(p, turmas, ciclo, conf)
+  const idx = ciclos.indexOf(ciclo)
+  const anterior = idx > 0 ? ciclos[idx - 1] : undefined
+  const mov = movimentacao(turmas, ciclo, anterior, conf)
+  const irPara = (c?: string) => c && setParams({ ciclo: c }, { replace: true })
   const ajustes = aj.all.filter((a) => a.propostaId === p.id && a.ciclo === ciclo)
   const total = linhas.reduce((s, l) => s + l.valor, 0) + ajustes.reduce((s, a) => s + a.ch * a.alunos * a.valorHora, 0)
   const taa = taas.find((t) => t.id === p.taaId)
@@ -77,16 +81,52 @@ export default function RelatorioCobranca() {
         <div className="flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
           <div className="grid gap-1.5">
             <Label>Ciclo financeiro <span className="font-normal text-muted-foreground">({dataBr(janelaCiclo(ciclo).ini)} a {dataBr(janelaCiclo(ciclo).fim)})</span></Label>
+            <div className="flex items-center gap-1">
+            <Button size="icon" variant="outline" aria-label="Mês anterior" disabled={!anterior} motivo="Primeiro mês de cobrança" onClick={() => irPara(anterior)}><ChevronLeft /></Button>
             <Select value={ciclo} onValueChange={(v) => setParams({ ciclo: v as string }, { replace: true })}>
               <SelectTrigger className="w-44"><SelectValue>{(v: string | null) => (v ? mesBr(v) : '—')}</SelectValue></SelectTrigger>
               <SelectContent>{ciclos.map((c) => <SelectItem key={c} value={c}>{mesBr(c)}</SelectItem>)}</SelectContent>
             </Select>
+            <Button size="icon" variant="outline" aria-label="Próximo mês" disabled={idx >= ciclos.length - 1} motivo="Último mês de cobrança" onClick={() => irPara(ciclos[idx + 1])}><ChevronRight /></Button>
+            </div>
           </div>
           <div className="ml-auto flex gap-8 text-right">
             <div><p className="text-xs text-muted-foreground">Vencimento</p><p className="text-sm font-medium tabular-nums">{dataBr(vencimento)}</p></div>
             <div><p className="text-xs text-muted-foreground">Total do ciclo</p><p className="text-2xl font-semibold tabular-nums">{brl(total)}</p></div>
           </div>
         </div>
+
+        {/* Cobrança mensal: cada mês tem a sua quantidade de alunos */}
+        <section className="grid gap-4 rounded-[1.25rem] border bg-card p-4 md:grid-cols-[16rem_1fr]">
+          <div>
+            <p className="text-xs text-muted-foreground">Alunos cobrados em {mesBr(ciclo)}</p>
+            <p className="text-2xl font-semibold tabular-nums">{mov.atual}</p>
+            {mov.anterior !== undefined ? (
+              <p className={cn('flex items-center gap-1 text-sm tabular-nums', mov.atual < mov.anterior ? 'text-amber-700' : mov.atual > mov.anterior ? 'text-emerald-700' : 'text-muted-foreground')}>
+                {mov.atual < mov.anterior ? <ArrowDownRight className="size-4" /> : mov.atual > mov.anterior ? <ArrowUpRight className="size-4" /> : null}
+                {mov.atual === mov.anterior ? 'Igual a' : `${mov.atual > mov.anterior ? '+' : ''}${mov.atual - mov.anterior} em relação a`} {mesBr(anterior!)} ({mov.anterior})
+              </p>
+            ) : <p className="text-sm text-muted-foreground">Primeira cobrança da proposta</p>}
+          </div>
+          <div className="space-y-2 text-sm">
+            {mov.anterior !== undefined && (
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">{mov.entraram}</span> entraram (novas UCs/integrações) · <span className="font-medium text-foreground">{mov.saidas.length}</span> saíram por desistência confirmada ou trancamento{mov.outrasSaidas > 0 && <> · <span className="font-medium text-foreground">{mov.outrasSaidas}</span> sem UC no mês</>}
+              </p>
+            )}
+            {mov.saidas.length > 0 ? (
+              <ul className="divide-y rounded-lg border">
+                {mov.saidas.map(({ aluno: a, turma: t }) => (
+                  <li key={a.id} className="flex items-center gap-3 px-3 py-2">
+                    <span className="min-w-0 flex-1"><span className="font-medium">{a.nome}</span> <span className="text-muted-foreground">· {t.codigo} · {a.escola}</span></span>
+                    <span className="text-xs text-muted-foreground">{a.status === 'Trancado' ? `Trancado em ${dataBr(a.dataSaida!)}` : `Desistência confirmada pela DR em ${dataBr(a.confirmacaoEm ?? a.dataSaida!)}`}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : mov.anterior !== undefined && <p className="text-muted-foreground">Nenhuma saída confirmada para esta cobrança.</p>}
+            <p className="text-xs text-muted-foreground">A saída confirmada pela DR tira o aluno da cobrança seguinte (corte no dia 20). Desistência só no Moodle, sem confirmação, segue cobrada.</p>
+          </div>
+        </section>
 
         {/* Dados do cliente e serviço */}
         <section className="rounded-[1.25rem] border bg-card p-4">
