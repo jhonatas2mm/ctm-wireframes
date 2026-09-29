@@ -34,6 +34,8 @@ export type Column<T> = {
 }
 
 const ALL = '__all__'
+// Colunas de nome de curso/produto (texto longo): largura limitada e texto quebrando linha.
+const colunaLonga = (header: string) => /^(Cursos?|Produtos?)$/i.test(header) ? 'max-w-64 min-w-48 whitespace-normal' : ''
 // Filtro com vários valores (campo de busca): valores juntados por SEP no mesmo texto do filtro.
 const SEP = '\u001f'
 const partes = (v: string) => v.split(SEP).filter(Boolean)
@@ -326,7 +328,7 @@ export function DataTable<T extends { id: string }>({
                   onClick={onRowClick && (() => onRowClick(r))}
                 >
                   {columns.map((c) => (
-                    <TableCell key={c.header} className={c.className}>
+                    <TableCell key={c.header} className={cn(colunaLonga(c.header), c.className)}>
                       {c.cell ? c.cell(r) : c.value(r)}
                     </TableCell>
                   ))}

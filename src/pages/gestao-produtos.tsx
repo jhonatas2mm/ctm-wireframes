@@ -46,7 +46,7 @@ const colunas = (abrirEdital: (numero: string) => void, todas: boolean): Column<
     header: 'Produto', value: (l) => l.atual.nome, search: true, className: 'font-medium',
     cell: (l) => (
       <span className="flex items-center gap-1.5">
-        <span className="block max-w-72 truncate" title={l.atual.nome}>{l.atual.nome}</span>
+        <span className="max-w-64">{l.atual.nome}</span>
         <CursoDetalhes c={l.atual} />
       </span>
     ),

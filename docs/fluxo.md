@@ -345,3 +345,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — **Sem SESI na v1**: saem o perfil DR solicitante: SESI, as jornadas "Contratos com CTMs" e "Acompanhamento" do SESI, os contratos `CT-…` (seeds, coluna Instrumento, título/número de contrato no Novo TAA) e o contrato/turma EAD do SESI-MG. Tudo é TAA entre SENAI e SENAI.
 - 2026-09-29 — Filtros: Curso/Produto/UC também viram campo de busca com vários valores (multiselect) em todas as tabelas.
 - 2026-09-29 — Casca: barra Análise/Design e painel de jornada viram uma **coluna à esquerda** do protótipo (ferramentas empilhadas; Perfil e Jornada em selects; etapas em lista vertical; Anterior/Próxima). A coluna **recolhe** para uma faixa estreita (expandir, cor do perfil, etapa anterior/próxima); começa recolhida e o navegador lembra.
+- 2026-09-29 — Tabelas: colunas Curso/Cursos/Produto/Produtos com largura limitada (~16rem) e texto quebrando linha.
