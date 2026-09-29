@@ -11,17 +11,18 @@ const tons = {
   gray: 'bg-[#F0F1F2] text-[#536167]',
 }
 
-export function StatCard({ label, value, hint, icon: Icon, tom = 'orange' }: { label: string; value: string; hint?: string; icon?: LucideIcon; tom?: keyof typeof tons }) {
+export function StatCard({ label, value, hint, icon: Icon, tom = 'orange', compacto }: { label: string; value: string; hint?: string; icon?: LucideIcon; tom?: keyof typeof tons; compacto?: boolean }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl border bg-card p-4">
+    <div className={cn('flex items-center gap-3 rounded-2xl border bg-card', compacto ? 'p-3' : 'p-4')}>
       {Icon && (
-        <div className={cn('flex size-11 shrink-0 items-center justify-center rounded-xl', tons[tom])}>
+        <div className={cn('flex shrink-0 items-center justify-center rounded-xl', compacto ? 'size-9' : 'size-11', tons[tom])}>
           <Icon className="size-5" />
         </div>
       )}
       <div className="min-w-0">
         <div className="truncate text-xs text-muted-foreground">{label}</div>
-        <div className="truncate text-2xl font-bold tabular-nums">{value}</div>
+        {/* compacto: para espaços estreitos (ex.: sheets), sem cortar valores longos */}
+        <div className={cn('font-bold tabular-nums', compacto ? 'text-lg leading-tight' : 'truncate text-2xl')}>{value}</div>
         {hint && <div className="truncate text-xs text-muted-foreground">{hint}</div>}
       </div>
     </div>
