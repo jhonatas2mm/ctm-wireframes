@@ -44,4 +44,5 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 ## Domínio
 - **TAA** = Termo de Acordo Administrativo: quem contrata (DR solicitante SENAI-XX ou o DN) cria escolhendo os **produtos** do edital; a CTM é a aprovada para eles (um TAA por CTM). Só SENAI ↔ SENAI; SESI-XX ↔ SENAI é **contrato**. A CTM não gerencia TAAs, só propostas. Nunca "TA"/"Termo de Adesão".
 - **Edital** (DN): vigência + cursos; cada curso tem valor, DRs credenciados e a **CTM aprovada** (menor custo). Área, modalidade e CH são fixas do catálogo.
+- **Portfólio**: cada CTM registra produtos com versões; novo produto/nova versão = solicitação que o **DN aprova** (Aprovação de portfólio); só o aprovado entra no Portfólio das CTMs (todas as DRs veem) e na oferta. Produto tem vínculo com o itinerário (outro sistema) e documentos/materiais (links).
 - **Proposta comercial** (Supervisor): DR ofertante (própria, fixa) → contratante com TAA/contrato com a CTM; vários cursos, cada um com valor previsto; Nº `PC-<UF>-<seq>/<ano>`. Cada curso só entra uma vez nas propostas.

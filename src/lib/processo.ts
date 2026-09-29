@@ -55,8 +55,9 @@ export const nos: No[] = [
   { id: 'inicio', tipo: 'inicio', raia: 'dn', col: 0, rotulo: 'Início', fase: 'credenciamento' },
   { id: 'credenciar', tipo: 'tarefa', raia: 'dn', col: 1, rotulo: 'Credenciar DR', fase: 'credenciamento', tela: '/drs/novo', descricao: 'O DN credencia o Departamento Regional que vai operar como CTM.', regras: ['DR nasce Ativa; pode ser inativada com confirmação.'] },
   { id: 'edital', tipo: 'tarefa', raia: 'dn', col: 2, rotulo: 'Publicar edital', fase: 'credenciamento', tela: '/editais/novo', descricao: 'Vigência, áreas tecnológicas e cursos do portfólio nacional, com valor e DRs credenciados por curso.', regras: ['Área, modalidade e CH vêm do catálogo (fixas).', 'Por produto, a CTM aprovada é a que ofereceu o menor custo.', 'Só se oferta o que está no edital.'] },
-  { id: 'produto', tipo: 'tarefa', raia: 'supervisor', col: 3, rotulo: 'Cadastrar produto (matriz)', fase: 'credenciamento', tela: '/gestao-produtos/novo', descricao: 'Cada CTM cadastra seus produtos: módulos e UCs conforme o plano de curso.', regras: ['Nova versão não altera o que já foi negociado na anterior.', 'Versões podem rodar ao mesmo tempo.'] },
+  { id: 'produto', tipo: 'tarefa', raia: 'supervisor', col: 3, rotulo: 'Cadastrar produto (matriz)', fase: 'credenciamento', tela: '/gestao-produtos/novo', descricao: 'Cada CTM solicita a inclusão de produtos (módulos e UCs conforme o plano de curso) ou de novas versões; vincula o itinerário e documentos/materiais.', regras: ['Nova versão não altera o que já foi negociado na anterior.', 'Versões podem rodar ao mesmo tempo.'] },
 
+  { id: 'aprova-portfolio', tipo: 'decisao', raia: 'dn', col: 4, rotulo: 'DN aprova?', fase: 'credenciamento', tela: '/portfolio/aprovacoes', descricao: 'O DN aprova (entra no Portfólio das CTMs, visível para todas as DRs) ou reprova com motivo (a CTM ajusta e envia nova versão).' },
   // Contrato
   { id: 'taa', tipo: 'tarefa', raia: 'dr', col: 4, rotulo: 'Criar TAA / contrato com a CTM', fase: 'contrato', tela: '/dashboard/novo-ta', descricao: 'Quem contrata escolhe o edital e os produtos; a CTM é a aprovada no edital para eles. Vigência e valor global (teto).', regras: ['SENAI ↔ SENAI (DR solicitante SENAI-XX ou o DN): TAA, no modelo do DN.', 'SESI-XX ↔ SENAI: contrato (não é TAA).', 'Produtos de CTMs diferentes = TAAs diferentes.', 'A CTM não gerencia TAAs, só propostas.', 'Passar do teto exige aditivo.'] },
   { id: 'assinar-taa', tipo: 'tarefa', raia: 'comercial', col: 5, rotulo: 'CTM assina', fase: 'contrato', fora: true, descricao: 'Assinaturas fora do sistema (assinatura digital).' },
@@ -108,7 +109,9 @@ export const arestas: Aresta[] = [
   { de: 'inicio', para: 'credenciar' },
   { de: 'credenciar', para: 'edital' },
   { de: 'edital', para: 'produto' },
-  { de: 'produto', para: 'taa', rotulo: 'portfólio' },
+  { de: 'produto', para: 'aprova-portfolio', rotulo: 'solicita' },
+  { de: 'aprova-portfolio', para: 'taa', rotulo: 'aprovado' },
+  { de: 'aprova-portfolio', para: 'produto', rotulo: 'reprovado' },
   { de: 'taa', para: 'assinar-taa', rotulo: 'envia' },
   { de: 'assinar-taa', para: 'taa-vigente', rotulo: 'assinado' },
   { de: 'taa-vigente', para: 'proposta', rotulo: 'vigente' },

@@ -78,7 +78,7 @@ export const journeys: Journey[] = [
       { title: 'Novo edital', path: '/editais/novo', profile: 'DN', note: 'Define vigência e cursos: valor, DRs credenciados e a CTM aprovada de cada produto (a que ofereceu o menor custo).' },
       { title: 'Edital criado', path: '/editais/1/sucesso', profile: 'DN', note: 'Tela de sucesso: resumo do edital salvo, com opção de ver o edital ou voltar à gestão.' },
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Novo produto”.' },
-      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca os produtos e cadastra módulos e UCs.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca os produtos e cadastra módulos e UCs. Salvar envia a solicitação ao DN: o produto fica Aguardando aprovação até entrar no portfólio.' },
       { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Supervisor', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },
@@ -121,8 +121,25 @@ export const journeys: Journey[] = [
     profile: 'CTM: Supervisor',
     steps: [
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Supervisor', note: 'Supervisor clica em “Novo produto”.' },
-      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Supervisor', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o produto fica Aguardando aprovação até entrar no portfólio.' },
       { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Supervisor', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
+    ],
+  },
+  {
+    id: 'aprovacao-portfolio',
+    title: 'Aprovação de portfólio',
+    profile: 'DN',
+    steps: [
+      { title: 'Aprovação de portfólio', path: '/portfolio/aprovacoes', focus: 'text=Aprovar', profile: 'DN', note: 'Solicitações das CTMs: novos produtos e novas versões. Visualizar mostra matriz, itinerário e documentos vinculados.' },
+      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DN', note: 'Aprovado, o produto (ou a nova versão) entra no portfólio, visível para todas as DRs. Reprovado volta para a CTM com o motivo.' },
+    ],
+  },
+  {
+    id: 'portfolio-dr',
+    title: 'Portfólio das CTMs',
+    profile: 'DR solicitante: SENAI',
+    steps: [
+      { title: 'Portfólio das CTMs', path: '/portfolio', profile: 'DR solicitante: SENAI', note: 'Todas as DRs consultam o portfólio aprovado: produto, CTM, versão vigente, itinerário e documentos. Base para escolher os produtos do TAA.' },
     ],
   },
   {
@@ -222,7 +239,7 @@ export const journeys: Journey[] = [
     profile: 'CTM: Comercial',
     steps: [
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo produto', profile: 'CTM: Comercial', note: 'Comercial clica em “Novo produto”.' },
-      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Comercial', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'CTM: Comercial', note: 'Escolhe um edital (só produtos em que a DR é a CTM aprovada), marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um. Salvar envia a solicitação ao DN: o produto fica Aguardando aprovação até entrar no portfólio.' },
       { title: 'Produto criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Comercial', note: 'Ao salvar, o produto entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },
     ],
   },

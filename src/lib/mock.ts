@@ -210,26 +210,69 @@ export const alertaPrazo = (p: Produto) => {
   return d <= PRAZO_ALERTA_DIAS ? d : null
 }
 
-// Cursos criados pela Supervisor em Gestão de Portfólio: módulos → unidades curriculares com CH.
+// Portfólio das CTMs: cada CTM registra seus produtos (módulos → UCs com CH), com versões (v1, v2…).
+// Novo produto ou nova versão é uma SOLICITAÇÃO: fica "Aguardando aprovação" até o DN aprovar (ou reprovar, com motivo).
+// Só versões aprovadas entram no portfólio, visível para todas as DRs, e são usadas na oferta.
+// Cada versão pode ter vínculo com o itinerário (outro sistema; a DR vincula) e documentos/materiais (links).
 export type UnidadeCurricular = { nome: string; cargaHoraria: number }
 export type Modulo = { nome: string; unidades: UnidadeCurricular[] }
+export type SituacaoPortfolio = 'Aguardando aprovação' | 'Aprovado' | 'Reprovado'
+export type TipoMaterial = 'Plano de curso' | 'Plano de ensino' | 'Material didático' | 'Avaliação' | 'Outro'
+export const tiposMaterial: TipoMaterial[] = ['Plano de curso', 'Plano de ensino', 'Material didático', 'Avaliação', 'Outro']
+export type MaterialProduto = { nome: string; tipo: TipoMaterial; link: string }
 export type CursoDr = { id: string; nome: string; modulos: Modulo[]; criadoEm: string; edital?: string; area?: string; modalidade?: string; cargaHorariaEdital?: number
   versao?: number // 1 = original
   origemId?: string // id da v1 (a "mãe"); ausente na própria v1
   baseadaEm?: number // versão da qual esta foi copiada
+  ctm?: string // UF da CTM dona do produto
+  situacao?: SituacaoPortfolio // sem valor = Aprovado (dados antigos)
+  motivo?: string // motivo da reprovação
+  decididoEm?: string // ISO
+  itinerario?: { codigo: string; vinculadoEm: string } // vínculo com o sistema de itinerários
+  materiais?: MaterialProduto[]
 }
 
 export const chTotal = (c: { modulos: Modulo[] }) => c.modulos.reduce((t, m) => t + m.unidades.reduce((u, x) => u + x.cargaHoraria, 0), 0)
+export const situacaoDe = (c: CursoDr): SituacaoPortfolio => c.situacao ?? 'Aprovado'
+export const raizDe = (c: CursoDr) => c.origemId ?? c.id
+// Última versão aprovada de cada produto (o que aparece no portfólio e vai para a oferta).
+export const aprovadosAtuais = (todos: CursoDr[]) =>
+  todos.filter((c) => situacaoDe(c) === 'Aprovado' && !todos.some((o) => raizDe(o) === raizDe(c) && situacaoDe(o) === 'Aprovado' && (o.versao ?? 1) > (c.versao ?? 1)))
 const uc = (...nomes: string[]) => nomes.map((nome) => ({ nome, cargaHoraria: 0 }))
+const mat = (nome: string, tipo: TipoMaterial, pasta: string): MaterialProduto => ({ nome, tipo, link: `https://drive.ctm.senaimg.org.br/${pasta}/${nome.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-')}` })
 const cursosDr: CursoDr[] = [
-  { id: 'soldador-1', nome: 'Soldador', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 160, versao: 1, criadoEm: '2026-04-02T10:00:00Z',
+  { id: 'soldador-1', ctm: 'MG', situacao: 'Aprovado', decididoEm: '2026-04-06T10:00:00Z', nome: 'Soldador', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 160, versao: 1, criadoEm: '2026-04-02T10:00:00Z',
+    itinerario: { codigo: 'IT-MET-SOL-2019', vinculadoEm: '2026-04-03T10:00:00Z' },
+    materiais: [mat('Plano de curso Soldador', 'Plano de curso', 'soldador'), mat('Livro didático Soldagem', 'Material didático', 'soldador')],
     modulos: [{ nome: 'Fundamentos', unidades: uc('Segurança em soldagem', 'Leitura de desenho técnico') }, { nome: 'Processos', unidades: uc('Soldagem com eletrodo revestido', 'Soldagem MIG/MAG') }] },
-  { id: 'soldador-2', nome: 'Soldador', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 160, versao: 2, origemId: 'soldador-1', baseadaEm: 1, criadoEm: '2026-07-15T10:00:00Z',
+  // Nova versão solicitada, aguardando o DN
+  { id: 'soldador-2', ctm: 'MG', situacao: 'Aguardando aprovação', nome: 'Soldador', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 160, versao: 2, origemId: 'soldador-1', baseadaEm: 1, criadoEm: '2026-09-15T10:00:00Z',
+    itinerario: { codigo: 'IT-MET-SOL-2019', vinculadoEm: '2026-04-03T10:00:00Z' },
+    materiais: [mat('Plano de curso Soldador', 'Plano de curso', 'soldador'), mat('Livro didático Soldagem', 'Material didático', 'soldador'), mat('Roteiro de prática TIG', 'Material didático', 'soldador')],
     modulos: [{ nome: 'Fundamentos', unidades: uc('Segurança em soldagem', 'Leitura de desenho técnico', 'Metrologia') }, { nome: 'Processos', unidades: uc('Soldagem com eletrodo revestido', 'Soldagem MIG/MAG', 'Soldagem TIG') }] },
-  { id: 'eletricista-1', nome: 'Eletricista Instalador Predial', edital: 'ED-002/2026', area: 'Eletroeletrônica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 200, versao: 1, criadoEm: '2026-04-05T10:00:00Z',
+  { id: 'eletricista-1', ctm: 'MG', situacao: 'Aprovado', decididoEm: '2026-04-09T10:00:00Z', nome: 'Eletricista Instalador Predial', edital: 'ED-002/2026', area: 'Eletroeletrônica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 200, versao: 1, criadoEm: '2026-04-05T10:00:00Z',
+    materiais: [mat('Plano de curso Eletricista', 'Plano de curso', 'eletricista')],
     modulos: [{ nome: 'Básico', unidades: uc('Eletricidade básica', 'NR-10') }, { nome: 'Instalações', unidades: uc('Circuitos residenciais', 'Quadros de distribuição') }] },
+  { id: 'mecatronica-1', ctm: 'MG', situacao: 'Aprovado', decididoEm: '2026-03-02T10:00:00Z', nome: 'Técnico em Mecatrônica', edital: 'ED-001/2026', area: 'Automação', modalidade: 'Técnico', cargaHorariaEdital: 1200, versao: 1, criadoEm: '2026-02-20T10:00:00Z',
+    itinerario: { codigo: 'IT-AUT-MEC-2026', vinculadoEm: '2026-02-21T10:00:00Z' },
+    modulos: [{ nome: 'Básico', unidades: uc('Eletricidade aplicada', 'Mecânica aplicada') }, { nome: 'Específico', unidades: uc('Automação e CLP', 'Robótica industrial') }] },
+  // Nova inclusão aguardando o DN
+  { id: 'mmm-1', ctm: 'MG', situacao: 'Aguardando aprovação', nome: 'Mecânico de Manutenção de Máquinas', edital: 'ED-002/2026', area: 'Metalmecânica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 240, versao: 1, criadoEm: '2026-09-22T10:00:00Z',
+    modulos: [{ nome: 'Fundamentos', unidades: uc('Elementos de máquinas', 'Lubrificação') }, { nome: 'Manutenção', unidades: uc('Manutenção preventiva', 'Manutenção corretiva') }] },
+  // Reprovada pelo DN
+  { id: 'desenhista-1', ctm: 'MG', situacao: 'Reprovado', motivo: 'Matriz sem a UC de tratamento de imagens prevista no plano de curso.', decididoEm: '2026-09-10T10:00:00Z', nome: 'Desenhista de Produtos Gráficos', edital: 'ED-002/2026', area: 'Tecnologia Gráfica', modalidade: 'Qualificação Profissional', cargaHorariaEdital: 200, versao: 1, criadoEm: '2026-09-01T10:00:00Z',
+    modulos: [{ nome: 'Básico', unidades: uc('Desenho vetorial', 'Tipografia') }] },
+  // Portfólio de outras CTMs
+  { id: 'usinagem-1', ctm: 'SC', situacao: 'Aprovado', decididoEm: '2026-06-10T10:00:00Z', nome: 'Mecânico de Usinagem', edital: 'ED-003/2026', area: 'Metalmecânica', modalidade: 'Aprendizagem Industrial', cargaHorariaEdital: 800, versao: 1, criadoEm: '2026-06-02T10:00:00Z',
+    itinerario: { codigo: 'IT-MET-USI-2021', vinculadoEm: '2026-06-03T10:00:00Z' },
+    materiais: [mat('Plano de curso Usinagem', 'Plano de curso', 'usinagem')],
+    modulos: [{ nome: 'Básico', unidades: uc('Desenho técnico', 'Metrologia') }, { nome: 'Específico', unidades: uc('Usinagem convencional', 'Prática profissional') }] },
+  { id: 'eletrotecnica-1', ctm: 'RJ', situacao: 'Aprovado', decididoEm: '2026-03-12T10:00:00Z', nome: 'Técnico em Eletrotécnica', edital: 'ED-001/2026', area: 'Eletroeletrônica', modalidade: 'Técnico', cargaHorariaEdital: 1200, versao: 1, criadoEm: '2026-03-05T10:00:00Z',
+    modulos: [{ nome: 'Básico', unidades: uc('Fundamentos de eletricidade', 'Instalações elétricas') }, { nome: 'Específico', unidades: uc('Máquinas elétricas', 'Sistemas de potência') }] },
+  { id: 'eletrotecnica-2', ctm: 'RJ', situacao: 'Aguardando aprovação', nome: 'Técnico em Eletrotécnica', edital: 'ED-001/2026', area: 'Eletroeletrônica', modalidade: 'Técnico', cargaHorariaEdital: 1200, versao: 2, origemId: 'eletrotecnica-1', baseadaEm: 1, criadoEm: '2026-09-25T10:00:00Z',
+    modulos: [{ nome: 'Básico', unidades: uc('Fundamentos de eletricidade', 'Instalações elétricas') }, { nome: 'Específico', unidades: uc('Máquinas elétricas', 'Sistemas de potência', 'Eficiência energética') }] },
 ]
-export const useCursosDr = () => useCollection<CursoDr>('cursos-dr-v3', cursosDr)
+export const useCursosDr = () => useCollection<CursoDr>('cursos-dr-v4', cursosDr)
 
 // DRs (Departamentos Regionais) geridos pelo DN. Dados FICTÍCIOS.
 export type StatusDr = 'Ativo' | 'Inativo'
@@ -474,7 +517,7 @@ export const useUsuarios = () => useCollection<Usuario>('usuarios-v6', usuarios)
 // Permissões: por perfil, as telas (path do menu) que ele acessa.
 export type PermissaoPerfil = { id: string; perfil: string; telas: string[] }
 const permissoes: PermissaoPerfil[] = [
-  { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/dashboard', '/editais'] },
+  { id: 'DN', perfil: 'DN', telas: ['/painel-dn', '/drs', '/dashboard', '/editais', '/portfolio/aprovacoes', '/portfolio'] },
   { id: 'CTM: Supervisor', perfil: 'CTM: Supervisor', telas: ['/painel-ctm', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
   { id: 'DR solicitante: SESI', perfil: 'DR solicitante: SESI', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
   { id: 'CTM: PCP', perfil: 'CTM: PCP', telas: ['/oferta', '/equipe', '/calendario'] },
@@ -483,9 +526,9 @@ const permissoes: PermissaoPerfil[] = [
   { id: 'CTM: Monitor', perfil: 'CTM: Monitor', telas: ['/oferta', '/tratativas'] },
   { id: 'DR solicitante: SENAI', perfil: 'DR solicitante: SENAI', telas: ['/acompanhamento', '/dashboard', '/contratos', '/turmas-ead', '/alunos'] },
   { id: 'CTM: Comercial', perfil: 'CTM: Comercial', telas: ['/painel-comercial', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro'] },
-  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
+  { id: 'Super admin', perfil: 'Super admin', telas: ['/drs', '/dashboard', '/editais', '/portfolio/aprovacoes', '/portfolio', '/gestao-produtos', '/produtos', '/oferta', '/equipe', '/calendario', '/tratativas', '/financeiro', '/acompanhamento', '/contratos', '/turmas-ead', '/alunos', '/admin/usuarios', '/admin/perfis', '/admin/auditoria', '/admin/logs'] },
 ]
-export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v10', permissoes)
+export const usePermissoes = () => useCollection<PermissaoPerfil>('permissoes-v11', permissoes)
 
 export type Evento = { id: string; quando: string; usuario: string; perfil: string; acao: string; alvo: string }
 const auditoria: Evento[] = [

@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound } from 'lucide-react'
+import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, BookOpenCheck, ClipboardCheck } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
 import Produtos from '@/pages/produtos'
@@ -14,6 +14,7 @@ import Equipe from '@/pages/equipe'
 import Calendario from '@/pages/calendario'
 import Tratativas from '@/pages/tratativas'
 import Financeiro from '@/pages/financeiro'
+import Portfolio from '@/pages/portfolio'
 import Components from '@/pages/components'
 import { Auditoria, Perfis, Usuarios } from '@/pages/admin'
 import Logs from '@/pages/logs'
@@ -51,6 +52,8 @@ export const screens: Screen[] = [
   { path: '/editais/:id/sucesso', title: 'Edital criado', group: 'Telas', icon: FileSpreadsheet, component: Editais, hidden: true, data: ['editais'] },
   { path: '/painel-ctm', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelSupervisor, profiles: ['CTM: Supervisor'], data: ['produtos', 'turmas', 'taas-dr'] },
   { path: '/painel-comercial', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelComercial, profiles: ['CTM: Comercial'], data: ['produtos', 'cursos-dr'] },
+  { path: '/portfolio/aprovacoes', title: 'Aprovação de portfólio', group: 'Telas', icon: ClipboardCheck, component: Portfolio, profiles: ['DN', 'Super admin'], data: ['cursos-dr'] },
+  { path: '/portfolio', title: 'Portfólio das CTMs', group: 'Telas', icon: BookOpenCheck, component: Portfolio, data: ['cursos-dr'] },
   { path: '/gestao-produtos', title: 'Gestão de Portfólio', group: 'Telas', icon: Boxes, component: GestaoProdutos, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['cursos-dr'] },
   { path: '/produtos', title: 'Gestão de propostas', group: 'Telas', icon: Package, component: Produtos, profiles: ['CTM: Supervisor', 'CTM: Comercial', 'Super admin'], data: ['produtos'] },
   { path: '/gestao-produtos/novo', title: 'Novo produto', group: 'Telas', icon: Boxes, component: GestaoProdutos, hidden: true, data: ['cursos-dr'] },

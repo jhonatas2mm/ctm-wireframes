@@ -27,7 +27,7 @@ const secoes = ['DN', 'CTM', 'DR solicitante', 'Administração', 'Sistema'] as 
 const secaoDe = (path: string, perfil?: string): (typeof secoes)[number] =>
   path.startsWith('/admin') ? 'Administração'
   : path.startsWith('/dashboard') && perfil?.startsWith('DR solicitante') ? 'DR solicitante'
-  : ['/painel-dn', '/drs', '/dashboard', '/editais'].some((p) => path.startsWith(p)) ? 'DN'
+  : ['/painel-dn', '/drs', '/dashboard', '/editais', '/portfolio/aprovacoes'].some((p) => path.startsWith(p)) ? 'DN'
   : ['/acompanhamento', '/contratos', '/turmas-ead', '/alunos'].some((p) => path.startsWith(p)) ? 'DR solicitante'
   : path.startsWith('/componentes') ? 'Sistema'
   : 'CTM'

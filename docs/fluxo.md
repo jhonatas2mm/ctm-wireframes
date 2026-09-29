@@ -68,6 +68,13 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - Todo TAA/contrato de um produto é com a CTM aprovada para ele.
 - Área, modalidade e CH vêm do catálogo e não podem ser editadas.
 
+## Portfólio das CTMs
+- Cada CTM registra seus **produtos** (módulos → UCs), com **versões** (v1, v2…; a anterior não muda).
+- **Novo produto** e **nova versão** são **solicitações**: ficam *Aguardando aprovação* até o **DN** decidir em **Aprovação de portfólio** (`/portfolio/aprovacoes`): **Aprovar** ou **Reprovar** (com motivo, que a CTM vê). Enquanto houver versão pendente, não se abre outra.
+- Só versões **aprovadas** entram no **Portfólio das CTMs** (`/portfolio`, visível para **todas as DRs**, somente leitura) e são usadas na oferta (matriz = última versão aprovada).
+- Cada versão pode ter **vínculo com o itinerário** (outro sistema; botão "Vincular ao itinerário", feito pela DR/CTM; integração a detalhar) e **documentos/materiais** vinculados (nome, tipo, link — o arquivo fica no repositório/drive). Nova versão copia os vínculos.
+- Na Gestão de Portfólio da CTM, cada linha é um produto: última versão, situação, versão no portfólio, itinerário, nº de documentos e de propostas.
+
 ## Produto (Supervisor)
 - "Novo produto" abre em 3 colunas na mesma tela, sem etapas: **Edital** (escolhe apenas um) → **Produtos** do edital em que a DR é a **CTM aprovada** (um ou mais) → **Módulos e UCs** do produto ativo.
 - Trocar o edital limpa a seleção.
@@ -298,3 +305,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Casca: na barra Design, seletor da **resolução** do protótipo (1280 a 2560 px, padrão 1600; lembrado no navegador).
 - 2026-09-29 — **Edital define a CTM por produto**: a CTM aprovada é a de menor custo (novo campo no Novo edital; destaque nos detalhes). **TAA tem produtos**: no Novo TAA o contratante escolhe edital e produtos e a CTM vem da aprovação (produtos de outra CTM = outro TAA). Portfólio da CTM só com produtos em que ela é a aprovada. Nova proposta só com os produtos do TAA/contrato do contratante. Catálogo ganhou Mecânico de Manutenção de Máquinas e Desenhista de Produtos Gráficos.
 - 2026-09-29 — **Perfis em três grupos com caixas**: DN, CTM (Comercial, PCP, Supervisor, Pedagógico; Tutor e Monitor em avaliação) e DR solicitante (SENAI, SESI), mais o Super admin. Casca: grupos e caixas vêm de profiles.ts (grupo/caixa) e aparecem nas abas de subperfil ao lado do selo (Tutor/Monitor tracejados, em avaliação). "DR solicitante" virou "DR solicitante: SENAI"; novo "DR solicitante: SESI" cria **contrato** (resolve quem registra o contrato do SESI). Menus por caixa; menu "Contratação de CTM" com título conforme o perfil. Jornadas novas: Contratação da CTM (contrato) e acompanhamento do SESI, Alocação de tutores (PCP), Validação e acompanhamento (Pedagógico), Tutor e Monitor (em avaliação).
+- 2026-09-29 — **Portfólio com aprovação do DN**: novo produto e nova versão viram solicitações (*Aguardando aprovação*); DN aprova/reprova (motivo) em **Aprovação de portfólio**; o aprovado aparece no **Portfólio das CTMs** para todas as DRs e vai para a oferta. Produto ganhou vínculo com o **itinerário** (botão, sem integração ainda) e **documentos/materiais** (links). Gestão de Portfólio reescrita por produto (sem as linhas derivadas das propostas). Jornadas: Aprovação de portfólio (DN) e Portfólio das CTMs (DR solicitante). Casca: grupos/caixas de profiles.ts nas abas de subperfil do Jhonatas.
