@@ -1,0 +1,90 @@
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Eye, GitBranchPlus, Plus } from 'lucide-react'
+import { useState } from 'react'
+import { NovaVersaoSheet, ProdutoSheet } from '@/pages/produto-sheets'
+import { Button } from '@/components/ui/button'
+import { NovoCursoDialog } from '@/pages/novo-curso-dialog'
+import { DataTable, PageHeader, RowAction, type Column } from '@/components/wf'
+import { chTotal, useCursosDr, useEditais, useProdutos } from '@/lib/mock'
+import { EditalDetalhes } from '@/pages/edital-detalhes'
+
+const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+type ProdutoDr = { id: string; codigo: string; nome: string; modalidade: string; area: string; cargaHoraria: number; propostas: number; valorMedio: number; versao: number; edital?: string }
+
+// Versão fictícia (1 a 3) para os cursos vindos das propostas, estável por curso.
+const versaoFicticia = (id: string) => ([...id].reduce((t, ch) => t + ch.charCodeAt(0), 0) % 3) + 1
+
+const colunas = (abrirEdital: (numero: string) => void): Column<ProdutoDr>[] => [
+  { header: 'Curso', value: (p) => p.nome, search: true, className: 'font-medium' },
+  {
+    header: 'Edital',
+    value: (p) => p.edital ?? '—',
+    search: true,
+    filter: true,
+    className: 'font-mono text-xs',
+    cell: (p) => (p.edital ? <button type="button" className="underline underline-offset-2 hover:text-foreground/70" onClick={() => abrirEdital(p.edital!)}>{p.edital}</button> : '—'),
+  },
+  { header: 'Versão', value: (p) => `v${p.versao}`, filter: true, className: 'tabular-nums' },
+  { header: 'Modalidade', value: (p) => p.modalidade, filter: true },
+  { header: 'Área tecnológica', value: (p) => p.area, filter: true },
+  { header: 'CH', value: (p) => `${p.cargaHoraria} h`, className: 'text-right tabular-nums' },
+  { header: 'Valor médio', value: (p) => brl(p.valorMedio), className: 'text-right tabular-nums' },
+]
+
+// Gestão de Portfólio (Supervisor): cursos que a DR oferta, consolidados das suas propostas.
+export default function GestaoProdutos() {
+  const { all } = useProdutos()
+  const { all: criados } = useCursosDr()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const porCurso = new Map<string, ProdutoDr & { soma: number }>()
+  for (const p of all)
+    for (const c of p.cursos) {
+      const x = porCurso.get(c.cursoId) ?? { id: c.cursoId, edital: p.edital, codigo: c.codigo, nome: c.nome, modalidade: c.modalidade, area: c.area, cargaHoraria: c.cargaHoraria, propostas: 0, valorMedio: 0, versao: versaoFicticia(c.cursoId), soma: 0 }
+      x.propostas++
+      x.soma += c.valorPrevisto
+      x.valorMedio = x.soma / x.propostas
+      porCurso.set(c.cursoId, x)
+    }
+  // Cursos criados aqui entram na lista sem propostas ainda. Só a versão mais recente de cada produto aparece;
+  // as anteriores ficam no histórico (detalhes).
+  const raiz = (c: (typeof criados)[number]) => c.origemId ?? c.id
+  const atuais = criados.filter((c) => !criados.some((o) => raiz(o) === raiz(c) && (o.versao ?? 1) > (c.versao ?? 1)))
+  const [ver, setVer] = useState<string | null>(null)
+  const [versionar, setVersionar] = useState<string | null>(null)
+  const [editalAberto, setEditalAberto] = useState<string | null>(null)
+  const { all: editais } = useEditais()
+  const linhas: ProdutoDr[] = [
+    ...atuais.map((c) => ({ id: c.id, edital: c.edital, codigo: '—', nome: c.nome, modalidade: c.modalidade ?? '—', area: c.area ?? '—', cargaHoraria: c.cargaHorariaEdital ?? chTotal(c), propostas: 0, valorMedio: 0, versao: c.versao ?? 1 })),
+    ...porCurso.values(),
+  ]
+  return (
+    <>
+      <PageHeader
+        title="Gestão de Portfólio"
+        description="Cursos ofertados pela sua DR."
+        actions={<Button onClick={() => navigate('/gestao-produtos/novo')}><Plus /> Novo produto</Button>}
+      />
+      <NovoCursoDialog open={pathname === '/gestao-produtos/novo'} onOpenChange={(v) => !v && navigate('/gestao-produtos')} />
+      <DataTable
+        rows={linhas}
+        columns={colunas(setEditalAberto)}
+        searchPlaceholder="Buscar curso…"
+        actions={(p) => {
+          const temEstrutura = criados.some((c) => c.id === p.id)
+          const semEstrutura = () => {}
+          return (
+            <>
+              <RowAction label="Visualizar" icon={Eye} onClick={() => (temEstrutura ? setVer(p.id) : semEstrutura())} />
+              <RowAction label="Nova versão" icon={GitBranchPlus} onClick={() => (temEstrutura ? setVersionar(p.id) : semEstrutura())} />
+            </>
+          )
+        }}
+      />
+      <EditalDetalhes edital={editais.find((e) => e.numero === editalAberto) ?? null} onClose={() => setEditalAberto(null)} />
+      <ProdutoSheet id={ver} onClose={() => setVer(null)} onNovaVersao={(id) => setVersionar(id)} />
+      <NovaVersaoSheet id={versionar} onClose={() => setVersionar(null)} onSaved={(id) => ver && setVer(id)} />
+    </>
+  )
+}

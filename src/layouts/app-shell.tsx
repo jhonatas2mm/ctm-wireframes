@@ -14,10 +14,12 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { screens } from '@/screens'
+import { Building2 } from 'lucide-react'
 import { useProfile } from '@/journey/profile'
 import { profileOf } from '@/journey/profiles'
 
@@ -28,19 +30,31 @@ export function AppShell() {
   // Menu e avatar seguem o perfil ativo na casca (fora dela, mostra tudo).
   const perfil = useProfile()
   const noMenu = screens.filter((s) => !s.hidden && (!perfil || !s.profiles || s.profiles.includes(perfil)))
+  const dr = profileOf(perfil).dr
   const user = profileOf(perfil).user ?? { nome: 'Maria Silva', email: 'maria.silva@senai.br' }
   const iniciais = user.nome.split(' ').map((p) => p[0]).slice(0, 2).join('')
 
   return (
-    <SidebarProvider style={{ '--sidebar-width': '12rem' } as React.CSSProperties}>
+    <SidebarProvider style={{ '--sidebar-width': '15rem' } as React.CSSProperties}>
       <Sidebar>
-        <SidebarHeader className="px-4 py-3 font-semibold">CTM · Wireframes</SidebarHeader>
+        <SidebarHeader className="flex-row items-center justify-between py-2 pr-2 pl-4 font-semibold">
+          CTM · Wireframes
+          <SidebarTrigger />
+        </SidebarHeader>
+        {dr && (
+          <div className="mx-2 mb-1 flex items-center gap-2 rounded-md border px-2.5 py-2">
+            <Building2 className="text-muted-foreground size-4 shrink-0" />
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-sm font-semibold">{dr.sigla}</p>
+            </div>
+          </div>
+        )}
         <SidebarContent>
           {groups
             .filter((g) => noMenu.some((s) => s.group === g))
             .map((g) => (
             <SidebarGroup key={g}>
-              <SidebarGroupLabel>{g}</SidebarGroupLabel>
+              {g !== 'Telas' && <SidebarGroupLabel>{g}</SidebarGroupLabel>}
               <SidebarGroupContent>
                 <SidebarMenu>
                   {noMenu
@@ -72,14 +86,28 @@ export function AppShell() {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-12 items-center gap-2 border-b px-4">
-          <SidebarTrigger />
-          <Separator orientation="vertical" className="h-4" />
+        {/* Some quando não há breadcrumb nem botão de reabrir o menu */}
+        <header className="flex h-12 items-center gap-2 border-b px-4 [&:has(#topbar-slot:empty):not(:has(button))]:hidden">
+          <TopbarTrigger />
+          {/* PageHeader renderiza o breadcrumb aqui via portal */}
+          <div id="topbar-slot" className="min-w-0 flex-1" />
         </header>
         <div className="mx-auto w-full max-w-6xl space-y-6 p-4 md:p-6">
           <Outlet />
         </div>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+// Com o menu fechado, o botão para reabrir fica na barra superior.
+function TopbarTrigger() {
+  const { open, isMobile, openMobile } = useSidebar()
+  if (isMobile ? openMobile : open) return null
+  return (
+    <>
+      <SidebarTrigger />
+      <Separator orientation="vertical" className="h-4" />
+    </>
   )
 }

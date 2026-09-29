@@ -46,10 +46,12 @@ function write<T>(name: string, value: T[]) {
   notify()
 }
 
-export function resetDb() {
+// Sem `only`: apaga tudo. Com `only`: só essas coleções (nome sem a versão, ex.: 'editais' pega 'editais-v7').
+export function resetDb(only?: string[]) {
+  const alvo = (k: string) => !only || only.some((n) => new RegExp(`^${PREFIX}${n}(-v\\d+)?$`).test(k))
   try {
     Object.keys(localStorage)
-      .filter((k) => k.startsWith(PREFIX))
+      .filter((k) => k.startsWith(PREFIX) && alvo(k))
       .forEach((k) => localStorage.removeItem(k))
   } catch {
     /* ignore */

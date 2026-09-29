@@ -1,21 +1,12 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight, Eye, EyeOff, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, ChevronDown, RotateCcw, Lock, Route, Smartphone, Tablet } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowRight, ExternalLink, MapPinPlus, MessageSquareText, Monitor, UserRound, RotateCcw, Lock, Smartphone, Tablet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { resetDb } from '@/lib/db'
-import { toast } from 'sonner'
 import { journeys, type Journey, type Profile } from '@/journeys'
 import { profileOf, profiles } from './profiles'
 import { screens } from '@/screens'
@@ -24,8 +15,8 @@ import { canEdit, usePins } from '@/annotations/store'
 import type { Mode, Pin, PinKind, ToFrame, ToShell } from '@/annotations/types'
 
 // Jornadas de um perfil: as da jornada dele ou com alguma etapa dele.
-const journeysOf = (profile: Profile) =>
-  journeys.filter((j) => j.profile === profile || j.steps.some((s) => s.profile === profile))
+// Todas as jornadas aparecem para todos; o perfil vem de cada etapa.
+const journeysOf = (_profile: Profile) => journeys
 
 // Perfil sem jornadas: navega livre a partir da tela inicial.
 const FREE: Journey = { id: '', title: 'Sem jornada', profile: '', steps: [{ title: 'Início', path: '/dashboard' }] }
@@ -45,30 +36,6 @@ const APP_HOST = 'app.ctm.com.br'
 
 // Desktop é renderizado numa largura fixa e reduzido para caber (telas pequenas não espremem o layout).
 const DESKTOP_WIDTH = 1440
-
-// Liga visualmente o seletor de perfil à moldura da tela: uma faixa na cor do perfil,
-// da mesma altura do seletor, que sai da direita dele e encosta na borda esquerda da moldura.
-function ProfileConnector({ from, to, color }: { from: React.RefObject<HTMLElement | null>; to: React.RefObject<HTMLElement | null>; color: string }) {
-  const [r, setR] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
-  useEffect(() => {
-    const calc = () => {
-      const a = from.current?.getBoundingClientRect()
-      const b = to.current?.getBoundingClientRect()
-      if (!a || !b) return setR(null)
-      const x = a.right - 8 // começa por baixo do seletor, sem fresta
-      setR({ x, y: a.top, w: b.left + 2 - x, h: a.height }) // até o meio da borda da moldura
-    }
-    calc()
-    const ro = new ResizeObserver(calc)
-    if (from.current) ro.observe(from.current)
-    if (to.current) ro.observe(to.current)
-    addEventListener('resize', calc)
-    const t = setInterval(calc, 500) // moldura anima a largura ao trocar de dispositivo
-    return () => (ro.disconnect(), removeEventListener('resize', calc), clearInterval(t))
-  }, [from, to])
-  if (!r || r.w <= 0) return null
-  return <div aria-hidden className="pointer-events-none fixed z-10" style={{ left: r.x, top: r.y, width: r.w, height: r.h, background: color }} />
-}
 
 function ScaledFrame({ ref, src, scaled }: { ref: React.Ref<HTMLIFrameElement>; src: string; scaled: boolean }) {
   const box = useRef<HTMLDivElement>(null)
@@ -119,25 +86,60 @@ export function JourneyShell() {
   const [orphans, setOrphans] = useState<string[]>([])
   // Perfil escolhido no topo do menu filtra as jornadas; uma etapa pode forçar outro perfil.
   const visibleJourneys = journeysOf(pid)
+  // Numeração por perfil que inicia a jornada (1ª etapa): 1, 2, 3… dentro de cada perfil, na ordem de src/journeys.ts.
+  const inicio = (j: Journey) => j.steps[0]?.profile ?? j.profile
+  const numero = (id: string) => {
+    const j = journeys.find((x) => x.id === id)
+    return j ? journeys.filter((x) => inicio(x) === inicio(j)).indexOf(j) + 1 : 0
+  }
   const journey = visibleJourneys.find((j) => j.id === jid) ?? FREE
   const current = journey.steps[step] ?? journey.steps[0]
+  // Etapas da jornada atual, lidas no listener de mensagens; e marcação de que a troca de etapa veio da navegação no protótipo.
+  const stepsRef = useRef(journey.steps)
+  stepsRef.current = journey.steps
+  const doFrame = useRef(false)
   const profile = current.profile ?? pid
   const profileDef = profileOf(profile)
-  const selectorRef = useRef<HTMLButtonElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
   // Topo mostra só o nome da área; a URL completa vai na barra do navegador simulada.
   const shownPath = framePath ?? current.path
   const areaName = screens.find((s) => s.path === screen)?.title ?? current.title
+  const telaData = screens.find((s) => s.path === screen)?.data
   // src fixo: trocar de etapa muda só o hash do iframe, sem recarregar.
   const [src] = useState(() => `./?frame=1#${current.path}`)
 
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
-  const pickProfile = (p: Profile) => setState({ pid: p, jid: journeysOf(p)[0]?.id ?? '', step: 0 })
+
+  // Restaurar dados: confirma num diálogo próprio (confirm() nativo pode ser bloqueado), apaga o que o usuário
+  // criou/alterou e recarrega a tela do protótipo, desfazendo também o estado da tela (modais abertas etc.).
+  const [restaurar, setRestaurar] = useState<null | 'tela' | 'tudo'>(null)
+  const confirmarRestauracao = () => {
+    resetDb(restaurar === 'tela' ? telaData : undefined)
+    frame.current?.contentWindow?.location.reload()
+    setRestaurar(null)
+  }
+
+  // Atalhos: ← etapa anterior, → próxima (ignora quando o foco está num campo de texto).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return
+      const el = e.target as HTMLElement | null
+      if (el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))) return
+      if (e.key === 'ArrowLeft' && step > 0) go(jid, step - 1)
+      else if (e.key === 'ArrowRight' && step < journey.steps.length - 1) go(jid, step + 1)
+      else return
+      e.preventDefault()
+    }
+    addEventListener('keydown', onKey)
+    return () => removeEventListener('keydown', onKey)
+  })
 
   useEffect(() => {
     history.replaceState(null, '', `#p=${encodeURIComponent(pid)}&j=${jid}&s=${step}`)
     const win = frame.current?.contentWindow
-    if (win) win.location.hash = current.path
+    // Se a etapa mudou porque o usuário navegou dentro do protótipo, não reposiciona a tela.
+    if (doFrame.current) doFrame.current = false
+    else if (win) win.location.hash = current.path
   }, [pid, jid, step, current.path])
 
   useEffect(() => {
@@ -159,6 +161,12 @@ export function JourneyShell() {
       if (m.type === 'route') {
         setFramePath(m.path)
         setScreen(m.screen)
+        // Destaque do fluxograma acompanha a tela vista: rota exata da etapa; senão, a mesma tela (padrão da rota).
+        const steps = stepsRef.current
+        const padrao = new RegExp(`^${m.screen.replace(/:[^/]+/g, '[^/]+')}$`)
+        let i = steps.findIndex((x) => x.path === m.path)
+        if (i < 0) i = steps.findIndex((x) => padrao.test(x.path))
+        if (i >= 0) setState((st) => (st.step === i ? st : ((doFrame.current = true), { ...st, step: i })))
         setDraft(null)
         setActive(null)
       } else if (m.type === 'pick') {
@@ -191,121 +199,12 @@ export function JourneyShell() {
     setActive(pin.id)
   }
 
-  const offPath = framePath !== null && framePath !== current.path
 
   // `dark` escurece os tokens só na casca; o protótipo no iframe não é afetado.
   return (
     <div className="shell-canvas dark flex h-svh text-foreground">
-      <ProfileConnector from={selectorRef} to={frameRef} color={profileDef.color} />
-      <aside className="flex w-48 shrink-0 flex-col border-r border-dashed border-white/20">
-        <div className="flex items-center gap-2 border-b border-dashed border-white/20 px-4 py-3 font-semibold">
-          <Route className="size-4" /> Jornadas
-        </div>
-        <div className="border-b border-dashed border-white/20 p-2">
-          <p className="px-1 pb-1 text-[10px] font-semibold tracking-wide uppercase" style={{ color: profileOf(pid).color }}>Perfil</p>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              ref={selectorRef}
-              className="relative z-20 flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-semibold text-white hover:brightness-110"
-              style={{ background: profileOf(pid).color }}
-              aria-label="Trocar perfil"
-            >
-              <UserRound className="size-3.5" />
-              <span className="truncate">{pid}</span>
-              <ChevronDown className="ml-auto size-3.5 opacity-80" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="dark w-44">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Ver como</DropdownMenuLabel>
-                <DropdownMenuRadioGroup value={pid} onValueChange={(v) => pickProfile(v as Profile)}>
-                  {profiles.map(({ name: p, color }) => (
-                    <DropdownMenuRadioItem key={p} value={p}>
-                      <span className="size-2.5 rounded-full" style={{ background: color }} />
-                      {p}
-                      <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">{journeysOf(p).length}</span>
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <ScrollArea className="min-h-0 flex-1">
-          <nav className="space-y-1 p-2">
-            {visibleJourneys.length === 0 && (
-              <p className="px-2 py-4 text-xs text-muted-foreground">Nenhuma jornada para este perfil.</p>
-            )}
-            {visibleJourneys.map((j) => {
-              const active = j.id === jid
-              return (
-                <div key={j.id}>
-                  <button
-                    onClick={() => go(j.id, 0)}
-                    className={cn(
-                      'flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-muted',
-                      active && 'bg-muted font-medium',
-                    )}
-                  >
-                    <span className="truncate">{j.title}</span>
-                    <Badge variant={active ? 'default' : 'secondary'} className="tabular-nums">
-                      {j.steps.length}
-                    </Badge>
-                  </button>
-                  {active && (
-                    <ol className="my-1 ml-4 space-y-0.5 border-l pl-2">
-                      {j.steps.map((s, i) => (
-                        <li key={i}>
-                          <button
-                            onClick={() => go(j.id, i)}
-                            className={cn(
-                              'flex w-full items-center gap-2 rounded px-2 py-1 text-left text-xs text-muted-foreground hover:bg-muted',
-                              i === step && 'bg-muted font-medium text-foreground',
-                            )}
-                          >
-                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full border text-[10px] tabular-nums">
-                              {i + 1}
-                            </span>
-                            {s.title}
-                          </button>
-                        </li>
-                      ))}
-                    </ol>
-                  )}
-                </div>
-              )
-            })}
-          </nav>
-        </ScrollArea>
-        <a
-          href="./?frame=1#/"
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-2 border-t border-dashed border-white/20 px-4 py-3 text-xs text-muted-foreground hover:text-foreground"
-        >
-          <ExternalLink className="size-3.5" /> Abrir protótipo livre
-        </a>
-        <button
-          onClick={() => {
-            if (!confirm('Apagar tudo que foi criado/editado no protótipo e voltar aos dados iniciais?')) return
-            resetDb()
-            toast('Dados mockados restaurados')
-          }}
-          className="flex items-center gap-2 border-t border-dashed border-white/20 px-4 py-3 text-left text-xs text-muted-foreground hover:text-foreground"
-        >
-          <RotateCcw className="size-3.5" /> Restaurar dados
-        </button>
-      </aside>
-
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className="flex flex-wrap items-center gap-3 border-b border-dashed border-white/20 px-4 py-2">
-          <div className="min-w-0">
-            <p className="text-xs text-muted-foreground">
-              {journey.id ? `${journey.title} · Etapa ${step + 1} de ${journey.steps.length}` : 'Navegação livre'}
-            </p>
-            <div className="flex items-center gap-2">
-              <p className="truncate text-sm font-medium">{areaName}</p>
-            </div>
-          </div>
+        <header className="flex flex-wrap items-center gap-3 px-4 py-2">
           <div className="ml-auto flex items-center gap-1">
             {canEdit && (
               <Button
@@ -318,17 +217,31 @@ export function JourneyShell() {
                 <MapPinPlus /> {mode === 'add' ? 'Clique na tela… (Esc)' : 'Anotar'}
               </Button>
             )}
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              aria-label={mode === 'off' ? 'Mostrar pinos' : 'Ocultar pinos'}
-              onClick={() => setMode(mode === 'off' ? 'view' : 'off')}
-            >
-              {mode === 'off' ? <EyeOff /> : <Eye />}
-            </Button>
             <Button size="sm" variant={panel ? 'secondary' : 'ghost'} onClick={() => setPanel(!panel)}>
               <MessageSquareText /> <span className="tabular-nums">{screenPins.length}</span>
             </Button>
+            <span className="mx-1 h-4 w-px bg-border" />
+            <Button size="sm" variant="ghost" render={<a href="./?frame=1#/" target="_blank" rel="noreferrer" />} nativeButton={false}>
+              <ExternalLink /> Abrir protótipo livre
+            </Button>
+<DropdownMenu>
+              <DropdownMenuTrigger render={<Button size="sm" variant="ghost" />}>
+                <RotateCcw /> Restaurar dados
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="dark w-56">
+                <DropdownMenuItem
+                  disabled={!telaData?.length}
+                  onClick={() => setRestaurar('tela')}
+                >
+                  Somente desta tela
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setRestaurar('tudo')}
+                >
+                  Todo o protótipo
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <span className="mx-1 h-4 w-px bg-border" />
             {devices.map((d) => (
               <Button
@@ -336,6 +249,8 @@ export function JourneyShell() {
                 size="icon-sm"
                 variant={device === d.id ? 'secondary' : 'ghost'}
                 aria-label={d.id}
+                // Versões responsivas desabilitadas por enquanto.
+                disabled={d.id !== 'desktop'}
                 onClick={() => setDevice(d.id)}
               >
                 <d.icon />
@@ -344,13 +259,90 @@ export function JourneyShell() {
           </div>
         </header>
 
+        {/* Mapa da jornada escolhida no select: etapas ligadas por setas */}
+        <div className="mx-4 mb-3 flex shrink-0 items-center gap-3 rounded-lg border bg-card p-2">
+          <div className="grid shrink-0 gap-1">
+            <span className="pl-1 text-xs font-bold">Jornada</span>
+            <Select value={jid} onValueChange={(v) => go(v as string, 0)}>
+              <SelectTrigger size="sm" className="w-44 shrink-0">
+                <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}` : 'Jornada' }}</SelectValue>
+              </SelectTrigger>
+              <SelectContent className="dark min-w-72" alignItemWithTrigger={false}>
+                {/* Agrupadas pelo perfil que inicia a jornada (perfil da 1ª etapa), na ordem dos perfis */}
+                {profiles
+                  .map((pf) => ({ pf, js: visibleJourneys.filter((j) => inicio(j) === pf.name) }))
+                  .filter((g) => g.js.length)
+                  .map(({ pf, js }, gi) => (
+                    <SelectGroup key={pf.name}>
+                      {gi > 0 && <SelectSeparator />}
+                      <SelectLabel className="flex items-center gap-1.5">
+                        <span className="size-2 rounded-full" style={{ background: pf.color }} />
+                        {pf.name}
+                      </SelectLabel>
+                      {js.map((j) => (
+                        <SelectItem key={j.id} value={j.id}>
+                          <span className="flex w-full items-center justify-between gap-3">
+                            <span>{numero(j.id)}. {j.title}</span>
+                            <span className="rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{j.steps.length} {j.steps.length === 1 ? 'etapa' : 'etapas'}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Só as etapas rolam na horizontal */}
+          <div className="min-w-0 flex-1 overflow-x-auto rounded-md border bg-background px-2 py-1.5">
+            <div className="flex w-max items-center gap-2 py-0.5">
+              {journey.steps.map((st, i) => {
+                const atual = i === step
+                const cor = profileOf(st.profile ?? journey.profile).color
+                return (
+                  <div key={i} className="flex shrink-0 items-center gap-2">
+                    {i > 0 && <ArrowRight className="size-4 text-muted-foreground" />}
+                    <button
+                      onClick={() => go(jid, i)}
+                      title={st.note}
+                      className={cn('flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors hover:brightness-125', atual ? 'font-medium text-white ring-2 ring-white/70' : 'text-foreground/85')}
+                      // Preenchimento na cor do perfil: sólido na etapa atual, translúcido nas demais.
+                      style={{ borderColor: cor, background: atual ? cor : `${cor}33` }}
+                    >
+                      <span className="whitespace-nowrap">{st.title}</span>
+                      <span className="text-[10px] whitespace-nowrap opacity-70">{st.profile ?? journey.profile}</span>
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
         <div className="flex min-h-0 flex-1">
           <div className="flex min-h-0 flex-1 justify-center overflow-auto p-6">
+            <div className="flex h-full flex-col transition-[width]" style={{ width: devices.find((d) => d.id === device)!.width }}>
+            {/* Perfil da etapa atual, no canto superior esquerdo da tela */}
+            <div className="flex items-end gap-2">
+              <span className="flex items-center gap-1.5 rounded-t-md px-3 py-1 text-sm font-semibold text-white" style={{ background: profileDef.color }}>
+                <UserRound className="size-3.5" /> {profile}
+              </span>
+              {/* Navegação entre etapas, com atalhos ← e → */}
+              <div className="ml-auto flex items-center gap-2 pb-1.5">
+                <Button variant="outline" size="sm" style={{ borderColor: profileDef.color, color: profileDef.color }} disabled={step === 0} onClick={() => go(jid, step - 1)}>
+                  <ChevronLeft /> Anterior <kbd className="ml-1 rounded border border-current px-1 font-mono text-[10px] leading-4 opacity-70">←</kbd>
+                </Button>
+                <Button size="sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}>
+                  Próxima <kbd className="ml-1 rounded border border-white/60 px-1 font-mono text-[10px] leading-4">→</kbd> <ChevronRight />
+                </Button>
+              </div>
+            </div>
             <div
               ref={frameRef}
-              className="flex h-full flex-col overflow-hidden rounded-lg rounded-tl-none border-4 bg-background shadow-sm transition-[width]"
-              style={{ width: devices.find((d) => d.id === device)!.width, borderColor: profileDef.color }}
+              className="flex min-h-0 flex-1 flex-col rounded-lg rounded-tl-none p-1 shadow-sm"
+              style={{ background: profileDef.color }}
             >
+              {/* Moldura na cor do perfil (canto sup. esq. reto, onde encosta o seletor); a tela dentro tem os 4 cantos arredondados. */}
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md bg-background">
               {/* Barra de navegador simulada */}
               <div className="flex shrink-0 items-center gap-3 border-b border-neutral-200 bg-neutral-100 px-3 py-1.5">
                 <div className="flex gap-1.5">
@@ -371,6 +363,8 @@ export function JourneyShell() {
                 </div>
               </div>
               <ScaledFrame ref={frame} src={src} scaled={device === 'desktop'} />
+              </div>
+            </div>
             </div>
           </div>
           {panel && (
@@ -390,24 +384,23 @@ export function JourneyShell() {
           )}
         </div>
 
-        <footer className="flex items-center gap-3 border-t border-dashed border-white/20 px-4 py-2">
-          <Button variant="outline" size="sm" disabled={step === 0} onClick={() => go(jid, step - 1)}>
-            <ChevronLeft /> Anterior
-          </Button>
-          <p className="min-w-0 flex-1 truncate text-center text-sm text-muted-foreground">
-            {offPath ? (
-              <button className="underline" onClick={() => (frame.current!.contentWindow!.location.hash = current.path)}>
-                Fora do roteiro ({framePath}) — voltar para a etapa
-              </button>
-            ) : (
-              current.note
-            )}
-          </p>
-          <Button size="sm" disabled={step === journey.steps.length - 1} onClick={() => go(jid, step + 1)}>
-            Próxima <ChevronRight />
-          </Button>
-        </footer>
       </main>
+      <Dialog open={!!restaurar} onOpenChange={(v) => !v && setRestaurar(null)}>
+        <DialogContent className="dark sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{restaurar === 'tela' ? `Restaurar dados de “${areaName}”?` : 'Restaurar todo o protótipo?'}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {restaurar === 'tela'
+              ? 'Tudo o que foi criado, editado ou decidido nesta tela volta ao estado inicial.'
+              : 'Tudo o que foi criado, editado ou decidido em qualquer tela volta ao estado inicial.'}
+          </p>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setRestaurar(null)}>Cancelar</Button>
+            <Button onClick={confirmarRestauracao}>Restaurar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

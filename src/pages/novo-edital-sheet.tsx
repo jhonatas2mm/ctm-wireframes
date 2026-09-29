@@ -1,6 +1,6 @@
+import { Req } from '@/components/wf'
 import type React from 'react'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { useEffect, useState } from 'react'
 import { Copy, Redo2, Undo2, Lock, Plus, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -80,8 +80,8 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
 type Item = { id: string; ch: string; valor: string; drs: string[] } // valor em centavos (só dígitos); drs = DRs credenciados no curso
 const centavos = (v: string) => Number(v || 0) / 100
 
-// Gerar novo edital: vigência, DRs credenciados e cursos (área, modalidade e CH fixas do catálogo; só o valor é ajustável por curso).
-export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+// Novo edital: vigência, DRs credenciados e cursos (área, modalidade e CH fixas do catálogo; só o valor é ajustável por curso).
+export function NovoEditalSheet({ open, onOpenChange, onSaved }: { open: boolean; onOpenChange: (v: boolean) => void; onSaved?: (id: string) => void }) {
   const db = useEditais()
   const cursos = useCursos().all
   // Histórico dos cursos para desfazer/avançar.
@@ -99,6 +99,15 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
   const [marcados, setMarcados] = useState<string[]>([])
   const [loteValor, setLoteValor] = useState('')
 
+  // Protótipo: já abre preenchido com dados de exemplo (vigência e 3 cursos com valor e DRs).
+  useEffect(() => {
+    if (!open) return
+    setInicio('2026-11-01')
+    setFim('2027-10-31')
+    const ex = cursos.slice(0, 3)
+    setHist({ past: [], future: [], present: ex.map((c, i) => ({ id: c.id, ch: String(c.cargaHoraria), valor: String((i + 2) * 240000), drs: i === 0 ? ['MG', 'SP'] : ['MG'] })) })
+  }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const ano = new Date().getFullYear()
   const numero = `ED-${String(db.all.filter((e) => e.numero.endsWith(`/${ano}`)).length + 1).padStart(3, '0')}/${ano}`
   const byId = (id: string) => cursos.find((c) => c.id === id)!
@@ -107,9 +116,6 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
   )
   const chTotal = itens.reduce((t, i) => t + Number(i.ch || 0), 0)
   const valorTotal = itens.reduce((t, i) => t + centavos(i.valor), 0)
-  const itensOk = itens.length > 0 && itens.every((i) => Number(i.valor) > 0 && i.drs.length > 0)
-  const vigOk = !!inicio && !!fim && fim >= inicio
-  const faltando = [!vigOk && 'vigência', !itensOk && 'cursos com valor e DRs'].filter(Boolean)
 
   const setItem = (id: string, patch: Partial<Item>) => setItens((xs) => xs.map((x) => (x.id === id ? { ...x, ...patch } : x)))
   const todosMarcados = itens.length > 0 && marcados.length === itens.length
@@ -117,7 +123,6 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
   const replicar = (patch: Partial<Item>) => {
     const alvo = marcados.length ? marcados : itens.map((i) => i.id)
     setItens((xs) => xs.map((x) => (alvo.includes(x.id) ? { ...x, ...patch } : x)))
-    toast(`Aplicado em ${alvo.length} curso(s)`)
   }
   const reset = () => (setHist({ past: [], present: [], future: [] }), setBusca(''), setLoteDrs([]), setInicio(''), setFim(''), setMarcados([]), setLoteValor(''))
 
@@ -127,9 +132,9 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
       <SheetContent side="bottom" className="data-[side=bottom]:h-[95vh] gap-0 overflow-hidden rounded-t-xl p-0">
         <SheetHeader className="border-b px-6 py-4">
           <div className="flex items-center gap-3">
-            <SheetTitle className="text-lg">Gerar novo edital</SheetTitle>
+            <SheetTitle className="text-lg">Novo edital</SheetTitle>
           </div>
-          <SheetDescription className="sr-only">Gerar novo edital</SheetDescription>
+          <SheetDescription className="sr-only">Novo edital</SheetDescription>
         </SheetHeader>
 
         <form
@@ -137,15 +142,14 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
           className="grid min-h-0 flex-1 grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
           onSubmit={(e) => {
             e.preventDefault()
-            if (faltando.length) return
             const cs = itens.map((i) => {
               const c = byId(i.id)
               return { nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: Number(i.ch), valor: centavos(i.valor), drs: i.drs }
             })
-            db.add({ numero, ctm: [], cursos: cs, cargaHoraria: chTotal, valor: valorTotal, drs: [...new Set(itens.flatMap((i) => i.drs))], vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim) })
-            toast.success(`Edital ${numero} gerado`)
+            const novo = db.add({ numero, ctm: [], cursos: cs, cargaHoraria: chTotal, valor: valorTotal, drs: [...new Set(itens.flatMap((i) => i.drs))], vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim) })
             reset()
-            onOpenChange(false)
+            if (onSaved) onSaved(novo.id)
+            else onOpenChange(false)
           }}
         >
           {/* Esquerda: vigência e catálogo de cursos */}
@@ -153,11 +157,11 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
             <Secao titulo="Vigência">
               <div className="grid grid-cols-2 gap-3">
                 <label className="grid gap-1 text-xs">
-                  <span className="text-muted-foreground">Início</span>
+                  <span className="text-muted-foreground">Início <Req /></span>
                   <Input type="date" value={inicio} onChange={(e) => setInicio(e.target.value)} />
                 </label>
                 <label className="grid gap-1 text-xs">
-                  <span className="text-muted-foreground">Fim</span>
+                  <span className="text-muted-foreground">Fim <Req /></span>
                   <Input type="date" min={inicio} value={fim} onChange={(e) => setFim(e.target.value)} />
                 </label>
               </div>
@@ -203,11 +207,9 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
               </div>
               {itens.length > 0 && (
                 <div className="flex items-center gap-3">
-                  {marcados.length > 0 && (
-                    <Button type="button" size="sm" variant="outline" onClick={() => setReplicarAberto(true)}>
-                      <Copy /> Replicar valores ({marcados.length})
-                    </Button>
-                  )}
+                  <Button type="button" size="sm" variant="outline" disabled={!marcados.length} onClick={() => setReplicarAberto(true)}>
+                      <Copy /> Replicar valores{marcados.length > 0 && ` (${marcados.length})`}
+                  </Button>
                   <label className="flex items-center gap-2 text-xs">
                     <input type="checkbox" checked={todosMarcados} onChange={(e) => setMarcados(e.target.checked ? itens.map((i) => i.id) : [])} />
                     Selecionar todos
@@ -252,14 +254,14 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
                           </div>
                         </div>
                         <label className="grid gap-1 text-xs">
-                          <span className="text-muted-foreground">Valor</span>
+                          <span className="text-muted-foreground">Valor <Req /></span>
                           <Input className="h-8" inputMode="numeric" placeholder="R$ 0,00" value={i.valor ? brl(centavos(i.valor)) : ''} onChange={(e) => setItem(i.id, { valor: e.target.value.replace(/\D/g, '') })} />
                         </label>
                         <Button type="button" variant="ghost" size="icon-sm" aria-label={`Remover ${c.nome}`} onClick={() => (setItens((xs) => xs.filter((x) => x.id !== i.id)), setMarcados((m) => m.filter((x) => x !== i.id)))}>
                           <X />
                         </Button>
                         <div className="col-span-full grid gap-1 pl-7 text-xs">
-                          <span className="text-muted-foreground">DRs credenciados</span>
+                          <span className="text-muted-foreground">DRs credenciados <Req /></span>
                           <EstadosInput value={i.drs} onChange={(v) => setItem(i.id, { drs: v })} placeholder="Buscar DR por sigla ou estado…" prefix="SENAI-" />
                         </div>
                       </li>
@@ -280,7 +282,7 @@ export function NovoEditalSheet({ open, onOpenChange }: { open: boolean; onOpenC
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" form="novo-edital" disabled={faltando.length > 0}>Gerar edital</Button>
+            <Button type="submit" form="novo-edital">Salvar edital</Button>
           </div>
         </SheetFooter>
       </SheetContent>

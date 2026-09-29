@@ -1,14 +1,13 @@
+import { Req } from '@/components/wf'
 import type React from 'react'
-import { useState } from 'react'
-import { toast } from 'sonner'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
-import { Eye, FileText, Lock } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Check, Download, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useContratos } from '@/lib/mock'
 
@@ -19,7 +18,9 @@ const PARTES = ['SENAI Departamento Nacional', 'SENAI Departamento Regional'] as
 
 // Termo de Acordo Administrativo (TAA): contrato guarda-chuva entre o DN e um DR.
 // O texto do modelo é fixo (não editável); só os campos variáveis são preenchidos.
-export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+// onSalvar: onde gravar (padrão: TAAs do DN). Na Gestão de TAAs da DR, grava nos TAAs da DR.
+type DadosTaa = { numero: string; dr: string; vigenciaInicio: string; vigenciaFim: string; valor: number }
+export function NovoTaSheet({ open, onOpenChange, onSalvar, local = 'Gestão de TAA' }: { open: boolean; onOpenChange: (v: boolean) => void; onSalvar?: (d: DadosTaa) => void; local?: string }) {
   const db = useContratos()
   const [dr, setDr] = useState<string | null>(null)
   const [inicio, setInicio] = useState('')
@@ -29,8 +30,20 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
   const seq = db.all.filter((c) => c.numero.endsWith(`/${ano}`)).length + 1
   const numero = `${String(seq).padStart(3, '0')}/${ano}`
   const valorNum = Number(valor.replace(/\D/g, '')) / 100
+  // Protótipo: já abre preenchido com dados de exemplo.
+  useEffect(() => {
+    if (!open) return
+    setDr('BA')
+    setInicio('2026-10-01')
+    setFim('2027-09-30')
+    setValor('42000000')
+  }, [open])
+  // Etapa 1: dados. Etapa 2: TAA salvo; baixa o documento com os dados para enviar (assinatura fora do sistema).
+  const [salvo, setSalvo] = useState<{ numero: string; dr: string; inicio: string; fim: string; valor: string } | null>(null)
+  const arquivo = salvo ? `TAA-${salvo.numero.replace('/', '-')}.docx` : ''
 
   const reset = () => {
+    setSalvo(null)
     setDr(null)
     setInicio('')
     setFim('')
@@ -38,81 +51,65 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
   }
 
   const field = 'grid gap-1.5'
-  const doc = { numero, dr, inicio, fim, valor: valor ? brl(valorNum) : '' }
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={(v) => (v || reset(), onOpenChange(v))}>
       <SheetContent className="gap-0 p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl">
         <SheetHeader className="border-b px-6 py-4">
           <div className="flex items-center gap-3">
             <SheetTitle className="text-lg">Novo Termo de Acordo Administrativo</SheetTitle>
             <Badge variant="secondary" className="font-mono">
-              Nº {numero}
+              Nº {salvo?.numero ?? numero}
             </Badge>
           </div>
-          <SheetDescription>
-            Contrato guarda-chuva com o Departamento Regional. Depois de salvo, não pode ser alterado.
-          </SheetDescription>
+          {/* Barrinha de etapas: 1. Dados → 2. Documento */}
+          <ol className="mt-3 grid grid-cols-2 gap-2">
+            {['Dados', 'Documento'].map((t, i) => {
+              const etapa = salvo ? 1 : 0
+              return (
+                <li key={t} className="grid gap-1.5">
+                  <span className={cn('h-1 rounded-full transition-colors', i <= etapa ? 'bg-foreground' : 'bg-muted')} />
+                  <span className={cn('flex items-center gap-1 text-xs', i === etapa ? 'font-medium text-foreground' : 'text-muted-foreground')}>
+                    {i < etapa ? <Check className="size-3" /> : `${i + 1}.`} {t}
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+          <SheetDescription className="sr-only">Novo TAA</SheetDescription>
         </SheetHeader>
 
         <div className="min-h-0 flex-1">
-          {/* Coluna esquerda: só os campos variáveis */}
-          <form
-            id="novo-ta"
-            className="h-full space-y-8 overflow-y-auto px-6 py-6"
-            onSubmit={(e) => {
-              e.preventDefault()
-              const f = new FormData(e.currentTarget)
-              db.add({
-                numero,
-                dr: dr!,
-                vigenciaInicio: fmtData(inicio),
-                vigenciaFim: fmtData(fim),
-                produtos: 0,
-                status: 'Em elaboração',
-                valor: valorNum,
-                signatarios: PARTES.map((parte, i) => ({
-                  parte,
-                  nome: String(f.get(`nome${i}`)),
-                  cargo: String(f.get(`cargo${i}`)),
-                })),
-              })
-              toast.success(`TAA ${numero} criado`)
-              reset()
-              onOpenChange(false)
-            }}
-          >
-            {/* Termo: texto padrão, visto completo em modal */}
-            <Dialog>
+          {salvo ? (
+            <div className="h-full space-y-4 overflow-y-auto px-6 py-6">
               <div className="flex items-center gap-3 rounded-lg border p-3">
                 <div className="flex h-12 w-10 shrink-0 items-center justify-center rounded border bg-white text-neutral-400 shadow-sm">
                   <FileText className="size-5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">Termo de Acordo Administrativo Nº {numero}</p>
-                  <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Lock className="size-3" /> Texto padrão, não editável. Campos preenchidos entram no termo.
-                  </p>
+                  <p className="truncate text-sm font-medium">{arquivo}</p>
+                  <p className="text-xs text-muted-foreground">Baixe e envie para assinatura. Depois, anexe o TAA assinado em {local}.</p>
                 </div>
-                <DialogTrigger render={<Button type="button" variant="outline" size="sm" />}>
-                  <Eye /> Visualizar
-                </DialogTrigger>
+                <Button type="button" size="sm" onClick={() => {}}>
+                  <Download /> Baixar TAA
+                </Button>
               </div>
-              <DialogContent className="max-h-[90vh] gap-0 overflow-hidden p-0 sm:max-w-3xl">
-                <DialogHeader className="border-b px-5 py-3">
-                  <DialogTitle className="flex items-center gap-2">
-                    Termo de Acordo Administrativo Nº {numero}
-                    <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground">
-                      <Lock className="size-3" /> texto padrão, não editável
-                    </span>
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="max-h-[calc(90vh-3.5rem)] overflow-y-auto bg-muted/50 p-6">
-                  <TermoDoc {...doc} className="mx-auto shadow-sm" />
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <Group n={1} title="Departamento Regional">
+              <div className="rounded-lg bg-muted/50 p-4">
+                <TermoDoc {...salvo} className="mx-auto shadow-sm" />
+              </div>
+            </div>
+          ) : (
+          <form
+            id="novo-ta"
+            className="h-full space-y-8 overflow-y-auto px-6 py-6"
+            onSubmit={(e) => {
+              e.preventDefault()
+              const dados = { numero, dr: dr ?? '—', vigenciaInicio: fmtData(inicio), vigenciaFim: fmtData(fim), valor: valorNum }
+              if (onSalvar) onSalvar(dados)
+              else db.add({ ...dados, status: 'Em elaboração' })
+              setSalvo({ numero, dr: dr ?? '—', inicio, fim, valor: brl(valorNum) })
+            }}
+          >
+            <Group n={1} title={<>Departamento Regional <Req /></>}>
               <Select value={dr} onValueChange={(v) => setDr(v as string)}>
                 <SelectTrigger className="w-full">
                   <SelectValue>{(v: string | null) => (v ? `SENAI-${v}` : 'Selecione o DR')}</SelectValue>
@@ -128,52 +125,48 @@ export function NovoTaSheet({ open, onOpenChange }: { open: boolean; onOpenChang
             </Group>
 
             <Group n={2} title="Vigência e valor">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div className={field}>
-                  <Label htmlFor="inicio">Início</Label>
-                  <Input id="inicio" type="date" required value={inicio} onChange={(e) => setInicio(e.target.value)} />
+                  <Label htmlFor="inicio">Início <Req /></Label>
+                  <Input id="inicio" type="date" value={inicio} onChange={(e) => setInicio(e.target.value)} />
                 </div>
                 <div className={field}>
-                  <Label htmlFor="fim">Fim</Label>
-                  <Input id="fim" type="date" required value={fim} onChange={(e) => setFim(e.target.value)} />
+                  <Label htmlFor="fim">Fim <Req /></Label>
+                  <Input id="fim" type="date" value={fim} onChange={(e) => setFim(e.target.value)} />
                 </div>
-              </div>
-              <div className={field}>
-                <Label htmlFor="valor">Valor global</Label>
-                <Input
-                  id="valor"
-                  required
-                  inputMode="numeric"
-                  placeholder="R$ 0,00"
-                  className="text-base font-medium tabular-nums"
-                  value={valor && brl(valorNum)}
-                  onChange={(e) => setValor(e.target.value)}
-                />
+                <div className={field}>
+                  <Label htmlFor="valor">Valor global <Req /></Label>
+                  <Input
+                    id="valor"
+                    inputMode="numeric"
+                    placeholder="R$ 0,00"
+                    className="font-medium tabular-nums"
+                    value={valor && brl(valorNum)}
+                    onChange={(e) => setValor(e.target.value)}
+                  />
+                </div>
               </div>
             </Group>
 
-            <Group n={3} title="Signatários">
-              {PARTES.map((parte, i) => (
-                <div key={parte} className="space-y-3 rounded-lg bg-muted/50 p-3">
-                  <p className="text-xs font-medium text-muted-foreground">Pelo {parte}</p>
-                  <Input name={`nome${i}`} required placeholder="Nome completo" aria-label={`Nome — ${parte}`} />
-                  <Input name={`cargo${i}`} required placeholder="Cargo" aria-label={`Cargo — ${parte}`} />
-                </div>
-              ))}
-            </Group>
           </form>
-
+          )}
         </div>
 
         <SheetFooter className="flex-row items-center justify-between border-t px-6 py-3">
           <span />
           <div className="flex gap-2">
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
-            <Button type="submit" form="novo-ta" disabled={!dr}>
-              Salvar TAA
-            </Button>
+            {salvo ? (
+              <Button onClick={() => (reset(), onOpenChange(false))}>Concluir</Button>
+            ) : (
+              <>
+                <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" form="novo-ta" >
+                  Salvar e avançar
+                </Button>
+              </>
+            )}
           </div>
         </SheetFooter>
       </SheetContent>
@@ -232,7 +225,7 @@ function TermoDoc({
   )
 }
 
-function Group({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+function Group({ n, title, children }: { n: number; title: React.ReactNode; children: React.ReactNode }) {
   return (
     <section className="space-y-3">
       <h3 className="flex items-center gap-2 text-sm font-semibold">

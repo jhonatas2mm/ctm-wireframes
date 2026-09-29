@@ -1,13 +1,13 @@
 import { Contact, Eye, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { toast } from 'sonner'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { DataTable, PageHeader, RowAction, type Column, type FilterDef } from '@/components/wf'
+import { DataTable, PageHeader, RowAction, type Column, type FilterDef, useConfirmar } from '@/components/wf'
 import { useEditais, type Edital } from '@/lib/mock'
 import { NovoEditalSheet } from './novo-edital-sheet'
 import { DrContatosSheet } from './dr-contatos-sheet'
 import { EditalDetalhes } from './edital-detalhes'
+import { EditalSucesso } from './edital-sucesso'
 
 const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
@@ -27,7 +27,9 @@ const filtros: FilterDef<Edital>[] = [
 ]
 
 export default function Editais() {
+  const { confirmar, dialogo } = useConfirmar()
   const { all, remove } = useEditais()
+  const { id: sucessoId } = useParams()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [contatos, setContatos] = useState<Edital | null>(null)
@@ -38,7 +40,7 @@ export default function Editais() {
         title="Gestão de Editais"
         actions={
           <Button onClick={() => navigate('/editais/novo')}>
-            <Plus /> Gerar novo edital
+            <Plus /> Novo edital
           </Button>
         }
       />
@@ -54,19 +56,16 @@ export default function Editais() {
             <RowAction
               label="Excluir"
               icon={Trash2}
-              destructive
-              onClick={() => {
-                if (!confirm(`Excluir o edital ${e.numero}?`)) return
-                remove(e.id)
-                toast(`Edital ${e.numero} excluído`)
-              }}
+              onClick={() => confirmar({ titulo: `Excluir o edital ${e.numero}?`, onConfirmar: () => { remove(e.id) } })}
             />
           </>
         )}
       />
       <DrContatosSheet ufs={contatos?.drs ?? null} titulo={contatos ? `Contatos dos DRs · ${contatos.numero}` : undefined} onClose={() => setContatos(null)} />
       <EditalDetalhes edital={detalhes} onClose={() => setDetalhes(null)} />
-      <NovoEditalSheet open={pathname === '/editais/novo'} onOpenChange={(v) => !v && navigate('/editais')} />
+      <NovoEditalSheet open={pathname === '/editais/novo'} onOpenChange={(v) => !v && navigate('/editais')} onSaved={(id) => navigate(`/editais/${id}/sucesso`)} />
+      <EditalSucesso edital={all.find((e) => e.id === sucessoId) ?? null} onClose={() => navigate('/editais')} onVer={(e) => (navigate('/editais'), setDetalhes(e))} />
+      {dialogo}
     </>
   )
 }

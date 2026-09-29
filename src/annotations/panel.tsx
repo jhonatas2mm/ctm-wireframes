@@ -1,3 +1,4 @@
+import { useConfirmar } from '@/components/wf'
 import { useEffect, useState } from 'react'
 import { Pencil, Trash2, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -92,6 +93,7 @@ export function AnnotationPanel({
 }) {
   const [editing, setEditing] = useState<string | null>(null)
   useEffect(() => setEditing(null), [screen])
+  const { confirmar, dialogo } = useConfirmar()
 
   return (
     <aside className="flex w-72 shrink-0 flex-col border-l border-dashed border-white/20">
@@ -162,7 +164,7 @@ export function AnnotationPanel({
                         aria-label="Excluir"
                         onClick={(e) => {
                           e.stopPropagation()
-                          if (confirm('Excluir esta anotação?')) onDelete(p.id)
+                          confirmar({ titulo: 'Excluir esta anotação?', onConfirmar: () => onDelete(p.id) })
                         }}
                       >
                         <Trash2 />
@@ -176,6 +178,7 @@ export function AnnotationPanel({
           )}
         </div>
       </ScrollArea>
+      {dialogo}
     </aside>
   )
 }

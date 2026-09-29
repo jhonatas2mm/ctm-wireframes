@@ -96,13 +96,8 @@ export function PinLayer() {
     }
   }, [st.mode])
 
-  // Pino "solto": elemento âncora sumiu → usa a posição de reserva e fica vermelho.
-  const placed = st.pins.map((p) => {
-    const el = document.querySelector(p.selector)
-    const r = el?.getBoundingClientRect()
-    if (r && (r.width || r.height)) return { p, left: r.left + p.x * r.width, top: r.top + p.y * r.height, orphan: false }
-    return { p, left: (p.px ?? 24) - scrollX, top: (p.py ?? 24 + p.n * 32) - scrollY, orphan: true }
-  })
+  // Pino livre: fica no ponto clicado da página (px/py), sem depender de elemento — nunca fica "solto".
+  const placed = st.pins.map((p) => ({ p, left: (p.px ?? 24) - scrollX, top: (p.py ?? 24 + p.n * 32) - scrollY, orphan: false }))
   const orphanKey = placed.filter((x) => x.orphan && x.p.id !== 'draft').map((x) => x.p.id).join()
   useEffect(() => post({ type: 'orphans', ids: orphanKey ? orphanKey.split(',') : [] }), [orphanKey])
 

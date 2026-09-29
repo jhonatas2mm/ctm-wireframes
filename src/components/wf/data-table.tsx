@@ -130,7 +130,7 @@ export function DataTable<T extends { id: string }>({
                     {c.header}
                   </TableHead>
                 ))}
-                {actions && <TableHead className="w-px text-right">Ações</TableHead>}
+                {actions && <TableHead className="sticky right-0 z-10 w-px bg-muted text-right shadow-[-8px_0_8px_-8px_rgb(0_0_0/0.15)]">Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -146,7 +146,7 @@ export function DataTable<T extends { id: string }>({
                     </TableCell>
                   ))}
                   {actions && (
-                    <TableCell className="w-px" onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="sticky right-0 z-10 w-px bg-background shadow-[-8px_0_8px_-8px_rgb(0_0_0/0.15)]" onClick={(e) => e.stopPropagation()}>
                       <div className="flex justify-end gap-0.5">{actions(r)}</div>
                     </TableCell>
                   )}
@@ -166,28 +166,41 @@ export function RowAction({
   icon: Icon,
   onClick,
   destructive,
+  disabled,
+  motivo,
 }: {
   label: string
   icon: LucideIcon
   onClick: () => void
   destructive?: boolean
+  disabled?: boolean
+  motivo?: string // por que está desabilitado (mostrado no tooltip)
 }) {
+  const botao = (
+    <Button
+      size="icon-sm"
+      variant="outline"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(destructive && 'text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive')}
+    >
+      <Icon />
+    </Button>
+  )
   return (
     <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            size="icon-sm"
-            variant="ghost"
-            aria-label={label}
-            onClick={onClick}
-            className={cn(destructive && 'text-destructive hover:bg-destructive/10 hover:text-destructive')}
-          />
-        }
-      >
-        <Icon />
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
+      {/* Botão desabilitado não recebe o mouse: o tooltip fica num invólucro para ainda mostrar o motivo */}
+      {disabled ? (
+        <TooltipTrigger render={<span tabIndex={0} className="inline-flex cursor-not-allowed" />}>{botao}</TooltipTrigger>
+      ) : (
+        <TooltipTrigger
+          render={<Button size="icon-sm" variant="outline" aria-label={label} onClick={onClick} className={cn(destructive && 'text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive')} />}
+        >
+          <Icon />
+        </TooltipTrigger>
+      )}
+      <TooltipContent>{disabled && motivo ? motivo : label}</TooltipContent>
     </Tooltip>
   )
 }

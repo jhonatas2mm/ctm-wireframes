@@ -7,32 +7,155 @@ export type Profile = string
 export type Step = { title: string; path: string; note?: string; profile?: Profile }
 export type Journey = { id: string; title: string; description?: string; profile: Profile; steps: Step[] }
 
+// Mapa de jornadas: cada jornada vira uma linha do fluxograma na casca; cada etapa diz o perfil que está na tela.
+// A ordem do array é a numeração dos fluxos na casca (1, 2, 3…): a ordem em que acontecem no sistema.
 export const journeys: Journey[] = [
   {
-    id: 'cadastro-produtos',
-    title: 'Cadastro de produtos',
-    profile: 'DR credenciada',
+    id: 'admin-usuarios',
+    title: 'Gestão de usuários',
+    profile: 'Super admin',
     steps: [
-      { title: 'Portfólio de Produtos', path: '/produtos', note: 'DR credenciada clica em “Cadastrar produto”.' },
-      { title: 'Cadastrar produto', path: '/produtos/novo', note: 'Preenche os dados do produto (campos a definir).' },
+      { title: 'Gestão de usuários', path: '/admin/usuarios', profile: 'Super admin', note: 'Super admin vê todos os usuários (perfil, DR, status, último acesso) e clica em “Novo usuário”.' },
+      { title: 'Novo usuário', path: '/admin/usuarios/novo', profile: 'Super admin', note: 'Informa nome, e-mail, perfil e DR. O usuário nasce Ativo e recebe o link para definir a senha.' },
+      { title: 'Editar usuário', path: '/admin/usuarios/u3', profile: 'Super admin', note: 'Pelo lápis na linha: troca perfil ou DR. Inativar pede confirmação.' },
     ],
   },
   {
-    id: 'gestao-editais',
-    title: 'Gestão de Editais',
-    profile: 'Supervisora',
+    id: 'admin-permissoes',
+    title: 'Perfis e permissões',
+    profile: 'Super admin',
     steps: [
-      { title: 'Gestão de Editais', path: '/editais', note: 'Supervisora clica em “Gerar novo edital”.' },
-      { title: 'Gerar novo edital', path: '/editais/novo', note: 'Define vigência, CTMs, cursos (CH e valor por curso) e DRs credenciados, e gera o edital.' },
+      { title: 'Perfis e permissões', path: '/admin/perfis', profile: 'Super admin', note: 'Lista de perfis com nº de telas e de usuários; abre um perfil.' },
+      { title: 'Permissões do perfil', path: '/admin/perfis/Comercial', profile: 'Super admin', note: 'Marca as telas que o perfil acessa (com “Selecionar todas”) e salva.' },
     ],
   },
   {
-    id: 'novo-ta',
+    id: 'admin-auditoria',
+    title: 'Auditoria',
+    profile: 'Super admin',
+    steps: [
+      { title: 'Auditoria', path: '/admin/auditoria', profile: 'Super admin', note: 'Trilha de ações (quem, quando, o quê), com busca e filtros por usuário, perfil e ação.' },
+    ],
+  },
+  {
+    id: 'admin-visao-geral',
+    title: 'Supervisão das áreas',
+    profile: 'Super admin',
+    steps: [
+      { title: 'Gestão de DRs', path: '/drs', profile: 'Super admin', note: 'Super admin acessa todas as telas do sistema para acompanhar e corrigir dados.' },
+      { title: 'Gestão de Editais', path: '/editais', profile: 'Super admin' },
+      { title: 'Gestão de propostas', path: '/produtos', profile: 'Super admin' },
+      { title: 'Gestão da oferta', path: '/oferta', profile: 'Super admin' },
+    ],
+  },
+  {
+    id: 'drs',
+    title: 'Cadastro de DRs',
+    profile: 'DN',
+    steps: [
+      { title: 'Gestão de DRs credenciadas', path: '/drs', profile: 'DN', note: 'Início do sistema: o DN clica em “Nova DR credenciada”.' },
+      { title: 'Nova DR credenciada', path: '/drs/novo', profile: 'DN', note: 'Escolhe a DR (UF ainda não credenciada) e preenche o contato. Nasce Ativa; pode ser inativada depois.' },
+    ],
+  },
+  {
+    id: 'contratos',
+    title: 'Gestão de Contratos',
+    profile: 'DN',
+    steps: [
+      { title: 'Gestão de TAA', path: '/dashboard', profile: 'DN', note: 'DN clica em “Novo TAA”.' },
+      { title: 'Novo TAA', path: '/dashboard/novo-ta', profile: 'DN', note: 'Preenche DR, vigência e valor global, baixa o modelo e salva. O TAA fica Em elaboração.' },
+      { title: 'TAA em elaboração', path: '/dashboard/4', profile: 'DN', note: 'Assinaturas acontecem fora do sistema. Ao voltar, o DN clica em “Anexar TAA assinado”.' },
+      { title: 'TAA vigente', path: '/dashboard/1', profile: 'DN', note: 'Com o TAA assinado anexado, o status passa a Vigente.' },
+    ],
+  },
+  {
+    id: 'novo-taa-comercial',
     title: 'Novo TAA',
-    profile: 'Supervisora',
+    profile: 'Comercial',
     steps: [
-      { title: 'Gestão de TAA', path: '/dashboard', note: 'Supervisora clica em “Novo TAA”.' },
-      { title: 'Novo TAA', path: '/dashboard/novo-ta', note: 'Preenche o Termo de Acordo Administrativo com o DR e salva como rascunho.' },
+      { title: 'Gestão de TAAs', path: '/meus-taas', profile: 'Comercial', note: 'O Comercial clica em “Novo TAA”.' },
+      { title: 'Novo TAA', path: '/meus-taas/novo', profile: 'Comercial', note: 'Preenche DR, vigência e valor global, baixa o modelo e salva. O TAA fica Em elaboração.' },
+    ],
+  },
+  {
+    id: 'novo-taa-supervisor',
+    title: 'Novo TAA',
+    profile: 'Supervisor',
+    steps: [
+      { title: 'Gestão de TAAs', path: '/meus-taas', profile: 'Supervisor', note: 'O Supervisor clica em “Novo TAA”.' },
+      { title: 'Novo TAA', path: '/meus-taas/novo', profile: 'Supervisor', note: 'Preenche DR, vigência e valor global, baixa o modelo e salva. O TAA fica Em elaboração.' },
+    ],
+  },
+  {
+    id: 'fluxo',
+    title: 'Criação de edital',
+    profile: 'DN',
+    steps: [
+      { title: 'Gestão de Editais', path: '/editais', profile: 'DN', note: 'DN clica em “Novo edital”.' },
+      { title: 'Novo edital', path: '/editais/novo', profile: 'DN', note: 'Define vigência e cursos (valor e DRs credenciados por curso) e salva o edital.' },
+      { title: 'Edital criado', path: '/editais/1/sucesso', profile: 'DN', note: 'Tela de sucesso: resumo do edital salvo, com opção de ver o edital ou voltar à gestão.' },
+      { title: 'Gestão de Portfólio', path: '/gestao-produtos', profile: 'Supervisor', note: 'Supervisor clica em “Novo produto”.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'Supervisor', note: 'Escolhe um edital, marca os produtos e cadastra módulos e UCs.' },
+    ],
+  },
+  {
+    id: 'criacao-portfolio',
+    title: 'Criação de portfólio',
+    profile: 'Supervisor',
+    steps: [
+      { title: 'Gestão de Portfólio', path: '/gestao-produtos', profile: 'Supervisor', note: 'Supervisor clica em “Novo produto”.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'Supervisor', note: 'Escolhe um edital, marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um.' },
+    ],
+  },
+  {
+    id: 'criacao-proposta',
+    title: 'Criação de proposta',
+    profile: 'Supervisor',
+    steps: [
+      { title: 'Gestão de propostas', path: '/produtos', profile: 'Supervisor', note: 'Supervisor clica em “Nova proposta”.' },
+      { title: 'Nova proposta', path: '/produtos/novo', profile: 'Supervisor', note: 'Escolhe o edital e a DR contratante, marca os cursos com valor previsto e salva a proposta.' },
+      { title: 'Proposta aceita ou recusada', path: '/produtos', profile: 'Supervisor', note: 'Depois do acordo (fora do sistema), marca a proposta como Aceita ou Recusada na listagem; recusa pede feedback.' },
+    ],
+  },
+  {
+    id: 'gestao-oferta',
+    title: 'Criação de oferta',
+    profile: 'Supervisor',
+    steps: [
+      { title: 'Gestão da oferta', path: '/oferta', profile: 'Supervisor', note: 'Lista de ofertas (uma linha por turma, com a proposta); clica em “Adicionar oferta” na proposta.' },
+      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'Supervisor', note: 'Escolhe a proposta e o curso; complementa a matriz curricular com CH, início e término de cada UC.' },
+      { title: 'Oferta criada', path: '/oferta/t1/sucesso', profile: 'Supervisor', note: 'Confirmação: ofertas criadas, com atalho para Ver oferta.' },
+      { title: 'Aulas ao vivo', path: '/oferta/t1', profile: 'Supervisor', note: 'Em Visualizar oferta, na lista de UCs: botão “Adicionar” em cada UC abre o cadastro do dia e horário da aula ao vivo.' },
+    ],
+  },
+  {
+    id: 'comercial-criacao-portfolio',
+    title: 'Criação de portfólio',
+    profile: 'Comercial',
+    steps: [
+      { title: 'Gestão de Portfólio', path: '/gestao-produtos', profile: 'Comercial', note: 'Comercial clica em “Novo produto”.' },
+      { title: 'Novo produto', path: '/gestao-produtos/novo', profile: 'Comercial', note: 'Escolhe um edital, marca um ou mais produtos desse edital e cadastra módulos e UCs de cada um.' },
+    ],
+  },
+  {
+    id: 'comercial-criacao-proposta',
+    title: 'Criação de proposta',
+    profile: 'Comercial',
+    steps: [
+      { title: 'Gestão de propostas', path: '/produtos', profile: 'Comercial', note: 'Comercial clica em “Nova proposta”.' },
+      { title: 'Nova proposta', path: '/produtos/novo', profile: 'Comercial', note: 'Escolhe o edital e a DR contratante, marca os cursos com valor previsto e salva a proposta.' },
+      { title: 'Proposta aceita ou recusada', path: '/produtos', profile: 'Comercial', note: 'Depois do acordo (fora do sistema), marca a proposta como Aceita ou Recusada na listagem; recusa pede feedback.' },
+    ],
+  },
+  {
+    id: 'comercial-gestao-oferta',
+    title: 'Criação de oferta',
+    profile: 'Comercial',
+    steps: [
+      { title: 'Gestão da oferta', path: '/oferta', profile: 'Comercial', note: 'Lista de ofertas (uma linha por turma, com a proposta); clica em “Adicionar oferta” na proposta.' },
+      { title: 'Nova oferta', path: '/oferta/proposta/2/nova', profile: 'Comercial', note: 'Escolhe a proposta e o curso; complementa a matriz curricular com CH, início e término de cada UC.' },
+      { title: 'Oferta criada', path: '/oferta/t1/sucesso', profile: 'Comercial', note: 'Confirmação: ofertas criadas, com atalho para Ver oferta.' },
+      { title: 'Aulas ao vivo', path: '/oferta/t1', profile: 'Comercial', note: 'Em Visualizar oferta, na lista de UCs: botão “Adicionar” em cada UC abre o cadastro do dia e horário da aula ao vivo.' },
     ],
   },
 ]

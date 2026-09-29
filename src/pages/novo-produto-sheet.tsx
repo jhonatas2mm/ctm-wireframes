@@ -1,7 +1,6 @@
 // Sem uso no momento: era aberta pelo botão "Novo TAA". Mantida para reaproveitar a busca de cursos.
 import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
-import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -85,7 +84,7 @@ export function NovoProdutoSheet({ open, onOpenChange }: { open: boolean; onOpen
         <SheetFooter className="border-t">
           <Button
             disabled={!curso}
-            onClick={() => toast(`“${curso!.nome}” selecionado — próxima etapa a desenhar`)}
+            onClick={() => {}}
           >
             Selecionar curso
           </Button>

@@ -3,7 +3,16 @@
 import * as React from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
-import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
+import { ChevronDownIcon, CheckIcon, ChevronUpIcon, SearchIcon } from "lucide-react"
+
+// Busca embutida em todo Select: SelectContent guarda o termo e cada SelectItem se esconde se não casar.
+const SearchCtx = React.createContext("")
+const norm = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+const textOf = (n: React.ReactNode): string =>
+  typeof n === "string" || typeof n === "number" ? String(n)
+  : Array.isArray(n) ? n.map(textOf).join(" ")
+  : React.isValidElement<{ children?: React.ReactNode }>(n) ? textOf(n.props.children)
+  : ""
 
 const Select = SelectPrimitive.Root
 
@@ -63,12 +72,14 @@ function SelectContent({
   align = "center",
   alignOffset = 0,
   alignItemWithTrigger = true,
+  searchable = true,
   ...props
-}: SelectPrimitive.Popup.Props &
+}: SelectPrimitive.Popup.Props & { searchable?: boolean } &
   Pick<
     SelectPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
   >) {
+  const [q, setQ] = React.useState("")
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Positioner
@@ -85,8 +96,23 @@ function SelectContent({
           className={cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
           {...props}
         >
+          {searchable && (
+            <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b bg-popover px-2 py-1.5">
+              <SearchIcon className="size-3.5 shrink-0 text-muted-foreground" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                // Não deixa o typeahead do Select roubar as teclas; setas/Enter/Esc seguem para a lista.
+                onKeyDown={(e) => !["ArrowDown", "ArrowUp", "Enter", "Escape", "Tab"].includes(e.key) && e.stopPropagation()}
+                placeholder="Buscar…"
+                className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+          )}
           <SelectScrollUpButton />
-          <SelectPrimitive.List>{children}</SelectPrimitive.List>
+          <SearchCtx.Provider value={norm(q.trim())}>
+            <SelectPrimitive.List>{children}</SelectPrimitive.List>
+          </SearchCtx.Provider>
           <SelectScrollDownButton />
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
@@ -112,9 +138,12 @@ function SelectItem({
   children,
   ...props
 }: SelectPrimitive.Item.Props) {
+  const q = React.useContext(SearchCtx)
+  const hidden = !!q && !norm(`${textOf(children)} ${props.value ?? ""}`).includes(q)
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
+      hidden={hidden}
       className={cn(
         "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className

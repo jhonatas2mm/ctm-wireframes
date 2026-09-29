@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { toast } from 'sonner'
 import { AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -94,9 +93,6 @@ export default function Components() {
             <TextLines lines={6} className="px-4" />
           </SheetContent>
         </Sheet>
-        <Button variant="outline" onClick={() => toast.success('Salvo com sucesso')}>
-          Disparar toast
-        </Button>
         <Tooltip>
           <TooltipTrigger render={<Button variant="outline" />}>Tooltip</TooltipTrigger>
           <TooltipContent>Texto de ajuda</TooltipContent>

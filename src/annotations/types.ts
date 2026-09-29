@@ -3,10 +3,10 @@ export type PinKind = 'requisito' | 'regra' | 'observacao'
 export type Pin = {
   id: string
   screen: string // padrão da rota (ex.: /itens/:id), para valer em todas as instâncias da tela
-  selector: string // elemento âncora dentro do protótipo
+  selector: string // elemento clicado (só registro; a posição usa px/py)
   x: number // posição relativa dentro do elemento (0–1)
   y: number
-  px?: number // posição de reserva na página (px), usada se o elemento sumir
+  px?: number // posição na página (px) — é o que posiciona o pino
   py?: number
   kind: PinKind
   text: string

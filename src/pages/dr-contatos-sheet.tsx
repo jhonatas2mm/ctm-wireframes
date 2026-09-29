@@ -1,5 +1,4 @@
 import { Copy, Mail, Phone } from 'lucide-react'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 
@@ -25,7 +24,7 @@ function Linha({ icon: Icon, texto }: { icon: typeof Mail; texto: string }) {
         variant="ghost"
         size="icon-xs"
         aria-label={`Copiar ${texto}`}
-        onClick={() => navigator.clipboard.writeText(texto).then(() => toast(`Copiado: ${texto}`), () => toast.error('Não foi possível copiar'))}
+        onClick={() => void navigator.clipboard.writeText(texto).catch(() => {})}
       >
         <Copy />
       </Button>

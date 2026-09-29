@@ -1,0 +1,61 @@
+import { useState } from 'react'
+import { Eye, Pencil, Plus, Power, PowerOff } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
+import { NovaDrSheet } from './nova-dr-sheet'
+import { Badge } from '@/components/ui/badge'
+import { DataTable, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
+import { useDrs, useEditais, type Dr } from '@/lib/mock'
+import { DrSheet } from './dr-sheet'
+import { EditarDrSheet } from './editar-dr-sheet'
+
+// Gestão de DRs credenciadas (perfil DN): Departamentos Regionais, contatos e em quantos editais cada um está credenciado.
+export default function GestaoDrs() {
+  const { confirmar, dialogo } = useConfirmar()
+  const { all, update } = useDrs()
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const { all: editais } = useEditais()
+  const [ver, setVer] = useState<Dr | null>(null)
+  const [editar, setEditar] = useState<Dr | null>(null)
+  const qtdEditais = (uf: string) => editais.filter((e) => e.drs.includes(uf)).length
+  const colunas: Column<Dr>[] = [
+    { header: 'DR', value: (d) => d.nome, search: true, className: 'font-medium' },
+    { header: 'Região', value: (d) => d.regiao, filter: true },
+    { header: 'Responsável', value: (d) => d.responsavel, search: true },
+    { header: 'E-mail', value: (d) => d.email, search: true, className: 'text-muted-foreground' },
+    { header: 'Telefone', value: (d) => d.telefone, className: 'text-muted-foreground tabular-nums' },
+    { header: 'Editais', value: (d) => qtdEditais(d.uf), className: 'text-right tabular-nums' },
+    { header: 'Status', value: (d) => d.status, filter: true, cell: (d) => <Badge variant={d.status === 'Ativo' ? 'default' : 'outline'}>{d.status}</Badge> },
+  ]
+  return (
+    <>
+      <PageHeader title="Gestão de DRs credenciadas" actions={<Button onClick={() => navigate('/drs/novo')}><Plus /> Nova DR credenciada</Button>} />
+      <DataTable
+        rows={all}
+        columns={colunas}
+        searchPlaceholder="Buscar DR, responsável ou e-mail…"
+        actions={(d) => (
+          <>
+            <RowAction label="Visualizar" icon={Eye} onClick={() => setVer(d)} />
+            <RowAction label="Editar" icon={Pencil} onClick={() => setEditar(d)} />
+            {d.status === 'Ativo' ? (
+              <RowAction
+                label="Inativar"
+                icon={PowerOff}
+                destructive
+                onClick={() => confirmar({ titulo: `Inativar ${d.nome}? Ela deixa de aparecer como opção em novos editais e TAAs.`, acao: 'Inativar', onConfirmar: () => { update(d.id, { status: 'Inativo' }) } })}
+              />
+            ) : (
+              <RowAction label="Ativar" icon={Power} onClick={() => (update(d.id, { status: 'Ativo' }))} />
+            )}
+          </>
+        )}
+      />
+      <DrSheet dr={ver} onClose={() => setVer(null)} />
+      <EditarDrSheet dr={editar} onClose={() => setEditar(null)} />
+      <NovaDrSheet open={pathname === '/drs/novo'} onOpenChange={(v) => !v && navigate('/drs')} />
+      {dialogo}
+    </>
+  )
+}
