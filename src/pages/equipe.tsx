@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Copy, Plus, Power, PowerOff } from 'lucide-react'
+import { Plus, Power, PowerOff } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { DataTable, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
+import { CopiaTexto, DataTable, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { diasSemana, funcoesEquipe, useEquipe, useTurmas, type FuncaoEquipe, type Pessoa } from '@/lib/mock'
 import { cn } from '@/lib/utils'
 import { useProfile } from '@/journey/profile'
@@ -36,14 +36,7 @@ export default function Equipe() {
       cell: (p) => (
         <div className="flex flex-col">
           <span>{p.nome}</span>
-          <button
-            type="button"
-            title="Copiar e-mail"
-            className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1 text-xs font-normal"
-            onClick={(e) => { e.stopPropagation(); void navigator.clipboard.writeText(p.email).catch(() => {}) }}
-          >
-            {p.email} <Copy className="size-3" />
-          </button>
+          <CopiaTexto texto={p.email} rotulo="Copiar e-mail" className="w-fit text-xs font-normal text-muted-foreground" />
         </div>
       ),
     },

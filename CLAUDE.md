@@ -49,6 +49,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - Dados vindos do catálogo/itinerário são **somente leitura** (etiqueta com cadeado); só o que é do usuário é editável (ex.: valor).
 - Seleção múltipla com "Selecionar todos" + botão **"Replicar valores (N)"** que abre modal; desfazer/avançar quando houver edição em lote.
 - Totais em destaque (`text-2xl`) no rodapé da sheet.
+- **E-mail e telefone** em tabelas: sempre com ícone de copiar (`CopiaTexto` de `@/components/wf`).
 - Números/identificadores em `Badge` com botão de copiar dentro.
 - Telas internas usam `PageHeader` com `breadcrumb` (`[{ label, to }, { label }]`).
 - Buscas de estado/DR: campo com resultados logo abaixo e escolhidos como etiquetas (`EstadosInput`).

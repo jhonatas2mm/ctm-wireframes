@@ -3,7 +3,7 @@ import { FileDown, ReceiptText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DataTable, EmptyState, StatCard, type Column } from '@/components/wf'
+import { CopiaTexto, DataTable, EmptyState, StatCard, type Column } from '@/components/wf'
 import { HOJE, dataBr, useConfirmacoesDesistencia, useTurmas, type UcTurma } from '@/lib/mock'
 import { aguardandoDr, alunosDaTurma, cicloBr, ciclosDe, fatura, janelaUc, matriculaNa, resumoAluno, situacaoNaUc, ucNoCiclo, type AlunoTurma } from '@/lib/alunos-turma'
 import { cn } from '@/lib/utils'
@@ -37,7 +37,7 @@ export function AcompanhamentoAlunos() {
   const colunas: Column<AlunoTurma>[] = [
     {
       header: 'Aluno', value: (a) => a.nome, search: true,
-      cell: (a) => <span className="block min-w-48"><span className="block font-medium">{a.nome}</span><span className="block text-xs text-muted-foreground">{a.email} · {a.telefone}</span></span>,
+      cell: (a) => <span className="block min-w-48"><span className="block font-medium">{a.nome}</span><span className="flex flex-wrap items-center gap-x-3 text-xs text-muted-foreground"><CopiaTexto texto={a.email} rotulo="Copiar e-mail" /><CopiaTexto texto={a.telefone} rotulo="Copiar telefone" /></span></span>,
     },
     { header: 'CPF', value: (a) => a.cpf, search: true, className: 'font-mono text-xs' },
     { header: 'Escola', value: (a) => a.escola, filter: true, cell: (a) => <span><span className="block">{a.escola}</span><span className="text-xs text-muted-foreground">{a.cidade}</span></span> },

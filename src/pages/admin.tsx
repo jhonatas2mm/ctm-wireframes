@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { DataTable, EmptyState, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
+import { CopiaTexto, DataTable, EmptyState, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { profiles } from '@/journey/profiles'
 import { screens } from '@/screens'
 import { useAuditoria, usePermissoes, useUsuarios, type Evento, type PermissaoPerfil, type Usuario } from '@/lib/mock'
@@ -22,7 +22,7 @@ const drLabel = (dr: string) => (dr === 'DN' ? 'DN' : `SENAI-${dr}`)
 // Super admin · Gestão de usuários: lista, novo/editar (sheet lateral) e ativar/inativar com confirmação.
 const colunasUsuarios: Column<Usuario>[] = [
   { header: 'Nome', value: (u) => u.nome, search: true, className: 'font-medium' },
-  { header: 'E-mail', value: (u) => u.email, search: true, className: 'text-muted-foreground' },
+  { header: 'E-mail', value: (u) => u.email, search: true, className: 'text-muted-foreground', cell: (u) => <CopiaTexto texto={u.email} rotulo="Copiar e-mail" /> },
   { header: 'Perfil', value: (u) => u.perfil, filter: true },
   { header: 'DR', value: (u) => drLabel(u.dr), filter: true },
   { header: 'Status', value: (u) => u.status, filter: true, cell: (u) => <StatusUsuarioBadge status={u.status} /> },

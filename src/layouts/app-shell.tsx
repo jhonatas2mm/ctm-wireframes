@@ -67,7 +67,7 @@ export function AppShell() {
     ['', ...(subgrupos[sec] ?? []).map(([n]) => n)]
       .map((n) => ({ n, lista: itens.filter((s) => subgrupoDe(sec, s.path) === n) }))
       .filter((g) => g.lista.length)
-      .map((g) => ({ key: `${sec}-${g.n}`, rotulo: setores.length > 1 ? [sec, g.n].filter(Boolean).join(' · ') : g.n, lista: g.lista })),
+      .map((g) => ({ key: `${sec}-${g.n}`, rotulo: setores.length > 1 ? [sec === 'Administração' ? '' : sec, g.n].filter(Boolean).join(' · ') : g.n, lista: g.lista })),
   )
   const colapsavel = setores.length > 1
   const [abertos, setAbertos] = useState<Record<string, boolean>>({})
@@ -103,11 +103,11 @@ export function AppShell() {
             return (
               <SidebarGroup key={key} className="py-1">
                 {rotulo && (colapsavel ? (
-                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="w-full cursor-pointer justify-between hover:text-sidebar-foreground" />}>
-                    {rotulo}
-                    <ChevronDown className={cn('size-4 transition-transform', !aberto && '-rotate-90')} />
+                  <SidebarGroupLabel render={<button type="button" aria-expanded={aberto} onClick={() => setAbertos({ ...abertos, [key]: !aberto })} className="h-auto min-h-8 w-full cursor-pointer justify-between gap-2 py-1.5 text-left hover:text-sidebar-foreground" />}>
+                    <span className="min-w-0 flex-1 text-left">{rotulo}</span>
+                    <ChevronDown className={cn('size-4 shrink-0 transition-transform', !aberto && '-rotate-90')} />
                   </SidebarGroupLabel>
-                ) : <SidebarGroupLabel>{rotulo}</SidebarGroupLabel>)}
+                ) : <SidebarGroupLabel className="text-left">{rotulo}</SidebarGroupLabel>)}
                 {aberto && (
                   <SidebarGroupContent>
                     <SidebarMenu>

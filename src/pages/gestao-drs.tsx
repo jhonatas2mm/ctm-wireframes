@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { NovaDrSheet } from './nova-dr-sheet'
 import { Badge } from '@/components/ui/badge'
-import { DataTable, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
+import { CopiaTexto, DataTable, PageHeader, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { useDrs, useEditais, type Dr } from '@/lib/mock'
 import { DrSheet } from './dr-sheet'
 import { EditarDrSheet } from './editar-dr-sheet'
@@ -23,8 +23,8 @@ export default function GestaoDrs() {
     { header: 'DR', value: (d) => d.nome, search: true, className: 'font-medium' },
     { header: 'Região', value: (d) => d.regiao, filter: true },
     { header: 'Responsável', value: (d) => d.responsavel, search: true },
-    { header: 'E-mail', value: (d) => d.email, search: true, className: 'text-muted-foreground' },
-    { header: 'Telefone', value: (d) => d.telefone, className: 'text-muted-foreground tabular-nums' },
+    { header: 'E-mail', value: (d) => d.email, search: true, className: 'text-muted-foreground', cell: (d) => <CopiaTexto texto={d.email} rotulo="Copiar e-mail" /> },
+    { header: 'Telefone', value: (d) => d.telefone, className: 'text-muted-foreground tabular-nums', cell: (d) => <CopiaTexto texto={d.telefone} rotulo="Copiar telefone" /> },
     { header: 'Editais', value: (d) => qtdEditais(d.uf), className: 'text-right tabular-nums' },
     { header: 'Status', value: (d) => d.status, filter: true, cell: (d) => <Badge variant={d.status === 'Ativo' ? 'default' : 'outline'}>{d.status}</Badge> },
   ]
