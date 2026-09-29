@@ -20,6 +20,7 @@ import TaaCtm from '@/pages/taa-ctm'
 import Components from '@/pages/components'
 import { Auditoria, Perfis, Usuarios } from '@/pages/admin'
 import Logs from '@/pages/logs'
+import MeuPerfil from '@/pages/meu-perfil'
 import { PainelComercial, PainelDn, PainelSupervisor } from '@/pages/paineis'
 
 // Registro de telas: adicione uma entrada aqui e ela aparece na rota e no menu.
@@ -67,6 +68,7 @@ export const screens: Screen[] = [
   { path: '/oferta', title: 'Gestão da oferta', group: 'Telas', icon: GraduationCap, component: Oferta, profiles: ['CTM: Gestor de oferta', 'CTM: Gestor de contrato', 'CTM: PCP', 'CTM: Pedagógico', 'CTM: Tutor', 'CTM: Monitor', 'Super admin'], data: ['turmas', 'calendario'] },
   { path: '/equipe', title: 'Equipe', group: 'Telas', icon: UsersRound, component: Equipe, profiles: ['CTM: Gestor de oferta', 'CTM: Gestor de contrato', 'CTM: PCP', 'Super admin'], data: ['equipe'] },
   { path: '/equipe/nova', title: 'Nova pessoa', group: 'Telas', icon: UsersRound, component: Equipe, hidden: true, data: ['equipe'] },
+  { path: '/meu-perfil', title: 'Meu perfil', group: 'Telas', icon: UserRound, component: MeuPerfil, hidden: true },
   { path: '/admin/feriados', title: 'Feriados nacionais', group: 'Telas', icon: CalendarDays, component: Calendario, profiles: ['Super admin'], data: ['calendario'] },
   { path: '/admin/feriados/novo', title: 'Novo feriado', group: 'Telas', icon: CalendarDays, component: Calendario, hidden: true, data: ['calendario'] },
   { path: '/tratativas', title: 'Tratativas pedagógicas', group: 'Telas', icon: ClipboardList, component: Tratativas, profiles: ['CTM: Gestor de oferta', 'CTM: Gestor de contrato', 'CTM: Pedagógico', 'CTM: Monitor', 'Super admin'], data: ['tratativas'] },

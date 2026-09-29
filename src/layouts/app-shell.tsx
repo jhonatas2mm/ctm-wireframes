@@ -17,7 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { screens } from '@/screens'
-import { GraduationCap, LogOut } from 'lucide-react'
+import { GraduationCap, LogOut, UserRound } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { BuscaRapida } from '@/components/wf/busca-rapida'
 import { useProfile } from '@/journey/profile'
@@ -124,6 +124,7 @@ export function AppShell() {
           </DropdownMenuTrigger>
           {/* Protótipo: "Sair" volta para a primeira tela do menu. */}
           <DropdownMenuContent side="top" align="start" className="w-52">
+            <DropdownMenuItem render={<Link to="/meu-perfil" />}><UserRound /> Meu perfil</DropdownMenuItem>
             <DropdownMenuItem render={<Link to={noMenu[0]?.path ?? '/'} />}><LogOut /> Sair</DropdownMenuItem>
           </DropdownMenuContent>
           </DropdownMenu>
