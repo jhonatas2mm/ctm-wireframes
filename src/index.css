@@ -341,3 +341,7 @@ html.ds-senai span.bg-secondary:not([data-tone]) { background-color: #F0F1F2; co
 
 /* Casca: botões dos grupos Análise/Design ocupam a largura e com rótulo alinhado à esquerda */
 .casca-grupo [data-slot="button"], .casca-grupo > span.inline-flex { width: 100%; justify-content: flex-start; }
+/* Casca: nada extrapola a coluna lateral (grids e campos encolhem; textos longos com reticências) */
+.casca-painel * { min-width: 0; }
+.casca-painel [data-slot="select-trigger"] { width: 100%; }
+.casca-painel [data-slot="select-trigger"] > :first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

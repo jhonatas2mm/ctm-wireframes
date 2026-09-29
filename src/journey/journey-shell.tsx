@@ -307,7 +307,7 @@ export function JourneyShell() {
             <Button size="icon-sm" className="text-white hover:opacity-90" style={{ background: profileDef.color }} aria-label="Próxima etapa (→)" title="Próxima etapa (→)" disabled={step === journey.steps.length - 1} motivo="Esta é a última etapa" onClick={() => go(jid, step + 1)}><ChevronDown /></Button>
           </aside>
         ) : (
-          <aside className="relative flex shrink-0 flex-col gap-3 overflow-y-auto border-r border-white/10 p-3" style={{ width: largPainel }}>
+          <aside className="casca-painel relative flex shrink-0 flex-col gap-3 overflow-y-auto border-r border-white/10 p-3" style={{ width: largPainel }}>
             {/* Alça de redimensionar (só diminui a partir do padrão) */}
             <div role="separator" aria-label="Redimensionar painel" title="Arraste para diminuir o painel" onPointerDown={arrastarPainel} className="absolute top-0 right-0 z-10 h-full w-1.5 cursor-col-resize hover:bg-white/20" />
             <div className="flex items-center justify-between">

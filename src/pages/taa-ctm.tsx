@@ -85,7 +85,7 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
     const e = editais[0]
     setEditalNum(e?.numero ?? null)
     setNomes((e?.cursos ?? []).filter((c) => aprovadaDe(c) === ctm).slice(0, 2).map((c) => c.nome))
-    setDestinos(['RS', 'SC'].filter((uf) => drs.some((d) => d.uf === uf)))
+    setDestinos(['RS'].filter((uf) => drs.some((d) => d.uf === uf)))
     setInicio('2026-11-01')
     setFim('2027-10-31')
     setValor('40000000')
@@ -146,25 +146,17 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
           </section>
 
           <section className="grid gap-1.5">
-            <Label className="justify-between"><span>DRs destinatárias <Req /></span><span className="text-xs font-normal text-muted-foreground">{destinos.length} TAA(s) serão enviados</span></Label>
-            <div className="flex flex-wrap gap-1.5">
-              {drs.map((d) => {
-                const on = destinos.includes(d.uf)
-                const ja = jaTem(d.uf)
-                return (
-                  <button
-                    key={d.uf}
-                    type="button"
-                    disabled={!!ja}
-                    title={ja ? `Já tem o TAA ${ja.numero} com esta CTM para esses produtos` : undefined}
-                    onClick={() => setDestinos(on ? destinos.filter((x) => x !== d.uf) : [...destinos, d.uf])}
-                    className={cn('rounded-md border px-2.5 py-1 text-sm transition-colors bg-card', on ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted', ja && 'cursor-not-allowed opacity-40')}
-                  >
-                    SENAI-{d.uf}
-                  </button>
-                )
-              })}
-            </div>
+            <Label>DR destinatária <Req /></Label>
+            {/* Um TAA por DR: escolhe uma só (as que já têm TAA desses produtos com esta CTM ficam indisponíveis) */}
+            <Select value={destinos[0] ?? ''} onValueChange={(v) => v && setDestinos([String(v)])}>
+              <SelectTrigger className="w-full"><SelectValue>{(v: string) => (v ? `SENAI-${v}` : 'Escolha a DR')}</SelectValue></SelectTrigger>
+              <SelectContent>
+                {drs.map((d) => {
+                  const ja = jaTem(d.uf)
+                  return <SelectItem key={d.uf} value={d.uf} disabled={!!ja}>SENAI-{d.uf}{ja && <span className="ml-2 text-xs text-muted-foreground">já tem TAA {ja.numero}</span>}</SelectItem>
+                })}
+              </SelectContent>
+            </Select>
             <p className="text-xs text-muted-foreground">TAA é entre SENAI e SENAI. DRs que já têm TAA desses produtos com esta CTM ficam indisponíveis.</p>
           </section>
 
@@ -175,10 +167,10 @@ function NovoTaaCtmSheet({ ctm, open, onOpenChange }: { ctm: string; open: boole
           </div>
         </div>
         <SheetFooter className="flex-row items-center justify-between gap-4 border-t px-6 py-3">
-          <span className="text-sm text-muted-foreground">{destinos.length ? `Nº ${numeros.join(', ')}` : 'Escolha as DRs'}</span>
+          <span className="text-sm text-muted-foreground">{destinos.length ? `Nº ${numeros.join(', ')}` : 'Escolha a DR'}</span>
           <div className="flex gap-2">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button disabled={!destinos.length || !escolhidos.length} motivo={!escolhidos.length ? 'Selecione ao menos um produto' : 'Selecione ao menos uma DR destinatária'} onClick={enviar}><Send /> Salvar e enviar {destinos.length > 1 ? `${destinos.length} TAAs` : 'TAA'}</Button>
+            <Button disabled={!destinos.length || !escolhidos.length} motivo={!escolhidos.length ? 'Selecione ao menos um produto' : 'Escolha a DR destinatária'} onClick={enviar}><Send /> Salvar e enviar TAA</Button>
           </div>
         </SheetFooter>
       </SheetContent>
