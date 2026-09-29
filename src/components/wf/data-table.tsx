@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X, type LucideIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LayoutList, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
 import { Popover } from '@base-ui/react/popover'
 import { useLocation } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -43,6 +43,7 @@ export function DataTable<T extends { id: string }>({
   onRowClick,
   actions,
   filters: extra = [],
+  cards = false,
 }: {
   rows: T[]
   columns: Column<T>[]
@@ -50,6 +51,7 @@ export function DataTable<T extends { id: string }>({
   onRowClick?: (row: T) => void
   actions?: (row: T) => ReactNode // botões na última coluna (use RowAction)
   filters?: FilterDef<T>[]
+  cards?: boolean // habilita a 2ª visualização em cards (uma linha por registro, sem rolagem horizontal); abre em cards
 }) {
   const [q, setQ] = useState('')
   const [filters, setFilters] = useState<Record<string, string>>({})
@@ -93,6 +95,11 @@ export function DataTable<T extends { id: string }>({
   }, [rows, columns, defs, q, filters])
 
   // Paginação: 10 por página; volta à 1ª página quando busca/filtros mudam.
+  // Visualização (tabela ou cards), lembrada por tela no navegador.
+  const chaveVisao = `visao:${pathname.replace(/\/[^/]*\d[^/]*$/, '')}`
+  const [visao, setVisaoState] = useState<'tabela' | 'cards'>(() => { try { return (localStorage.getItem(chaveVisao) as 'tabela' | 'cards') || 'cards' } catch { return 'cards' } })
+  const setVisao = (v: 'tabela' | 'cards') => { setVisaoState(v); try { localStorage.setItem(chaveVisao, v) } catch { /* sem armazenamento */ } }
+  const emCards = cards && visao === 'cards'
   const [pagina, setPagina] = useState(1)
   const porPagina = 10
   const totalPag = Math.max(1, Math.ceil(visible.length / porPagina))
@@ -111,6 +118,16 @@ export function DataTable<T extends { id: string }>({
           <div className="relative w-full sm:w-64">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input className="pl-8" placeholder={searchPlaceholder} value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+        )}
+        {cards && (
+          <div className="order-last ml-auto flex rounded-lg border p-0.5">
+            {([['cards', LayoutList, 'Cards'], ['tabela', Table2, 'Tabela']] as const).map(([v, Icone, rot]) => (
+              <button key={v} type="button" aria-pressed={visao === v} title={`Ver em ${rot.toLowerCase()}`} onClick={() => setVisao(v)}
+                className={cn('flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium text-muted-foreground', visao === v ? 'bg-accent text-accent-foreground' : 'hover:bg-muted')}>
+                <Icone className="size-3.5" /> {rot}
+              </button>
+            ))}
           </div>
         )}
         {all.length > 0 && (
@@ -225,6 +242,29 @@ export function DataTable<T extends { id: string }>({
         <div className="p-6"><EmptyState title="Nenhum resultado" description="Ajuste a busca ou os filtros." /></div>
       ) : (
         <div>
+          {emCards ? (
+            // Cards: 1ª e 2ª colunas no cabeçalho (título e situação), ações à direita; demais colunas em grade de rótulo/valor.
+            <div className="space-y-2 p-3">
+              {daPagina.map((r) => (
+                <div key={r.id} className={cn('rounded-xl border bg-card p-4', onRowClick && 'cursor-pointer hover:border-foreground/20')} onClick={onRowClick && (() => onRowClick(r))}>
+                  <div className="flex items-center gap-3">
+                    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 font-semibold">
+                      {columns.slice(0, 2).map((c) => <span key={c.header}>{c.cell ? c.cell(r) : c.value(r)}</span>)}
+                    </div>
+                    {actions && <div className="flex shrink-0 gap-1" onClick={(e) => e.stopPropagation()}>{actions(r)}</div>}
+                  </div>
+                  <dl className="mt-3 grid grid-cols-4 gap-x-6 gap-y-3">
+                    {columns.slice(2).map((c) => (
+                      <div key={c.header} className="min-w-0">
+                        <dt className="text-xs text-muted-foreground">{c.header}</dt>
+                        <dd className="truncate text-sm">{c.cell ? c.cell(r) : c.value(r)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              ))}
+            </div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -257,6 +297,7 @@ export function DataTable<T extends { id: string }>({
               ))}
             </TableBody>
           </Table>
+          )}
           <Paginador pagina={pag} total={totalPag} de={(pag - 1) * porPagina + 1} ate={Math.min(pag * porPagina, visible.length)} n={visible.length} ir={setPagina} />
         </div>
       )}

@@ -114,6 +114,7 @@ export default function Produtos() {
     <>
       <PageHeader title="Gestão de propostas" actions={<Button onClick={() => navigate('/produtos/novo')}><Plus /> Nova proposta</Button>} />
       <DataTable
+        cards
         rows={todas}
         columns={colunas(taas)}
         searchPlaceholder="Buscar código, contratante ou responsável…"

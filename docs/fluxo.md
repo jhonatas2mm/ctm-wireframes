@@ -322,3 +322,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Padrão reforçado: elementos com borda sobre o fundo (linhas de listas, opções selecionáveis) também com fundo branco, incluindo os que mudam de estado (ex.: escolas na Integração com o AVA).
 - 2026-09-29 — Menu lateral: cartão da DR sem o ícone ao lado.
 - 2026-09-29 — Menu lateral: campo Buscar sem preenchimento (só borda), para ter menos destaque.
+- 2026-09-29 — DataTable ganhou a 2ª visualização em **cards** (prop `cards`): um card por linha, código e status no topo, ações à direita e demais colunas em grade — sem rolagem horizontal. Botão Cards/Tabela na barra da tabela (lembrado por tela). Ativado em Gestão de propostas (abre em cards).
