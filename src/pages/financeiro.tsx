@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetT
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DataTable, PageHeader, Req, RowAction, StatCard, type Column, useConfirmar } from '@/components/wf'
+import { DataTable, EmptyState, PageHeader, Req, RowAction, StatCard, type Column, useConfirmar } from '@/components/wf'
 import {
   HOJE, dataBr, diasSemAcesso, escolasDr, nomeParte, useAjustesCobranca, useAlunosEad, useConfirmacoesDesistencia, useContratos, useContratosCtm, useFormalizacoes, useProdutos, useTurmas, useTurmasEad,
   type AlunoEad, type Formalizacao, type Produto, type SituacaoFormal,
@@ -89,9 +89,11 @@ function CobrancaPropostas() {
 function SituacaoAlunos() {
   const { confirmar, dialogo } = useConfirmar()
   const autor = useAutor()
-  const alunos = useAlunosEad().all
+  const todos = useAlunosEad().all
   const turmas = useTurmasEad().all
   const contratos = useContratosCtm().all
+  // A DR solicitante é escolhida primeiro; só então os alunos aparecem
+  const [params, setParams] = useSearchParams()
   const formal = useFormalizacoes()
   const [aberto, setAberto] = useState<AlunoEad | null>(null)
   const [f, setF] = useState<Omit<Formalizacao, 'id' | 'registradoPor'>>({ situacao: 'Desistente', data: HOJE, aPartirDe: 'Módulo atual' })
@@ -103,10 +105,23 @@ function SituacaoAlunos() {
   const formDe = (a: AlunoEad) => formal.get(a.id)
   const divergente = (a: AlunoEad) => avaDe(a) === 'Suspenso' && !formDe(a)
   const cobrado = (a: AlunoEad) => !formDe(a)
+  const drs = [...new Set(todos.map(drDe))].sort()
+  const dr = drs.find((d) => d === params.get('dr')) ?? ''
+  const alunos = dr ? todos.filter((a) => drDe(a) === dr) : []
+  const filtroDr = (
+    <div className="mb-6 flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
+      <div className="grid gap-1.5">
+        <Label>DR solicitante <Req /></Label>
+        <Select value={dr || null} onValueChange={(v) => setParams((p) => { const n = new URLSearchParams(p); n.set('aba', 'alunos'); n.set('dr', v as string); return n }, { replace: true })}>
+          <SelectTrigger className="w-56"><SelectValue>{() => (dr ? `SENAI-${dr}` : 'Selecione a DR')}</SelectValue></SelectTrigger>
+          <SelectContent>{drs.map((d) => <SelectItem key={d} value={d}>SENAI-{d}</SelectItem>)}</SelectContent>
+        </Select>
+      </div>
+    </div>
+  )
   const colunas: Column<AlunoEad>[] = [
     { header: 'Aluno', value: (a) => a.nome, search: true, className: 'font-medium' },
     { header: 'Turma', value: (a) => turmaDe(a)?.codigo ?? '—', filter: true, className: 'font-mono text-xs' },
-    { header: 'DR', value: (a) => `SENAI-${drDe(a)}`, filter: true },
     { header: 'Escola', value: (a) => escolaDe(a), filter: true },
     { header: 'Situação no AVA', value: (a) => avaDe(a), filter: true, cell: (a) => <Badge variant="outline" className={cn(avaDe(a) === 'Suspenso' && 'border-amber-300 bg-amber-50 text-amber-900')}>{avaDe(a)}</Badge> },
     {
@@ -133,8 +148,15 @@ function SituacaoAlunos() {
   const cobrados = alunos.filter(cobrado)
   const porEscola = Object.entries(cobrados.reduce<Record<string, number>>((r, a) => ({ ...r, [escolaDe(a)]: (r[escolaDe(a)] ?? 0) + 1 }), {})).sort((a, b) => b[1] - a[1])
   const abrir = (a: AlunoEad) => (setF({ situacao: 'Desistente', data: HOJE, aPartirDe: 'Módulo atual' }), setAberto(a))
+  if (!dr) return (
+    <>
+      {filtroDr}
+      <EmptyState title="Selecione a DR solicitante para ver os alunos" />
+    </>
+  )
   return (
     <>
+      {filtroDr}
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} tom="blue" label="Alunos cobrados" value={String(cobrados.length)} hint={`de ${alunos.length} matriculados`} />
         <StatCard icon={FileCheck2} tom="green" label="Saídas formalizadas" value={String(alunos.length - cobrados.length)} />

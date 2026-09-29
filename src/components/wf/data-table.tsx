@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { ChevronLeft, ChevronRight, LayoutList, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LayoutList, Maximize2, Minimize2, Search, SlidersHorizontal, Table2, X, type LucideIcon } from 'lucide-react'
 import { Popover } from '@base-ui/react/popover'
 import { useLocation } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -180,10 +180,18 @@ export function DataTable<T extends { id: string }>({
   const nAtivos = Object.values(filters).filter(Boolean).length
   const active = q !== '' || nAtivos > 0
   const hasSearch = columns.some((c) => c.search)
+  // Tela cheia: a tabela ocupa a tela toda (botão ao lado de Filtros; Esc sai)
+  const [cheia, setCheia] = useState(false)
+  useEffect(() => {
+    if (!cheia) return
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setCheia(false)
+    addEventListener('keydown', esc)
+    return () => removeEventListener('keydown', esc)
+  }, [cheia])
 
   return (
-    <div data-slot="data-table" className="overflow-hidden rounded-lg border bg-card">
-      <div className="flex flex-wrap items-center gap-2 border-b p-3">
+    <div data-slot="data-table" className={cn('overflow-hidden rounded-lg border bg-card', cheia && 'fixed inset-0 z-40 overflow-auto rounded-none border-0')}>
+      <div className={cn('flex flex-wrap items-center gap-2 border-b p-3', cheia && 'sticky top-0 z-20 bg-card')}>
         {hasSearch && (
           <div className="relative w-96">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -289,6 +297,9 @@ export function DataTable<T extends { id: string }>({
             </Popover.Portal>
           </Popover.Root>
         )}
+        <Button variant="outline" aria-pressed={cheia} title={cheia ? 'Sair da tela cheia (Esc)' : 'Ver a tabela em tela cheia'} onClick={() => setCheia(!cheia)}>
+          {cheia ? <><Minimize2 /> Sair da tela cheia</> : <><Maximize2 /> Tela cheia</>}
+        </Button>
         {/* Contador só sem o seletor Cards/Tabela (com ele, ficava solto no meio da barra) */}
         {!cards && (
           <span className="ml-auto text-xs text-muted-foreground tabular-nums">

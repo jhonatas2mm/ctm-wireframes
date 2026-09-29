@@ -283,3 +283,5 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Área central ocupa toda a largura da tela em todo o sistema (sem limite de largura máxima).
 - 2026-09-29 — **Situação do aluno por UC**: matrícula por UC (matriculado numa UC e desistente em outra da mesma turma); confirmação da DR, faturamento e saídas da cobrança por aluno × UC; resumo "Situação nas UCs" no acompanhamento.
 - 2026-09-29 — Acompanhamento dos alunos: filtro de **DR solicitante** antes da turma (limita a lista de turmas).
+- 2026-09-29 — Financeiro › Situação dos alunos: escolhe primeiro a **DR solicitante** (obrigatório); só então aparecem indicadores, escolas e alunos (coluna DR saiu da tabela).
+- 2026-09-29 — Tabelas (todas, via DataTable): botão **Tela cheia** ao lado de Filtros — a tabela ocupa a tela toda; "Sair da tela cheia" ou Esc volta.

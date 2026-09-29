@@ -34,7 +34,7 @@ Vite + React 19 + TS, Tailwind v4, shadcn/ui **base-nova** (Base UI), React Rout
 - **Filtros de DR, estado, curso/produto, turma, modalidade, área tecnológica, nomes e outros com muitos valores** (ou mais de 10 opções) são campo de busca com vários escolhidos em etiquetas (automático no `DataTable`).
 - **Filtros de data** (coluna só com datas): intervalo De/Até com campos de data (automático no `DataTable`).
 - Colunas de **Curso/Produto** nas tabelas: largura limitada e texto quebrando linha (automático no `DataTable`).
-- **Toda tabela usa `DataTable`** com busca, botão **Filtros** (popover com todos os filtros, um por coluna; `filter: true` = topo da lista; prop `filters` para valores múltiplos; fora do botão só a busca e etiquetas dos filtros aplicados) e ações via `RowAction`.
+- **Toda tabela usa `DataTable`** com busca, botão **Filtros** (popover com todos os filtros, um por coluna; `filter: true` = topo da lista; prop `filters` para valores múltiplos; fora do botão só a busca e etiquetas dos filtros aplicados) e ações via `RowAction`; botão **Tela cheia** ao lado de Filtros (automático).
 - **Nomenclatura**: botões de criação "Novo X / Nova X"; botão final "Salvar X". Nunca "Cadastrar/Gerar".
 - **Formulários de criação**: Sheet **de baixo** (`side="bottom"`, `data-[side=bottom]:h-[95vh]`, `rounded-t-xl`), cabeçalho e rodapé fixos, colunas que rolam por dentro; rota própria (`/x/novo`) para virar etapa de jornada.
 - Sem textos de ajuda sob títulos; sem numeração de seções.
