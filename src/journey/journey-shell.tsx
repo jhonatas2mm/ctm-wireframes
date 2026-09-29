@@ -23,6 +23,12 @@ const journeysOf = (_profile: Profile) => journeys
 // Perfil sem jornadas: navega livre a partir da tela inicial.
 const FREE: Journey = { id: '', title: 'Sem jornada', profile: '', steps: [{ title: 'Início', path: '/dashboard' }] }
 
+// Perfis agrupados: "CTM: Supervisor" e "CTM: Comercial" são subperfis do perfil CTM.
+const grupoDe = (nome: string) => (nome.startsWith('CTM: ') ? 'CTM' : nome)
+const subDe = (nome: string) => (nome.startsWith('CTM: ') ? nome.slice(5) : null)
+const grupos = [...new Set(profiles.map((p) => grupoDe(p.name)))]
+const membros = (g: string) => profiles.filter((p) => grupoDe(p.name) === g)
+
 // Estado da casca vive no hash (#p=<perfil>&j=<id>&s=<n>) para o link poder ser compartilhado já numa etapa.
 function readHash() {
   const p = new URLSearchParams(location.hash.slice(1))
@@ -90,7 +96,7 @@ export function JourneyShell() {
   const inicio = (j: Journey) => j.steps[0]?.profile ?? j.profile
   const numero = (id: string) => {
     const j = journeys.find((x) => x.id === id)
-    return j ? journeys.filter((x) => inicio(x) === inicio(j)).indexOf(j) + 1 : 0
+    return j ? journeys.filter((x) => grupoDe(inicio(x)) === grupoDe(inicio(j))).indexOf(j) + 1 : 0
   }
   // Sem jornada: abre a 1ª tela do menu do perfil.
   const inicial = screens.find((x) => !x.hidden && (!x.profiles || x.profiles.includes(pid)))?.path ?? '/dashboard'
@@ -133,7 +139,14 @@ export function JourneyShell() {
   // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
   const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') !== '0' } catch { return true } })
   const setGuia = (v: boolean) => { setGuiaState(v); try { localStorage.setItem('guia-jornada', v ? '1' : '0') } catch { /* sem armazenamento */ } }
-  const trocarPerfil = (p: Profile) => setState({ pid: p, jid: (journeys.find((j) => inicio(j) === p) ?? FREE).id, step: 0 })
+  const trocarPerfil = (p: Profile) => setState({ pid: p, jid: (journeys.find((j) => inicio(j) === p) ?? journeys.find((j) => grupoDe(inicio(j)) === grupoDe(p)) ?? FREE).id, step: 0 })
+  // Subperfil (ex.: CTM: Comercial): abre a jornada equivalente dele (mesmo título), na mesma etapa; senão, a 1ª dele.
+  const trocarSubperfil = (p: Profile) => {
+    const eq = journeys.find((j) => inicio(j) === p && j.title === journey.title)
+    if (eq) setState({ pid: p, jid: eq.id, step: Math.min(step, eq.steps.length - 1) })
+    else trocarPerfil(p)
+  }
+  const grupo = grupoDe(pid)
 
   // Restaurar dados: confirma num diálogo próprio (confirm() nativo pode ser bloqueado), apaga o que o usuário
   // criou/alterou e recarrega a tela do protótipo, desfazendo também o estado da tela (modais abertas etc.).
@@ -332,26 +345,28 @@ export function JourneyShell() {
           <div className="flex shrink-0 items-end gap-2">
             <label className="grid gap-1">
             <span className="pl-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Perfil</span>
-            <Select value={pid} onValueChange={(v) => trocarPerfil(v as Profile)}>
+            <Select value={grupo} onValueChange={(v) => v && trocarPerfil(membros(v as string)[0].name)}>
               <SelectTrigger size="sm" className="w-40 shrink-0">
                 <SelectValue>
                   {(v: string) => (
                     <span className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full" style={{ background: profileOf(v).color }} />
+                      <span className="size-2 rounded-full" style={{ background: membros(v)[0]?.color }} />
                       {v}
                     </span>
                   )}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className="dark min-w-52" alignItemWithTrigger={false} searchable={false}>
-                {profiles.map((pf) => {
-                  const n = visibleJourneys.filter((j) => inicio(j) === pf.name).length
+                {grupos.map((g) => {
+                  const n = visibleJourneys.filter((j) => grupoDe(inicio(j)) === g).length
+                  const subs = membros(g).map((m) => subDe(m.name)).filter(Boolean)
                   return (
-                    <SelectItem key={pf.name} value={pf.name}>
+                    <SelectItem key={g} value={g}>
                       <span className="flex w-full items-center justify-between gap-3">
                         <span className="flex items-center gap-1.5">
-                          <span className="size-2 rounded-full" style={{ background: pf.color }} />
-                          {pf.name}
+                          <span className="size-2 rounded-full" style={{ background: membros(g)[0]?.color }} />
+                          {g}
+                          {subs.length > 0 && <span className="text-[10px] text-muted-foreground">({subs.join(', ')})</span>}
                         </span>
                         <span className="rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{n} {n === 1 ? 'jornada' : 'jornadas'}</span>
                       </span>
@@ -364,17 +379,17 @@ export function JourneyShell() {
             <label className="grid gap-1">
             <span className="pl-0.5 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Jornada</span>
             {(() => {
-              const doPerfil = visibleJourneys.filter((j) => inicio(j) === pid)
+              const doPerfil = visibleJourneys.filter((j) => grupoDe(inicio(j)) === grupo)
               return (
                 <Select value={doPerfil.some((j) => j.id === jid) ? jid : ''} onValueChange={(v) => v && go(v as string, 0)} disabled={!doPerfil.length}>
                   <SelectTrigger size="sm" className="w-52 shrink-0">
-                    <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
+                    <SelectValue>{(v: string) => { const j = journeys.find((x) => x.id === v); return j ? `${numero(j.id)}. ${j.title}${subDe(inicio(j)) ? ` (${subDe(inicio(j))})` : ''}` : doPerfil.length ? 'Escolha a jornada' : 'Sem jornadas' }}</SelectValue>
                   </SelectTrigger>
                   <SelectContent className="dark min-w-72" alignItemWithTrigger={false} searchable={false}>
                     {doPerfil.map((j) => (
                       <SelectItem key={j.id} value={j.id}>
                         <span className="flex w-full items-center justify-between gap-3">
-                          <span>{numero(j.id)}. {j.title}</span>
+                          <span>{numero(j.id)}. {j.title}{subDe(inicio(j)) && <span className="ml-1.5 text-[10px] text-muted-foreground">({subDe(inicio(j))})</span>}</span>
                           <span className="rounded bg-white/10 px-1.5 text-[10px] tabular-nums text-muted-foreground">{j.steps.length} {j.steps.length === 1 ? 'etapa' : 'etapas'}</span>
                         </span>
                       </SelectItem>
@@ -431,17 +446,33 @@ export function JourneyShell() {
                     />
                   }
                 >
-                  <UserRound className="size-3.5" /> {profile} <ChevronDown className="size-3.5 opacity-80" />
+                  <UserRound className="size-3.5" /> {grupoDe(profile)} <ChevronDown className="size-3.5 opacity-80" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="dark w-48">
-                  {profiles.map((p) => (
-                    <DropdownMenuItem key={p.name} onClick={() => trocarPerfil(p.name)}>
-                      <span className="size-2 rounded-full" style={{ background: p.color }} />
-                      {p.name}
+                  {grupos.map((g) => (
+                    <DropdownMenuItem key={g} onClick={() => trocarPerfil(membros(g)[0].name)}>
+                      <span className="size-2 rounded-full" style={{ background: membros(g)[0]?.color }} />
+                      {g}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+              {/* Subperfis do perfil (ex.: CTM → Supervisor, Comercial), enfileirados; clicar seleciona */}
+              {membros(grupoDe(profile)).length > 1 &&
+                membros(grupoDe(profile)).map((m) => {
+                  const ativo = m.name === profile
+                  return (
+                    <button
+                      key={m.name}
+                      type="button"
+                      onClick={() => !ativo && trocarSubperfil(m.name)}
+                      className={cn('rounded-t-md border border-b-0 px-3 py-1 text-sm transition-colors', ativo ? 'font-semibold text-white' : 'hover:brightness-125')}
+                      style={ativo ? { background: m.color, borderColor: m.color } : { borderColor: `${m.color}88`, color: m.color, background: `${m.color}1a` }}
+                    >
+                      {subDe(m.name)}
+                    </button>
+                  )
+                })}
               {/* Navegação entre etapas, com atalhos ← e → */}
               <div className="ml-auto flex items-center gap-2 pb-1.5">
                 {cheia && (
