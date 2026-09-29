@@ -554,6 +554,14 @@ const formalizacoes: Formalizacao[] = [
   { id: 'a25', situacao: 'Trancado', data: '2026-09-19', aPartirDe: 'Módulo atual', registradoPor: 'SENAI-MG' },
 ]
 export const useFormalizacoes = () => useCollection<Formalizacao>('formalizacoes-v1', formalizacoes)
+
+// Relatório de cobrança (CTM → DR solicitante), por proposta e ciclo financeiro (mês). Ajuste = linha extra do ciclo,
+// ex.: aluno integrado depois da cobrança anterior. valorHora vem do curso da proposta.
+export type AjusteCobranca = { id: string; propostaId: string; ciclo: string; uc: string; turma: string; ch: number; alunos: number; valorHora: number; observacao: string }
+const ajustesCobranca: AjusteCobranca[] = [
+  { id: 'aj1', propostaId: '2', ciclo: '2026-11', uc: 'Leitura de desenho técnico', turma: 'SENAI Maracanã', ch: 20, alunos: 1, valorHora: 8, observacao: 'Aluna Ana Clara Sousa integrada após a cobrança de 10/2026.' },
+]
+export const useAjustesCobranca = () => useCollection<AjusteCobranca>('ajustes-cobranca-v1', ajustesCobranca)
 export const escolasDr: Record<string, string[]> = { MG: ['SENAI CETEL', 'SENAI Contagem', 'SENAI Betim'], SP: ['SENAI Anchieta', 'SENAI Campinas'], BA: ['SENAI Dendezeiros'] }
 
 // Super admin: usuários do sistema, permissões por perfil e trilha de auditoria.
