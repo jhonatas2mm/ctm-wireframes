@@ -63,7 +63,7 @@ export const journeys: Journey[] = [
     profile: 'Super admin',
     steps: [
       { title: 'Gestão de DRs', path: '/drs', focus: 'text=Novo DR credenciado', profile: 'Super admin', note: 'Super admin acessa todas as telas do sistema para acompanhar e corrigir dados.' },
-      { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo edital', profile: 'Super admin', note: 'Editais de todas as áreas: vigência, cursos, valores e a CTM aprovada de cada produto.' },
+      { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo resultado', profile: 'Super admin', note: 'Editais de todas as áreas: vigência, cursos, valores e a CTM aprovada de cada produto.' },
       { title: 'Gestão de propostas', path: '/produtos', focus: 'text=Nova proposta', profile: 'Super admin', note: 'Propostas de todas as CTMs, com TAA vinculado, status e versões.' },
       { title: 'Gestão da oferta', path: '/oferta', focus: 'text=Nova oferta', profile: 'Super admin', note: 'Turmas de todas as propostas aprovadas, com cronograma e status.' },
     ],
@@ -93,9 +93,10 @@ export const journeys: Journey[] = [
     title: 'Criação de edital',
     profile: 'DN',
     steps: [
-      { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo edital', profile: 'DN', note: 'DN clica em “Novo edital”.' },
-      { title: 'Novo edital', path: '/editais/novo', profile: 'DN', note: 'Cadastra o resultado do edital de credenciamento: vigência e, por área tecnológica, o DR credenciado e o valor (R$ hora/estudante). Só isso.' },
-      { title: 'Edital criado', path: '/editais/1/sucesso', profile: 'DN', note: 'Tela de sucesso: resumo do edital salvo, com opção de ver o edital ou voltar à gestão.' },
+      { title: 'Gestão de Editais', path: '/editais', focus: 'text=Novo resultado', profile: 'DN', note: 'O DN cadastra o resultado do edital de credenciamento: “Novo resultado”.' },
+      { title: 'Novo resultado', path: '/editais/novo', profile: 'DN', note: 'Igual ao resultado oficial: por área tecnológica, o DR credenciado e o valor em cada modalidade (EaD Assíncrono R$ hora/estudante; EaD Síncrono (Aprendizagem) R$ hora/turma até 50; EaD Personalizado R$ hora/estudante).' },
+      { title: 'Resultado salvo', path: '/editais/7/sucesso', profile: 'DN', note: 'Confirmação do cadastro, com acesso ao resultado.' },
+      { title: 'Resultado do edital', path: '/editais/7/resultado', profile: 'DN', note: 'Visão igual ao documento: resumo por CTM (GO e SC) e tabelas por modalidade (EaD Assíncrono; EaD Síncrono (Aprendizagem) / EaD Personalizado).' },
       { title: 'Gestão de Portfólio', path: '/gestao-produtos', focus: 'text=Novo curso', profile: 'CTM: Coordenador EAD', note: 'Coordenador EAD clica em “Novo curso”.' },
       { title: 'Novo curso', path: '/gestao-produtos/novo', profile: 'CTM: Coordenador EAD', note: 'Escolhe um edital (só cursos em que o DR é a CTM aprovada), marca os cursos e cadastra módulos e UCs. Salvar envia a solicitação ao DN: o curso fica Aguardando até entrar no portfólio.' },
       { title: 'Curso criado', path: '/gestao-produtos', focus: 'row=Soldador', profile: 'CTM: Coordenador EAD', note: 'Ao salvar, o curso entra no portfólio com módulos, unidades e carga horária (ex.: Soldador) e fica disponível para as propostas.' },

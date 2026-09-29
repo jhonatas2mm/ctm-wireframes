@@ -14,7 +14,7 @@ export function EditalSucesso({ edital, onClose, onVer }: { edital: Edital | nul
           <div className="grid justify-items-center gap-4 py-2 text-center">
             <CheckCircle2 className="size-14 text-emerald-600" />
             <div className="grid gap-1">
-              <DialogTitle className="text-xl">Edital criado com sucesso</DialogTitle>
+              <DialogTitle className="text-xl">Resultado do edital salvo</DialogTitle>
               <DialogDescription>O edital já está disponível para os DRs credenciados.</DialogDescription>
             </div>
             <Badge variant="secondary" className="font-mono text-sm">{edital.numero}</Badge>
@@ -31,7 +31,7 @@ export function EditalSucesso({ edital, onClose, onVer }: { edital: Edital | nul
               ))}
             </dl>
             <div className="flex w-full gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => onVer(edital)}><Eye /> Ver edital</Button>
+              <Button variant="outline" className="flex-1" onClick={() => onVer(edital)}><Eye /> Ver resultado</Button>
               <Button variant="outline" className="flex-1" onClick={onClose}>Voltar para Gestão de Editais</Button>
             </div>
           </div>

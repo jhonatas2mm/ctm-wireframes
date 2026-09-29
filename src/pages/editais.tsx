@@ -1,4 +1,4 @@
-import { Contact, Eye, Plus, Trash2 } from 'lucide-react'
+import { Contact, Plus, Table2, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -9,13 +9,13 @@ import { DrContatosSheet } from './dr-contatos-sheet'
 import { EditalDetalhes } from './edital-detalhes'
 import { EditalSucesso } from './edital-sucesso'
 
-const brl = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 // Edital = cadastro do resultado: só área tecnológica, DR credenciado e valor (R$ hora/estudante).
 const colunas: Column<Edital>[] = [
   { header: 'Nº', value: (e) => e.numero, search: true, className: 'font-mono text-xs' },
   { header: 'Vigência', value: (e) => `${e.vigenciaInicio} a ${e.vigenciaFim}`, className: 'tabular-nums' },
-  { header: 'Áreas tecnológicas', value: (e) => e.areas.map((a) => a.area).join(', '), search: true, cell: (e) => <span className="block max-w-96 text-sm">{e.areas.map((a) => `${a.area} (SENAI-${a.dr} · ${brl(a.valorHora)}/h)`).join(' · ')}</span> },
+  { header: 'Áreas tecnológicas', value: (e) => e.areas.length, search: true, className: 'text-right tabular-nums' },
+  { header: 'Modalidades', value: (e) => [e.areas.some((a) => a.dr) && 'EaD Assíncrono', e.areas.some((a) => a.sincrono) && 'EaD Síncrono', e.areas.some((a) => a.personalizado) && 'EaD Personalizado'].filter(Boolean).join(', ') },
   { header: 'DRs credenciados', value: (e) => e.drs.map((uf) => `SENAI-${uf}`).join(', '), search: true },
 ]
 
@@ -38,7 +38,7 @@ export default function Editais() {
         title="Gestão de Editais"
         actions={
           <Button onClick={() => navigate('/editais/novo')}>
-            <Plus /> Novo edital
+            <Plus /> Novo resultado
           </Button>
         }
       />
@@ -50,7 +50,7 @@ export default function Editais() {
         actions={(e) => (
           <>
             <RowAction label="Contatos dos DRs" icon={Contact} onClick={() => setContatos(e)} />
-            <RowAction label="Visualizar" icon={Eye} onClick={() => setDetalhes(e)} />
+            <RowAction label="Ver resultado" icon={Table2} onClick={() => navigate(`/editais/${e.id}/resultado`)} />
             <RowAction
               label="Excluir"
               icon={Trash2}
@@ -62,7 +62,7 @@ export default function Editais() {
       <DrContatosSheet ufs={contatos?.drs ?? null} titulo={contatos ? `Contatos dos DRs · ${contatos.numero}` : undefined} onClose={() => setContatos(null)} />
       <EditalDetalhes edital={detalhes} onClose={() => setDetalhes(null)} />
       <NovoEditalSheet open={pathname === '/editais/novo'} onOpenChange={(v) => !v && navigate('/editais')} onSaved={(id) => navigate(`/editais/${id}/sucesso`)} />
-      <EditalSucesso edital={all.find((e) => e.id === sucessoId) ?? null} onClose={() => navigate('/editais')} onVer={(e) => (navigate('/editais'), setDetalhes(e))} />
+      <EditalSucesso edital={all.find((e) => e.id === sucessoId) ?? null} onClose={() => navigate('/editais')} onVer={(e) => navigate(`/editais/${e.id}/resultado`)} />
       {dialogo}
     </>
   )

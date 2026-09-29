@@ -4,6 +4,7 @@ import { School, UserX } from 'lucide-react'
 import { History, ShieldCheck, Users, Boxes, GraduationCap, Building2, FileSignature, FileSpreadsheet, Gauge, LayoutDashboard, UserRound, Video, Package, Palette, ScrollText, CalendarDays, ClipboardList, Wallet, UsersRound, BookOpenCheck, ClipboardCheck, Send } from 'lucide-react'
 import Dashboard from '@/pages/dashboard'
 import Editais from '@/pages/editais'
+import EditalResultado from '@/pages/edital-resultado'
 import Produtos from '@/pages/produtos'
 import GestaoProposta from '@/pages/gestao-proposta'
 import GestaoProdutos from '@/pages/gestao-produtos'
@@ -54,8 +55,9 @@ export const screens: Screen[] = [
   { path: '/dashboard/novo-ta', title: 'Novo TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, hidden: true, data: ['contratos'] },
   { path: '/dashboard/:id', title: 'Detalhes do TAA', group: 'Telas', icon: LayoutDashboard, component: Dashboard, hidden: true, data: ['contratos'] },
   { path: '/editais', title: 'Gestão de Editais', group: 'Telas', icon: FileSpreadsheet, component: Editais, profiles: ['DN', 'Super admin'], data: ['editais'] },
-  { path: '/editais/novo', title: 'Novo edital', group: 'Telas', icon: FileSpreadsheet, component: Editais, hidden: true, data: ['editais'] },
+  { path: '/editais/novo', title: 'Novo resultado do edital', group: 'Telas', icon: FileSpreadsheet, component: Editais, hidden: true, data: ['editais'] },
   { path: '/editais/:id/sucesso', title: 'Edital criado', group: 'Telas', icon: FileSpreadsheet, component: Editais, hidden: true, data: ['editais'] },
+  { path: '/editais/:id/resultado', title: 'Resultado do edital', group: 'Telas', icon: FileSpreadsheet, component: EditalResultado, hidden: true, data: ['editais'] },
   { path: '/painel-ctm', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelSupervisor, profiles: ['CTM: Coordenador EAD'], data: ['produtos', 'turmas', 'taas-dr'] },
   { path: '/painel-comercial', title: 'Painel', group: 'Telas', icon: Gauge, component: PainelComercial, profiles: ['CTM: Gestor EAD'], data: ['produtos', 'cursos-dr'] },
   { path: '/portfolio/aprovacoes', title: 'Aprovação de portfólio', group: 'Telas', icon: ClipboardCheck, component: Portfolio, profiles: ['DN', 'Super admin'], data: ['cursos-dr'] },

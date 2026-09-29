@@ -46,7 +46,10 @@ export const useCursos = () => useCollection<Curso>('cursos-v2', cursos)
 // Editais (DN) = cadastro do RESULTADO do edital de credenciamento: só ÁREA TECNOLÓGICA, DR CREDENCIADO e VALOR
 // (R$ hora/estudante). Um DR por área (a CTM daquela área). Sem cursos, valor total ou CH no edital. Os cursos do edital vêm do catálogo pela área:
 // valor por estudante = valor/hora da área × CH do curso. Dados FICTÍCIOS.
-export type AreaEdital = { area: string; valorHora: number; dr: string } // dr = UF do DR credenciado na área (a CTM); valorHora = R$ hora/estudante
+// Por área: EaD Assíncrono (padrão; dr + valorHora em R$ hora/estudante; dr '' = não ofertada) e, opcionais, EaD Síncrono
+// (Aprendizagem) (R$ hora/turma, até 50 estudantes) e EaD Personalizado (R$ hora/estudante). Um DR por área em cada modalidade.
+export type OfertaEdital = { dr: string; valor: number }
+export type AreaEdital = { area: string; valorHora: number; dr: string; sincrono?: OfertaEdital; personalizado?: OfertaEdital }
 // Curso do edital (derivado): curso do catálogo numa área do edital; drs/aprovada = o DR vinculado à área.
 export type CursoEdital = { nome: string; area: string; modalidade: string; cargaHoraria: number; valor: number; valorHora: number; drs: string[]; aprovada?: string }
 export const aprovadaDe = (c: Pick<CursoEdital, 'drs' | 'aprovada'>) => c.aprovada ?? c.drs[0]
@@ -65,9 +68,10 @@ export const areasTecnologicas = ['Comercial', 'Comunicação Midiática', 'Cons
 export const cursosDasAreas = (areas: AreaEdital[]): CursoEdital[] =>
   cursos.flatMap((c) => {
     const a = areas.find((x) => x.area === c.area)
-    return a ? [{ nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: c.cargaHoraria, valorHora: a.valorHora, valor: Math.round(a.valorHora * c.cargaHoraria * 100) / 100, drs: [a.dr], aprovada: a.dr }] : []
+    const base = a && (a.dr ? { dr: a.dr, valor: a.valorHora } : a.personalizado)
+    return a && base ? [{ nome: c.nome, area: c.area, modalidade: c.modalidade, cargaHoraria: c.cargaHoraria, valorHora: base.valor, valor: Math.round(base.valor * c.cargaHoraria * 100) / 100, drs: [base.dr], aprovada: base.dr }] : []
   })
-const completar = <T extends { areas: AreaEdital[] }>(e: T) => ({ ...e, cursos: cursosDasAreas(e.areas), drs: [...new Set(e.areas.map((a) => a.dr))] })
+const completar = <T extends { areas: AreaEdital[] }>(e: T) => ({ ...e, cursos: cursosDasAreas(e.areas), drs: [...new Set(e.areas.flatMap((a) => [a.dr, a.sincrono?.dr, a.personalizado?.dr]).filter((x): x is string => !!x))] })
 const edital = (id: string, numero: string, areas: AreaEdital[], vigencia: [string, string]): Edital =>
   completar({ id, numero, areas, vigenciaInicio: vigencia[0], vigenciaFim: vigencia[1] })
 const ar = (area: string, valorHora: number, dr: string): AreaEdital => ({ area, valorHora, dr })
@@ -79,17 +83,17 @@ const editais: Edital[] = [
   edital('4', 'ED-004/2026', [ar('Automação', 9, 'PR')], ['01/08/2026', '31/12/2026']),
   edital('5', 'ED-005/2026', [ar('Tecnologia da Informação', 8.5, 'MG')], ['01/01/2026', '31/12/2026']),
   edital('6', 'ED-006/2026', [ar('Logística', 8, 'BA')], ['15/09/2026', '14/09/2027']),
-  // Exemplo no formato do resultado do edital de credenciamento CTM 2026-2028 (EaD Assíncrono): área, DR credenciado e valor
+  // Exemplo igual ao resultado do edital de credenciamento CTM 2026-2028: por área, DR credenciado e valor em cada modalidade
   edital('7', 'ED-007/2026', [
     ...['Comercial', 'Comunicação Midiática', 'Construção de Obras', 'Design', 'Gestão e Promoção da Saúde e Bem-Estar', 'Gestão e Segurança', 'Infraestrutura de Informação e Comunicação', 'Manutenção e Operação', 'Mineração e Extração', 'Operações de Transporte', 'Operações Financeiras', 'Produção Alimentícia', 'Proteção e Reabilitação de Ecossistemas', 'Química', 'Têxtil e Vestuário'].map((a) => ar(a, 0.55, 'GO')),
     ...['Desenvolvimento de Sistemas', 'Eletrônica e Automação', 'Gerencial', 'Manufatura', 'Materiais', 'Metalmecânica', 'Segurança'].map((a) => ar(a, 0.65, 'SC')),
     ar('Sistemas de Energia', 0.52, 'SC'),
-  ], ['01/01/2026', '31/12/2028']),
+  ].map((a) => ({ ...a, sincrono: { dr: 'GO', valor: 27.5 }, personalizado: { dr: 'GO', valor: 0.88 } })), ['01/01/2026', '31/12/2028']),
 ]
 
 // Os cursos e DRs do edital são sempre derivados das áreas (também nos editais criados na tela).
 export const useEditais = () => {
-  const db = useCollection<Edital>('editais-v11', editais)
+  const db = useCollection<Edital>('editais-v12', editais)
   const all = useMemo(() => db.all.map(completar), [db.all])
   return { ...db, all, get: (id?: string) => all.find((e) => e.id === id) }
 }
