@@ -137,7 +137,8 @@ export function JourneyShell() {
   const [painelMin, setPainelMinState] = useState(() => { try { return localStorage.getItem('painel-jornada-min') === '1' } catch { return false } })
   const setPainelMin = (v: boolean) => { setPainelMinState(v); try { localStorage.setItem('painel-jornada-min', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   // Guia da jornada (overlay com foco + explicação), lembrado no navegador.
-  const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') !== '0' } catch { return true } })
+  // Desligado por padrão; só liga quando a pessoa clica (lembrado no navegador).
+  const [guia, setGuiaState] = useState(() => { try { return localStorage.getItem('guia-jornada') === '1' } catch { return false } })
   const setGuia = (v: boolean) => { setGuiaState(v); try { localStorage.setItem('guia-jornada', v ? '1' : '0') } catch { /* sem armazenamento */ } }
   const trocarPerfil = (p: Profile) => setState({ pid: p, jid: (journeys.find((j) => inicio(j) === p) ?? journeys.find((j) => grupoDe(inicio(j)) === grupoDe(p)) ?? FREE).id, step: 0 })
   // Subperfil (ex.: CTM: Comercial): abre a jornada equivalente dele (mesmo título), na mesma etapa; senão, a 1ª dele.
