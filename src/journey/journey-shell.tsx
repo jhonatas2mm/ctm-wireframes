@@ -407,7 +407,7 @@ export function JourneyShell() {
             </label>
           </div>
           {/* Só as etapas rolam na horizontal */}
-          <div className="min-w-0 flex-1 overflow-x-auto rounded-md border bg-background px-2 py-1.5">
+          <div className="min-w-0 flex-1 overflow-x-auto rounded-md bg-background px-2 py-1.5">
             <div className="flex w-max items-center gap-2 py-0.5">
               {journey.steps.map((st, i) => {
                 const atual = i === step
