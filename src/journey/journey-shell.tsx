@@ -280,8 +280,8 @@ export function JourneyShell() {
         {!cheia && (<>
         <header className="flex flex-wrap items-center gap-3 px-4 py-2">
           {/* Ferramentas em dois grupos: Análise (processo e requisitos) e Design (a interface do protótipo) */}
-          <div className="ml-auto flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
+          <div className="flex w-full items-center gap-2">
+            <div className="flex flex-1 items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
               <span className="mr-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Análise</span>
               {/* Mapa do processo (BPMN): painel da casca, não é tela do protótipo */}
               <Button size="sm" variant={mapa ? 'secondary' : 'ghost'} onClick={() => setMapa(!mapa)}>
@@ -302,7 +302,7 @@ export function JourneyShell() {
                 <MessageSquareText /> Anotações <span className="tabular-nums text-muted-foreground">{screenPins.length}</span>
               </Button>
             </div>
-            <div className="flex items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
+            <div className="flex flex-1 items-center gap-0.5 rounded-lg border bg-card/60 py-0.5 pr-0.5 pl-2">
               <span className="mr-1 text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Design</span>
               <Button size="sm" variant={guia ? 'secondary' : 'ghost'} title="Destacar o foco e explicar cada etapa ao navegar pelo fluxograma" onClick={() => setGuia(!guia)}>
                 <Sparkles /> Guia {guia ? 'ligado' : 'desligado'}
