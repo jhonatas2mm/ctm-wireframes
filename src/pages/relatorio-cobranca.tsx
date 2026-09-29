@@ -43,7 +43,7 @@ export default function RelatorioCobranca() {
   const pedidas = (params.get('propostas') ?? '').split(',').filter(Boolean)
   const sel = p ? [p, ...irmas.filter((x) => x.id !== p.id && pedidas.includes(x.id))] : []
   const numeros = sel.map((x) => x.numero).join(' + ')
-  const crumbs = [{ label: 'Financeiro', to: '/financeiro?aba=cobranca' }, { label: p ? `Relatório de cobrança · ${numeros}` : 'Relatório de cobrança' }]
+  const crumbs = [{ label: 'Financeiro', to: '/financeiro' }, { label: 'Relatórios de cobrança', to: '/financeiro?aba=cobranca' }, { label: p ? numeros : 'Relatório de cobrança' }]
   if (!p) return (<><PageHeader title="Relatório de cobrança" breadcrumb={crumbs} /><EmptyState title="Proposta não encontrada" /></>)
   const turmas = sel.flatMap((x) => turmasDe(x.id))
   const mudar = (k: string, v: string) => setParams((q) => { const n = new URLSearchParams(q); if (v) n.set(k, v); else n.delete(k); return n }, { replace: true })
