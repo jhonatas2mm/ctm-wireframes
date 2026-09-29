@@ -46,9 +46,10 @@ const ultimoAcesso = (a: AlunoEad) => {
 
 function Barra({ valor, esperado }: { valor: number; esperado?: number }) {
   return (
-    <div className="flex w-36 items-center gap-2">
-      <Progress value={valor} className="flex-1" />
-      <span className="w-16 text-right text-xs tabular-nums text-muted-foreground">{valor}%{esperado !== undefined && ` / ${esperado}%`}</span>
+    <div className="flex items-center gap-2">
+      <Progress value={valor} className="w-24 shrink-0" />
+      {/* número colado à barra (alinhado à esquerda) */}
+      <span className="text-xs whitespace-nowrap tabular-nums text-muted-foreground">{valor}%{esperado !== undefined && ` / ${esperado}%`}</span>
     </div>
   )
 }

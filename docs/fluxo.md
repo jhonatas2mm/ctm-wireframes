@@ -343,3 +343,4 @@ Três perfis principais — **DN**, **CTM** e **DR solicitante** — mais o **Su
 - 2026-09-29 — Selects (todos): a lista abre abaixo do campo com altura de até 24rem (ou o espaço da tela), só o necessário quando há poucas opções — antes abria sobre o campo e ficava curta.
 - 2026-09-29 — Badges de identificador (proposta, turma, TAA, versão etc.) em cor neutra (cinza), não mais azul.
 - 2026-09-29 — **Editais só do DN**: a CTM não faz gestão de editais, apenas participa (oferece o custo, fora do sistema) e consulta o edital em modo leitura. Regra explícita no fluxo e no mapa do processo; telas já restritas ao DN.
+- 2026-09-29 — Tabelas com barra de execução: o percentual fica logo ao lado da barra.
