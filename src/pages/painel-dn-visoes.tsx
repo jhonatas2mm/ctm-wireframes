@@ -1,14 +1,15 @@
-import { Fragment, useState } from 'react'
-import { BookOpen, Building2, FileDown, GraduationCap, School, Users } from 'lucide-react'
+import { useState } from 'react'
+import { BookOpen, Building2, Eye, FileDown, GraduationCap, School, Users } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { DataTable, StatCard, type Column } from '@/components/wf'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { DataTable, RowAction, StatCard, type Column } from '@/components/wf'
+import { BarList } from '@/components/wf/dash'
 import { anosDisponiveis, ctms, semestreDe, semestresDisponiveis, turmasMatricula, type TurmaMatricula } from '@/lib/matriculas'
-import { cn } from '@/lib/utils'
 
 // Visões do Painel do DN sobre as matrículas nas CTMs: operacional (CTMs e DRs atendidos; estudantes por DR, turma, escola e
 // área tecnológica) e relatório (DR × modalidade × CTM). Filtro por ano, semestre ou período (início e fim).
@@ -27,10 +28,10 @@ export function filtrar(f: FiltroPeriodo) {
       : t.inicio.startsWith(f.periodo)))
 }
 
-export function FiltrosPeriodo({ f, onChange }: { f: FiltroPeriodo; onChange: (f: FiltroPeriodo) => void }) {
+export function FiltrosPeriodo({ f, onChange, compacto }: { f: FiltroPeriodo; onChange: (f: FiltroPeriodo) => void; compacto?: boolean }) {
   const rotulo = (v: string) => (v === 'todos' ? 'Todo o período' : v === 'personalizado' ? 'Período personalizado' : v.includes('/') ? `${v.replace('/', ' · ')}º semestre` : `Ano ${v}`)
   return (
-    <div className="flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4">
+    <div className={compacto ? 'flex items-center gap-2 [&_label]:sr-only' : 'flex flex-wrap items-end gap-4 rounded-[1.25rem] border bg-card p-4'}>
       <div className="grid gap-1.5">
         <Label>Período</Label>
         <Select value={f.periodo} onValueChange={(v) => onChange({ ...f, periodo: v as string })}>
@@ -70,7 +71,7 @@ const agrupar = (ts: TurmaMatricula[], chave: (t: TurmaMatricula) => string, sub
     .map((g) => ({ id: chave(g[0]), nome: chave(g[0]), sub: sub?.(g[0]), ctms: [...new Set(g.map((t) => t.ctm))], turmas: g.length, escolas: new Set(g.map((t) => t.escola)).size, estudantes: soma(g) }))
     .sort((a, b) => b.estudantes - a.estudantes)
 
-export function VisaoOperacional({ f, onChange }: { f: FiltroPeriodo; onChange: (f: FiltroPeriodo) => void }) {
+export function VisaoOperacional({ f }: { f: FiltroPeriodo; onChange?: (f: FiltroPeriodo) => void }) {
   const [grupo, setGrupo] = useState<Grupo>('dr')
   const ts = filtrar(f)
   const porCtm = Object.keys(ctms).map((uf) => {
@@ -92,9 +93,12 @@ export function VisaoOperacional({ f, onChange }: { f: FiltroPeriodo; onChange: 
     area: { rotulo: 'Área tecnológica', linhas: agrupar(ts, (t) => t.area), colunas: [{ header: 'Área tecnológica', value: (l) => l.nome, search: true, className: 'font-medium' }, { header: 'Escolas', value: (l) => l.escolas, className: 'text-right tabular-nums' }, ...colunasBase] },
   }
   const atual = linhas[grupo]
+  // Detalhe (side sheet): turmas da linha escolhida
+  const chaveDe: Record<Grupo, (t: TurmaMatricula) => string> = { dr: (t) => `SENAI-${t.dr}`, turma: (t) => t.id, escola: (t) => `${t.escola} · SENAI-${t.dr}`, area: (t) => t.area }
+  const [aberta, setAberta] = useState<Linha | null>(null)
+  const turmasDe = (l: Linha) => ts.filter((t) => chaveDe[grupo](t) === l.id)
   return (
     <div className="space-y-6">
-      <FiltrosPeriodo f={f} onChange={onChange} />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} tom="blue" label="Estudantes" value={n(soma(ts))} />
         <StatCard icon={GraduationCap} tom="green" label="Turmas" value={n(ts.length)} />
@@ -104,17 +108,16 @@ export function VisaoOperacional({ f, onChange }: { f: FiltroPeriodo; onChange: 
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">CTMs e os DRs que cada uma atende</h2>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {porCtm.map((c) => (
-            <div key={c.uf} className="rounded-[1.25rem] border bg-card p-4">
-              <div className="flex items-baseline justify-between gap-2">
-                <p className="text-lg font-semibold">CTM {ctms[c.uf]}</p>
-                <p className="text-sm text-muted-foreground"><span className="text-xl font-semibold text-foreground tabular-nums">{n(c.estudantes)}</span> estudantes · {c.turmas} turmas</p>
+            <div key={c.uf} className="rounded-[1.25rem] border bg-card p-5">
+              <p className="text-sm font-semibold">CTM {ctms[c.uf]}</p>
+              <div className="mt-1 mb-4 flex items-baseline gap-3">
+                <span className="text-3xl font-bold tabular-nums">{n(c.estudantes)}</span>
+                <span className="text-sm text-muted-foreground">estudantes · {c.turmas} turmas · {c.drs.length} DR(s)</span>
               </div>
-              <p className="mt-2 text-xs text-muted-foreground">{c.drs.length} DR(s) atendido(s)</p>
-              <div className="mt-1 flex flex-wrap gap-1.5">
-                {c.drs.map((d) => <Badge key={d.id} variant="outline" className="gap-1">{d.nome} <span className="font-semibold tabular-nums">{n(d.estudantes)}</span></Badge>)}
-              </div>
+              <BarList itens={c.drs.sort((a, b) => b.estudantes - a.estudantes).slice(0, 5).map((d) => ({ rotulo: d.nome, valor: d.estudantes, tom: 'blue' as const }))} formato={n} />
+              {c.drs.length > 5 && <p className="mt-3 text-xs text-muted-foreground">+ {c.drs.length - 5} DR(s) · {n(c.drs.slice(5).reduce((x, d) => x + d.estudantes, 0))} estudantes</p>}
             </div>
           ))}
           {!porCtm.length && <p className="text-sm text-muted-foreground">Nenhuma turma no período.</p>}
@@ -122,22 +125,43 @@ export function VisaoOperacional({ f, onChange }: { f: FiltroPeriodo; onChange: 
       </section>
 
       <section className="space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">Estudantes por {atual.rotulo.toLowerCase()}</h2>
-          <div className="inline-flex rounded-lg border bg-card p-0.5">
-            {(Object.keys(linhas) as Grupo[]).map((g) => (
-              <button key={g} type="button" onClick={() => setGrupo(g)} className={cn('rounded-md px-3 py-1 text-sm', grupo === g ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground')}>{linhas[g].rotulo}</button>
-            ))}
-          </div>
-        </div>
-        <DataTable key={grupo} rows={atual.linhas} columns={atual.colunas} searchPlaceholder={`Buscar ${atual.rotulo.toLowerCase()}…`} />
+        <h2 className="text-lg font-semibold">Estudantes por {grupo === 'dr' ? 'DR' : atual.rotulo.toLowerCase()}</h2>
+        <Tabs value={grupo} onValueChange={(v) => setGrupo(v as Grupo)}>
+          <TabsList variant="line">
+            {(Object.keys(linhas) as Grupo[]).map((g) => <TabsTrigger key={g} value={g}>{linhas[g].rotulo}</TabsTrigger>)}
+          </TabsList>
+        </Tabs>
+        <DataTable key={grupo} rows={atual.linhas} columns={atual.colunas} searchPlaceholder={`Buscar ${atual.rotulo.toLowerCase()}…`} onRowClick={setAberta}
+          actions={(l) => <RowAction label="Visualizar turmas" icon={Eye} onClick={() => setAberta(l)} />} />
+        <Sheet open={!!aberta} onOpenChange={(v) => !v && setAberta(null)}>
+          <SheetContent className="w-full gap-0 p-0 sm:max-w-xl">
+            <SheetHeader className="border-b px-6 py-4">
+              <SheetTitle className="text-lg">{aberta?.nome}</SheetTitle>
+              <SheetDescription>{aberta && `${n(aberta.estudantes)} estudantes · ${aberta.turmas} turma(s) · ${aberta.escolas} escola(s)`}</SheetDescription>
+            </SheetHeader>
+            <div className="min-h-0 flex-1 overflow-y-auto p-6">
+              <ul className="divide-y rounded-xl border bg-card">
+                {aberta && turmasDe(aberta).sort((a, b) => b.matriculas - a.matriculas).map((t) => (
+                  <li key={t.id} className="flex items-center gap-3 px-4 py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-mono text-xs font-semibold">{t.codigo}</p>
+                      <p className="truncate text-sm">{t.curso}</p>
+                      <p className="text-xs text-muted-foreground">{t.modalidade} · {t.escola} (SENAI-{t.dr}) · CTM {ctms[t.ctm]} · {br(t.inicio)} a {br(t.fim)}</p>
+                    </div>
+                    <span className="text-lg font-semibold tabular-nums">{n(t.matriculas)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </SheetContent>
+        </Sheet>
       </section>
     </div>
   )
 }
 
 // Relatório no formato da planilha: DR (linha de Total + uma por modalidade) × CTM (matrículas), com total geral
-export function VisaoRelatorio({ f, onChange }: { f: FiltroPeriodo; onChange: (f: FiltroPeriodo) => void }) {
+export function VisaoRelatorio({ f }: { f: FiltroPeriodo; onChange?: (f: FiltroPeriodo) => void }) {
   const ts = filtrar(f)
   const cols = Object.keys(ctms).filter((uf) => ts.some((t) => t.ctm === uf))
   const porDr = Object.entries(ts.reduce<Record<string, TurmaMatricula[]>>((r, t) => ((r[t.dr] ??= []).push(t), r), {}))
@@ -158,47 +182,43 @@ export function VisaoRelatorio({ f, onChange }: { f: FiltroPeriodo; onChange: (f
   }
   return (
     <div className="space-y-6">
-      <FiltrosPeriodo f={f} onChange={onChange} />
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold">Matrículas por DR, modalidade e CTM</h2>
         <Button variant="outline" onClick={exportar}><FileDown /> Exportar planilha</Button>
       </div>
       <div className="overflow-x-auto rounded-[1.25rem] border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>DR</TableHead>
-              <TableHead>Modalidade</TableHead>
-              {cols.map((c) => <TableHead key={c} className="text-right">{ctms[c]}</TableHead>)}
-              <TableHead className="text-right">Total</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {porDr.map((d) => (
-              <Fragment key={d.dr}>
-                <TableRow className="bg-muted/40">
-                  <TableCell className="font-semibold">{d.dr}</TableCell>
-                  <TableCell className="font-semibold">Total</TableCell>
-                  {cols.map((c) => <TableCell key={c} className="text-right font-semibold tabular-nums">{cel(d.g, c)}</TableCell>)}
-                  <TableCell className="text-right font-bold tabular-nums">{n(d.total)}</TableCell>
-                </TableRow>
-                {d.modalidades.map((m) => (
-                  <TableRow key={`${d.dr}-${m.m}`}>
-                    <TableCell />
-                    <TableCell className="text-sm">{m.m}</TableCell>
-                    {cols.map((c) => <TableCell key={c} className="text-right tabular-nums">{cel(m.g, c)}</TableCell>)}
-                    <TableCell className="text-right font-semibold tabular-nums">{n(soma(m.g))}</TableCell>
-                  </TableRow>
-                ))}
-              </Fragment>
-            ))}
-            <TableRow className="border-t-2">
-              <TableCell className="font-bold" colSpan={2}>Total</TableCell>
-              {cols.map((c) => <TableCell key={c} className="text-right font-bold tabular-nums">{n(soma(ts.filter((t) => t.ctm === c)))}</TableCell>)}
-              <TableCell className="text-right text-base font-bold tabular-nums">{n(soma(ts))}</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b text-xs text-muted-foreground">
+              <th className="px-5 py-3 text-left font-semibold">DR / modalidade</th>
+              {cols.map((c) => <th key={c} className="px-4 py-3 text-right font-semibold">CTM {ctms[c]}</th>)}
+              <th className="bg-muted/50 px-5 py-3 text-right font-semibold text-foreground">Total</th>
+            </tr>
+          </thead>
+          {porDr.map((d) => (
+            <tbody key={d.dr} className="border-b last:border-b-0">
+              <tr className="bg-muted/30">
+                <td className="px-5 py-3 font-semibold">SENAI-{d.dr}</td>
+                {cols.map((c) => <td key={c} className="px-4 py-3 text-right font-semibold tabular-nums">{cel(d.g, c) || <span className="text-muted-foreground/50">—</span>}</td>)}
+                <td className="bg-muted/50 px-5 py-3 text-right font-bold tabular-nums">{n(d.total)}</td>
+              </tr>
+              {d.modalidades.map((m) => (
+                <tr key={m.m} className="text-muted-foreground">
+                  <td className="py-2 pr-5 pl-9">{m.m}</td>
+                  {cols.map((c) => <td key={c} className="px-4 py-2 text-right tabular-nums">{cel(m.g, c) || <span className="text-muted-foreground/40">—</span>}</td>)}
+                  <td className="bg-muted/50 px-5 py-2 text-right font-medium text-foreground tabular-nums">{n(soma(m.g))}</td>
+                </tr>
+              ))}
+            </tbody>
+          ))}
+          <tfoot>
+            <tr className="border-t-2 bg-muted/50">
+              <td className="px-5 py-3 font-bold">Total geral</td>
+              {cols.map((c) => <td key={c} className="px-4 py-3 text-right font-bold tabular-nums">{n(soma(ts.filter((t) => t.ctm === c)))}</td>)}
+              <td className="px-5 py-3 text-right text-base font-bold tabular-nums">{n(soma(ts))}</td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground"><BookOpen className="size-3.5" /> Dados fictícios, no formato do relatório de matrículas das CTMs.</p>
     </div>

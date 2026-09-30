@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { VisaoOperacional, VisaoRelatorio, filtroInicial, type FiltroPeriodo } from './painel-dn-visoes'
+import { FiltrosPeriodo, VisaoOperacional, VisaoRelatorio, filtroInicial, type FiltroPeriodo } from './painel-dn-visoes'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   BadgeCheck, Boxes, Building2, CalendarClock, CircleDollarSign, Clock, FileSignature, FileSpreadsheet, Handshake, Percent, Send, Video,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { semestresDisponiveis } from '@/lib/matriculas'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/wf'
 import { BarList, Bloco, BlocoTitulo, Kpi, Linha, brl, brlCurto, isoDeBr } from '@/components/wf/dash'
@@ -42,13 +44,6 @@ function VisaoGeralDn() {
 
       <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
         <Bloco>
-          <BlocoTitulo titulo="Portfólio por CTM" sub="Cursos cadastrados" acao={ver('/portfolio/aprovacoes')} />
-          <BarList itens={porCtm.map(([uf, n]) => ({ rotulo: `SENAI-${uf}`, valor: n, tom: 'orange' }))} />
-        </Bloco>
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
-        <Bloco>
           <BlocoTitulo titulo="Editais" sub="Cursos, DRs credenciados e período" acao={ver('/editais')} />
           <div className="divide-y">
             {editais.map((e) => {
@@ -70,6 +65,11 @@ function VisaoGeralDn() {
             })}
           </div>
         </Bloco>
+        <div className="grid content-start gap-5">
+        <Bloco>
+          <BlocoTitulo titulo="Portfólio por CTM" sub="Cursos cadastrados" acao={ver('/portfolio/aprovacoes')} />
+          <BarList itens={porCtm.map(([uf, n]) => ({ rotulo: `SENAI-${uf}`, valor: n, tom: 'orange' }))} />
+        </Bloco>
         <Bloco>
           <BlocoTitulo titulo="Cobertura dos DRs" sub="DRs ativos credenciadas em algum edital" acao={ver('/drs')} />
           <div className="mb-4 flex items-end gap-2">
@@ -85,6 +85,7 @@ function VisaoGeralDn() {
             {!semEdital.length && <span className="text-sm text-muted-foreground">Todas cobertas.</span>}
           </div>
         </Bloco>
+        </div>
       </div>
     </div>
   )
@@ -98,13 +99,28 @@ export function PainelDn() {
   const [filtro, setFiltro] = useState<FiltroPeriodo>(filtroInicial)
   return (
     <div className="space-y-5">
-      <PageHeader title="Painel" />
+      <PageHeader title="Painel" tituloOculto />
       <Tabs value={aba} onValueChange={(v) => setParams({ aba: v as string }, { replace: true })}>
+        {/* Filtros de período e CTM (valem para a aba toda) à direita das abas */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
         <TabsList>
           <TabsTrigger value="geral">Visão geral</TabsTrigger>
           <TabsTrigger value="operacional">Visão operacional</TabsTrigger>
           <TabsTrigger value="relatorio">Relatório</TabsTrigger>
         </TabsList>
+        {aba !== 'geral' && <FiltrosPeriodo f={filtro} onChange={setFiltro} compacto />}
+        </div>
+        {/* Filtro rápido por semestre, logo acima do conteúdo */}
+        {aba !== 'geral' && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-3">
+            {['todos', ...semestresDisponiveis].map((sem) => (
+              <button key={sem} type="button" aria-pressed={filtro.periodo === sem} onClick={() => setFiltro({ ...filtro, periodo: sem })}
+                className={cn('rounded-full border bg-card px-3 py-1 text-sm transition-colors', filtro.periodo === sem ? 'border-primary bg-accent font-semibold text-accent-foreground' : 'hover:bg-muted')}>
+                {sem === 'todos' ? 'Todo o período' : `${sem.replace('/', ' · ')}º semestre`}
+              </button>
+            ))}
+          </div>
+        )}
         <TabsContent value="geral" className="pt-4"><VisaoGeralDn /></TabsContent>
         <TabsContent value="operacional" className="pt-4"><VisaoOperacional f={filtro} onChange={setFiltro} /></TabsContent>
         <TabsContent value="relatorio" className="pt-4"><VisaoRelatorio f={filtro} onChange={setFiltro} /></TabsContent>

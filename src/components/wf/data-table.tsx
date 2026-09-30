@@ -4,7 +4,7 @@ import { Popover } from '@base-ui/react/popover'
 import { useLocation } from 'react-router-dom'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
-import { useSheetLateralAberta } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, useSheetLateralAberta } from '@/components/ui/sheet'
 import { useSidebarOpcional } from '@/components/ui/sidebar'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -194,7 +194,6 @@ export function DataTable<T extends { id: string }>({
   // Expandir tabela: só aparece quando a tabela tem rolagem horizontal (muitas colunas); fecha o menu lateral para dar espaço.
   const menu = useSidebarOpcional()
   const areaRef = useRef<HTMLDivElement>(null)
-  const barraRef = useRef<HTMLDivElement>(null) // âncora do popover de filtros: ele ocupa a largura da tabela
   const [transborda, setTransborda] = useState(false)
   const [expandindo, setExpandindo] = useState(false)
   const expandida = expandindo && !!menu && !menu.open // se o menu for reaberto por outro caminho, volta ao normal
@@ -272,9 +271,69 @@ export function DataTable<T extends { id: string }>({
     menu.setOpen(expandida)
     setExpandindo(!expandida)
   }
+  // Filtros: com muitos (mais de 4) abrem num painel lateral; com poucos, num dropdown normal. Um filtro por linha.
+  const grande = all.length > 4
+  const [painel, setPainel] = useState(false)
+  const corpoFiltros = (
+    <div className="divide-y">
+      {salvos.length > 0 && (
+        <div className="space-y-2 py-4">
+          <span className="text-xs font-semibold text-muted-foreground">Filtros salvos</span>
+          <div className="flex flex-wrap gap-1.5">
+            {salvos.map((f) => (
+              <span key={f.nome} className={cn('inline-flex items-center gap-1 rounded-full border py-1 pr-1 pl-3 text-xs', igual(f.filtros) && 'border-primary bg-accent font-semibold text-accent-foreground')}>
+                <button type="button" onClick={() => setFilters(f.filtros)}>★ {f.nome}</button>
+                <button type="button" aria-label={`Apagar filtro ${f.nome}`} onClick={() => gravar(salvos.filter((x) => x.nome !== f.nome))} className="rounded-full p-0.5 text-muted-foreground hover:bg-muted">
+                  <X className="size-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      {all.map((d) => {
+        const opts = options[d.label]
+        const atual = filters[d.label] || ''
+        const set = (v: string) => setFilters({ ...filters, [d.label]: v })
+        return (
+          <div key={d.label} className="space-y-2 py-4">
+            <span className="text-xs font-semibold text-foreground">{d.label}</span>
+            {ehData(opts) ? (
+              <FiltroData valor={atual} set={set} />
+            ) : ehValor(opts) ? (
+              <FiltroValor opts={opts} valor={atual} set={set} />
+            ) : ehBusca(d.label, opts.length) || ehCodigo(opts) ? (
+              <FiltroBusca opts={opts} valor={atual} set={set} />
+            ) : (
+              // Pílulas com seleção múltipla (clicar de novo desmarca).
+              <div className="flex flex-wrap gap-1.5">
+                {opts.map((o) => {
+                  const marcado = partes(atual).includes(o)
+                  const alternar = () => set((marcado ? partes(atual).filter((x) => x !== o) : [...partes(atual), o]).join(SEP))
+                  return (
+                    <button key={o} type="button" aria-pressed={marcado} onClick={alternar}
+                      className={cn('rounded-full border px-3 py-1 text-xs transition-colors', marcado ? 'border-primary bg-accent font-semibold text-accent-foreground' : 'hover:bg-muted')}>
+                      {o}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+  const rodapeSalvar = nAtivos > 0 && (
+    <div className="flex items-center gap-2 bg-muted/40 px-4 py-3">
+      <Input value={nomeSalvo} onChange={(e) => setNomeSalvo(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && salvarAtual()} placeholder="Nome do filtro (ex.: Em risco Panvel)" className="h-8 bg-card text-xs" />
+      <Button size="sm" onClick={salvarAtual}>Salvar filtro</Button>
+    </div>
+  )
+
   return (
     <div data-slot="data-table" className="overflow-hidden rounded-lg border bg-card">
-      <div ref={barraRef} className="flex flex-wrap items-center gap-2 border-b p-3">
+      <div className="flex flex-wrap items-center gap-2 border-b p-3">
         {hasSearch && (
           <div className="relative w-96">
             <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -291,14 +350,40 @@ export function DataTable<T extends { id: string }>({
             ))}
           </div>
         )}
-        {all.length > 0 && (
+        {all.length > 0 && (grande ? (
+          // Muitos filtros: painel lateral (side sheet) à direita, filtros um embaixo do outro
+          <>
+            <Button variant="outline" onClick={() => setPainel(true)}>
+              <SlidersHorizontal /> Filtros{nAtivos > 0 && <span className="text-muted-foreground tabular-nums">({nAtivos})</span>}
+            </Button>
+            <Sheet open={painel} onOpenChange={setPainel}>
+              <SheetContent className="w-full gap-0 p-0 sm:max-w-md">
+                <SheetHeader className="border-b px-5 py-4">
+                  <SheetTitle className="flex items-center gap-2 text-lg">
+                    Filtros{nAtivos > 0 && <span className="rounded-full bg-primary px-1.5 text-xs text-primary-foreground tabular-nums">{nAtivos}</span>}
+                  </SheetTitle>
+                  <SheetDescription className="sr-only">Filtros da tabela</SheetDescription>
+                </SheetHeader>
+                <div className="min-h-0 flex-1 overflow-y-auto px-5">{corpoFiltros}</div>
+                <div className="border-t">
+                  {rodapeSalvar}
+                  <div className="flex items-center justify-between gap-2 px-5 py-3">
+                    <Button variant="ghost" disabled={!nAtivos} motivo="Nenhum filtro aplicado" onClick={() => setFilters({})}>Limpar</Button>
+                    <Button onClick={() => setPainel(false)}>Ver {visible.length} resultado{visible.length === 1 ? '' : 's'}</Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </>
+        ) : (
+          // Poucos filtros: dropdown normal, preso ao botão
           <Popover.Root>
             <Popover.Trigger render={<Button variant="outline" />}>
               <SlidersHorizontal /> Filtros{nAtivos > 0 && <span className="text-muted-foreground tabular-nums">({nAtivos})</span>}
             </Popover.Trigger>
             <Popover.Portal>
-              <Popover.Positioner anchor={barraRef} align="start" side="bottom" sideOffset={0} className="z-50">
-                <Popover.Popup className="w-[var(--anchor-width)] overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-lg outline-none">
+              <Popover.Positioner align="start" side="bottom" sideOffset={6} className="z-50">
+                <Popover.Popup className="w-[22rem] overflow-hidden rounded-2xl border bg-popover text-popover-foreground shadow-lg outline-none">
                   <div className="flex items-center justify-between border-b px-4 py-3">
                     <span className="flex items-center gap-2 text-sm font-semibold">
                       <SlidersHorizontal className="size-4 text-muted-foreground" /> Filtros
@@ -308,80 +393,13 @@ export function DataTable<T extends { id: string }>({
                       Limpar
                     </button>
                   </div>
-                  <div className="max-h-[60vh] space-y-5 overflow-y-auto p-4">
-                    {salvos.length > 0 && (
-                      <div className="space-y-2 border-b pb-4">
-                        <span className="text-xs font-semibold text-muted-foreground">Filtros salvos</span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {salvos.map((f) => (
-                            <span key={f.nome} className={cn('inline-flex items-center gap-1 rounded-full border py-1 pr-1 pl-3 text-xs', igual(f.filtros) && 'border-primary bg-accent font-semibold text-accent-foreground')}>
-                              <button type="button" onClick={() => setFilters(f.filtros)}>★ {f.nome}</button>
-                              <button type="button" aria-label={`Apagar filtro ${f.nome}`} onClick={() => gravar(salvos.filter((x) => x.nome !== f.nome))} className="rounded-full p-0.5 text-muted-foreground hover:bg-muted">
-                                <X className="size-3" />
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {/* Filtros em 4 colunas separadas por linhas verticais */}
-                    <div className="relative">
-                    {/* Linhas das colunas de ponta a ponta (continuam mesmo quando a coluna não tem filtro embaixo) */}
-                    {['left-1/4', 'left-1/2', 'left-3/4'].map((l) => <span key={l} aria-hidden className={cn('pointer-events-none absolute inset-y-0 border-l', l)} />)}
-                    <div className="grid grid-cols-4 [&>*]:px-5 [&>*]:py-2.5 [&>*:nth-child(4n+1)]:pl-0 [&>*:nth-child(4n)]:pr-0">
-                    {all.map((d) => {
-                      const opts = options[d.label]
-                      const atual = filters[d.label] || ''
-                      const set = (v: string) => setFilters({ ...filters, [d.label]: v })
-                      return (
-                        <div key={d.label} className="space-y-2">
-                          <span className="text-xs font-semibold text-foreground">{d.label}</span>
-                          {ehData(opts) ? (
-                            <FiltroData valor={atual} set={set} />
-                          ) : ehValor(opts) ? (
-                            <FiltroValor opts={opts} valor={atual} set={set} />
-                          ) : ehBusca(d.label, opts.length) || ehCodigo(opts) ? (
-                            <FiltroBusca opts={opts} valor={atual} set={set} />
-                          ) : (
-                            // Pílulas com seleção múltipla (clicar de novo desmarca).
-                            <div className="flex flex-wrap gap-1.5">
-                              {opts.map((o) => {
-                                const marcado = partes(atual).includes(o)
-                                const alternar = () => set((marcado ? partes(atual).filter((x) => x !== o) : [...partes(atual), o]).join(SEP))
-                                return (
-                                  <button
-                                    key={o}
-                                    type="button"
-                                    aria-pressed={marcado}
-                                    onClick={alternar}
-                                    className={cn(
-                                      'rounded-full border px-3 py-1 text-xs transition-colors',
-                                      marcado ? 'border-primary bg-accent font-semibold text-accent-foreground' : 'hover:bg-muted',
-                                    )}
-                                  >
-                                    {o}
-                                  </button>
-                                )
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                    </div>
-                    </div>
-                  </div>
-                  {nAtivos > 0 && (
-                    <div className="flex items-center gap-2 border-t bg-muted/40 px-4 py-3">
-                      <Input value={nomeSalvo} onChange={(e) => setNomeSalvo(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && salvarAtual()} placeholder="Nome do filtro (ex.: Em risco Panvel)" className="h-8 bg-card text-xs" />
-                      <Button size="sm" onClick={salvarAtual}>Salvar filtro</Button>
-                    </div>
-                  )}
+                  <div className="max-h-[60vh] overflow-y-auto px-4">{corpoFiltros}</div>
+                  {rodapeSalvar && <div className="border-t">{rodapeSalvar}</div>}
                 </Popover.Popup>
               </Popover.Positioner>
             </Popover.Portal>
           </Popover.Root>
-        )}
+        ))}
         {menu && (transborda || expandida) && !emCards && (
           // Ativo (tabela expandida, menu fechado): botão na cor principal. Sem o seletor Cards/Tabela, ele encosta na direita.
           <Button type="button" variant={expandida ? 'default' : 'outline'} className={cn('order-last', !cards && 'ml-auto')} aria-pressed={expandida} title={expandida ? 'Recolher tabela (reabre o menu lateral)' : 'Expandir tabela (fecha o menu lateral)'} onClick={alternarExpandir}>

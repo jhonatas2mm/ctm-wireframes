@@ -216,6 +216,8 @@ html.ds-senai [data-slot="dialog-overlay"] {
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
 }
+/* Sheets laterais (detalhes, filtros): sem escurecer nem desfocar o fundo */
+html.ds-senai [data-slot="sheet-overlay"][data-lateral] { background-color: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
 /* Cabeçalho da tabela no vidro */
 /* Botão primário com leve gradiente laranja */
 html.ds-senai button.bg-primary, html.ds-senai a.bg-primary { background-image: none; }
@@ -224,12 +226,12 @@ html.ds-senai button.bg-primary:hover, html.ds-senai a.bg-primary:hover { backgr
 /* Menu lateral: item ativo em pílula laranja-clara (em vez de preto); sidebar em vidro */
 html.ds-senai [data-slot="sidebar-menu-button"] { border-radius: 0.75rem; }
 html.ds-senai [data-slot="sidebar-menu-button"][data-active] { background-color: transparent; color: #C23C0D; font-weight: 600; }
-/* Sheets flutuantes estilo iOS: não encostam nas bordas, todos os cantos arredondados */
-html.ds-senai [data-slot="sheet-content"] { border: 1px solid rgb(255 255 255 / 0.8); border-radius: 1.75rem; overflow: hidden; }
-html.ds-senai [data-slot="sheet-content"][data-side="right"] { top: 0.75rem; bottom: 0.75rem; right: 0.75rem; height: auto; }
-html.ds-senai [data-slot="sheet-content"][data-side="left"] { top: 0.75rem; bottom: 0.75rem; left: 0.75rem; height: auto; }
-html.ds-senai [data-slot="sheet-content"][data-side="bottom"] { left: 0.75rem; right: 0.75rem; bottom: 0.75rem; }
-html.ds-senai [data-slot="sheet-content"][data-side="top"] { left: 0.75rem; right: 0.75rem; top: 0.75rem; }
+/* Sheets colados nas bordas da tela: só o lado de dentro é arredondado */
+html.ds-senai [data-slot="sheet-content"] { overflow: hidden; }
+html.ds-senai [data-slot="sheet-content"][data-side="right"] { border-radius: 1.25rem 0 0 1.25rem; }
+html.ds-senai [data-slot="sheet-content"][data-side="left"] { border-radius: 0 1.25rem 1.25rem 0; }
+html.ds-senai [data-slot="sheet-content"][data-side="bottom"] { border-radius: 1.25rem 1.25rem 0 0; }
+html.ds-senai [data-slot="sheet-content"][data-side="top"] { border-radius: 0 0 1.25rem 1.25rem; }
 
 /* Menu lateral flutuante (variant="floating"): afastado das bordas, cantos grandes, sem sombra */
 html.ds-senai [data-slot="sidebar-container"] { padding: 0.75rem 0 0.75rem 0.75rem; }
