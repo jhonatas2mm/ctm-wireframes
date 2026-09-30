@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { AttachField, DataTable, PageHeader, Req, RowAction, type Column, useConfirmar } from '@/components/wf'
 import { StatusPropostaBadge } from '@/components/wf/status-proposta'
 import {
-  alertaPrazo, alunosProposta, aprovadosAtuais, contratoAtivo, dataBr, inicioPrevisto, nomeParte, saldoTaa, statusProposta,
+  alertaPrazo, aprovadosAtuais, contratoAtivo, dataBr, inicioPrevisto, nomeParte, saldoTaa, statusProposta,
   totalProposta, useContratos, useCursos, useCursosDr, useProdutos, useTurmas, valorNoEdital,
   type Contrato, type CursoProposta, type Produto, type Registro, type StatusProposta,
 } from '@/lib/mock'
@@ -84,9 +84,8 @@ const colunas = (taas: Contrato[]): Column<Produto>[] => [
     },
   },
   { header: 'Vigência', value: (p) => (p.vigenciaInicio ? `${p.vigenciaInicio} a ${p.vigenciaFim}` : '—'), className: 'tabular-nums text-muted-foreground' },
-  { header: 'Estudantes', value: (p) => alunosProposta(p), className: 'text-right tabular-nums' },
   { header: 'Valor', value: (p) => brl(totalProposta(p)), className: 'text-right tabular-nums' },
-  { header: 'Responsável', value: (p) => p.responsavel?.nome ?? '—', filter: true },
+  { header: 'Supervisor', value: (p) => p.equipeTecnica?.supervisor ?? '—', filter: true },
 ]
 
 // Propostas (CTM): a CTM cria a proposta, vinculada a um TAA/contrato aceito, depois que a negociação (fora do
