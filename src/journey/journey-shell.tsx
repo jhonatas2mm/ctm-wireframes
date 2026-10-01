@@ -1,7 +1,8 @@
 import type React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, RotateCcw, Lock, Workflow, X, ChevronUp, Monitor } from 'lucide-react'
+import { ChevronDown, ChevronLeft, ChevronRight, ExternalLink, MapPinPlus, MessageSquareText, Sparkles, RotateCcw, Lock, Workflow, X, ChevronUp, Monitor, Map } from 'lucide-react'
 import { MapaProcesso } from '@/pages/processo'
+import MapaSolucao from '@/pages/mapa'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -138,6 +139,7 @@ export function JourneyShell() {
 
   const go = (id: string, s: number) => setState({ pid, jid: id, step: s })
   const [mapa, setMapa] = useState(false)
+  const [mapaSolucao, setMapaSolucao] = useState(false)
   // Painel de perfil/jornada minimizável (lembrado no navegador).
   const [largura, setLarguraState] = useState(() => { try { return Number(localStorage.getItem('resolucao-prototipo')) || RESOLUCAO_PADRAO } catch { return RESOLUCAO_PADRAO } })
   const setLargura = (v: number) => { setLarguraState(v); try { localStorage.setItem('resolucao-prototipo', String(v)) } catch { /* sem armazenamento */ } }
@@ -404,6 +406,10 @@ export function JourneyShell() {
               <Button size="sm" variant="ghost" className={cn(mapa && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} onClick={() => setMapa(!mapa)}>
                 <Workflow /> Mapa do processo
               </Button>
+              {/* Mapa da solução (visão geral dos módulos): painel da casca */}
+              <Button size="sm" variant="ghost" className={cn(mapaSolucao && 'bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900')} onClick={() => setMapaSolucao(!mapaSolucao)}>
+                <Map /> Mapa da solução
+              </Button>
               {canEdit && (
                 <Button
                   disabled={device !== 'desktop'} motivo="Disponível só na visão desktop"
@@ -589,6 +595,18 @@ export function JourneyShell() {
                 setMapa(false)
               }}
             />
+          </div>
+        </div>
+      )}
+      {/* Painel do Mapa da solução (da casca, sobre o protótipo) */}
+      {mapaSolucao && (
+        <div className="fixed inset-3 z-40 flex flex-col overflow-hidden rounded-xl border bg-white shadow-2xl">
+          <div className="flex shrink-0 items-center justify-between border-b px-4 py-2.5 bg-slate-50">
+            <span className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Map className="size-4" /> Mapa da solução</span>
+            <Button size="icon-sm" variant="ghost" aria-label="Fechar mapa" onClick={() => setMapaSolucao(false)}><X /></Button>
+          </div>
+          <div className="flex-1 overflow-hidden bg-white">
+            <MapaSolucao />
           </div>
         </div>
       )}
